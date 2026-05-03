@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>متجر فيكسا (Vexa Store) | خصوصية مطلقة وتسوق آمن</title>
+    <style>
+      /* Smooth hiding scrollbar for standard category layout */
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+      
+      /* Simplified lightweight animations to prevent lagging ("بعلق") on mobile */
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-spin-slow {
+        animation: spin-slow 20s linear infinite;
+      }
+
+      /* Lightweight static background with subtle gradient - NO lagging redrawing */
+      .magical-bg {
+        background-color: #fafaf9;
+        background-image: 
+          radial-gradient(at 10% 20%, rgba(129, 140, 248, 0.04) 0px, transparent 50%),
+          radial-gradient(at 80% 80%, rgba(251, 113, 133, 0.03) 0px, transparent 50%);
+        background-attachment: fixed;
+      }
+
+      /* High performance hover effects */
+      .glow-on-hover {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .glow-on-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.1), 0 4px 6px -2px rgba(139, 92, 246, 0.05);
+      }
+
+      .text-glow {
+        text-shadow: 0 0 8px rgba(168, 85, 247, 0.2);
+      }
+      
+      @keyframes sparkle {
+        0%, 100% { transform: scale(0.8); opacity: 0.4; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+      }
+      .sparkle-dot {
+        animation: sparkle 4s infinite ease-in-out;
+      }
+
+      /* Smooth fade-in for chat */
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.3s ease-out forwards;
+      }
+    </style>
+  </head>
+  <body class="bg-stone-50 magical-bg">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
