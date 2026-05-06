@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
@@ -5,6 +6,7 @@ import { ProductList } from './components/ProductList';
 import { Checkout } from './components/Checkout';
 import { AdminPanel } from './components/AdminPanel';
 import { AdviceHub } from './components/AdviceHub';
+import { MyOrders } from './components/MyOrders';
 import { VexaAiAssistant } from './components/VexaAiAssistant';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { ShieldCheck, Lock, Heart, Mail } from 'lucide-react';
@@ -13,43 +15,26 @@ const AppContent: React.FC = () => {
   const { currentView, language } = useShop();
   const isArabic = language === 'ar';
 
-  // Render the appropriate component based on the current active view
   const renderView = () => {
     switch (currentView) {
-      case 'shop':
-        return <ProductList />;
-      case 'checkout':
-        return <Checkout />;
-      case 'advice':
-        return <AdviceHub />;
-      case 'admin':
-        return <AdminPanel />;
-      default:
-        return <ProductList />;
+      case 'shop':     return <ProductList />;
+      case 'checkout': return <Checkout />;
+      case 'advice':   return <AdviceHub />;
+      case 'admin':    return <AdminPanel />;
+      case 'orders':   return <MyOrders />;
+      default:         return <ProductList />;
     }
   };
 
   return (
     <div className="min-h-screen bg-[#050101] text-stone-900 flex flex-col font-sans" dir={isArabic ? 'rtl' : 'ltr'}>
-      {/* Persistent Navigation Header */}
       <Navbar />
-      
-      {/* Vexa AI Smart Consultant (Floating Button & Chat) */}
       <VexaAiAssistant />
-
-      {/* Sirr-style floating WhatsApp shortcut */}
       <FloatingWhatsApp />
+      <main className="vexa-page-shell flex-grow">{renderView()}</main>
 
-      {/* Main Content Area */}
-      <main className="vexa-page-shell flex-grow">
-        {renderView()}
-      </main>
-
-      {/* Professional Discrete Footer */}
       <footer className="bg-stone-900 text-stone-300 border-t border-stone-800 py-12 mt-auto">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-3 gap-8">
-          
-          {/* Column 1: Store Brand & Guarantee */}
           <div className="space-y-4">
             <h3 className="text-xl font-black tracking-wider bg-gradient-to-r from-indigo-400 via-purple-400 to-rose-300 bg-clip-text text-transparent">
               VEXA STORE
@@ -65,7 +50,6 @@ const AppContent: React.FC = () => {
             </div>
           </div>
 
-          {/* Column 2: Quick Info */}
           <div className="space-y-3">
             <h4 className="text-sm font-bold text-white flex items-center gap-1.5 border-b border-stone-800 pb-2">
               <Heart size={14} className="text-rose-500" /> {isArabic ? 'معلومات تهمك' : 'Important Info'}
@@ -86,38 +70,30 @@ const AppContent: React.FC = () => {
             </ul>
           </div>
 
-          {/* Column 3: Contact & Support */}
           <div className="space-y-4">
-            {/* Dynamic language detection for hours and WhatsApp */}
             {(() => {
               const title = isArabic ? 'خدمة الدعم الفني 📞' : 'Customer Support 📞';
               const workingHoursTitle = isArabic ? 'ساعات العمل:' : 'Working Hours:';
               const workingHoursText = isArabic ? 'الإثنين إلى السبت، ٨:٠٠ صباحاً - ٦:٠٠ مساءً' : 'Monday - Saturday, 8:00 AM - 6:00 PM';
               const whatsappBtnText = isArabic ? 'الدعم الفني عبر واتساب' : 'WhatsApp Live Chat';
-              const description = isArabic 
+              const description = isArabic
                 ? 'فريق الدعم الفني في متجر فيكسا متواجد لمساعدتكم والإجابة على أي استفسارات تتعلق بالمنتجات، الطلبات، أو الشحن بسرية تامة.'
                 : 'Vexa Store support team is available to assist you and answer any inquiries regarding products, orders, or shipping with absolute privacy.';
-              const waText = isArabic 
+              const waText = isArabic
                 ? encodeURIComponent('مرحباً متجر فيكسا، أرغب في الاستفسار عن المنتجات أو المساعدة في طلبي بكل خصوصية.')
                 : encodeURIComponent('Hello Vexa Store, I would like to inquire about products or need assistance with an order with full privacy.');
-              
+
               return (
                 <>
                   <h4 className="text-sm font-bold text-white flex items-center gap-1.5 border-b border-stone-800 pb-2">
                     <Mail size={14} className="text-purple-400" /> {title}
                   </h4>
-                  <p className="text-xs text-stone-400 leading-relaxed font-medium">
-                    {description}
-                  </p>
-                  
-                  {/* Working Hours */}
+                  <p className="text-xs text-stone-400 leading-relaxed font-medium">{description}</p>
                   <div className="bg-stone-800/40 border border-stone-800 p-3 rounded-xl space-y-1">
                     <span className="text-[11px] font-bold text-indigo-400 block">{workingHoursTitle}</span>
                     <span className="text-xs font-bold text-stone-200 block" dir={isArabic ? 'rtl' : 'ltr'}>{workingHoursText}</span>
                   </div>
-
-                  {/* WhatsApp Direct Button */}
-                  <a 
+                  <a
                     href={`https://wa.me/96176730767?text=${waText}`}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -129,13 +105,12 @@ const AppContent: React.FC = () => {
                     </svg>
                     {whatsappBtnText}
                   </a>
-
                   <div className="flex flex-col gap-1 pt-1 text-xs">
                     <a href="mailto:Vexastore72@gmail.com" className="hover:text-indigo-400 font-bold flex items-center gap-1 underline" dir="ltr">
                       Vexastore72@gmail.com
                     </a>
                     <span className="text-[10px] text-stone-500 block">
-                      {isArabic 
+                      {isArabic
                         ? 'تنبيه: هذا الموقع للأزواج والبالغين فقط. استخدامك للموقع يمثل موافقتك على شروط الخصوصية التامة.'
                         : 'Notice: This website is strictly for couples and adults (+18) only. Your use implies full agreement to our privacy terms.'}
                     </span>
@@ -146,7 +121,6 @@ const AppContent: React.FC = () => {
           </div>
         </div>
 
-        {/* Bottom copyright bar */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-t border-stone-800 mt-10 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-500 font-medium">
           <p>© {new Date().getFullYear()} Vexa Store. {isArabic ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}</p>
           <div className="flex items-center gap-4">
