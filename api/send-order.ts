@@ -1,9 +1,8 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const CHAT_ID = '8790079700';
 
-export default async function handler(req: VercelRequest, res: VercelResponse) {
+export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -28,9 +27,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     '📦 <b>المنتجات:</b>',
     order.products,
     '',
-    `💰 <b>المجموع:</b> ${order.totalPrice}`,
+    `💵 <b>سعر المنتجات:</b> ${order.subtotalPrice}`,
+    `🚚 <b>رسوم التوصيل:</b> $5.00 USD`,
+    `💰 <b>المجموع الكلي:</b> ${order.totalPrice}`,
     `📊 <b>الحالة:</b> ${order.status}`,
   ];
+
   const text = lines.join('\n');
 
   try {
