@@ -1,3 +1,10 @@
+
+export interface ProductVariant {
+  name: string;
+  nameEn: string;
+  options: string[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -12,11 +19,13 @@ export interface Product {
   reviewsCount: number;
   stock: number;
   isNew?: boolean;
+  variants?: ProductVariant[];
 }
 
 export interface CartItem {
   product: Product;
   quantity: number;
+  selectedVariant?: Record<string, string>;
 }
 
 export interface CustomerInfo {
