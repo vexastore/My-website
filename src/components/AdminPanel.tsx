@@ -28,7 +28,7 @@ export const AdminPanel: React.FC = () => {
     rating: 5.0, reviewsCount: 1, stock: 10, isNew: false
   });
 
-  const getAdminPassword = () => localStorage.getItem('vexa_admin_password') || 'jojoxxjjlljjll';
+  const getAdminPassword = () => localStorage.getItem('vexa_admin_password') || 'Jojoxxjjlljjll';
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -118,7 +118,7 @@ export const AdminPanel: React.FC = () => {
     reader.onload = () => {
       const img = new window.Image();
       img.onload = () => {
-        const maxSize = 900;
+        const maxSize = 500;
         const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(img.width * scale));
@@ -126,7 +126,7 @@ export const AdminPanel: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) { reject(new Error('Canvas not supported')); return; }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.72));
+        resolve(canvas.toDataURL('image/jpeg', 0.55));
       };
       img.onerror = () => reject(new Error('Could not load image'));
       img.src = String(reader.result || '');
@@ -142,7 +142,7 @@ export const AdminPanel: React.FC = () => {
     try {
       const uploaded = await Promise.all(files.map(compressImageFile));
       setProdForm(prev => {
-        const next = [...(prev.images || []), ...uploaded].slice(0, 8);
+        const next = [...(prev.images || []), ...uploaded].slice(0, 6);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
     } catch { alert('حدث خطأ في قراءة الصور.'); }
@@ -460,7 +460,7 @@ export const AdminPanel: React.FC = () => {
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                 </label>
                 {prodForm.images && prodForm.images.length > 0 && (
-                  <div className="grid grid-cols-4 gap-2 mt-3">
+                  <div className="grid grid-cols-3 gap-2 mt-3">
                     {prodForm.images.map((img, idx) => (
                       <div key={idx} className={`relative rounded-xl overflow-hidden border-2 transition ${prodForm.image === img ? 'border-white' : 'border-transparent'}`}>
                         <img src={img} alt="" className="w-full aspect-square object-cover" />
