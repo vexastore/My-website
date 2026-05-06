@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
-import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, BookOpen } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, BookOpen, ClipboardList } from 'lucide-react';
 
 const VexaLogo = () => (
   <div className="relative flex h-[58px] w-[58px] select-none items-center justify-center overflow-hidden rounded-full border border-red-500/70 bg-black shadow-[0_0_22px_rgba(255,0,33,0.45)] sm:h-[68px] sm:w-[68px]" aria-label="Vexa Store Lebanon logo">
