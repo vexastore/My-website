@@ -399,7 +399,7 @@ export const Navbar: React.FC = () => {
                   </button>
                 ))}
 
-                <div className="mt-8 grid grid-cols-2 gap-3 border-t border-white/10 pt-8">
+                <div className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-8">
                   <button
                     onClick={() => {
                       setView('advice');
@@ -408,6 +408,15 @@ export const Navbar: React.FC = () => {
                     className="flex items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black"
                   >
                     <BookOpen size={15} /> {isArabic ? 'نصائح' : 'Blog'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setView('orders');
+                      setIsMenuOpen(false);
+                    }}
+                    className="flex items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black"
+                  >
+                    <ClipboardList size={15} /> {isArabic ? 'طلباتي' : 'Orders'}
                   </button>
                   <button
                     onClick={() => {
