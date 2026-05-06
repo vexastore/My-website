@@ -49,9 +49,8 @@ export const Checkout: React.FC = () => {
     };
 
     try {
-      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-VEXA_STORE_PLACEHOLDER_URL/exec';
-      await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST', mode: 'no-cors',
+      await fetch('/api/send-order', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
       });
