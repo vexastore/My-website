@@ -1,17 +1,18 @@
+
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { CustomerInfo, Order } from '../types';
 import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap } from 'lucide-react';
 
 const LEBANESE_CITIES = [
-  'بيروت', 'طرابلس', 'صيدا', 'صور', 'جونيه', 'زحلة', 'النبطية',
-  'بعلبك', 'جبيل', 'عاليه', 'ضبيه', 'بعبدا', 'المتن', 'كسروان',
-  'الشوف', 'عكار', 'بنت جبيل', 'مرجعيون', 'راشيا', 'البقاع الغربي'
+  'بيروت', 'طرابلس', 'صيدا', 'صور', 'جونية', 'زحلة', 'النبطية', 'بعلبك', 'جبيل', 'عاليه',
+  'بشري', 'بنت جبيل', 'مرجعيون', 'كسروان', 'راشيا', 'الشوف', 'المتن', 'بعبدا', 'الضاحية الجنوبية'
 ];
 
 export const Checkout: React.FC = () => {
-  const { cart, updateCartQuantity, removeFromCart, getCartTotal, getCartItemsCount, placeOrder, setView, language } = useShop();
+  const { cart, updateCartQuantity, removeFromCart, getCartTotal, getDeliveryFee, getCartItemsCount, placeOrder, setView, language } = useShop();
   const isArabic = language === 'ar';
+  const deliveryFee = getDeliveryFee();
 
   const [form, setForm] = useState<CustomerInfo>({ name: '', phone: '', city: '', address: '', notes: '' });
   const [orderComplete, setOrderComplete] = useState<Order | null>(null);
@@ -38,14 +39,28 @@ export const Checkout: React.FC = () => {
     setIsSubmitting(true);
 
     const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    const itemsString = cart.map(i => `${i.product.name} (x${i.quantity})`).join(' | ');
+    const subtotal = getCartTotal();
+    const total = subtotal + deliveryFee;
+
+    const itemsString = cart.map(i => {
+      const variantStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
+        ? ' [' + Object.entries(i.selectedVariant).map(([k, v]) => `${k}:${v}`).join(', ') + ']'
+        : '';
+      return `${i.product.name} (x${i.quantity})${variantStr}`;
+    }).join(' | ');
+
     const orderData = {
-      orderId, date: new Date().toLocaleString('ar-LB'),
-      customerName: form.name, customerPhone: form.phone,
-      customerCity: form.city, customerAddress: form.address,
+      orderId,
+      date: new Date().toLocaleString('ar-LB'),
+      customerName: form.name,
+      customerPhone: form.phone,
+      customerCity: form.city,
+      customerAddress: form.address,
       customerNotes: form.notes || '—',
       products: itemsString,
-      totalPrice: getCartTotal() + ' USD', status: 'جديد'
+      subtotalPrice: subtotal.toFixed(2) + ' USD',
+      totalPrice: total.toFixed(2) + ' USD',
+      status: 'جديد'
     };
 
     try {
@@ -55,7 +70,7 @@ export const Checkout: React.FC = () => {
         body: JSON.stringify(orderData)
       });
       await new Promise(r => setTimeout(r, 600));
-    } catch { /* silent fail — local state still works */ } finally {
+    } catch { /* silent */ } finally {
       const placed = placeOrder(form);
       setIsSubmitting(false);
       if (placed) setOrderComplete(placed);
@@ -75,11 +90,8 @@ export const Checkout: React.FC = () => {
           <ShoppingBag size={32} />
         </div>
         <h2 className="text-xl font-bold text-stone-800 mb-2">{isArabic ? 'سلتك فارغة!' : 'Your cart is empty!'}</h2>
-        <p className="text-stone-500 text-sm max-w-sm mx-auto mb-8">
-          {isArabic ? 'لم تضف أي منتج بعد.' : 'You have not added any products yet.'}
-        </p>
-        <button onClick={() => setView('shop')}
-          className="px-6 py-3 bg-black text-white font-bold rounded-xl transition hover:bg-stone-800">
+        <p className="text-stone-500 text-sm max-w-sm mx-auto mb-8">{isArabic ? 'لم تضف أي منتجات بعد.' : 'You have not added any products yet.'}</p>
+        <button onClick={() => setView('shop')} className="px-6 py-3 bg-black text-white font-bold rounded-xl transition hover:bg-stone-800">
           {isArabic ? 'تصفح المنتجات' : 'Browse products'}
         </button>
       </div>
@@ -87,6 +99,7 @@ export const Checkout: React.FC = () => {
   }
 
   if (orderComplete) {
+    const subtotal = orderComplete.total - deliveryFee;
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-12 text-center sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
         <div className="bg-white border border-emerald-100 shadow-lg rounded-2xl p-6 sm:p-8">
@@ -100,7 +113,6 @@ export const Checkout: React.FC = () => {
             {isArabic ? 'رقم الطلب:' : 'Order ID:'} {orderComplete.id}
           </p>
 
-          {/* Same day delivery badge */}
           <div className="flex items-center justify-center gap-2 mt-4 mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5 mx-auto max-w-xs">
             <Zap size={15} className="text-emerald-600 flex-shrink-0" />
             <p className="text-xs font-black text-emerald-700">
@@ -108,23 +120,40 @@ export const Checkout: React.FC = () => {
             </p>
           </div>
 
-          <div className="text-right border-t border-b border-stone-100 py-4 mb-6 space-y-2">
-            {/* Order items with images */}
-            <div className="space-y-3 mb-4">
-              {orderComplete.items.map((item, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div className="h-14 w-14 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200">
-                    {item.product.image
-                      ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
-                      : <div className="h-full w-full bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center text-white text-xs font-black">V</div>
-                    }
-                  </div>
-                  <div className="flex-1 text-right">
-                    <p className="text-sm font-bold text-stone-800">{isArabic ? item.product.name : (item.product.nameEn || item.product.name)}</p>
-                    <p className="text-xs text-stone-500">× {item.quantity} — ${(item.product.price * item.quantity).toFixed(2)} USD</p>
-                  </div>
+          <div className="text-right border-t border-b border-stone-100 py-4 mb-6 space-y-3">
+            {orderComplete.items.map((item, i) => (
+              <div key={i} className="flex items-center gap-3">
+                <div className="h-14 w-14 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200">
+                  {item.product.image
+                    ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" loading="eager" />
+                    : <div className="h-full w-full bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center text-white text-xs font-black">V</div>
+                  }
                 </div>
-              ))}
+                <div className="flex-1 text-right">
+                  <p className="text-sm font-bold text-stone-800">{isArabic ? item.product.name : (item.product.nameEn || item.product.name)}</p>
+                  {item.selectedVariant && Object.keys(item.selectedVariant).length > 0 && (
+                    <p className="text-xs text-purple-600 font-medium">
+                      {Object.entries(item.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(' | ')}
+                    </p>
+                  )}
+                  <p className="text-xs text-stone-500">× {item.quantity} — ${(item.product.price * item.quantity).toFixed(2)} USD</p>
+                </div>
+              </div>
+            ))}
+
+            <div className="space-y-1.5 pt-3 border-t border-stone-100">
+              <div className="flex justify-between text-sm">
+                <span className="text-stone-500">{isArabic ? 'سعر المنتجات' : 'Products'}</span>
+                <span className="font-bold text-stone-800">${subtotal.toFixed(2)} USD</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-stone-500">{isArabic ? 'رسوم التوصيل' : 'Delivery fee'}</span>
+                <span className="font-bold text-stone-800">$5.00 USD</span>
+              </div>
+              <div className="flex justify-between text-sm pt-2 border-t border-dashed border-stone-200">
+                <span className="font-bold text-stone-700">{isArabic ? 'المجموع (دفع عند الاستلام):' : 'Total (Cash on delivery):'}</span>
+                <span className="font-extrabold text-purple-700 text-base">${orderComplete.total.toFixed(2)} USD</span>
+              </div>
             </div>
 
             <div className="flex justify-between text-sm pt-2 border-t border-stone-100">
@@ -139,18 +168,12 @@ export const Checkout: React.FC = () => {
               <span className="text-stone-500">{isArabic ? 'العنوان:' : 'Address:'}</span>
               <span className="font-bold text-stone-800">{orderComplete.customer.city}، {orderComplete.customer.address}</span>
             </div>
-            <div className="flex justify-between text-sm pt-2 border-t border-dashed border-stone-200 mt-2">
-              <span className="font-bold text-stone-700">{isArabic ? 'المجموع (دفع عند الاستلام):' : 'Total (Cash on delivery):'}</span>
-              <span className="font-extrabold text-purple-700 text-base">${orderComplete.total.toFixed(2)} USD</span>
-            </div>
           </div>
 
           <div className="bg-stone-50 rounded-xl p-4 mb-6 flex items-start gap-3 border border-stone-200 text-right">
             <Truck className="text-purple-600 h-5 w-5 mt-0.5 flex-shrink-0" />
             <p className="text-[11px] text-stone-500 leading-relaxed">
-              {isArabic
-                ? 'سيتواصل معك فريقنا خلال ساعات لتنسيق التوصيل. التغليف سري ومحكم بالكامل.'
-                : 'Our team will contact you within hours to coordinate delivery. Fully discreet packaging.'}
+              {isArabic ? 'سيتواصل معك فريقنا خلال ساعات لتنسيق التوصيل. تغليف سري بالكامل وبدون اسم المحتوى.' : 'Our team will contact you within hours to coordinate delivery. Fully discreet packaging.'}
             </p>
           </div>
 
@@ -164,6 +187,9 @@ export const Checkout: React.FC = () => {
     );
   }
 
+  const subtotal = getCartTotal();
+  const total = subtotal + deliveryFee;
+
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="mb-6">
@@ -174,7 +200,6 @@ export const Checkout: React.FC = () => {
         </button>
       </div>
 
-      {/* Same day delivery notice */}
       <div className="flex items-center gap-2 mb-5 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5">
         <Zap size={15} className="text-emerald-600 flex-shrink-0" />
         <p className="text-xs font-black text-emerald-700">
@@ -183,7 +208,6 @@ export const Checkout: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        {/* Cart items */}
         <div className="lg:col-span-7 space-y-4">
           <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-6 shadow-sm">
             <h2 className="text-lg font-black text-stone-800 mb-4 pb-3 border-b border-stone-100 flex items-center gap-2">
@@ -192,10 +216,10 @@ export const Checkout: React.FC = () => {
             </h2>
             <div className="divide-y divide-stone-100">
               {cart.map(item => (
-                <div key={item.product.id} className="py-4 flex items-center gap-4 first:pt-0">
+                <div key={item.product.id + JSON.stringify(item.selectedVariant)} className="py-4 flex items-center gap-4 first:pt-0">
                   <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg overflow-hidden bg-stone-100 border flex-shrink-0">
                     {item.product.image
-                      ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
+                      ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" loading="eager" />
                       : <div className="h-full w-full bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center text-white font-black text-sm">V</div>
                     }
                   </div>
@@ -203,6 +227,11 @@ export const Checkout: React.FC = () => {
                     <h4 className="font-bold text-stone-800 text-xs sm:text-sm line-clamp-1">
                       {isArabic ? item.product.name : (item.product.nameEn || item.product.name)}
                     </h4>
+                    {item.selectedVariant && Object.keys(item.selectedVariant).length > 0 && (
+                      <p className="text-[10px] font-bold text-purple-600 mt-0.5">
+                        {Object.entries(item.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(' | ')}
+                      </p>
+                    )}
                     <p className="text-[10px] font-medium text-purple-600 mt-0.5">{item.product.category}</p>
                     <div className="text-xs font-extrabold text-stone-700 mt-1">${item.product.price.toFixed(2)} USD</div>
                   </div>
@@ -226,17 +255,30 @@ export const Checkout: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className="border-t border-stone-200 mt-4 pt-4 flex items-center justify-between">
-              <span className="text-sm font-bold text-stone-500">{isArabic ? 'المجموع:' : 'Total:'}</span>
-              <span className="text-xl font-black text-stone-900">${getCartTotal().toFixed(2)} USD</span>
+
+            <div className="border-t border-stone-200 mt-4 pt-4 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-stone-500">{isArabic ? 'سعر المنتجات:' : 'Products:'}</span>
+                <span className="text-sm font-bold text-stone-700">${subtotal.toFixed(2)} USD</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-stone-500 flex items-center gap-1">
+                  <Truck size={13} className="text-purple-500" />
+                  {isArabic ? 'رسوم التوصيل:' : 'Delivery fee:'}
+                </span>
+                <span className="text-sm font-bold text-stone-700">$5.00 USD</span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-stone-200">
+                <span className="text-base font-black text-stone-800">{isArabic ? 'المجموع الكلي:' : 'Total:'}</span>
+                <span className="text-xl font-black text-stone-900">${total.toFixed(2)} USD</span>
+              </div>
             </div>
-            <p className="text-[10px] text-emerald-600 font-bold mt-1">
-              {isArabic ? '+ شحن مجاني وتغليف سري' : '+ Free discreet shipping'}
+            <p className="text-[10px] text-stone-400 font-bold mt-1">
+              {isArabic ? 'دفع نقداً عند الاستلام — تغليف سري' : 'Cash on delivery — discreet packaging'}
             </p>
           </div>
         </div>
 
-        {/* Order form */}
         <div className="lg:col-span-5">
           <form onSubmit={handleSubmit} className="bg-white border border-stone-200 rounded-xl p-4 sm:p-6 shadow-sm space-y-4">
             <h3 className="text-lg font-black text-stone-800 flex items-center gap-2 pb-3 border-b border-stone-100">
@@ -244,7 +286,6 @@ export const Checkout: React.FC = () => {
               {isArabic ? 'بيانات الشحن' : 'Delivery details'}
             </h3>
 
-            {/* Name */}
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'الاسم الكامل *' : 'Full name *'}</label>
               <input type="text" name="name" value={form.name} onChange={handleInputChange}
@@ -253,7 +294,6 @@ export const Checkout: React.FC = () => {
               {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
             </div>
 
-            {/* Phone */}
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'رقم الهاتف (لبناني) *' : 'Phone (Lebanese) *'}</label>
               <input type="tel" name="phone" value={form.phone} onChange={handleInputChange} dir="ltr"
@@ -262,7 +302,6 @@ export const Checkout: React.FC = () => {
               {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
             </div>
 
-            {/* City dropdown */}
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'المدينة *' : 'City *'}</label>
               <select name="city" value={form.city} onChange={handleInputChange}
@@ -274,7 +313,6 @@ export const Checkout: React.FC = () => {
               {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
             </div>
 
-            {/* Address */}
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'العنوان بالتفصيل *' : 'Full address *'}</label>
               <input type="text" name="address" value={form.address} onChange={handleInputChange}
@@ -283,7 +321,6 @@ export const Checkout: React.FC = () => {
               {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
             </div>
 
-            {/* Notes */}
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'ملاحظات (اختياري)' : 'Notes (optional)'}</label>
               <textarea name="notes" value={form.notes} onChange={handleInputChange} rows={2}
@@ -295,7 +332,7 @@ export const Checkout: React.FC = () => {
               className="w-full py-4 bg-black text-white font-black text-sm rounded-xl hover:bg-stone-800 transition active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2">
               {isSubmitting
                 ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />{isArabic ? 'جاري الإرسال...' : 'Placing order...'}</>
-                : <>{isArabic ? `تأكيد الطلب — $${getCartTotal().toFixed(2)} USD` : `Place order — $${getCartTotal().toFixed(2)} USD`}</>}
+                : <>{isArabic ? `تأكيد الطلب — $${total.toFixed(2)} USD` : `Place order — $${total.toFixed(2)} USD`}</>}
             </button>
 
             <p className="text-center text-[10px] text-stone-400">
