@@ -1,11 +1,16 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
-import { Order, Product } from '../types';
+import { Order, Product, CategoryId } from '../types';
 import {
   Package, Truck, CheckCircle2, XCircle, Trash2, Phone, MapPin,
   Calendar, DollarSign, ClipboardList, Edit, Plus, X, Upload,
   LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown
 } from 'lucide-react';
+import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
+
+const ALL_CATEGORY_IDS: CategoryId[] = [
+  'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie', 'BDSM', 'Holiday Collection', 'New Arrivals'
+];
 
 export const AdminPanel: React.FC = () => {
   const { orders, products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder } = useShop();
@@ -22,21 +27,20 @@ export const AdminPanel: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
-  // Single name + single description form
   const [prodForm, setProdForm] = useState<{
     name: string;
     description: string;
     price: number;
     image: string;
     images: string[];
-    category: Product['category'];
+    categories: CategoryId[];
     rating: number;
     reviewsCount: number;
     stock: number;
     isNew: boolean;
   }>({
     name: '', description: '', price: 0,
-    image: '', images: [], category: 'Sex Toys',
+    image: '', images: [], categories: ['Sex Toys'],
     rating: 5.0, reviewsCount: 1, stock: 10, isNew: false
   });
 
@@ -82,33 +86,40 @@ export const AdminPanel: React.FC = () => {
     cancelled: <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 border border-red-200 px-2 rounded-full text-[10px] font-bold"><XCircle size={12} /> ملغي</span>,
   }[status]);
 
-  const getCategoryNameAr = (catId: string) => ({
-    'Sex Toys': 'ألعاب زوجية', 'Vibrators': 'هزازات', 'Male Toys': 'ألعاب رجالية',
-    'Dildos': 'ديلدو', 'Lingerie': 'لانجري', 'BDSM': 'ألعاب القوة',
-    'Holiday Collection': 'مجموعة الأعياد', 'New Arrivals': 'وصل حديثاً'
-  }[catId] || catId);
+  const toggleCategory = (catId: CategoryId) => {
+    setProdForm(prev => {
+      const already = prev.categories.includes(catId);
+      if (already && prev.categories.length === 1) return prev;
+      const next = already
+        ? prev.categories.filter(c => c !== catId)
+        : [...prev.categories, catId];
+      return { ...prev, categories: next };
+    });
+  };
 
   const openAddModal = () => {
     setEditingProduct(null);
-    setProdForm({ name: '', description: '', price: 0, image: '', images: [], category: 'Sex Toys', rating: 5.0, reviewsCount: Math.floor(Math.random() * 10) + 1, stock: 10, isNew: true });
+    setProdForm({ name: '', description: '', price: 0, image: '', images: [], categories: ['Sex Toys'], rating: 5.0, reviewsCount: Math.floor(Math.random() * 10) + 1, stock: 10, isNew: true });
     setIsModalOpen(true);
   };
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
     const imgs = product.images?.length ? product.images : product.image ? [product.image] : [];
+    const cats = getProductCategories(product) as CategoryId[];
     setProdForm({
       name: product.name || product.nameEn,
       description: product.description || product.descriptionEn,
       price: product.price, image: product.image,
-      images: imgs, category: product.category,
+      images: imgs,
+      categories: cats.length ? cats : [product.category],
       rating: product.rating, reviewsCount: product.reviewsCount,
       stock: product.stock, isNew: product.isNew || false
     });
     setIsModalOpen(true);
   };
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
     setProdForm(prev => ({ ...prev, [name]: type === 'number' ? parseFloat(value) : value }));
   };
@@ -117,7 +128,6 @@ export const AdminPanel: React.FC = () => {
     setProdForm(prev => ({ ...prev, [e.target.name]: e.target.checked }));
   };
 
-  // ── Image upload & reorder ───────────────────────────────────────────────
   const compressImageFile = (file: File) => new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -147,18 +157,11 @@ export const AdminPanel: React.FC = () => {
     try {
       const uploaded = await Promise.all(files.map(compressImageFile));
       setProdForm(prev => {
-        const next = [...(prev.images || []), ...uploaded].slice(0, 6);
+        const next = [...(prev.images || []), ...uploaded].slice(0, 20);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
     } catch { alert('حدث خطأ في قراءة الصور.'); }
     finally { e.target.value = ''; }
-  };
-
-  const handleSetMainImage = (image: string) => {
-    setProdForm(prev => ({
-      ...prev, image,
-      images: [image, ...(prev.images || []).filter(i => i !== image)]
-    }));
   };
 
   const handleRemoveImage = (image: string) => {
@@ -168,7 +171,6 @@ export const AdminPanel: React.FC = () => {
     });
   };
 
-  // Move image up (earlier in array = shown first)
   const moveImageUp = (idx: number) => {
     if (idx === 0) return;
     setProdForm(prev => {
@@ -178,7 +180,6 @@ export const AdminPanel: React.FC = () => {
     });
   };
 
-  // Move image down
   const moveImageDown = (idx: number) => {
     setProdForm(prev => {
       const imgs = [...(prev.images || [])];
@@ -194,7 +195,7 @@ export const AdminPanel: React.FC = () => {
       alert('يرجى ملء: الاسم، السعر، والصورة.');
       return;
     }
-    // Set both Arabic and English fields to the same value
+    const primaryCat = prodForm.categories[0] || 'Sex Toys';
     const productData: Omit<Product, 'id'> = {
       name: prodForm.name,
       nameEn: prodForm.name,
@@ -203,7 +204,8 @@ export const AdminPanel: React.FC = () => {
       price: prodForm.price,
       image: prodForm.image || prodForm.images?.[0] || '',
       images: prodForm.images?.length ? prodForm.images : prodForm.image ? [prodForm.image] : [],
-      category: prodForm.category,
+      category: primaryCat as CategoryId,
+      categories: prodForm.categories,
       rating: prodForm.rating,
       reviewsCount: prodForm.reviewsCount,
       stock: prodForm.stock,
@@ -234,7 +236,6 @@ export const AdminPanel: React.FC = () => {
     finally { setIsDeleting(null); }
   };
 
-  // ── Login ────────────────────────────────────────────────────────────────
   if (!isAdminUnlocked) {
     return (
       <div className="mx-auto flex min-h-[70vh] w-full max-w-7xl items-center justify-center px-4 py-12 font-sans" dir="rtl">
@@ -260,7 +261,6 @@ export const AdminPanel: React.FC = () => {
     );
   }
 
-  // ── Main Panel ───────────────────────────────────────────────────────────
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 font-sans" dir="rtl">
       <div className="flex items-center justify-between mb-6">
@@ -274,7 +274,6 @@ export const AdminPanel: React.FC = () => {
         </button>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 mb-6 border-b border-white/10">
         {(['orders', 'products'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
@@ -284,7 +283,6 @@ export const AdminPanel: React.FC = () => {
         ))}
       </div>
 
-      {/* ── ORDERS ─────────────────────────────────────────────────────────── */}
       {activeTab === 'orders' && (
         <div className="space-y-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -334,7 +332,6 @@ export const AdminPanel: React.FC = () => {
                 </button>
               </div>
 
-              {/* Order items with images */}
               <div className="flex gap-2 flex-wrap">
                 {order.items.map((item, i) => (
                   <div key={i} className="flex items-center gap-2 bg-white/5 rounded-xl px-2 py-1.5">
@@ -370,7 +367,6 @@ export const AdminPanel: React.FC = () => {
         </div>
       )}
 
-      {/* ── PRODUCTS ────────────────────────────────────────────────────────── */}
       {activeTab === 'products' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -382,42 +378,51 @@ export const AdminPanel: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {products.map(product => (
-              <div key={product.id} className="bg-[#0d0d0d] border border-white/10 rounded-xl overflow-hidden">
-                <div className="aspect-video bg-stone-900 relative">
-                  {product.image
-                    ? <img src={product.image} alt={product.name} className="w-full h-full object-cover opacity-80" />
-                    : <div className="w-full h-full bg-gradient-to-br from-purple-700 to-rose-600 flex items-center justify-center text-white font-black text-xl">V</div>
-                  }
-                  <span className="absolute top-2 right-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    {getCategoryNameAr(product.category)}
-                  </span>
-                </div>
-                <div className="p-4 space-y-2">
-                  <h3 className="text-sm font-black text-white line-clamp-1">{product.name}</h3>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-black text-emerald-400">${product.price}</span>
-                    <span className={`font-bold ${product.stock <= 3 ? 'text-red-400' : 'text-white/40'}`}>مخزون: {product.stock}</span>
+            {products.map(product => {
+              const cats = getProductCategories(product);
+              return (
+                <div key={product.id} className="bg-[#0d0d0d] border border-white/10 rounded-xl overflow-hidden">
+                  <div className="aspect-video bg-stone-900 relative">
+                    {product.image
+                      ? <img src={product.image} alt={product.name} className="w-full h-full object-cover opacity-80" />
+                      : <div className="w-full h-full bg-gradient-to-br from-purple-700 to-rose-600 flex items-center justify-center text-white font-black text-xl">V</div>
+                    }
+                    <div className="absolute top-2 right-2 flex flex-wrap gap-1">
+                      {cats.slice(0, 2).map(catId => (
+                        <span key={catId} className="bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+                          {getCategoryName(catId, 'ar')}
+                        </span>
+                      ))}
+                      {cats.length > 2 && (
+                        <span className="bg-black/60 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">+{cats.length - 2}</span>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex gap-2 pt-1">
-                    <button onClick={() => openEditModal(product)}
-                      className="flex-1 flex items-center justify-center gap-1 border border-white/15 text-white/60 hover:text-white py-2 rounded-lg text-xs font-bold transition">
-                      <Edit size={13} /> تعديل
-                    </button>
-                    <button onClick={() => handleDeleteProduct(product.id, product.name)}
-                      disabled={isDeleting === product.id}
-                      className="flex items-center justify-center gap-1 border border-red-500/20 text-red-500/60 hover:text-red-400 py-2 px-3 rounded-lg text-xs font-bold transition disabled:opacity-50">
-                      {isDeleting === product.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
-                    </button>
+                  <div className="p-4 space-y-2">
+                    <h3 className="text-sm font-black text-white line-clamp-1">{product.name}</h3>
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-black text-emerald-400">${product.price}</span>
+                      <span className={`font-bold ${product.stock <= 3 ? 'text-red-400' : 'text-white/40'}`}>مخزون: {product.stock}</span>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button onClick={() => openEditModal(product)}
+                        className="flex-1 flex items-center justify-center gap-1 border border-white/15 text-white/60 hover:text-white py-2 rounded-lg text-xs font-bold transition">
+                        <Edit size={13} /> تعديل
+                      </button>
+                      <button onClick={() => handleDeleteProduct(product.id, product.name)}
+                        disabled={isDeleting === product.id}
+                        className="flex items-center justify-center gap-1 border border-red-500/20 text-red-500/60 hover:text-red-400 py-2 px-3 rounded-lg text-xs font-bold transition disabled:opacity-50">
+                        {isDeleting === product.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
 
-      {/* ── MODAL ────────────────────────────────────────────────────────────── */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[10001] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4"
           onClick={() => !isSaving && setIsModalOpen(false)}>
@@ -434,7 +439,6 @@ export const AdminPanel: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveProduct} className="p-5 space-y-5">
-              {/* Single name */}
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">اسم المنتج *</label>
                 <input name="name" value={prodForm.name} onChange={handleFormChange} required
@@ -442,7 +446,6 @@ export const AdminPanel: React.FC = () => {
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
               </div>
 
-              {/* Single description */}
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">الوصف</label>
                 <textarea name="description" value={prodForm.description} onChange={handleFormChange} rows={3}
@@ -450,8 +453,7 @@ export const AdminPanel: React.FC = () => {
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition resize-none" />
               </div>
 
-              {/* Price / Stock / Category */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">السعر (USD) *</label>
                   <input name="price" type="number" min="0" step="0.01" value={prodForm.price} onChange={handleFormChange} required
@@ -462,21 +464,45 @@ export const AdminPanel: React.FC = () => {
                   <input name="stock" type="number" min="0" value={prodForm.stock} onChange={handleFormChange}
                     className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
                 </div>
-                <div>
-                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">الفئة</label>
-                  <select name="category" value={prodForm.category} onChange={handleFormChange}
-                    className="w-full bg-[#111] border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition">
-                    {['Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie', 'BDSM', 'Holiday Collection', 'New Arrivals'].map(cat => (
-                      <option key={cat} value={cat}>{getCategoryNameAr(cat)}</option>
-                    ))}
-                  </select>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
+                  الفئات (اختر واحدة أو أكثر) *
+                  <span className="text-white/30 font-normal mr-2">— الفئة الأولى هي الرئيسية</span>
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {ALL_CATEGORY_IDS.map(catId => {
+                    const cat = CATEGORIES.find(c => c.id === catId);
+                    const isSelected = prodForm.categories.includes(catId);
+                    const isFirst = prodForm.categories[0] === catId;
+                    return (
+                      <button
+                        key={catId}
+                        type="button"
+                        onClick={() => toggleCategory(catId)}
+                        className={`relative flex items-center gap-2 px-3 py-2.5 rounded-xl border text-right text-xs font-bold transition ${
+                          isSelected
+                            ? 'border-white bg-white/10 text-white'
+                            : 'border-white/10 text-white/40 hover:text-white hover:border-white/30'
+                        }`}
+                      >
+                        <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition ${isSelected ? 'bg-white border-white' : 'border-white/20'}`}>
+                          {isSelected && <span className="text-black text-[10px] font-black">✓</span>}
+                        </span>
+                        <span className="flex-1">{cat?.name.ar || catId}</span>
+                        {isFirst && isSelected && (
+                          <span className="text-[8px] font-black bg-white/20 px-1 rounded">رئيسية</span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
-              {/* Image URL */}
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">رابط الصورة الرئيسية *</label>
-                <input name="image" value={prodForm.image} onChange={e => {
+                <input value={prodForm.image} onChange={e => {
                   const val = e.target.value;
                   setProdForm(prev => ({
                     ...prev, image: val,
@@ -486,40 +512,40 @@ export const AdminPanel: React.FC = () => {
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
               </div>
 
-              {/* Upload images */}
               <div>
-                <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">ارفع صور إضافية من جهازك</label>
+                <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
+                  ارفع صور إضافية (حتى 20 صور)
+                </label>
                 <label className="flex items-center gap-2 border border-dashed border-white/20 hover:border-white/40 text-white/50 hover:text-white/70 px-4 py-3 rounded-xl cursor-pointer transition text-sm font-bold">
-                  <Upload size={16} /> اختر صور (حتى 6 صور)
+                  <Upload size={16} /> اختر صور من الجهاز
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+
                 </label>
               </div>
 
-              {/* Image gallery with reorder */}
               {prodForm.images && prodForm.images.length > 0 && (
                 <div>
                   <p className="text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
-                    ترتيب الصور — السهم للأعلى/الأسفل لتغيير الترتيب — الأولى هي صورة الواجهة
+                    ترتيب الصور — الأولى هي صورة الواجهة
                   </p>
                   <div className="space-y-2">
                     {prodForm.images.map((img, idx) => (
                       <div key={idx} className={`flex items-center gap-3 rounded-xl border p-2 transition ${idx === 0 ? 'border-white/40 bg-white/5' : 'border-white/10'}`}>
                         <div className="h-14 w-14 rounded-lg overflow-hidden flex-shrink-0 bg-white/10">
-                          <img src={img} alt="" className="h-full w-full object-cover" />
+                          <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          {idx === 0 && <span className="text-[10px] font-black text-white bg-white/20 px-2 py-0.5 rounded-full">صورة الواجهة ⭐</span>}
-                          <p className="text-[10px] text-white/40 mt-1 truncate">{idx + 1} / {prodForm.images!.length}</p>
+                          {idx === 0 && <span className="text-[10px] font-black text-white bg-white/20 px-2 py-0.5 rounded-full">واجهة ⭐</span>}
+                          <p className="text-[10px] text-white/40 mt-1">{idx + 1}/{prodForm.images!.length}</p>
                         </div>
-                        {/* Reorder buttons */}
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-0.5">
                           <button type="button" onClick={() => moveImageUp(idx)} disabled={idx === 0}
                             className="p-1 text-white/40 hover:text-white disabled:opacity-20 transition">
-                            <ChevronUp size={16} />
+                            <ChevronUp size={15} />
                           </button>
                           <button type="button" onClick={() => moveImageDown(idx)} disabled={idx === prodForm.images!.length - 1}
                             className="p-1 text-white/40 hover:text-white disabled:opacity-20 transition">
-                            <ChevronDown size={16} />
+                            <ChevronDown size={15} />
                           </button>
                         </div>
                         <button type="button" onClick={() => handleRemoveImage(img)}
@@ -532,7 +558,6 @@ export const AdminPanel: React.FC = () => {
                 </div>
               )}
 
-              {/* Is New */}
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" name="isNew" checked={prodForm.isNew || false} onChange={handleCheckboxChange} className="w-4 h-4 rounded" />
                 <span className="text-sm font-bold text-white/70">وضع علامة "جديد" على هذا المنتج</span>
