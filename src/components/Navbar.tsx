@@ -163,32 +163,31 @@ export const Navbar: React.FC = () => {
   ];
 
   const sexToysSubmenu = [
-    { name: 'Dildos', category: 'Dildos' },
-    { name: 'Vibrators', category: 'Vibrators' },
-    { name: 'Butt plugs', category: 'Dildos' },
-    { name: 'Bondage - BDSM', category: 'BDSM' },
-    { name: 'Sex Dolls', category: 'Sex Toys' },
-    { name: 'Anal Toys', category: 'Dildos' },
-    { name: 'Strap ons', category: 'Dildos' },
-    { name: 'Kegel balls', category: 'Sex Toys' },
-    { name: 'Sexual Enhancers & Delays', category: 'Male Toys' },
-    { name: 'Penis Pumps & Sleeves', category: 'Male Toys' },
-    { name: 'Poppers', category: 'Sex Toys' },
-    { name: 'Fuck Machines', category: 'Sex Toys' }
+    { ar: 'ديلدو', en: 'Dildos', category: 'Dildos' },
+    { ar: 'هزازات', en: 'Vibrators', category: 'Vibrators' },
+    { ar: 'سدادة شرجية', en: 'Butt Plugs', category: 'Butt Plugs' },
+    { ar: 'عبودية', en: 'Bondage', category: 'Bondage' },
+    { ar: 'دمى جنسية', en: 'Sex Dolls', category: 'Sex Dolls' },
+    { ar: 'ألعاب الشرج', en: 'Anal Toys', category: 'Anal Toys' },
+    { ar: 'أحزمة', en: 'Strap-ons', category: 'Strap Ons' },
+    { ar: 'كرات كيجل', en: 'Kegel Balls', category: 'Kegel Balls' },
+    { ar: 'معززات ومؤخرات جنسية', en: 'Sexual Enhancers & Delays', category: 'Sexual Enhancers' },
+    { ar: 'مضخات وأكمام القضيب', en: 'Penis Pumps & Sleeves', category: 'Penis Pumps' },
+    { ar: 'بوبرز', en: 'Poppers', category: 'Poppers' },
+    { ar: 'ماكينات الجنس', en: 'Sex Machines', category: 'Sex Machines' }
   ];
 
   const maleToysSubmenu = [
-    { name: 'Cock Rings', category: 'Male Toys' },
-    { name: 'Penis Pumps And Sleeves', category: 'Male Toys' },
-    { name: 'Sex Dolls', category: 'Sex Toys' },
-    { name: 'Fleshlights', category: 'Male Toys' },
-    { name: "Chastity's", category: 'BDSM' },
-    { name: 'Masturbators', category: 'Male Toys' },
-    { name: 'Anal Toys', category: 'Dildos' },
-    { name: 'Sexual Enhancers & Delays', category: 'Male Toys' },
-    { name: 'Sex Machines', category: 'Sex Toys' },
-    { name: 'Lubricants', category: 'Sex Toys' },
-    { name: 'Poppers', category: 'Sex Toys' }
+    { ar: 'حلقات القضيب', en: 'Cock Rings', category: 'Cock Rings' },
+    { ar: 'مضخات القضيب والأكمام', en: 'Penis Pumps & Sleeves', category: 'Penis Pumps' },
+    { ar: 'دمى جنسية', en: 'Sex Dolls', category: 'Sex Dolls' },
+    { ar: 'أدوات الاستمناء', en: 'Masturbators', category: 'Masturbators' },
+    { ar: 'العفة', en: "Chastity", category: 'Chastity' },
+    { ar: 'ألعاب الشرج', en: 'Anal Toys', category: 'Anal Toys' },
+    { ar: 'معززات ومؤخرات جنسية', en: 'Sexual Enhancers & Delays', category: 'Sexual Enhancers' },
+    { ar: 'ماكينات الجنس', en: 'Sex Machines', category: 'Sex Machines' },
+    { ar: 'مواد التشحيم', en: 'Lubricants', category: 'Lubricants' },
+    { ar: 'بوبرز', en: 'Poppers', category: 'Poppers' }
   ];
 
   const openShopHome = () => {
@@ -359,7 +358,9 @@ export const Navbar: React.FC = () => {
                 <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-4">
                   <span className="flex items-center gap-3 text-[24px] font-light tracking-wide text-white sm:text-3xl">
                     {activeSubmenu === 'Male Toys' && <span className="text-white/90">←</span>}
-                    {activeSubmenu}
+                    {isArabic
+                      ? (activeSubmenu === 'Male Toys' ? 'ألعاب رجالية' : 'ألعاب زوجية')
+                      : activeSubmenu}
                   </span>
                   <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/25">Collections</span>
                 </div>
@@ -367,11 +368,11 @@ export const Navbar: React.FC = () => {
                 <div className="flex flex-col divide-y divide-white/5">
                   {(activeSubmenu === 'Male Toys' ? maleToysSubmenu : sexToysSubmenu).map((item) => (
                     <button
-                      key={item.name}
+                      key={item.en}
                       onClick={() => handleSubmenuClick(item.category)}
                       className="flex w-full items-center justify-between py-4 text-left text-[24px] font-light tracking-wide text-white transition hover:bg-white/[0.04] hover:text-white/70 sm:py-4.5 sm:text-3xl"
                     >
-                      <span>{item.name}</span>
+                      <span>{isArabic ? item.ar : item.en}</span>
                       <ChevronRight size={24} strokeWidth={1.25} className="text-white/35" />
                     </button>
                   ))}
