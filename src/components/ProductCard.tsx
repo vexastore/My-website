@@ -9,7 +9,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart, cart, language } = useShop();
+  const { addToCart, cart, language, setView } = useShop();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -351,6 +351,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   ? (isArabic ? 'اختر الخيارات أولاً' : 'Select options first')
                   : (isArabic ? `إضافة ${quantity > 1 ? quantity + ' قطع' : ''} للسلة` : `Add${quantity > 1 ? ` ${quantity}` : ''} to cart`)}
               </button>
+
+              {/* Buy Now button */}
+              {product.stock > 0 && remainingStock > 0 && (
+                <button
+                  onClick={() => {
+                    if (Object.keys(product.variants || []).length > 0 && Object.keys(selectedVariants).length !== (product.variants || []).length) {
+                      setVariantError(true);
+                      return;
+                    }
+                    addToCart(product, quantity, Object.keys(selectedVariants).length > 0 ? selectedVariants : undefined);
+                    setIsDetailsOpen(false);
+                    setView('checkout');
+                  }}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black bg-gradient-to-r from-red-600 to-rose-500 text-white hover:from-red-700 hover:to-rose-600 transition active:scale-[0.98] shadow-md"
+                >
+                  <Zap size={17} fill="currentColor" />
+                  {isArabic ? 'شراء الآن' : 'Buy Now'}
+                </button>
+              )}
 
               {/* Delivery Info Accordion */}
               <div className="border-t border-stone-200">
