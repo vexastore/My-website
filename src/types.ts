@@ -5,6 +5,8 @@ export interface ProductVariant {
   options: string[];
 }
 
+export type CategoryId = 'Sex Toys' | 'Vibrators' | 'Male Toys' | 'Dildos' | 'Lingerie' | 'BDSM' | 'Holiday Collection' | 'New Arrivals';
+
 export interface Product {
   id: string;
   name: string;
@@ -14,7 +16,8 @@ export interface Product {
   price: number;
   image: string;
   images?: string[];
-  category: 'Sex Toys' | 'Vibrators' | 'Male Toys' | 'Dildos' | 'Lingerie' | 'BDSM' | 'Holiday Collection' | 'New Arrivals';
+  category: CategoryId;
+  categories?: CategoryId[];
   rating: number;
   reviewsCount: number;
   stock: number;
@@ -31,6 +34,7 @@ export interface CartItem {
 export interface CustomerInfo {
   name: string;
   phone: string;
+  countryCode?: string;
   city: string;
   address: string;
   notes?: string;
