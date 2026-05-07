@@ -2,11 +2,28 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { CustomerInfo, Order } from '../types';
-import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
 
 const LEBANESE_CITIES = [
   'بيروت', 'طرابلس', 'صيدا', 'صور', 'جونية', 'زحلة', 'النبطية', 'بعلبك', 'جبيل', 'عاليه',
   'بشري', 'بنت جبيل', 'مرجعيون', 'كسروان', 'راشيا', 'الشوف', 'المتن', 'بعبدا', 'الضاحية الجنوبية'
+];
+
+const COUNTRY_CODES = [
+  { code: '+961', flag: '🇱🇧', label: 'Lebanon' },
+  { code: '+1', flag: '🇺🇸', label: 'USA/Canada' },
+  { code: '+44', flag: '🇬🇧', label: 'UK' },
+  { code: '+971', flag: '🇦🇪', label: 'UAE' },
+  { code: '+966', flag: '🇸🇦', label: 'Saudi Arabia' },
+  { code: '+962', flag: '🇯🇴', label: 'Jordan' },
+  { code: '+965', flag: '🇰🇼', label: 'Kuwait' },
+  { code: '+974', flag: '🇶🇦', label: 'Qatar' },
+  { code: '+970', flag: '🇵🇸', label: 'Palestine' },
+  { code: '+963', flag: '🇸🇾', label: 'Syria' },
+  { code: '+20', flag: '🇪🇬', label: 'Egypt' },
+  { code: '+49', flag: '🇩🇪', label: 'Germany' },
+  { code: '+33', flag: '🇫🇷', label: 'France' },
+  { code: '+61', flag: '🇦🇺', label: 'Australia' },
 ];
 
 export const Checkout: React.FC = () => {
@@ -14,21 +31,23 @@ export const Checkout: React.FC = () => {
   const isArabic = language === 'ar';
   const deliveryFee = getDeliveryFee();
 
-  const [form, setForm] = useState<CustomerInfo>({ name: '', phone: '', city: '', address: '', notes: '' });
+  const [form, setForm] = useState<CustomerInfo & { countryCode: string }>({
+    name: '', phone: '', countryCode: '+961', city: '', address: '', notes: ''
+  });
   const [orderComplete, setOrderComplete] = useState<Order | null>(null);
-  const [errors, setErrors] = useState<Partial<Record<keyof CustomerInfo, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const validateForm = () => {
-    const newErrors: Partial<Record<keyof CustomerInfo, string>> = {};
+    const newErrors: Partial<Record<string, string>> = {};
     if (!form.name.trim()) newErrors.name = isArabic ? 'الاسم الكامل مطلوب.' : 'Full name is required.';
     if (!form.phone.trim()) {
       newErrors.phone = isArabic ? 'رقم الهاتف مطلوب.' : 'Phone number is required.';
-    } else if (!/^(\+?961|0)?[\s-]?[0-9]{7,8}$/.test(form.phone.trim().replace(/\s|-/g, ''))) {
-      newErrors.phone = isArabic ? 'رقم لبناني غير صحيح (مثال: 03 123 456).' : 'Invalid Lebanese number (e.g. 03 123 456).';
+    } else if (!/^[\d\s\-]{5,15}$/.test(form.phone.trim())) {
+      newErrors.phone = isArabic ? 'رقم الهاتف غير صحيح.' : 'Invalid phone number.';
     }
     if (!form.city.trim()) newErrors.city = isArabic ? 'يرجى اختيار المدينة.' : 'Please select a city.';
-    if (!form.address.trim()) newErrors.address = isArabic ? 'يرجى كتابة العنوان بالتفصيل.' : 'Please enter your full address.';
+    if (!form.address.trim()) newErrors.address = isArabic ? 'يرجى كتابة العنوان.' : 'Please enter your address.';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -38,9 +57,10 @@ export const Checkout: React.FC = () => {
     if (isSubmitting || !validateForm()) return;
     setIsSubmitting(true);
 
-    const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+    const fullPhone = `${form.countryCode} ${form.phone}`.trim();
     const subtotal = getCartTotal();
     const total = subtotal + deliveryFee;
+    const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
     const itemsString = cart.map(i => {
       const variantStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
@@ -53,7 +73,7 @@ export const Checkout: React.FC = () => {
       orderId,
       date: new Date().toLocaleString('ar-LB'),
       customerName: form.name,
-      customerPhone: form.phone,
+      customerPhone: fullPhone,
       customerCity: form.city,
       customerAddress: form.address,
       customerNotes: form.notes || '—',
@@ -71,7 +91,15 @@ export const Checkout: React.FC = () => {
       });
       await new Promise(r => setTimeout(r, 600));
     } catch { /* silent */ } finally {
-      const placed = placeOrder(form);
+      const customerInfo: CustomerInfo = {
+        name: form.name,
+        phone: fullPhone,
+        countryCode: form.countryCode,
+        city: form.city,
+        address: form.address,
+        notes: form.notes
+      };
+      const placed = placeOrder(customerInfo);
       setIsSubmitting(false);
       if (placed) setOrderComplete(placed);
     }
@@ -80,7 +108,7 @@ export const Checkout: React.FC = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
-    if (errors[name as keyof CustomerInfo]) setErrors(prev => ({ ...prev, [name]: undefined }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
   };
 
   if (cart.length === 0 && !orderComplete) {
@@ -103,17 +131,17 @@ export const Checkout: React.FC = () => {
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-12 text-center sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
         <div className="bg-white border border-emerald-100 shadow-lg rounded-2xl p-6 sm:p-8">
-          <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 border border-emerald-200">
+          <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 size={36} />
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-stone-800 mb-2">
             {isArabic ? 'تم استلام طلبك بنجاح!' : 'Order placed successfully!'}
           </h2>
-          <p className="text-emerald-700 font-medium text-sm mb-1 bg-emerald-50 py-1.5 px-3 rounded-full inline-block">
+          <p className="text-emerald-700 font-medium text-sm mb-4 bg-emerald-50 py-1.5 px-3 rounded-full inline-block">
             {isArabic ? 'رقم الطلب:' : 'Order ID:'} {orderComplete.id}
           </p>
 
-          <div className="flex items-center justify-center gap-2 mt-4 mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5 mx-auto max-w-xs">
+          <div className="flex items-center justify-center gap-2 mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5 mx-auto max-w-xs">
             <Zap size={15} className="text-emerald-600 flex-shrink-0" />
             <p className="text-xs font-black text-emerald-700">
               {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
@@ -125,60 +153,43 @@ export const Checkout: React.FC = () => {
               <div key={i} className="flex items-center gap-3">
                 <div className="h-14 w-14 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200">
                   {item.product.image
-                    ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" loading="eager" />
+                    ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                     : <div className="h-full w-full bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center text-white text-xs font-black">V</div>
                   }
                 </div>
                 <div className="flex-1 text-right">
                   <p className="text-sm font-bold text-stone-800">{isArabic ? item.product.name : (item.product.nameEn || item.product.name)}</p>
-                  {item.selectedVariant && Object.keys(item.selectedVariant).length > 0 && (
-                    <p className="text-xs text-purple-600 font-medium">
-                      {Object.entries(item.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(' | ')}
-                    </p>
-                  )}
                   <p className="text-xs text-stone-500">× {item.quantity} — ${(item.product.price * item.quantity).toFixed(2)} USD</p>
                 </div>
               </div>
             ))}
-
             <div className="space-y-1.5 pt-3 border-t border-stone-100">
               <div className="flex justify-between text-sm">
                 <span className="text-stone-500">{isArabic ? 'سعر المنتجات' : 'Products'}</span>
-                <span className="font-bold text-stone-800">${subtotal.toFixed(2)} USD</span>
+                <span className="font-bold">${subtotal.toFixed(2)} USD</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-stone-500">{isArabic ? 'رسوم التوصيل' : 'Delivery fee'}</span>
-                <span className="font-bold text-stone-800">$5.00 USD</span>
+                <span className="text-stone-500">{isArabic ? 'رسوم التوصيل' : 'Delivery'}</span>
+                <span className="font-bold">$5.00 USD</span>
               </div>
-              <div className="flex justify-between text-sm pt-2 border-t border-dashed border-stone-200">
-                <span className="font-bold text-stone-700">{isArabic ? 'المجموع (دفع عند الاستلام):' : 'Total (Cash on delivery):'}</span>
-                <span className="font-extrabold text-purple-700 text-base">${orderComplete.total.toFixed(2)} USD</span>
+              <div className="flex justify-between pt-2 border-t border-dashed border-stone-200">
+                <span className="font-black text-stone-700">{isArabic ? 'المجموع:' : 'Total:'}</span>
+                <span className="font-extrabold text-purple-700 text-lg">${orderComplete.total.toFixed(2)} USD</span>
               </div>
-            </div>
-
-            <div className="flex justify-between text-sm pt-2 border-t border-stone-100">
-              <span className="text-stone-500">{isArabic ? 'الاسم:' : 'Name:'}</span>
-              <span className="font-bold text-stone-800">{orderComplete.customer.name}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-stone-500">{isArabic ? 'الهاتف:' : 'Phone:'}</span>
-              <span className="font-bold text-stone-800" dir="ltr">{orderComplete.customer.phone}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-stone-500">{isArabic ? 'العنوان:' : 'Address:'}</span>
-              <span className="font-bold text-stone-800">{orderComplete.customer.city}، {orderComplete.customer.address}</span>
             </div>
           </div>
 
           <div className="bg-stone-50 rounded-xl p-4 mb-6 flex items-start gap-3 border border-stone-200 text-right">
             <Truck className="text-purple-600 h-5 w-5 mt-0.5 flex-shrink-0" />
             <p className="text-[11px] text-stone-500 leading-relaxed">
-              {isArabic ? 'سيتواصل معك فريقنا خلال ساعات لتنسيق التوصيل. تغليف سري بالكامل وبدون اسم المحتوى.' : 'Our team will contact you within hours to coordinate delivery. Fully discreet packaging.'}
+              {isArabic
+                ? 'سيتواصل معك فريقنا خلال ساعات لتنسيق التوصيل. تغليف سري بالكامل وبدون اسم المحتوى.'
+                : 'Our team will contact you within hours to coordinate delivery. Fully discreet packaging.'}
             </p>
           </div>
 
           <button onClick={() => { setOrderComplete(null); setView('shop'); }}
-            className="w-full py-3.5 bg-black text-white font-bold rounded-xl transition hover:bg-stone-800 flex items-center justify-center gap-2 active:scale-[0.98]">
+            className="w-full py-3.5 bg-black text-white font-bold rounded-xl hover:bg-stone-800 flex items-center justify-center gap-2 active:scale-[0.98] transition">
             <ArrowRight size={16} />
             {isArabic ? 'العودة للمتجر' : 'Back to shop'}
           </button>
@@ -189,13 +200,14 @@ export const Checkout: React.FC = () => {
 
   const subtotal = getCartTotal();
   const total = subtotal + deliveryFee;
+  const selectedCountry = COUNTRY_CODES.find(c => c.code === form.countryCode) || COUNTRY_CODES[0];
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="mb-6">
         <button onClick={() => setView('shop')}
           className="text-xs font-bold text-stone-500 hover:text-stone-800 flex items-center gap-1 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-lg transition">
-          <ArrowRight size={14} className={isArabic ? 'ml-1' : 'mr-1 rotate-180'} />
+          <ArrowRight size={14} className={isArabic ? '' : 'rotate-180'} />
           {isArabic ? 'العودة للتسوق' : 'Continue shopping'}
         </button>
       </div>
@@ -212,19 +224,19 @@ export const Checkout: React.FC = () => {
           <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-6 shadow-sm">
             <h2 className="text-lg font-black text-stone-800 mb-4 pb-3 border-b border-stone-100 flex items-center gap-2">
               <ShoppingBag className="text-purple-600 h-5 w-5" />
-              {isArabic ? `سلة مشترياتك (${getCartItemsCount()})` : `Your cart (${getCartItemsCount()})`}
+              {isArabic ? `السلة (${getCartItemsCount()})` : `Cart (${getCartItemsCount()})`}
             </h2>
             <div className="divide-y divide-stone-100">
               {cart.map(item => (
                 <div key={item.product.id + JSON.stringify(item.selectedVariant)} className="py-4 flex items-center gap-4 first:pt-0">
                   <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg overflow-hidden bg-stone-100 border flex-shrink-0">
                     {item.product.image
-                      ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" loading="eager" />
+                      ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                       : <div className="h-full w-full bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center text-white font-black text-sm">V</div>
                     }
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-stone-800 text-xs sm:text-sm line-clamp-1">
+                    <h4 className="font-bold text-stone-800 text-xs sm:text-sm line-clamp-2">
                       {isArabic ? item.product.name : (item.product.nameEn || item.product.name)}
                     </h4>
                     {item.selectedVariant && Object.keys(item.selectedVariant).length > 0 && (
@@ -232,7 +244,6 @@ export const Checkout: React.FC = () => {
                         {Object.entries(item.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(' | ')}
                       </p>
                     )}
-                    <p className="text-[10px] font-medium text-purple-600 mt-0.5">{item.product.category}</p>
                     <div className="text-xs font-extrabold text-stone-700 mt-1">${item.product.price.toFixed(2)} USD</div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center gap-2 flex-shrink-0">
@@ -264,18 +275,15 @@ export const Checkout: React.FC = () => {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-stone-500 flex items-center gap-1">
                   <Truck size={13} className="text-purple-500" />
-                  {isArabic ? 'رسوم التوصيل:' : 'Delivery fee:'}
+                  {isArabic ? 'رسوم التوصيل:' : 'Delivery:'}
                 </span>
                 <span className="text-sm font-bold text-stone-700">$5.00 USD</span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-stone-200">
-                <span className="text-base font-black text-stone-800">{isArabic ? 'المجموع الكلي:' : 'Total:'}</span>
+                <span className="text-base font-black text-stone-800">{isArabic ? 'المجموع:' : 'Total:'}</span>
                 <span className="text-xl font-black text-stone-900">${total.toFixed(2)} USD</span>
               </div>
             </div>
-            <p className="text-[10px] text-stone-400 font-bold mt-1">
-              {isArabic ? 'دفع نقداً عند الاستلام — تغليف سري' : 'Cash on delivery — discreet packaging'}
-            </p>
           </div>
         </div>
 
@@ -289,23 +297,43 @@ export const Checkout: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'الاسم الكامل *' : 'Full name *'}</label>
               <input type="text" name="name" value={form.name} onChange={handleInputChange}
-                placeholder={isArabic ? 'محمد علي' : 'Your full name'}
+                placeholder={isArabic ? 'اسمك الكامل' : 'Your full name'}
                 className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.name ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
               {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'رقم الهاتف (لبناني) *' : 'Phone (Lebanese) *'}</label>
-              <input type="tel" name="phone" value={form.phone} onChange={handleInputChange} dir="ltr"
-                placeholder="03 123 456"
-                className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.phone ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
+              <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'رقم الهاتف *' : 'Phone number *'}</label>
+              <div className="flex gap-2">
+                <div className="relative">
+                  <select
+                    name="countryCode"
+                    value={form.countryCode}
+                    onChange={handleInputChange}
+                    className="appearance-none h-full border border-stone-200 rounded-xl pl-3 pr-7 py-3 text-sm text-stone-800 bg-stone-50 outline-none focus:ring-2 focus:ring-purple-300 min-w-[90px] cursor-pointer"
+                  >
+                    {COUNTRY_CODES.map(c => (
+                      <option key={c.code} value={c.code}>
+                        {c.flag} {c.code}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                </div>
+                <input type="tel" name="phone" value={form.phone} onChange={handleInputChange} dir="ltr"
+                  placeholder={form.countryCode === '+961' ? '03 123 456' : '555 1234'}
+                  className={`flex-1 border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.phone ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
+              </div>
+              <p className="text-[10px] text-stone-400 mt-1">
+                {isArabic ? `الرقم الكامل: ${selectedCountry.flag} ${form.countryCode} ${form.phone}` : `Full number: ${selectedCountry.flag} ${form.countryCode} ${form.phone}`}
+              </p>
               {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
             </div>
 
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'المدينة *' : 'City *'}</label>
               <select name="city" value={form.city} onChange={handleInputChange}
-                className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 bg-white ${errors.city ? 'border-red-400 bg-red-50' : 'border-stone-200'}`}>
+                className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 bg-white ${errors.city ? 'border-red-400' : 'border-stone-200'}`}>
                 <option value="">{isArabic ? '— اختر المدينة —' : '— Select city —'}</option>
                 {LEBANESE_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
                 <option value="أخرى">{isArabic ? 'أخرى...' : 'Other...'}</option>
