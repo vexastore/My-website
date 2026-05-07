@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { Product, ProductVariant } from '../types';
 import { useShop } from '../context/ShopContext';
-import { Star, ShoppingCart, X, PackageCheck, ShieldCheck, Zap, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Star, ShoppingCart, X, PackageCheck, ShieldCheck, Zap, ChevronLeft, ChevronRight, ChevronDown, Truck, Lock } from 'lucide-react';
 import { CATEGORIES, getProductCategories } from '../data/categories';
 
 interface ProductCardProps {
@@ -15,6 +15,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [variantError, setVariantError] = useState(false);
+  const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const isArabic = language === 'ar';
 
@@ -79,6 +80,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     setSelectedImageIndex(0);
     setSelectedVariants({});
     setVariantError(false);
+    setIsDeliveryOpen(false);
   };
 
   return (
@@ -201,6 +203,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     ))}
                   </div>
                 )}
+
+                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+                  <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
+                    <Lock size={18} className="text-stone-500" />
+                    <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
+                      {isArabic ? 'الدفع عند\nالاستلام' : 'Cash on\nDelivery'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
+                    <Truck size={18} className="text-stone-500" />
+                    <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
+                      {isArabic ? 'توصيل سريع\nودسكريت' : 'Discreet &\nFast Delivery'}
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
+                    <ShieldCheck size={18} className="text-stone-500" />
+                    <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
+                      {isArabic ? 'خصوصية\nتامة' : 'Full\nPrivacy'}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <div className="space-y-4 p-4 sm:p-6">
@@ -208,8 +231,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   <div>
                     <span className="text-xs font-bold text-stone-400">{isArabic ? 'السعر' : 'Price'}</span>
                     <div className="flex items-baseline gap-2 mt-1">
+                      <span className="text-xs font-bold text-stone-400 line-through">${oldPrice.toFixed(2)}</span>
                       <p className="text-3xl font-black text-stone-950">${product.price.toFixed(2)}</p>
-                      <span className="text-sm font-bold text-stone-400 line-through">${oldPrice.toFixed(2)}</span>
                       <span className="text-sm font-bold text-stone-400">USD</span>
                     </div>
                   </div>
@@ -220,9 +243,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                           className={i < Math.floor(product.rating) ? '' : 'text-stone-300'} />
                       ))}
                     </div>
-                    <p className="text-xs font-bold text-stone-500 mt-1">{product.rating}/5 — {product.reviewsCount} {isArabic ? 'تقييم' : 'reviews'}</p>
+                    <p className="text-xs font-bold text-stone-500 mt-1">({product.reviewsCount} {isArabic ? 'تقييم' : 'ratings'})</p>
                   </div>
                 </div>
+
+                {remainingStock > 0 && remainingStock <= 5 && (
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></span>
+                    <span className="text-xs font-bold text-amber-700">
+                      {isArabic ? 'مخزون محدود' : 'Low stock'}
+                    </span>
+                  </div>
+                )}
 
                 {productCats.length > 1 && (
                   <div className="flex flex-wrap gap-1.5">
@@ -238,11 +270,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                 )}
 
                 {product.variants && product.variants.length > 0 && (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {product.variants.map((variant: ProductVariant) => (
                       <div key={variant.name}>
-                        <p className="text-xs font-black text-stone-700 mb-1.5">
-                          {isArabic ? variant.name : variant.nameEn}
+                        <p className="text-xs font-black text-stone-700 mb-2.5">
+                          {isArabic ? variant.name : (variant.nameEn || variant.name)}
                           {!selectedVariants[variant.name] && variantError && (
                             <span className="text-red-500 mr-1 font-bold"> ({isArabic ? 'مطلوب' : 'required'})</span>
                           )}
@@ -251,7 +283,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                           {variant.options.map(opt => (
                             <button key={opt} type="button"
                               onClick={() => { setSelectedVariants(prev => ({ ...prev, [variant.name]: opt })); setVariantError(false); }}
-                              className={`px-3 py-1.5 text-xs font-bold rounded-lg border transition ${selectedVariants[variant.name] === opt ? 'bg-black text-white border-black' : 'bg-white text-stone-700 border-stone-300 hover:border-stone-600'}`}>
+                              className={`px-4 py-2 text-xs font-bold rounded-full border-2 transition-all ${
+                                selectedVariants[variant.name] === opt
+                                  ? 'bg-black text-white border-black'
+                                  : 'bg-white text-stone-800 border-stone-300 hover:border-stone-800'
+                              }`}>
                               {opt}
                             </button>
                           ))}
@@ -261,10 +297,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   </div>
                 )}
 
-                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-                  <h3 className="mb-2 text-sm font-black text-stone-900">{isArabic ? 'تفاصيل المنتج' : 'Product details'}</h3>
-                  <p className="text-sm leading-7 text-stone-600">{displayDesc}</p>
-                </div>
+                {displayDesc && (
+                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                    <h3 className="mb-2 text-sm font-black text-stone-900">{isArabic ? 'تفاصيل المنتج' : 'Product details'}</h3>
+                    <p className="text-sm leading-7 text-stone-600">{displayDesc}</p>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5">
                   <Zap size={15} className="text-emerald-600 flex-shrink-0" />
@@ -273,20 +311,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-emerald-100 bg-emerald-50 p-3 text-emerald-800">
-                    <PackageCheck size={16} className="mb-1" />
-                    <p className="text-[10px] font-bold">{isArabic ? 'المخزون' : 'Stock'}</p>
-                    <p className="text-sm font-black">
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 rounded-xl border border-stone-200 px-3 py-2.5 text-center">
+                    <p className="text-[10px] font-bold text-stone-400">{isArabic ? 'المخزون' : 'Stock'}</p>
+                    <p className="text-sm font-black text-stone-800">
                       {remainingStock > 0
                         ? (isArabic ? `${remainingStock} قطعة` : `${remainingStock} available`)
-                        : (isArabic ? 'غير متوفر' : 'Unavailable')}
+                        : (isArabic ? 'غير متوفر' : 'Sold out')}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-purple-100 bg-purple-50 p-3 text-purple-800">
-                    <ShieldCheck size={16} className="mb-1" />
-                    <p className="text-[10px] font-bold">{isArabic ? 'الشحن' : 'Shipping'}</p>
-                    <p className="text-sm font-black">{isArabic ? 'سري + COD' : 'Discreet + COD'}</p>
+                  <div className="flex-1 rounded-xl border border-stone-200 px-3 py-2.5 text-center">
+                    <p className="text-[10px] font-bold text-stone-400">{isArabic ? 'الشحن' : 'Shipping'}</p>
+                    <p className="text-sm font-black text-stone-800">{isArabic ? 'سري + COD' : 'Discreet + COD'}</p>
                   </div>
                 </div>
 
@@ -308,6 +344,49 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                     ? (isArabic ? 'اختر الخيارات أولاً' : 'Select options first')
                     : (isArabic ? 'أضف للسلة' : 'Add to cart')}
                 </button>
+
+                <div className="border-t border-stone-200">
+                  <button
+                    type="button"
+                    onClick={() => setIsDeliveryOpen(v => !v)}
+                    className="flex w-full items-center justify-between py-4 text-left"
+                  >
+                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-700">
+                      {isArabic ? 'معلومات التوصيل' : 'About Delivery'}
+                    </span>
+                    <ChevronDown
+                      size={16}
+                      className={`text-stone-500 transition-transform duration-200 ${isDeliveryOpen ? 'rotate-180' : ''}`}
+                    />
+                  </button>
+
+                  {isDeliveryOpen && (
+                    <div className="pb-5 space-y-4 text-sm leading-relaxed text-stone-600">
+                      <div>
+                        <h4 className="font-black text-stone-800 mb-1">Discreet Delivery & Premium Adult Wellness Products in Lebanon</h4>
+                        <p>Your privacy is our top priority. We are committed to offering a fully discreet and secure shopping experience for customers across Lebanon. Every order is shipped in plain, unbranded packaging with no indication of its contents, ensuring complete confidentiality from checkout to delivery.</p>
+                      </div>
+                      <div>
+                        <h4 className="font-black text-stone-800 mb-1">Premium Selection for Every Preference</h4>
+                        <p>Discover a carefully curated range of high-quality adult wellness products designed for comfort, safety, and satisfaction. The collection includes vibrators, dildos, personal massagers, intimate accessories, and more — all made from body-safe, premium materials suitable for both beginners and experienced users.</p>
+                        <p className="mt-2">Whether for personal exploration or shared experiences, each product is selected to provide a reliable and enjoyable experience.</p>
+                      </div>
+                      <div>
+                        <h4 className="font-black text-stone-800 mb-1">Same-Day Delivery in Beirut</h4>
+                        <p>Need it quickly? Customers in Beirut can benefit from same-day delivery service, allowing orders to arrive within hours after purchase for maximum convenience and speed.</p>
+                      </div>
+                      <div>
+                        <h4 className="font-black text-stone-800 mb-1">Fast Nationwide Delivery Across Lebanon</h4>
+                        <p>Outside Beirut? No problem. We provide discreet delivery to all regions across Lebanon within 72 hours. Every order is handled carefully to ensure fast, secure, and completely private shipping.</p>
+                      </div>
+                      <div>
+                        <h4 className="font-black text-stone-800 mb-1">Commitment to Privacy & Quality</h4>
+                        <p>We focus on combining premium product quality with absolute discretion and reliable service. From browsing to delivery, everything is designed to be smooth, private, and trustworthy.</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
               </div>
             </div>
           </div>
