@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
-import { Order, Product, CategoryId } from '../types';
+import { Order, Product, CategoryId, ProductVariant } from '../types';
 import {
   Package, Truck, CheckCircle2, XCircle, Trash2, Phone, MapPin,
   Calendar, DollarSign, ClipboardList, Edit, Plus, X, Upload,
@@ -39,6 +39,7 @@ export const AdminPanel: React.FC = () => {
     image: string;
     images: string[];
     categories: CategoryId[];
+    variants: ProductVariant[];
     rating: number;
     reviewsCount: number;
     stock: number;
@@ -46,8 +47,11 @@ export const AdminPanel: React.FC = () => {
   }>({
     name: '', description: '', price: 0,
     image: '', images: [], categories: ['Sex Toys'],
+    variants: [],
     rating: 5.0, reviewsCount: 1, stock: 10, isNew: false
   });
+
+  const [newOptionInputs, setNewOptionInputs] = useState<Record<number, string>>({});
 
   const getAdminPassword = () => localStorage.getItem('vexa_admin_password') || 'Jojoxxjjlljjll';
 
@@ -102,14 +106,60 @@ export const AdminPanel: React.FC = () => {
     });
   };
 
+  const addVariant = () => {
+    setProdForm(prev => ({
+      ...prev,
+      variants: [...(prev.variants || []), { name: '', nameEn: '', options: [] }]
+    }));
+  };
+
+  const removeVariant = (idx: number) => {
+    setProdForm(prev => ({ ...prev, variants: prev.variants.filter((_, i) => i !== idx) }));
+    setNewOptionInputs(prev => {
+      const next = { ...prev };
+      delete next[idx];
+      return next;
+    });
+  };
+
+  const updateVariantName = (idx: number, val: string) => {
+    setProdForm(prev => {
+      const next = [...prev.variants];
+      next[idx] = { ...next[idx], name: val, nameEn: val };
+      return { ...prev, variants: next };
+    });
+  };
+
+  const addOption = (vIdx: number) => {
+    const val = (newOptionInputs[vIdx] || '').trim();
+    if (!val) return;
+    setProdForm(prev => {
+      const next = [...prev.variants];
+      if (next[vIdx].options.includes(val)) return prev;
+      next[vIdx] = { ...next[vIdx], options: [...next[vIdx].options, val] };
+      return { ...prev, variants: next };
+    });
+    setNewOptionInputs(prev => ({ ...prev, [vIdx]: '' }));
+  };
+
+  const removeOption = (vIdx: number, oIdx: number) => {
+    setProdForm(prev => {
+      const next = [...prev.variants];
+      next[vIdx] = { ...next[vIdx], options: next[vIdx].options.filter((_, i) => i !== oIdx) };
+      return { ...prev, variants: next };
+    });
+  };
+
   const openAddModal = () => {
     setEditingProduct(null);
-    setProdForm({ name: '', description: '', price: 0, image: '', images: [], categories: ['Sex Toys'], rating: 5.0, reviewsCount: Math.floor(Math.random() * 10) + 1, stock: 10, isNew: true });
+    setNewOptionInputs({});
+    setProdForm({ name: '', description: '', price: 0, image: '', images: [], categories: ['Sex Toys'], variants: [], rating: 5.0, reviewsCount: Math.floor(Math.random() * 10) + 1, stock: 10, isNew: true });
     setIsModalOpen(true);
   };
 
   const openEditModal = (product: Product) => {
     setEditingProduct(product);
+    setNewOptionInputs({});
     const imgs = product.images?.length ? product.images : product.image ? [product.image] : [];
     const cats = getProductCategories(product) as CategoryId[];
     setProdForm({
@@ -118,6 +168,7 @@ export const AdminPanel: React.FC = () => {
       price: product.price, image: product.image,
       images: imgs,
       categories: cats.length ? cats : [product.category],
+      variants: product.variants || [],
       rating: product.rating, reviewsCount: product.reviewsCount,
       stock: product.stock, isNew: product.isNew || false
     });
@@ -201,6 +252,8 @@ export const AdminPanel: React.FC = () => {
       return;
     }
     const primaryCat = prodForm.categories[0] || 'Sex Toys';
+    const cleanVariants = (prodForm.variants || [])
+      .filter(v => v.name.trim() && v.options.length > 0);
     const productData: Omit<Product, 'id'> = {
       name: prodForm.name,
       nameEn: prodForm.name,
@@ -211,6 +264,7 @@ export const AdminPanel: React.FC = () => {
       images: prodForm.images?.length ? prodForm.images : prodForm.image ? [prodForm.image] : [],
       category: primaryCat as CategoryId,
       categories: prodForm.categories,
+      variants: cleanVariants.length > 0 ? cleanVariants : undefined,
       rating: prodForm.rating,
       reviewsCount: prodForm.reviewsCount,
       stock: prodForm.stock,
@@ -562,6 +616,79 @@ export const AdminPanel: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-[11px] font-black text-white/50 uppercase tracking-wider">
+                    خيارات المنتج (حجم / لون / غيره)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={addVariant}
+                    className="text-[11px] font-bold text-white/60 hover:text-white border border-white/20 hover:border-white/50 px-2.5 py-1 rounded-lg transition flex items-center gap-1"
+                  >
+                    <Plus size={11} /> إضافة خيار
+                  </button>
+                </div>
+
+                {(!prodForm.variants || prodForm.variants.length === 0) && (
+                  <p className="text-[11px] text-white/25 italic py-2">
+                    لا توجد خيارات. مثلاً: أضف "الحجم" بخيارات S / M / L أو "اللون" بخيارات أسود / وردي.
+                  </p>
+                )}
+
+                <div className="space-y-4">
+                  {(prodForm.variants || []).map((variant, vIdx) => (
+                    <div key={vIdx} className="border border-white/10 rounded-xl p-3.5 space-y-3 bg-white/[0.02]">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={variant.name}
+                          onChange={e => updateVariantName(vIdx, e.target.value)}
+                          placeholder="اسم الخيار (مثال: الحجم، اللون، النوع)"
+                          className="flex-1 bg-white/5 border border-white/10 text-white text-xs px-3 py-2 rounded-lg outline-none focus:border-white/30 transition"
+                        />
+                        <button type="button" onClick={() => removeVariant(vIdx)}
+                          className="text-red-400/50 hover:text-red-400 p-1.5 hover:bg-red-950/30 rounded-lg transition flex-shrink-0">
+                          <X size={15} />
+                        </button>
+                      </div>
+
+                      {variant.options.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5">
+                          {variant.options.map((opt, oIdx) => (
+                            <span key={oIdx} className="flex items-center gap-1 bg-white/10 text-white/80 text-[11px] font-bold px-3 py-1 rounded-full">
+                              {opt}
+                              <button type="button" onClick={() => removeOption(vIdx, oIdx)}
+                                className="text-white/40 hover:text-red-400 transition ml-0.5">
+                                <X size={9} />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          value={newOptionInputs[vIdx] || ''}
+                          onChange={e => setNewOptionInputs(prev => ({ ...prev, [vIdx]: e.target.value }))}
+                          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOption(vIdx); } }}
+                          placeholder="مثال: 18cm - أسود، M، وردي..."
+                          className="flex-1 bg-white/5 border border-white/10 text-white text-[11px] px-3 py-2 rounded-lg outline-none focus:border-white/30 transition"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => addOption(vIdx)}
+                          className="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg text-xs font-black transition"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" name="isNew" checked={prodForm.isNew || false} onChange={handleCheckboxChange} className="w-4 h-4 rounded" />
