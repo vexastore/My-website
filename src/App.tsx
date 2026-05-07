@@ -5,7 +5,6 @@ import { Navbar } from './components/Navbar';
 import { ProductList } from './components/ProductList';
 import { Checkout } from './components/Checkout';
 import { AdminPanel } from './components/AdminPanel';
-import { AdviceHub } from './components/AdviceHub';
 import { MyOrders } from './components/MyOrders';
 import { VexaAiAssistant } from './components/VexaAiAssistant';
 import { FloatingWhatsApp } from './components/FloatingWhatsApp';
@@ -19,7 +18,6 @@ const AppContent: React.FC = () => {
     switch (currentView) {
       case 'shop':     return <ProductList />;
       case 'checkout': return <Checkout />;
-      case 'advice':   return <AdviceHub />;
       case 'admin':    return <AdminPanel />;
       case 'orders':   return <MyOrders />;
       default:         return <ProductList />;
