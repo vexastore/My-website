@@ -5,7 +5,13 @@ export interface ProductVariant {
   options: string[];
 }
 
-export type CategoryId = 'Sex Toys' | 'Vibrators' | 'Male Toys' | 'Dildos' | 'Lingerie' | 'BDSM' | 'Holiday Collection' | 'New Arrivals';
+export type CategoryId =
+  | 'Sex Toys' | 'Vibrators' | 'Male Toys' | 'Dildos' | 'Lingerie'
+  | 'BDSM' | 'Holiday Collection' | 'New Arrivals'
+  | 'Butt Plugs' | 'Anal Toys' | 'Bondage' | 'Sex Dolls'
+  | 'Strap Ons' | 'Kegel Balls' | 'Sexual Enhancers' | 'Penis Pumps'
+  | 'Cock Rings' | 'Masturbators' | 'Chastity' | 'Sex Machines'
+  | 'Lubricants' | 'Poppers';
 
 export interface Product {
   id: string;
