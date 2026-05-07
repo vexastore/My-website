@@ -183,7 +183,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <div className="bg-black px-3 pb-3 flex gap-2 overflow-x-auto">
                 {productImages.map((img, idx) => (
                   <button key={idx} onClick={() => setSelectedImageIndex(idx)}
-                    className={`h-14 w-14 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${selectedImageIndex === idx ? 'border-white' : 'border-white/20 opacity-50 hover:opacity-80'}`}>
+                    className={`h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${selectedImageIndex === idx ? 'border-white' : 'border-white/20 opacity-50 hover:opacity-80'}`}>
                     <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
                   </button>
                 ))}
@@ -222,7 +222,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               <div className="grid grid-cols-3 gap-2 text-center">
                 {[
                   { icon: <Lock size={20} className="text-stone-500" />, ar: 'الدفع عند\nالاستلام', en: 'Cash on\nDelivery' },
-                  { icon: <PackageCheck size={20} className="text-stone-500" />, ar: '30 يوم\nاسترجاع', en: '30 Days\nReturnable' },
+                  { icon: <PackageCheck size={20} className="text-stone-500" />, ar: 'استرجاع', en: 'Returnable' },
                   { icon: <Truck size={20} className="text-stone-500" />, ar: 'توصيل سري\nوسريع', en: 'Discreet &\nFast Delivery' },
                 ].map((item, i) => (
                   <div key={i} className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
@@ -290,14 +290,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                       </div>
                     </div>
                   ))}
-                </div>
-              )}
-
-              {/* Description */}
-              {displayDesc && (
-                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-                  <h3 className="mb-2 text-sm font-black text-stone-900">{isArabic ? 'تفاصيل المنتج' : 'Product details'}</h3>
-                  <p className="text-sm leading-7 text-stone-600">{displayDesc}</p>
                 </div>
               )}
 
@@ -426,6 +418,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   </div>
                 )}
               </div>
+
+              {/* Description */}
+              {displayDesc && (
+                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                  <h3 className="mb-2 text-sm font-black text-stone-900">{isArabic ? 'تفاصيل المنتج' : 'Product details'}</h3>
+                  <p className="text-sm leading-7 text-stone-600">{displayDesc}</p>
+                </div>
+              )}
 
             </div>
           </div>
