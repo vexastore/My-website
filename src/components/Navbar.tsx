@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
-import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, BookOpen, ClipboardList } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, ClipboardList } from 'lucide-react';
 
 const VexaLogo = () => (
   <div className="relative flex h-[58px] w-[58px] select-none items-center justify-center overflow-hidden rounded-full border border-red-500/70 bg-black shadow-[0_0_22px_rgba(255,0,33,0.45)] sm:h-[68px] sm:w-[68px]" aria-label="Vexa Store Lebanon logo">
@@ -159,7 +159,6 @@ export const Navbar: React.FC = () => {
     { id: 'Lingerie', name: isArabic ? 'لانجري' : 'Lingerie' },
     { id: 'BDSM', name: isArabic ? 'ألعاب القوة' : 'BDSM' },
     { id: 'Holiday Collection', name: isArabic ? 'مجموعة الأعياد' : 'Holiday Collection' },
-    { id: 'advice', name: isArabic ? 'نصائح' : 'Advice' },
     { id: 'New Arrivals', name: isArabic ? 'وصل حديثاً' : 'New Arrivals' }
   ];
 
@@ -205,13 +204,9 @@ export const Navbar: React.FC = () => {
       return;
     }
 
-    if (catId === 'advice') {
-      setView('advice');
-    } else {
-      setActiveCategory(catId);
-      setSearchQuery('');
-      setView('shop');
-    }
+    setActiveCategory(catId);
+    setSearchQuery('');
+    setView('shop');
     setIsMenuOpen(false);
     setActiveSubmenu(null);
   };
@@ -399,16 +394,7 @@ export const Navbar: React.FC = () => {
                   </button>
                 ))}
 
-                <div className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-8">
-                  <button
-                    onClick={() => {
-                      setView('advice');
-                      setIsMenuOpen(false);
-                    }}
-                    className="flex items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black"
-                  >
-                    <BookOpen size={15} /> {isArabic ? 'نصائح' : 'Blog'}
-                  </button>
+                <div className="mt-8 grid grid-cols-2 gap-3 border-t border-white/10 pt-8">
                   <button
                     onClick={() => {
                       setView('orders');
