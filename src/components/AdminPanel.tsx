@@ -9,7 +9,12 @@ import {
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
 
 const ALL_CATEGORY_IDS: CategoryId[] = [
-  'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie', 'BDSM', 'Holiday Collection', 'New Arrivals'
+  'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie',
+  'BDSM', 'Holiday Collection', 'New Arrivals',
+  'Butt Plugs', 'Anal Toys', 'Bondage', 'Sex Dolls',
+  'Strap Ons', 'Kegel Balls', 'Sexual Enhancers', 'Penis Pumps',
+  'Cock Rings', 'Masturbators', 'Chastity', 'Sex Machines',
+  'Lubricants', 'Poppers'
 ];
 
 export const AdminPanel: React.FC = () => {
