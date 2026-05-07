@@ -4,9 +4,13 @@ import { useShop } from '../context/ShopContext';
 import { CustomerInfo, Order } from '../types';
 import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
 
-const LEBANESE_CITIES = [
+const LEBANESE_CITIES_AR = [
   'بيروت', 'طرابلس', 'صيدا', 'صور', 'جونية', 'زحلة', 'النبطية', 'بعلبك', 'جبيل', 'عاليه',
   'بشري', 'بنت جبيل', 'مرجعيون', 'كسروان', 'راشيا', 'الشوف', 'المتن', 'بعبدا', 'الضاحية الجنوبية'
+];
+const LEBANESE_CITIES_EN = [
+  'Beirut', 'Tripoli', 'Sidon', 'Tyre', 'Jounieh', 'Zahle', 'Nabatieh', 'Baalbek', 'Byblos', 'Aley',
+  'Bcharre', 'Bint Jbeil', 'Marjayoun', 'Kesrwan', 'Rashaya', 'Chouf', 'Metn', 'Baabda', 'South Suburb'
 ];
 
 const COUNTRY_CODES = [
@@ -335,7 +339,7 @@ export const Checkout: React.FC = () => {
               <select name="city" value={form.city} onChange={handleInputChange}
                 className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 bg-white ${errors.city ? 'border-red-400' : 'border-stone-200'}`}>
                 <option value="">{isArabic ? '— اختر المدينة —' : '— Select city —'}</option>
-                {LEBANESE_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                {(isArabic ? LEBANESE_CITIES_AR : LEBANESE_CITIES_EN).map((city, idx) => { const val = LEBANESE_CITIES_AR[idx]; return <option key={val} value={val}>{city}</option>; })}
                 <option value="أخرى">{isArabic ? 'أخرى...' : 'Other...'}</option>
               </select>
               {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
