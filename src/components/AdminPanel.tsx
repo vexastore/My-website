@@ -53,11 +53,11 @@ export const AdminPanel: React.FC = () => {
 
   const [newOptionInputs, setNewOptionInputs] = useState<Record<number, string>>({});
 
-  const ADMIN_PASSWORD = 'jojoxxjjlljjll';
+  const getAdminPassword = () => localStorage.getItem('vexa_admin_password') || 'Jojoxxjjlljjll';
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput.trim() === ADMIN_PASSWORD) {
+    if (passwordInput.trim() === getAdminPassword()) {
       localStorage.setItem('vexa_admin_session', 'true');
       setIsAdminUnlocked(true);
       setPasswordInput('');
@@ -189,7 +189,7 @@ export const AdminPanel: React.FC = () => {
     reader.onload = () => {
       const img = new window.Image();
       img.onload = () => {
-        const maxSize = 1200;
+        const maxSize = 320;
         const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(img.width * scale));
@@ -197,7 +197,7 @@ export const AdminPanel: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) { reject(new Error('Canvas not supported')); return; }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.85));
+        resolve(canvas.toDataURL('image/jpeg', 0.38));
       };
       img.onerror = () => reject(new Error('Could not load image'));
       img.src = String(reader.result || '');
@@ -264,7 +264,7 @@ export const AdminPanel: React.FC = () => {
       images: prodForm.images?.length ? prodForm.images : prodForm.image ? [prodForm.image] : [],
       category: primaryCat as CategoryId,
       categories: prodForm.categories,
-      variants: cleanVariants.length > 0 ? cleanVariants : [],
+      variants: cleanVariants.length > 0 ? cleanVariants : undefined,
       rating: prodForm.rating,
       reviewsCount: prodForm.reviewsCount,
       stock: prodForm.stock,
