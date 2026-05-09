@@ -16,6 +16,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [variantError, setVariantError] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [imgError, setImgError] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const isArabic = language === 'ar';
 
@@ -24,7 +25,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     : product.image ? [product.image] : [];
   const selectedImage = productImages[selectedImageIndex] || product.image;
   const cardImage = product.image || productImages[0] || '';
-  const hasRealImage = !!cardImage;
+  const hasRealImage = !!cardImage && !imgError;
 
   const productCats = getProductCategories(product);
   const primaryCatId = productCats[0] || product.category;
@@ -93,9 +94,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           </span>
           <div className={`relative aspect-square overflow-hidden ${hasRealImage ? 'bg-black' : `bg-gradient-to-br ${gradientClass}`}`}>
             {hasRealImage ? (
-              <img src={cardImage} alt={displayName} loading="lazy" decoding="async"
+              <img src={cardImage} alt={displayName} loading="eager"
                 className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
-                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />
+                onError={() => setImgError(true)} />
             ) : (
               <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
                 <span className="text-2xl font-black tracking-[0.18em] sm:text-3xl">VEXA</span>
