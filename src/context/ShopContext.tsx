@@ -47,9 +47,10 @@ interface ShopContextType {
   getDeliveryFee: () => number;
   getCartItemsCount: () => number;
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
-  updateProduct: (id: string, product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: string, product: Omit<Product, 'id'>, imagesModified: boolean) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
   fetchProductImages: (productId: string) => Promise<string[]>;
+  invalidateImageCache: (productId: string) => void;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -79,9 +80,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const data = docSnap.data();
             const embeddedImages: string[] = data.images || [];
             if (embeddedImages.length > 0) {
-              // Migrate images out of product document into product_images collection
               migrationBatch.set(doc(db, IMAGES_COLLECTION, docSnap.id), { images: embeddedImages }, { merge: true });
-              // Rewrite product document without images to reduce Firestore read size
               const { images: _imgs, ...cleanData } = data;
               void _imgs;
               migrationBatch.set(doc(db, PRODUCTS_COLLECTION, docSnap.id), cleanData);
@@ -155,6 +154,10 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [language]);
   useEffect(() => { localStorage.setItem('adult_store_orders', JSON.stringify(orders)); }, [orders]);
 
+  const invalidateImageCache = (productId: string) => {
+    imageCacheRef.current.delete(productId);
+  };
+
   const fetchProductImages = async (productId: string): Promise<string[]> => {
     if (imageCacheRef.current.has(productId)) {
       return imageCacheRef.current.get(productId)!;
@@ -182,7 +185,10 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch { /* product doc read also failed */ }
     }
 
-    imageCacheRef.current.set(productId, result);
+    // Only cache non-empty results so a transient network failure doesn't permanently hide images
+    if (result.length > 0) {
+      imageCacheRef.current.set(productId, result);
+    }
     return result;
   };
 
@@ -198,13 +204,21 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProducts(prev => [newProduct, ...prev]);
   };
 
-  const updateProduct = async (id: string, productData: Omit<Product, 'id'>) => {
+  // imagesModified=true means the user explicitly changed images — only then overwrite product_images in Firebase
+  // imagesModified=false means we just updated product info (name/price/stock etc.) — never touch images
+  const updateProduct = async (id: string, productData: Omit<Product, 'id'>, imagesModified: boolean) => {
     const { images, ...productWithoutImages } = productData;
     const updated: Product = { ...productWithoutImages, id };
     await setDoc(doc(db, PRODUCTS_COLLECTION, id), productWithoutImages);
-    if (images && images.length > 0) {
-      await setDoc(doc(db, IMAGES_COLLECTION, id), { images });
-      imageCacheRef.current.set(id, images);
+    if (imagesModified) {
+      if (images && images.length > 0) {
+        await setDoc(doc(db, IMAGES_COLLECTION, id), { images });
+        imageCacheRef.current.set(id, images);
+      } else {
+        // User removed all images
+        await deleteDoc(doc(db, IMAGES_COLLECTION, id)).catch(() => {});
+        imageCacheRef.current.delete(id);
+      }
     }
     setProducts(prev => prev.map(p => p.id === id ? updated : p));
   };
@@ -333,7 +347,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
       updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
       getCartTotal, getDeliveryFee, getCartItemsCount, addProduct, updateProduct,
-      deleteProduct, fetchProductImages
+      deleteProduct, fetchProductImages, invalidateImageCache
     }}>
       {children}
     </ShopContext.Provider>
