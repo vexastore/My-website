@@ -192,11 +192,15 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return result;
   };
 
+  // Remove undefined values — Firestore throws if any field is undefined
+  const cleanForFirestore = (obj: Record<string, unknown>): Record<string, unknown> =>
+    JSON.parse(JSON.stringify(obj, (_, v) => (v === undefined ? null : v)));
+
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
     const { images, ...productWithoutImages } = productData;
     const newProduct: Product = { ...productWithoutImages, id: newId };
-    await setDoc(doc(db, PRODUCTS_COLLECTION, newId), productWithoutImages);
+    await setDoc(doc(db, PRODUCTS_COLLECTION, newId), cleanForFirestore(productWithoutImages as Record<string, unknown>));
     if (images && images.length > 0) {
       await setDoc(doc(db, IMAGES_COLLECTION, newId), { images });
       imageCacheRef.current.set(newId, images);
@@ -209,7 +213,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const updateProduct = async (id: string, productData: Omit<Product, 'id'>, imagesModified: boolean) => {
     const { images, ...productWithoutImages } = productData;
     const updated: Product = { ...productWithoutImages, id };
-    await setDoc(doc(db, PRODUCTS_COLLECTION, id), productWithoutImages);
+    await setDoc(doc(db, PRODUCTS_COLLECTION, id), cleanForFirestore(productWithoutImages as Record<string, unknown>));
     if (imagesModified) {
       if (images && images.length > 0) {
         await setDoc(doc(db, IMAGES_COLLECTION, id), { images });
