@@ -17,6 +17,7 @@ import {
 const DELIVERY_FEE = 5;
 const PRODUCTS_COLLECTION = 'products';
 const IMAGES_COLLECTION = 'product_images';
+const ORDERS_COLLECTION = 'orders';
 
 interface ShopContextType {
   language: 'en' | 'ar';
@@ -44,6 +45,7 @@ interface ShopContextType {
   placeOrder: (customer: CustomerInfo) => Order | null;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   deleteOrder: (orderId: string) => void;
+  fetchAllOrdersFromFirebase: () => Promise<Order[]>;
   getCartTotal: () => number;
   getDeliveryFee: () => number;
   getCartItemsCount: () => number;
@@ -345,6 +347,26 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getDeliveryFee = () => DELIVERY_FEE;
   const getCartItemsCount = () => cart.reduce((c, i) => c + i.quantity, 0);
 
+  const serializeOrderForFirebase = (order: Order) => ({
+    id: order.id,
+    total: order.total,
+    date: order.date,
+    dateKey: order.dateKey,
+    status: order.status,
+    customer: order.customer,
+    items: order.items.map(item => ({
+      quantity: item.quantity,
+      selectedVariant: item.selectedVariant || null,
+      product: {
+        id: item.product.id,
+        name: item.product.name || item.product.nameEn || '',
+        nameEn: item.product.nameEn || item.product.name || '',
+        price: item.product.price,
+        image: item.product.image || '',
+      }
+    }))
+  });
+
   const placeOrder = (customer: CustomerInfo): Order | null => {
     if (cart.length === 0) return null;
     const subtotal = getCartTotal();
@@ -365,6 +387,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProducts(updatedProducts);
     updateStockInFirestore(updatedProducts);
     setOrders(prev => [newOrder, ...prev]);
+    // Save to Firebase so admin can see all orders
+    setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), serializeOrderForFirebase(newOrder)).catch(() => {});
     clearCart();
     setView('shop');
     return newOrder;
@@ -372,12 +396,21 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateOrderStatus = (orderId: string, status: Order['status']) => {
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
+    setDoc(doc(db, ORDERS_COLLECTION, orderId), { status }, { merge: true }).catch(() => {});
   };
 
   const deleteOrder = (orderId: string) => {
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟')) {
       setOrders(prev => prev.filter(o => o.id !== orderId));
+      deleteDoc(doc(db, ORDERS_COLLECTION, orderId)).catch(() => {});
     }
+  };
+
+  const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => {
+    const snap = await getDocs(collection(db, ORDERS_COLLECTION));
+    return snap.docs
+      .map(d => d.data() as Order)
+      .sort((a, b) => (b.dateKey || '').localeCompare(a.dateKey || ''));
   };
 
   return (
@@ -389,7 +422,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
       getCartTotal, getDeliveryFee, getCartItemsCount, addProduct, updateProduct,
       deleteProduct, fetchProductImages, invalidateImageCache,
-      arTranslations, isTranslating
+      arTranslations, isTranslating,
+      fetchAllOrdersFromFirebase
     }}>
       {children}
     </ShopContext.Provider>
