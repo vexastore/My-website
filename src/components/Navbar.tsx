@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
   const {
     currentView, setView, activeCategory, setActiveCategory,
     getCartItemsCount, searchQuery, setSearchQuery, cart, orders,
-    language, toggleLanguage
+    language, toggleLanguage, isTranslating
   } = useShop();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -111,8 +111,10 @@ export const Navbar: React.FC = () => {
         <Search size={size} strokeWidth={1.4} />
       </button>
       <button onClick={toggleLanguage}
-        className="border border-white/20 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black">
-        {isArabic ? 'EN' : 'AR'}
+        className="relative border border-white/20 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black">
+        {isArabic && isTranslating
+          ? <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-purple-400 animate-pulse" />AR</span>
+          : (isArabic ? 'EN' : 'AR')}
       </button>
       {/* My Orders button */}
       <button
