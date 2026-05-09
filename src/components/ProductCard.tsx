@@ -1,8 +1,7 @@
-
 import React, { useState, useRef, useCallback } from 'react';
 import { Product, ProductVariant } from '../types';
 import { useShop } from '../context/ShopContext';
-import { Star, ShoppingCart, X, ShieldCheck, Zap, ChevronLeft, ChevronRight, ChevronDown, Truck, Lock, Loader2 } from 'lucide-react';
+import { Star, ShoppingCart, X, PackageCheck, ShieldCheck, Zap, ChevronLeft, ChevronRight, ChevronDown, Truck, Lock, Minus, Plus, Loader2 } from 'lucide-react';
 import { CATEGORIES, getProductCategories } from '../data/categories';
 
 interface ProductCardProps {
@@ -11,12 +10,13 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
-  const { addToCart, cart, language, fetchProductImages } = useShop();
+  const { addToCart, cart, language, setView, fetchProductImages } = useShop();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [variantError, setVariantError] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
+  const [quantity, setQuantity] = useState(1);
   const [modalImages, setModalImages] = useState<string[]>([]);
   const [imagesLoading, setImagesLoading] = useState(false);
   const touchStartX = useRef<number | null>(null);
@@ -45,12 +45,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
   const allVariantsSelected = !product.variants || product.variants.length === 0 ||
     product.variants.every((v: ProductVariant) => selectedVariants[v.name]);
 
+  const selectedImage = modalImages[selectedImageIndex] || cardImage;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!allVariantsSelected) { setVariantError(true); return; }
     setVariantError(false);
     if (remainingStock > 0) {
-      addToCart(product, 1, Object.keys(selectedVariants).length > 0 ? selectedVariants : undefined);
+      addToCart(product, quantity, Object.keys(selectedVariants).length > 0 ? selectedVariants : undefined);
+      setIsDetailsOpen(false);
+    }
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!allVariantsSelected) { setVariantError(true); return; }
+    setVariantError(false);
+    if (remainingStock > 0) {
+      addToCart(product, quantity, Object.keys(selectedVariants).length > 0 ? selectedVariants : undefined);
+      setIsDetailsOpen(false);
+      setView('checkout');
     }
   };
 
@@ -74,6 +88,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
     setSelectedVariants({});
     setVariantError(false);
     setIsDeliveryOpen(false);
+    setQuantity(1);
     setModalImages(cardImage ? [cardImage] : []);
     setImagesLoading(true);
     try {
@@ -85,8 +100,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
       setImagesLoading(false);
     }
   }, [product.id, cardImage, fetchProductImages]);
-
-  const selectedImage = modalImages[selectedImageIndex] || cardImage;
 
   return (
     <>
@@ -107,7 +120,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
           <span className="absolute left-3 top-3 z-10 bg-white/90 text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-full">
             {isArabic ? 'تخفيض' : 'Sale'}
           </span>
-
           <div className={`relative aspect-square overflow-hidden ${hasRealImage ? 'bg-black' : `bg-gradient-to-br ${gradientClass}`}`}>
             {hasRealImage ? (
               <img
@@ -158,284 +170,308 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
 
       {isDetailsOpen && (
         <div
-          className="fixed inset-0 z-[10000] flex items-end justify-center bg-black/80 p-0 backdrop-blur-sm sm:items-center sm:p-5"
+          className="fixed inset-0 z-[10000] flex items-end justify-center bg-black/80 backdrop-blur-sm sm:items-center sm:p-5"
           onClick={() => setIsDetailsOpen(false)}
           dir={isArabic ? 'rtl' : 'ltr'}
         >
           <div
-            className="max-h-[94vh] w-full max-w-4xl overflow-y-auto bg-white shadow-2xl sm:rounded-2xl"
+            className="relative max-h-[96vh] w-full max-w-lg overflow-y-auto bg-white sm:rounded-2xl shadow-2xl flex flex-col"
             onClick={e => e.stopPropagation()}
           >
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-stone-200 bg-white/95 px-4 py-3 backdrop-blur">
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-700">{primaryCatName}</p>
-                <h2 className="text-base font-black text-stone-900 sm:text-xl line-clamp-1">{displayName}</h2>
-              </div>
-              <button
-                onClick={() => setIsDetailsOpen(false)}
-                aria-label={isArabic ? 'إغلاق' : 'Close'}
-                className="rounded-full border border-stone-200 p-2 text-stone-600 hover:bg-stone-100 flex-shrink-0"
-              >
-                <X size={20} />
-              </button>
+            {/* Floating close button */}
+            <button
+              onClick={() => setIsDetailsOpen(false)}
+              aria-label={isArabic ? 'إغلاق' : 'Close'}
+              className="absolute top-3 right-3 z-20 bg-black/50 hover:bg-black/70 text-white rounded-full p-2 transition backdrop-blur-sm"
+            >
+              <X size={18} />
+            </button>
+
+            {/* Image section — dark background */}
+            <div className="bg-black relative select-none" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+              {imagesLoading && modalImages.length <= 1 ? (
+                <div className="flex items-center justify-center bg-black" style={{ minHeight: '300px' }}>
+                  <Loader2 size={32} className="animate-spin text-white/40" />
+                </div>
+              ) : selectedImage ? (
+                <img
+                  src={selectedImage}
+                  alt={displayName}
+                  loading="eager"
+                  className="w-full object-cover"
+                  style={{ maxHeight: '380px', minHeight: '260px' }}
+                />
+              ) : (
+                <div className={`flex min-h-[300px] w-full items-center justify-center bg-gradient-to-br ${gradientClass}`}>
+                  <span className="text-3xl font-black tracking-widest text-white">VEXA</span>
+                </div>
+              )}
+
+              {modalImages.length > 1 && (
+                <>
+                  <button onClick={prevImage} disabled={selectedImageIndex === 0}
+                    aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
+                    className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-3' : 'left-3'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 transition disabled:opacity-20`}>
+                    <ChevronLeft size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
+                  </button>
+                  <button onClick={nextImage} disabled={selectedImageIndex === modalImages.length - 1}
+                    aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
+                    className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-3' : 'right-3'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-2 transition disabled:opacity-20`}>
+                    <ChevronRight size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
+                  </button>
+                  <div className="absolute bottom-3 left-0 right-0 flex justify-center items-center gap-1">
+                    <span className="bg-black/50 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur">
+                      {selectedImageIndex + 1}/{modalImages.length}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
 
-            <div className="grid grid-cols-1 gap-0 md:grid-cols-2">
-              <div className="bg-stone-50 p-3 sm:p-4">
-                <div className="relative select-none rounded-xl overflow-hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-                  {imagesLoading && modalImages.length <= 1 ? (
-                    <div className="flex min-h-[300px] w-full items-center justify-center rounded-xl bg-stone-100">
-                      <Loader2 size={32} className="animate-spin text-stone-400" />
-                    </div>
-                  ) : selectedImage ? (
-                    <img
-                      src={selectedImage}
-                      alt={displayName}
-                      loading="eager"
-                      width="600"
-                      height="600"
-                      className="w-full min-h-[300px] max-h-[420px] object-cover rounded-xl"
-                    />
-                  ) : (
-                    <div className={`flex min-h-[320px] w-full items-center justify-center rounded-xl bg-gradient-to-br ${gradientClass}`}>
-                      <span className="text-3xl font-black tracking-widest text-white">VEXA</span>
-                    </div>
-                  )}
-                  {modalImages.length > 1 && (
-                    <>
-                      <button
-                        onClick={prevImage}
-                        disabled={selectedImageIndex === 0}
-                        aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
-                        className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-2' : 'left-2'} bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md transition disabled:opacity-30`}
-                      >
-                        <ChevronLeft size={18} className={isArabic ? 'rotate-180' : ''} />
-                      </button>
-                      <button
-                        onClick={nextImage}
-                        disabled={selectedImageIndex === modalImages.length - 1}
-                        aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
-                        className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-2' : 'right-2'} bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md transition disabled:opacity-30`}
-                      >
-                        <ChevronRight size={18} className={isArabic ? 'rotate-180' : ''} />
-                      </button>
-                      <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
-                        {modalImages.map((_, idx) => (
-                          <button
-                            key={idx}
-                            onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(idx); }}
-                            aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
-                            className={`rounded-full transition-all ${idx === selectedImageIndex ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`}
-                          />
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
+            {/* Thumbnails */}
+            {modalImages.length > 1 && (
+              <div className="bg-black px-3 pb-3 flex gap-2 overflow-x-auto">
+                {modalImages.map((img, idx) => (
+                  <button key={idx} onClick={() => setSelectedImageIndex(idx)}
+                    aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
+                    className={`h-10 w-10 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${selectedImageIndex === idx ? 'border-white' : 'border-white/20 opacity-50 hover:opacity-80'}`}>
+                    <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  </button>
+                ))}
+              </div>
+            )}
 
-                {modalImages.length > 1 && (
-                  <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                    {modalImages.map((img, idx) => (
-                      <button
-                        key={`${img.slice(-8)}-${idx}`}
-                        type="button"
-                        onClick={() => setSelectedImageIndex(idx)}
-                        aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
-                        className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${selectedImageIndex === idx ? 'border-black ring-1 ring-black/10' : 'border-stone-200 opacity-60 hover:opacity-100'}`}
-                      >
-                        <img src={img} alt={`${displayName} ${idx + 1}`} className="h-full w-full object-cover" loading="lazy" />
-                      </button>
-                    ))}
-                  </div>
-                )}
+            {/* Product info — white background */}
+            <div className="bg-white flex-1 px-5 py-5 space-y-4">
 
-                <div className="mt-4 grid grid-cols-3 gap-2 text-center">
-                  <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
-                    <Lock size={18} className="text-stone-500" />
-                    <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
-                      {isArabic ? 'الدفع عند الاستلام' : 'Cash on Delivery'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
-                    <Truck size={18} className="text-stone-500" />
-                    <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
-                      {isArabic ? 'توصيل سريع ودسكريت' : 'Discreet & Fast'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
-                    <ShieldCheck size={18} className="text-stone-500" />
-                    <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
-                      {isArabic ? 'خصوصية تامة' : 'Full Privacy'}
-                    </span>
-                  </div>
-                </div>
+              {/* Category + Name */}
+              <div>
+                <p className="text-[11px] font-black uppercase tracking-[0.25em] text-purple-600 mb-1">{primaryCatName}</p>
+                <h2 className="text-xl font-black text-stone-900 leading-snug">{displayName}</h2>
               </div>
 
-              <div className="space-y-4 p-4 sm:p-6">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-bold text-stone-400">{isArabic ? 'السعر' : 'Price'}</span>
-                    <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-xs font-bold text-stone-400 line-through">${oldPrice.toFixed(2)}</span>
-                      <p className="text-3xl font-black text-stone-950">${product.price.toFixed(2)}</p>
-                      <span className="text-sm font-bold text-stone-400">USD</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-0.5 text-amber-400 justify-end">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={14} fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'}
-                          className={i < Math.floor(product.rating) ? '' : 'text-stone-300'} />
-                      ))}
-                    </div>
-                    <p className="text-xs font-bold text-stone-500 mt-1">({product.reviewsCount} {isArabic ? 'تقييم' : 'ratings'})</p>
-                  </div>
+              {/* Stars */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-0.5 text-amber-400">
+                  {[...Array(5)].map((_, i) => (
+                    <Star key={i} size={16} fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'}
+                      className={i < Math.floor(product.rating) ? '' : 'text-stone-300'} />
+                  ))}
                 </div>
+                <span className="text-sm font-bold text-amber-500">{product.rating}/5</span>
+                <span className="text-sm text-stone-400">({product.reviewsCount} {isArabic ? 'تقييم' : 'ratings'})</span>
+              </div>
 
-                {remainingStock > 0 && remainingStock <= 5 && (
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" aria-hidden="true"></span>
-                    <span className="text-xs font-bold text-amber-700">
-                      {isArabic ? 'مخزون محدود' : 'Low stock'}
+              {/* Price */}
+              <div className="flex items-baseline gap-3">
+                <span className="text-3xl font-black text-stone-900">${product.price.toFixed(2)}</span>
+                <span className="text-sm font-bold text-stone-400">USD</span>
+                <span className="text-sm font-bold text-stone-400 line-through">${oldPrice.toFixed(2)}</span>
+              </div>
+
+              {/* Trust icons */}
+              <div className="grid grid-cols-3 gap-2 text-center">
+                {[
+                  { icon: <Lock size={20} className="text-stone-500" />, ar: 'الدفع عند\nالاستلام', en: 'Cash on\nDelivery' },
+                  { icon: <PackageCheck size={20} className="text-stone-500" />, ar: 'استرجاع', en: 'Returnable' },
+                  { icon: <Truck size={20} className="text-stone-500" />, ar: 'توصيل سري\nوسريع', en: 'Discreet &\nFast Delivery' },
+                ].map((item, i) => (
+                  <div key={i} className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
+                    {item.icon}
+                    <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight whitespace-pre-line">
+                      {isArabic ? item.ar : item.en}
                     </span>
                   </div>
-                )}
+                ))}
+              </div>
 
-                {productCats.length > 1 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {productCats.map(catId => {
-                      const cat = CATEGORIES.find(c => c.id === catId);
-                      return cat ? (
-                        <span key={catId} className="text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100 px-2 py-0.5 rounded-full">
-                          {isArabic ? cat.name.ar : cat.name.en}
-                        </span>
-                      ) : null;
-                    })}
-                  </div>
-                )}
+              {/* Stock status */}
+              {remainingStock > 0 && remainingStock <= 5 && (
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0 animate-pulse"></span>
+                  <span className="text-sm font-bold text-amber-700">{isArabic ? 'مخزون محدود' : 'Low stock'}</span>
+                </div>
+              )}
+              {remainingStock === 0 && (
+                <div className="flex items-center gap-2">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0"></span>
+                  <span className="text-sm font-bold text-red-600">{isArabic ? 'نفذ المخزون' : 'Out of stock'}</span>
+                </div>
+              )}
 
-                {product.variants && product.variants.length > 0 && (
-                  <div className="space-y-4">
-                    {product.variants.map((variant: ProductVariant) => (
-                      <div key={variant.name}>
-                        <p className="text-xs font-black text-stone-700 mb-2.5">
-                          {isArabic ? variant.name : (variant.nameEn || variant.name)}
-                          {!selectedVariants[variant.name] && variantError && (
-                            <span className="text-red-500 mr-1 font-bold"> ({isArabic ? 'مطلوب' : 'required'})</span>
-                          )}
-                        </p>
-                        <div className="flex flex-wrap gap-2" role="group" aria-label={variant.name}>
-                          {variant.options.map(opt => (
-                            <button
-                              key={opt}
-                              type="button"
-                              onClick={() => { setSelectedVariants(prev => ({ ...prev, [variant.name]: opt })); setVariantError(false); }}
-                              aria-pressed={selectedVariants[variant.name] === opt}
-                              className={`px-4 py-2 text-xs font-bold rounded-full border-2 transition-all ${
-                                selectedVariants[variant.name] === opt
-                                  ? 'bg-black text-white border-black'
-                                  : 'bg-white text-stone-800 border-stone-300 hover:border-stone-800'
-                              }`}
-                            >
-                              {opt}
-                            </button>
-                          ))}
-                        </div>
+              {/* Other categories */}
+              {productCats.length > 1 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {productCats.map(catId => {
+                    const cat = CATEGORIES.find(c => c.id === catId);
+                    return cat ? (
+                      <span key={catId} className="text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-100 px-2 py-0.5 rounded-full">
+                        {isArabic ? cat.name.ar : cat.name.en}
+                      </span>
+                    ) : null;
+                  })}
+                </div>
+              )}
+
+              {/* Variants */}
+              {product.variants && product.variants.length > 0 && (
+                <div className="space-y-4">
+                  {product.variants.map((variant: ProductVariant) => (
+                    <div key={variant.name}>
+                      <p className="text-xs font-black text-stone-700 mb-2.5">
+                        {isArabic ? variant.name : (variant.nameEn || variant.name)}
+                        {!selectedVariants[variant.name] && variantError && (
+                          <span className="text-red-500 mr-1 font-bold"> ({isArabic ? 'مطلوب' : 'required'})</span>
+                        )}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {variant.options.map(opt => (
+                          <button key={opt} type="button"
+                            onClick={() => { setSelectedVariants(prev => ({ ...prev, [variant.name]: opt })); setVariantError(false); }}
+                            className={`px-4 py-2 text-xs font-bold rounded-full border-2 transition-all ${
+                              selectedVariants[variant.name] === opt
+                                ? 'bg-black text-white border-black'
+                                : 'bg-white text-stone-800 border-stone-300 hover:border-stone-800'
+                            }`}>
+                            {opt}
+                          </button>
+                        ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-
-                {displayDesc && (
-                  <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
-                    <h3 className="mb-2 text-sm font-black text-stone-900">{isArabic ? 'تفاصيل المنتج' : 'Product details'}</h3>
-                    <p className="text-sm leading-7 text-stone-600">{displayDesc}</p>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5">
-                  <Zap size={15} className="text-emerald-600 flex-shrink-0" aria-hidden="true" />
-                  <p className="text-xs font-black text-emerald-700">
-                    {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
-                  </p>
+                    </div>
+                  ))}
                 </div>
+              )}
 
-                <div className="flex items-center gap-3">
-                  <div className="flex-1 rounded-xl border border-stone-200 px-3 py-2.5 text-center">
-                    <p className="text-[10px] font-bold text-stone-400">{isArabic ? 'المخزون' : 'Stock'}</p>
-                    <p className="text-sm font-black text-stone-800">
-                      {remainingStock > 0
-                        ? (isArabic ? `${remainingStock} قطعة` : `${remainingStock} available`)
-                        : (isArabic ? 'غير متوفر' : 'Sold out')}
-                    </p>
-                  </div>
-                  <div className="flex-1 rounded-xl border border-stone-200 px-3 py-2.5 text-center">
-                    <p className="text-[10px] font-bold text-stone-400">{isArabic ? 'الشحن' : 'Shipping'}</p>
-                    <p className="text-sm font-black text-stone-800">{isArabic ? 'سري + COD' : 'Discreet + COD'}</p>
-                  </div>
+              {/* Description */}
+              {displayDesc && (
+                <div className="rounded-xl border border-stone-200 bg-stone-50 p-4">
+                  <h3 className="mb-2 text-sm font-black text-stone-900">{isArabic ? 'تفاصيل المنتج' : 'Product details'}</h3>
+                  <p className="text-sm leading-7 text-stone-600">{displayDesc}</p>
                 </div>
+              )}
 
-                <button
-                  onClick={handleAddToCart}
-                  disabled={product.stock === 0 || remainingStock === 0}
-                  aria-label={isArabic ? 'أضف للسلة' : 'Add to cart'}
-                  className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-black transition active:scale-[0.98] ${
-                    product.stock === 0 || remainingStock === 0
-                      ? 'cursor-not-allowed bg-stone-200 text-stone-400'
-                      : variantError
-                      ? 'bg-red-600 text-white hover:bg-red-700'
-                      : 'bg-black text-white hover:bg-stone-800'
-                  }`}
-                >
-                  <ShoppingCart size={18} aria-hidden="true" />
-                  {product.stock === 0
-                    ? (isArabic ? 'نفذ المخزون' : 'Sold out')
-                    : remainingStock === 0
-                    ? (isArabic ? 'تمت إضافة الكمية كلها' : 'All qty added')
+              {/* Same-day delivery badge */}
+              <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5">
+                <Zap size={15} className="text-emerald-600 flex-shrink-0" />
+                <p className="text-xs font-black text-emerald-700">
+                  {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
+                </p>
+              </div>
+
+              {/* Quantity selector */}
+              {product.stock > 0 && remainingStock > 0 && (
+                <div className="flex items-center gap-4">
+                  <span className="text-sm font-black text-stone-700">{isArabic ? 'الكمية' : 'Quantity'}</span>
+                  <div className="flex items-center border-2 border-stone-200 rounded-full overflow-hidden">
+                    <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1}
+                      className="px-4 py-2.5 text-stone-600 hover:bg-stone-100 transition disabled:opacity-30 font-bold">
+                      <Minus size={14} />
+                    </button>
+                    <span className="px-4 py-2 font-black text-stone-900 min-w-[3rem] text-center text-base">{quantity}</span>
+                    <button type="button" onClick={() => setQuantity(q => Math.min(remainingStock, q + 1))} disabled={quantity >= remainingStock}
+                      className="px-4 py-2.5 text-stone-600 hover:bg-stone-100 transition disabled:opacity-30 font-bold">
+                      <Plus size={14} />
+                    </button>
+                  </div>
+                  <span className="text-xs text-stone-400 font-bold">{remainingStock} {isArabic ? 'متوفر' : 'available'}</span>
+                </div>
+              )}
+
+              {/* Add to Cart button */}
+              <button onClick={handleAddToCart}
+                disabled={product.stock === 0 || remainingStock === 0}
+                aria-label={isArabic ? 'أضف للسلة' : 'Add to cart'}
+                className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-black transition active:scale-[0.98] ${
+                  product.stock === 0 || remainingStock === 0
+                    ? 'cursor-not-allowed bg-stone-200 text-stone-400'
                     : variantError
-                    ? (isArabic ? 'اختر الخيارات أولاً' : 'Select options first')
-                    : (isArabic ? 'أضف للسلة' : 'Add to cart')}
+                    ? 'bg-red-600 text-white hover:bg-red-700'
+                    : 'bg-black text-white hover:bg-stone-800'
+                }`}>
+                <ShoppingCart size={18} />
+                {product.stock === 0
+                  ? (isArabic ? 'نفذ المخزون' : 'Sold out')
+                  : remainingStock === 0
+                  ? (isArabic ? 'تمت إضافة الكمية كلها' : 'All qty added')
+                  : variantError
+                  ? (isArabic ? 'اختر الخيارات أولاً' : 'Select options first')
+                  : (isArabic ? `إضافة ${quantity > 1 ? quantity + ' قطع' : ''} للسلة` : `Add${quantity > 1 ? ` ${quantity}` : ''} to cart`)}
+              </button>
+
+              {/* Buy Now button — red */}
+              {product.stock > 0 && remainingStock > 0 && (
+                <button
+                  onClick={handleBuyNow}
+                  aria-label={isArabic ? 'شراء الآن' : 'Buy Now'}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black bg-gradient-to-r from-red-600 to-rose-500 text-white hover:from-red-700 hover:to-rose-600 transition active:scale-[0.98] shadow-md"
+                >
+                  <Zap size={17} fill="currentColor" />
+                  {isArabic ? 'شراء الآن' : 'Buy Now'}
+                </button>
+              )}
+
+              {/* Delivery Info Accordion */}
+              <div className="border-t border-stone-200">
+                <button
+                  type="button"
+                  onClick={() => setIsDeliveryOpen(v => !v)}
+                  aria-expanded={isDeliveryOpen}
+                  className="flex w-full items-center justify-between py-4 text-left"
+                >
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-700 flex items-center gap-2">
+                    <ShieldCheck size={14} className="text-stone-500" />
+                    {isArabic ? 'معلومات التوصيل' : 'DELIVERY INFO'}
+                  </span>
+                  <ChevronDown size={16} className={`text-stone-500 transition-transform duration-200 ${isDeliveryOpen ? 'rotate-180' : ''}`} />
                 </button>
 
-                <div className="border-t border-stone-200">
-                  <button
-                    type="button"
-                    onClick={() => setIsDeliveryOpen(v => !v)}
-                    aria-expanded={isDeliveryOpen}
-                    aria-controls="delivery-info"
-                    className="flex w-full items-center justify-between py-4 text-left"
-                  >
-                    <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-700">
-                      {isArabic ? 'معلومات التوصيل' : 'About Delivery'}
-                    </span>
-                    <ChevronDown
-                      size={16}
-                      aria-hidden="true"
-                      className={`text-stone-500 transition-transform duration-200 ${isDeliveryOpen ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-
-                  {isDeliveryOpen && (
-                    <div id="delivery-info" className="pb-5 space-y-4 text-sm leading-relaxed text-stone-600">
-                      <div>
-                        <h4 className="font-black text-stone-800 mb-1">Discreet Delivery & Premium Adult Wellness Products in Lebanon</h4>
-                        <p>Your privacy is our top priority. We are committed to offering a fully discreet and secure shopping experience for customers across Lebanon. Every order is shipped in plain, unbranded packaging with no indication of its contents, ensuring complete confidentiality from checkout to delivery.</p>
-                      </div>
-                      <div>
-                        <h4 className="font-black text-stone-800 mb-1">Premium Selection for Every Preference</h4>
-                        <p>Discover a carefully curated range of high-quality adult wellness products designed for comfort, safety, and satisfaction — all made from body-safe, premium materials suitable for both beginners and experienced users.</p>
-                      </div>
-                      <div>
-                        <h4 className="font-black text-stone-800 mb-1">Same-Day Delivery in Beirut</h4>
-                        <p>Customers in Beirut can benefit from same-day delivery service, allowing orders to arrive within hours after purchase.</p>
-                      </div>
-                      <div>
-                        <h4 className="font-black text-stone-800 mb-1">Fast Nationwide Delivery Across Lebanon</h4>
-                        <p>We provide discreet delivery to all regions across Lebanon within 72 hours. Every order is handled carefully to ensure fast, secure, and completely private shipping.</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {isDeliveryOpen && (
+                  <div className="pb-5 space-y-4 text-sm leading-relaxed text-stone-600">
+                    {isArabic ? (
+                      <>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">توصيل سري ومنتجات راقية في لبنان</h4>
+                          <p>خصوصيتك هي أولويتنا الأولى. نحن ملتزمون بتقديم تجربة تسوق سرية وآمنة بالكامل لجميع عملائنا في لبنان. كل طلب يُشحن في كرتون عادي مغلق بدون أي إشارة إلى محتواه أو اسم المتجر.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">مجموعة متميزة لكل ذوق</h4>
+                          <p>اكتشف مجموعة مختارة بعناية من منتجات العناية الشخصية عالية الجودة، مصممة للراحة والأمان والمتعة — كلها مصنوعة من مواد طبية آمنة للجسم.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">توصيل في نفس اليوم في بيروت</h4>
+                          <p>تحتاجه بسرعة؟ عملاؤنا في بيروت يستفيدون من خدمة التوصيل في نفس اليوم، حيث يصل طلبك خلال ساعات من الشراء.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">توصيل سريع لكل لبنان</h4>
+                          <p>خارج بيروت؟ لا مشكلة. نوصل بشكل سري لجميع المناطق في لبنان خلال 72 ساعة كحد أقصى.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">التزامنا بالخصوصية والجودة</h4>
+                          <p>نجمع بين جودة المنتجات الفائقة والسرية التامة والخدمة الموثوقة. من التصفح حتى الاستلام، كل شيء مصمم ليكون سلساً وخاصاً وموثوقاً.</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">Discreet Delivery & Premium Adult Wellness Products in Lebanon</h4>
+                          <p>Your privacy is our top priority. We are committed to offering a fully discreet and secure shopping experience for customers across Lebanon. Every order is shipped in plain, unbranded packaging with no indication of its contents.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">Premium Selection for Every Preference</h4>
+                          <p>Discover a carefully curated range of high-quality adult wellness products designed for comfort, safety, and satisfaction — all made from body-safe, premium materials.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">Same-Day Delivery in Beirut</h4>
+                          <p>Customers in Beirut can benefit from same-day delivery service, allowing orders to arrive within hours after purchase.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">Fast Nationwide Delivery Across Lebanon</h4>
+                          <p>We provide discreet delivery to all regions across Lebanon within 72 hours. Every order is handled carefully to ensure fast, secure, and completely private shipping.</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
