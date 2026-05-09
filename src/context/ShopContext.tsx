@@ -52,7 +52,17 @@ interface ShopContextType {
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
+  const getInitialProducts = (): Product[] => {
+    try {
+      const stored = localStorage.getItem('adult_store_products');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {}
+    return MOCK_PRODUCTS;
+  };
+  const [products, setProducts] = useState<Product[]>(getInitialProducts());
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentView, setViewState] = useState<'shop' | 'checkout' | 'admin' | 'advice' | 'orders'>('shop');
@@ -73,6 +83,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: docSnap.id
           }));
           setProducts(firestoreProducts);
+          try { localStorage.setItem('adult_store_products', JSON.stringify(firestoreProducts)); } catch {}
         } else {
           const batch = writeBatch(db);
           MOCK_PRODUCTS.forEach(product => {
