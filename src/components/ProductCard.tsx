@@ -216,7 +216,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
             {/* Outer div creates the 4:3 height via padding-top: 75% */}
             <div
               className="bg-black w-full relative"
-              style={{ paddingTop: '75%' }}
+              style={{ paddingTop: '75%', minHeight: '200px' }}
             >
               {/* Inner div fills the padded space */}
               <div
