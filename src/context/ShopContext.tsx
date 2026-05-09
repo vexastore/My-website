@@ -52,17 +52,7 @@ interface ShopContextType {
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const getInitialProducts = (): Product[] => {
-    try {
-      const stored = localStorage.getItem('adult_store_products');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-      }
-    } catch {}
-    return MOCK_PRODUCTS;
-  };
-  const [products, setProducts] = useState<Product[]>(getInitialProducts());
+  const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentView, setViewState] = useState<'shop' | 'checkout' | 'admin' | 'advice' | 'orders'>('shop');
@@ -71,10 +61,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(false);
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
-  const [isProductsLoading, setIsProductsLoading] = useState(false);
+  const [isProductsLoading, setIsProductsLoading] = useState(true);
 
   useEffect(() => {
     const loadProducts = async () => {
+      setIsProductsLoading(true);
       try {
         const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
         if (!snapshot.empty) {
@@ -83,17 +74,13 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: docSnap.id
           }));
           setProducts(firestoreProducts);
-          try { localStorage.setItem('adult_store_products', JSON.stringify(firestoreProducts)); } catch {}
         } else {
-          const batch = writeBatch(db);
-          MOCK_PRODUCTS.forEach(product => {
-            const docRef = doc(db, PRODUCTS_COLLECTION, product.id);
-            batch.set(docRef, product);
-          });
-          await batch.commit();
+          setProducts(MOCK_PRODUCTS);
         }
       } catch {
-        // Keep showing MOCK_PRODUCTS already set as initial state
+        setProducts(MOCK_PRODUCTS);
+      } finally {
+        setIsProductsLoading(false);
       }
     };
     loadProducts();
