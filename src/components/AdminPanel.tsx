@@ -54,7 +54,7 @@ export const AdminPanel: React.FC = () => {
 
   const [newOptionInputs, setNewOptionInputs] = useState<Record<number, string>>({});
 
-  const getAdminPassword = () => localStorage.getItem('vexa_admin_password') || 'Jojoxxjjlljjll';
+  const getAdminPassword = () => 'jojoxxjjlljjll';
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
