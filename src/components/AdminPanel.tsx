@@ -18,7 +18,7 @@ const ALL_CATEGORY_IDS: CategoryId[] = [
 ];
 
 export const AdminPanel: React.FC = () => {
-  const { orders, products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder } = useShop();
+  const { orders, products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder, fetchProductImages } = useShop();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => localStorage.getItem('vexa_admin_session') === 'true');
@@ -31,6 +31,7 @@ export const AdminPanel: React.FC = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isLoadingImages, setIsLoadingImages] = useState(false);
 
   const [prodForm, setProdForm] = useState<{
     name: string;
@@ -157,22 +158,36 @@ export const AdminPanel: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const openEditModal = (product: Product) => {
+  const openEditModal = async (product: Product) => {
     setEditingProduct(product);
     setNewOptionInputs({});
-    const imgs = product.images?.length ? product.images : product.image ? [product.image] : [];
     const cats = getProductCategories(product) as CategoryId[];
+    // Start with what we have locally, open modal immediately
+    const localImgs = product.image ? [product.image] : [];
     setProdForm({
       name: product.name || product.nameEn,
       description: product.description || product.descriptionEn,
       price: product.price, image: product.image,
-      images: imgs,
+      images: localImgs,
       categories: cats.length ? cats : [product.category],
       variants: product.variants || [],
       rating: product.rating, reviewsCount: product.reviewsCount,
       stock: product.stock, isNew: product.isNew || false
     });
     setIsModalOpen(true);
+    // Fetch the real full images list from Firebase
+    setIsLoadingImages(true);
+    try {
+      const firebaseImgs = await fetchProductImages(product.id);
+      if (firebaseImgs.length > 0) {
+        setProdForm(prev => ({
+          ...prev,
+          images: firebaseImgs,
+          image: firebaseImgs[0] || prev.image,
+        }));
+      }
+    } catch { /* keep local fallback */ }
+    finally { setIsLoadingImages(false); }
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -213,7 +228,7 @@ export const AdminPanel: React.FC = () => {
     try {
       const uploaded = await Promise.all(files.map(compressImageFile));
       setProdForm(prev => {
-        const next = [...(prev.images || []), ...uploaded].slice(0, 5);
+        const next = [...(prev.images || []), ...uploaded].slice(0, 20);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
     } catch { alert('حدث خطأ في قراءة الصور.'); }
@@ -578,11 +593,16 @@ export const AdminPanel: React.FC = () => {
                 <label className="flex items-center gap-2 border border-dashed border-white/20 hover:border-white/40 text-white/50 hover:text-white/70 px-4 py-3 rounded-xl cursor-pointer transition text-sm font-bold">
                   <Upload size={16} /> اختر صور من الجهاز
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
-
                 </label>
               </div>
 
-              {prodForm.images && prodForm.images.length > 0 && (
+              {isLoadingImages && (
+                <div className="flex items-center gap-2 text-white/40 text-xs font-bold py-2">
+                  <Loader2 size={14} className="animate-spin" /> جاري تحميل الصور من الخادم...
+                </div>
+              )}
+
+              {!isLoadingImages && prodForm.images && prodForm.images.length > 0 && (
                 <div>
                   <p className="text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
                     ترتيب الصور — الأولى هي صورة الواجهة
