@@ -156,18 +156,21 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProductImages = async (productId: string): Promise<string[]> => {
     try {
-      const gallerySnap = await getDoc(doc(db, IMAGES_COLLECTION, productId));
-      if (gallerySnap.exists()) {
-        return (gallerySnap.data().images as string[]) || [];
-      }
-      const productSnap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
-      if (productSnap.exists()) {
-        const data = productSnap.data();
-        const imgs: string[] = data.images || [];
-        if (imgs.length > 0) return imgs;
-        return data.image ? [data.image] : [];
-      }
-      return [];
+      // Fetch from both sources in parallel to get ALL images
+      const [gallerySnap, productSnap] = await Promise.all([
+        getDoc(doc(db, IMAGES_COLLECTION, productId)),
+        getDoc(doc(db, PRODUCTS_COLLECTION, productId)),
+      ]);
+      const galleryImgs: string[] = gallerySnap.exists()
+        ? (gallerySnap.data().images as string[]) || []
+        : [];
+      const productData = productSnap.exists() ? productSnap.data() : null;
+      const productImgs: string[] = productData ? (productData.images as string[] || []) : [];
+      // Use whichever source has more images
+      const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
+      if (bestImgs.length > 0) return bestImgs;
+      // Fallback to the single cover image
+      return productData?.image ? [productData.image as string] : [];
     } catch {
       return [];
     }
