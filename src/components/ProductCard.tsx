@@ -10,7 +10,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
-  const { addToCart, cart, language, setView, fetchProductImages } = useShop();
+  const { addToCart, cart, language, setView, fetchProductImages, arTranslations } = useShop();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
@@ -39,8 +39,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
   const cartQty = cartItem ? cartItem.quantity : 0;
   const remainingStock = product.stock - cartQty;
 
-  const displayName = isArabic ? (product.name || product.nameEn) : (product.nameEn || product.name);
-  const displayDesc = isArabic ? (product.description || product.descriptionEn) : (product.descriptionEn || product.description);
+  const arT = arTranslations[product.id];
+  const displayName = isArabic
+    ? (arT?.name || product.name || product.nameEn)
+    : (product.nameEn || product.name);
+  const displayDesc = isArabic
+    ? (arT?.description || product.description || product.descriptionEn)
+    : (product.descriptionEn || product.description);
 
   const allVariantsSelected = !product.variants || product.variants.length === 0 ||
     product.variants.every((v: ProductVariant) => selectedVariants[v.name]);
