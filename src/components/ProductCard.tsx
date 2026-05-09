@@ -1,8 +1,8 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Product, ProductVariant } from '../types';
 import { useShop } from '../context/ShopContext';
-import { Star, ShoppingCart, X, PackageCheck, ShieldCheck, Zap, ChevronLeft, ChevronRight, ChevronDown, Truck, Lock } from 'lucide-react';
+import { Star, ShoppingCart, X, ShieldCheck, Zap, ChevronLeft, ChevronRight, ChevronDown, Truck, Lock, Loader2 } from 'lucide-react';
 import { CATEGORIES, getProductCategories } from '../data/categories';
 
 interface ProductCardProps {
@@ -11,25 +11,23 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
-  const { addToCart, cart, language } = useShop();
+  const { addToCart, cart, language, fetchProductImages } = useShop();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [selectedVariants, setSelectedVariants] = useState<Record<string, string>>({});
   const [variantError, setVariantError] = useState(false);
   const [isDeliveryOpen, setIsDeliveryOpen] = useState(false);
+  const [modalImages, setModalImages] = useState<string[]>([]);
+  const [imagesLoading, setImagesLoading] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const isArabic = language === 'ar';
 
-  const productImages = product.images && product.images.length > 0
-    ? product.images
-    : product.image ? [product.image] : [];
-  const selectedImage = productImages[selectedImageIndex] || product.image;
-  const cardImage = product.image || productImages[0] || '';
+  const cardImage = product.image || '';
   const hasRealImage = !!cardImage;
 
   const productCats = getProductCategories(product);
   const primaryCatId = productCats[0] || product.category;
-  const primaryCatName = CATEGORIES.find(c => c.id === primaryCatId)?.[isArabic ? 'name' : 'name']?.[isArabic ? 'ar' : 'en'] || primaryCatId;
+  const primaryCatName = CATEGORIES.find(c => c.id === primaryCatId)?.name?.[isArabic ? 'ar' : 'en'] || primaryCatId;
 
   const oldPrice = Math.round(product.price * 1.23);
   const gradientClass =
@@ -61,32 +59,45 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 50) {
-      if (diff > 0) setSelectedImageIndex(i => Math.min(i + 1, productImages.length - 1));
+      if (diff > 0) setSelectedImageIndex(i => Math.min(i + 1, modalImages.length - 1));
       else setSelectedImageIndex(i => Math.max(i - 1, 0));
     }
     touchStartX.current = null;
   };
 
-  const prevImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedImageIndex(i => Math.max(i - 1, 0));
-  };
-  const nextImage = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    setSelectedImageIndex(i => Math.min(i + 1, productImages.length - 1));
-  };
+  const prevImage = (e: React.MouseEvent) => { e.stopPropagation(); setSelectedImageIndex(i => Math.max(i - 1, 0)); };
+  const nextImage = (e: React.MouseEvent) => { e.stopPropagation(); setSelectedImageIndex(i => Math.min(i + 1, modalImages.length - 1)); };
 
-  const openModal = () => {
+  const openModal = useCallback(async () => {
     setIsDetailsOpen(true);
     setSelectedImageIndex(0);
     setSelectedVariants({});
     setVariantError(false);
     setIsDeliveryOpen(false);
-  };
+    setModalImages(cardImage ? [cardImage] : []);
+    setImagesLoading(true);
+    try {
+      const imgs = await fetchProductImages(product.id);
+      setModalImages(imgs.length > 0 ? imgs : (cardImage ? [cardImage] : []));
+    } catch {
+      setModalImages(cardImage ? [cardImage] : []);
+    } finally {
+      setImagesLoading(false);
+    }
+  }, [product.id, cardImage, fetchProductImages]);
+
+  const selectedImage = modalImages[selectedImageIndex] || cardImage;
 
   return (
     <>
-      <div onClick={openModal} role="button" aria-label={displayName} tabIndex={0} onKeyDown={e => e.key === 'Enter' && openModal()} className="group cursor-pointer bg-[#050505] text-white">
+      <div
+        onClick={openModal}
+        role="button"
+        aria-label={displayName}
+        tabIndex={0}
+        onKeyDown={e => e.key === 'Enter' && openModal()}
+        className="group cursor-pointer bg-[#050505] text-white"
+      >
         <div className="relative overflow-hidden rounded-xl border border-white/5 bg-[#101010] shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
           {product.isNew && (
             <span className="absolute right-3 top-3 z-10 bg-emerald-400 text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-full">
@@ -105,6 +116,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 loading={priority ? 'eager' : 'lazy'}
                 decoding={priority ? 'sync' : 'async'}
                 fetchPriority={priority ? 'high' : 'low'}
+                width="400"
+                height="400"
                 className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
               />
@@ -158,8 +171,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 <p className="text-[10px] font-black uppercase tracking-[0.25em] text-purple-700">{primaryCatName}</p>
                 <h2 className="text-base font-black text-stone-900 sm:text-xl line-clamp-1">{displayName}</h2>
               </div>
-              <button onClick={() => setIsDetailsOpen(false)}
-                className="rounded-full border border-stone-200 p-2 text-stone-600 hover:bg-stone-100 flex-shrink-0">
+              <button
+                onClick={() => setIsDetailsOpen(false)}
+                aria-label={isArabic ? 'إغلاق' : 'Close'}
+                className="rounded-full border border-stone-200 p-2 text-stone-600 hover:bg-stone-100 flex-shrink-0"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -167,39 +183,66 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
             <div className="grid grid-cols-1 gap-0 md:grid-cols-2">
               <div className="bg-stone-50 p-3 sm:p-4">
                 <div className="relative select-none rounded-xl overflow-hidden" onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
-                  {selectedImage ? (
-                    <img src={selectedImage} alt={displayName} loading="eager"
-                      className="w-full min-h-[300px] max-h-[420px] object-cover rounded-xl" />
+                  {imagesLoading && modalImages.length <= 1 ? (
+                    <div className="flex min-h-[300px] w-full items-center justify-center rounded-xl bg-stone-100">
+                      <Loader2 size={32} className="animate-spin text-stone-400" />
+                    </div>
+                  ) : selectedImage ? (
+                    <img
+                      src={selectedImage}
+                      alt={displayName}
+                      loading="eager"
+                      width="600"
+                      height="600"
+                      className="w-full min-h-[300px] max-h-[420px] object-cover rounded-xl"
+                    />
                   ) : (
                     <div className={`flex min-h-[320px] w-full items-center justify-center rounded-xl bg-gradient-to-br ${gradientClass}`}>
                       <span className="text-3xl font-black tracking-widest text-white">VEXA</span>
                     </div>
                   )}
-                  {productImages.length > 1 && (
+                  {modalImages.length > 1 && (
                     <>
-                      <button onClick={prevImage} disabled={selectedImageIndex === 0}
-                        className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-2' : 'left-2'} bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md transition disabled:opacity-30`}>
+                      <button
+                        onClick={prevImage}
+                        disabled={selectedImageIndex === 0}
+                        aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
+                        className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-2' : 'left-2'} bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md transition disabled:opacity-30`}
+                      >
                         <ChevronLeft size={18} className={isArabic ? 'rotate-180' : ''} />
                       </button>
-                      <button onClick={nextImage} disabled={selectedImageIndex === productImages.length - 1}
-                        className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-2' : 'right-2'} bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md transition disabled:opacity-30`}>
+                      <button
+                        onClick={nextImage}
+                        disabled={selectedImageIndex === modalImages.length - 1}
+                        aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
+                        className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-2' : 'right-2'} bg-white/80 hover:bg-white rounded-full p-1.5 shadow-md transition disabled:opacity-30`}
+                      >
                         <ChevronRight size={18} className={isArabic ? 'rotate-180' : ''} />
                       </button>
                       <div className="absolute bottom-3 left-0 right-0 flex justify-center gap-1.5">
-                        {productImages.map((_, idx) => (
-                          <button key={idx} onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(idx); }}
-                            className={`rounded-full transition-all ${idx === selectedImageIndex ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`} />
+                        {modalImages.map((_, idx) => (
+                          <button
+                            key={idx}
+                            onClick={(e) => { e.stopPropagation(); setSelectedImageIndex(idx); }}
+                            aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
+                            className={`rounded-full transition-all ${idx === selectedImageIndex ? 'w-5 h-1.5 bg-white' : 'w-1.5 h-1.5 bg-white/50'}`}
+                          />
                         ))}
                       </div>
                     </>
                   )}
                 </div>
 
-                {productImages.length > 1 && (
+                {modalImages.length > 1 && (
                   <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                    {productImages.map((img, idx) => (
-                      <button key={`${img}-${idx}`} type="button" onClick={() => setSelectedImageIndex(idx)}
-                        className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${selectedImageIndex === idx ? 'border-black ring-1 ring-black/10' : 'border-stone-200 opacity-60 hover:opacity-100'}`}>
+                    {modalImages.map((img, idx) => (
+                      <button
+                        key={`${img.slice(-8)}-${idx}`}
+                        type="button"
+                        onClick={() => setSelectedImageIndex(idx)}
+                        aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
+                        className={`h-16 w-16 flex-shrink-0 overflow-hidden rounded-lg border-2 transition ${selectedImageIndex === idx ? 'border-black ring-1 ring-black/10' : 'border-stone-200 opacity-60 hover:opacity-100'}`}
+                      >
                         <img src={img} alt={`${displayName} ${idx + 1}`} className="h-full w-full object-cover" loading="lazy" />
                       </button>
                     ))}
@@ -210,19 +253,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                   <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
                     <Lock size={18} className="text-stone-500" />
                     <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
-                      {isArabic ? 'الدفع عند\nالاستلام' : 'Cash on\nDelivery'}
+                      {isArabic ? 'الدفع عند الاستلام' : 'Cash on Delivery'}
                     </span>
                   </div>
                   <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
                     <Truck size={18} className="text-stone-500" />
                     <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
-                      {isArabic ? 'توصيل سريع\nودسكريت' : 'Discreet &\nFast Delivery'}
+                      {isArabic ? 'توصيل سريع ودسكريت' : 'Discreet & Fast'}
                     </span>
                   </div>
                   <div className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
                     <ShieldCheck size={18} className="text-stone-500" />
                     <span className="text-[9px] font-black uppercase tracking-wide text-stone-600 leading-tight">
-                      {isArabic ? 'خصوصية\nتامة' : 'Full\nPrivacy'}
+                      {isArabic ? 'خصوصية تامة' : 'Full Privacy'}
                     </span>
                   </div>
                 </div>
@@ -251,7 +294,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
 
                 {remainingStock > 0 && remainingStock <= 5 && (
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0"></span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-amber-500 flex-shrink-0" aria-hidden="true"></span>
                     <span className="text-xs font-bold text-amber-700">
                       {isArabic ? 'مخزون محدود' : 'Low stock'}
                     </span>
@@ -281,15 +324,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                             <span className="text-red-500 mr-1 font-bold"> ({isArabic ? 'مطلوب' : 'required'})</span>
                           )}
                         </p>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2" role="group" aria-label={variant.name}>
                           {variant.options.map(opt => (
-                            <button key={opt} type="button"
+                            <button
+                              key={opt}
+                              type="button"
                               onClick={() => { setSelectedVariants(prev => ({ ...prev, [variant.name]: opt })); setVariantError(false); }}
+                              aria-pressed={selectedVariants[variant.name] === opt}
                               className={`px-4 py-2 text-xs font-bold rounded-full border-2 transition-all ${
                                 selectedVariants[variant.name] === opt
                                   ? 'bg-black text-white border-black'
                                   : 'bg-white text-stone-800 border-stone-300 hover:border-stone-800'
-                              }`}>
+                              }`}
+                            >
                               {opt}
                             </button>
                           ))}
@@ -307,7 +354,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 )}
 
                 <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5">
-                  <Zap size={15} className="text-emerald-600 flex-shrink-0" />
+                  <Zap size={15} className="text-emerald-600 flex-shrink-0" aria-hidden="true" />
                   <p className="text-xs font-black text-emerald-700">
                     {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
                   </p>
@@ -328,16 +375,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                   </div>
                 </div>
 
-                <button onClick={handleAddToCart}
+                <button
+                  onClick={handleAddToCart}
                   disabled={product.stock === 0 || remainingStock === 0}
+                  aria-label={isArabic ? 'أضف للسلة' : 'Add to cart'}
                   className={`flex w-full items-center justify-center gap-2 rounded-xl py-4 text-sm font-black transition active:scale-[0.98] ${
                     product.stock === 0 || remainingStock === 0
                       ? 'cursor-not-allowed bg-stone-200 text-stone-400'
                       : variantError
                       ? 'bg-red-600 text-white hover:bg-red-700'
                       : 'bg-black text-white hover:bg-stone-800'
-                  }`}>
-                  <ShoppingCart size={18} />
+                  }`}
+                >
+                  <ShoppingCart size={18} aria-hidden="true" />
                   {product.stock === 0
                     ? (isArabic ? 'نفذ المخزون' : 'Sold out')
                     : remainingStock === 0
@@ -351,6 +401,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                   <button
                     type="button"
                     onClick={() => setIsDeliveryOpen(v => !v)}
+                    aria-expanded={isDeliveryOpen}
+                    aria-controls="delivery-info"
                     className="flex w-full items-center justify-between py-4 text-left"
                   >
                     <span className="text-[11px] font-black uppercase tracking-[0.2em] text-stone-700">
@@ -358,37 +410,32 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                     </span>
                     <ChevronDown
                       size={16}
+                      aria-hidden="true"
                       className={`text-stone-500 transition-transform duration-200 ${isDeliveryOpen ? 'rotate-180' : ''}`}
                     />
                   </button>
 
                   {isDeliveryOpen && (
-                    <div className="pb-5 space-y-4 text-sm leading-relaxed text-stone-600">
+                    <div id="delivery-info" className="pb-5 space-y-4 text-sm leading-relaxed text-stone-600">
                       <div>
                         <h4 className="font-black text-stone-800 mb-1">Discreet Delivery & Premium Adult Wellness Products in Lebanon</h4>
                         <p>Your privacy is our top priority. We are committed to offering a fully discreet and secure shopping experience for customers across Lebanon. Every order is shipped in plain, unbranded packaging with no indication of its contents, ensuring complete confidentiality from checkout to delivery.</p>
                       </div>
                       <div>
                         <h4 className="font-black text-stone-800 mb-1">Premium Selection for Every Preference</h4>
-                        <p>Discover a carefully curated range of high-quality adult wellness products designed for comfort, safety, and satisfaction. The collection includes vibrators, dildos, personal massagers, intimate accessories, and more — all made from body-safe, premium materials suitable for both beginners and experienced users.</p>
-                        <p className="mt-2">Whether for personal exploration or shared experiences, each product is selected to provide a reliable and enjoyable experience.</p>
+                        <p>Discover a carefully curated range of high-quality adult wellness products designed for comfort, safety, and satisfaction — all made from body-safe, premium materials suitable for both beginners and experienced users.</p>
                       </div>
                       <div>
                         <h4 className="font-black text-stone-800 mb-1">Same-Day Delivery in Beirut</h4>
-                        <p>Need it quickly? Customers in Beirut can benefit from same-day delivery service, allowing orders to arrive within hours after purchase for maximum convenience and speed.</p>
+                        <p>Customers in Beirut can benefit from same-day delivery service, allowing orders to arrive within hours after purchase.</p>
                       </div>
                       <div>
                         <h4 className="font-black text-stone-800 mb-1">Fast Nationwide Delivery Across Lebanon</h4>
-                        <p>Outside Beirut? No problem. We provide discreet delivery to all regions across Lebanon within 72 hours. Every order is handled carefully to ensure fast, secure, and completely private shipping.</p>
-                      </div>
-                      <div>
-                        <h4 className="font-black text-stone-800 mb-1">Commitment to Privacy & Quality</h4>
-                        <p>We focus on combining premium product quality with absolute discretion and reliable service. From browsing to delivery, everything is designed to be smooth, private, and trustworthy.</p>
+                        <p>We provide discreet delivery to all regions across Lebanon within 72 hours. Every order is handled carefully to ensure fast, secure, and completely private shipping.</p>
                       </div>
                     </div>
                   )}
                 </div>
-
               </div>
             </div>
           </div>
