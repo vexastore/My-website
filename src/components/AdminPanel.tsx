@@ -262,6 +262,7 @@ export const AdminPanel: React.FC = () => {
   };
 
   const handleRemoveImage = (image: string) => {
+    if (!window.confirm('هل أنت متأكد من حذف هذه الصورة؟ لا يمكن التراجع عن هذا الإجراء.')) return;
     setProdForm(prev => {
       const next = (prev.images || []).filter(i => i !== image);
       return { ...prev, images: next, image: prev.image === image ? (next[0] || '') : prev.image };
@@ -311,6 +312,15 @@ export const AdminPanel: React.FC = () => {
         const sizeKB = Math.round(totalSize / 1024);
         alert(`الصور التي رفعتها كبيرة جداً (${sizeKB} KB). الحد الأقصى 900 KB.\n\nيرجى حذف بعض الصور أو استخدام رابط URL بدلاً من رفع الصور.`);
         return;
+      }
+
+      const currentCount = prodForm.images?.length || 0;
+      const originalCount = loadedFirebaseImagesRef.current.length;
+      if (originalCount > currentCount) {
+        const confirmed = window.confirm(
+          `تحذير: عدد الصور سينخفض من ${originalCount} إلى ${currentCount}.\n\nهل أنت متأكد أنك تريد الحفظ بصور أقل؟`
+        );
+        if (!confirmed) return;
       }
     }
 
