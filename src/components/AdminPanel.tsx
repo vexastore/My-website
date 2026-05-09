@@ -7,6 +7,8 @@ import {
   LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle
 } from 'lucide-react';
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { storage } from '../firebase';
 
 const ALL_CATEGORY_IDS: CategoryId[] = [
   'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie',
@@ -48,6 +50,7 @@ export const AdminPanel: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
   // Track whether the user actually changed images — prevents overwriting Firebase images on info-only edits
   const [imagesModifiedByUser, setImagesModifiedByUser] = useState(false);
   // Backup of Firebase images — protects against accidental deletion
@@ -224,12 +227,12 @@ export const AdminPanel: React.FC = () => {
     setProdForm(prev => ({ ...prev, [e.target.name]: e.target.checked }));
   };
 
-  const compressImageFile = (file: File) => new Promise<string>((resolve, reject) => {
+  const compressImageFileToBlob = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const img = new window.Image();
       img.onload = () => {
-        const maxSize = 600;
+        const maxSize = 1200;
         const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(img.width * scale));
@@ -237,7 +240,10 @@ export const AdminPanel: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) { reject(new Error('Canvas not supported')); return; }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.65));
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error('Failed to create blob'));
+        }, 'image/jpeg', 0.85);
       };
       img.onerror = () => reject(new Error('Could not load image'));
       img.src = String(reader.result || '');
@@ -246,19 +252,32 @@ export const AdminPanel: React.FC = () => {
     reader.readAsDataURL(file);
   });
 
+  const uploadImageToStorage = async (file: File): Promise<string> => {
+    const blob = await compressImageFileToBlob(file);
+    const uniqueName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const storageRef = ref(storage, `product_images/${uniqueName}.jpg`);
+    await uploadBytes(storageRef, blob);
+    return await getDownloadURL(storageRef);
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     if (files.some(f => !f.type.startsWith('image/'))) { alert('يرجى اختيار ملفات صور فقط.'); return; }
+    setIsUploadingImages(true);
     try {
-      const uploaded = await Promise.all(files.map(compressImageFile));
+      const uploaded = await Promise.all(files.map(uploadImageToStorage));
       setProdForm(prev => {
         const next = [...(prev.images || []), ...uploaded].slice(0, 10);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
       setImagesModifiedByUser(true);
-    } catch { alert('حدث خطأ في قراءة الصور.'); }
-    finally { e.target.value = ''; }
+    } catch {
+      alert('حدث خطأ في رفع الصور على Firebase Storage.\n\nتأكد من إعدادات Storage Rules في Firebase Console:\nStorage → Rules → اسمح بالكتابة');
+    } finally {
+      setIsUploadingImages(false);
+      e.target.value = '';
+    }
   };
 
   const handleRemoveImage = (image: string) => {
@@ -303,17 +322,7 @@ export const AdminPanel: React.FC = () => {
       return;
     }
 
-    // Size check only for base64 images the user uploaded in this session
     if (imagesModifiedByUser) {
-      const base64Images = (prodForm.images || []).filter(img => img.startsWith('data:'));
-      const totalSize = base64Images.reduce((t, img) => t + img.length, 0);
-      const MAX_SIZE = 900 * 1024;
-      if (totalSize > MAX_SIZE) {
-        const sizeKB = Math.round(totalSize / 1024);
-        alert(`الصور التي رفعتها كبيرة جداً (${sizeKB} KB). الحد الأقصى 900 KB.\n\nيرجى حذف بعض الصور أو استخدام رابط URL بدلاً من رفع الصور.`);
-        return;
-      }
-
       const currentCount = prodForm.images?.length || 0;
       const originalCount = loadedFirebaseImagesRef.current.length;
       if (originalCount > currentCount) {
@@ -674,11 +683,13 @@ export const AdminPanel: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
-                  ارفع صور إضافية (حتى 10 صور)
+                  ارفع صور إضافية (حتى 10 صور) — تُحفظ على Firebase Storage
                 </label>
-                <label className="flex items-center gap-2 border border-dashed border-white/20 hover:border-white/40 text-white/50 hover:text-white/70 px-4 py-3 rounded-xl cursor-pointer transition text-sm font-bold">
-                  <Upload size={16} /> اختر صور من الجهاز
-                  <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
+                <label className={`flex items-center gap-2 border border-dashed px-4 py-3 rounded-xl text-sm font-bold transition ${isUploadingImages ? 'border-amber-500/50 text-amber-400 cursor-not-allowed' : 'border-white/20 hover:border-white/40 text-white/50 hover:text-white/70 cursor-pointer'}`}>
+                  {isUploadingImages
+                    ? <><Loader2 size={16} className="animate-spin flex-shrink-0" /> جاري رفع الصور على Firebase...</>
+                    : <><Upload size={16} /> اختر صور من الجهاز</>}
+                  <input type="file" accept="image/*" multiple onChange={handleImageUpload} disabled={isUploadingImages} className="hidden" />
                 </label>
               </div>
 
@@ -809,10 +820,12 @@ export const AdminPanel: React.FC = () => {
                 </div>
               )}
 
-              <button type="submit" disabled={isSaving || isLoadingImages}
+              <button type="submit" disabled={isSaving || isLoadingImages || isUploadingImages}
                 className="w-full flex items-center justify-center gap-2 bg-white text-black py-3.5 rounded-xl font-black text-sm hover:bg-stone-100 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition">
                 {isSaving
                   ? <><Loader2 size={18} className="animate-spin" /> جاري الحفظ...</>
+                  : isUploadingImages
+                  ? <><Loader2 size={18} className="animate-spin" /> انتظر — جاري رفع الصور...</>
                   : isLoadingImages
                   ? <><Loader2 size={18} className="animate-spin" /> جاري تحميل الصور...</>
                   : <>{editingProduct ? 'حفظ التعديلات' : 'إضافة المنتج'}</>}
