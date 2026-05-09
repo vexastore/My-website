@@ -189,7 +189,7 @@ export const AdminPanel: React.FC = () => {
     reader.onload = () => {
       const img = new window.Image();
       img.onload = () => {
-        const maxSize = 320;
+        const maxSize = 240;
         const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(img.width * scale));
@@ -197,7 +197,7 @@ export const AdminPanel: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) { reject(new Error('Canvas not supported')); return; }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.38));
+        resolve(canvas.toDataURL('image/jpeg', 0.25));
       };
       img.onerror = () => reject(new Error('Could not load image'));
       img.src = String(reader.result || '');
@@ -213,7 +213,7 @@ export const AdminPanel: React.FC = () => {
     try {
       const uploaded = await Promise.all(files.map(compressImageFile));
       setProdForm(prev => {
-        const next = [...(prev.images || []), ...uploaded].slice(0, 20);
+        const next = [...(prev.images || []), ...uploaded].slice(0, 5);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
     } catch { alert('حدث خطأ في قراءة الصور.'); }
