@@ -7,8 +7,6 @@ import {
   LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle
 } from 'lucide-react';
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { storage } from '../firebase';
 
 const ALL_CATEGORY_IDS: CategoryId[] = [
   'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie',
@@ -227,12 +225,12 @@ export const AdminPanel: React.FC = () => {
     setProdForm(prev => ({ ...prev, [e.target.name]: e.target.checked }));
   };
 
-  const compressImageFileToBlob = (file: File): Promise<Blob> => new Promise((resolve, reject) => {
+  const compressImageFile = (file: File): Promise<string> => new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const img = new window.Image();
       img.onload = () => {
-        const maxSize = 1200;
+        const maxSize = 800;
         const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(img.width * scale));
@@ -240,10 +238,7 @@ export const AdminPanel: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) { reject(new Error('Canvas not supported')); return; }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(blob => {
-          if (blob) resolve(blob);
-          else reject(new Error('Failed to create blob'));
-        }, 'image/jpeg', 0.85);
+        resolve(canvas.toDataURL('image/jpeg', 0.72));
       };
       img.onerror = () => reject(new Error('Could not load image'));
       img.src = String(reader.result || '');
@@ -252,28 +247,20 @@ export const AdminPanel: React.FC = () => {
     reader.readAsDataURL(file);
   });
 
-  const uploadImageToStorage = async (file: File): Promise<string> => {
-    const blob = await compressImageFileToBlob(file);
-    const uniqueName = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    const storageRef = ref(storage, `product_images/${uniqueName}.jpg`);
-    await uploadBytes(storageRef, blob);
-    return await getDownloadURL(storageRef);
-  };
-
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
     if (files.some(f => !f.type.startsWith('image/'))) { alert('يرجى اختيار ملفات صور فقط.'); return; }
     setIsUploadingImages(true);
     try {
-      const uploaded = await Promise.all(files.map(uploadImageToStorage));
+      const compressed = await Promise.all(files.map(compressImageFile));
       setProdForm(prev => {
-        const next = [...(prev.images || []), ...uploaded].slice(0, 10);
+        const next = [...(prev.images || []), ...compressed].slice(0, 10);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
       setImagesModifiedByUser(true);
     } catch {
-      alert('حدث خطأ في رفع الصور على Firebase Storage.\n\nتأكد من إعدادات Storage Rules في Firebase Console:\nStorage → Rules → اسمح بالكتابة');
+      alert('حدث خطأ في معالجة الصور. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsUploadingImages(false);
       e.target.value = '';
@@ -683,11 +670,11 @@ export const AdminPanel: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
-                  ارفع صور إضافية (حتى 10 صور) — تُحفظ على Firebase Storage
+                  ارفع صور إضافية (حتى 10 صور)
                 </label>
                 <label className={`flex items-center gap-2 border border-dashed px-4 py-3 rounded-xl text-sm font-bold transition ${isUploadingImages ? 'border-amber-500/50 text-amber-400 cursor-not-allowed' : 'border-white/20 hover:border-white/40 text-white/50 hover:text-white/70 cursor-pointer'}`}>
                   {isUploadingImages
-                    ? <><Loader2 size={16} className="animate-spin flex-shrink-0" /> جاري رفع الصور على Firebase...</>
+                    ? <><Loader2 size={16} className="animate-spin flex-shrink-0" /> جاري معالجة الصور...</>
                     : <><Upload size={16} /> اختر صور من الجهاز</>}
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} disabled={isUploadingImages} className="hidden" />
                 </label>
