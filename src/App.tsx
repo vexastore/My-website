@@ -1,14 +1,21 @@
 
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 import { ProductList } from './components/ProductList';
-import { Checkout } from './components/Checkout';
-import { AdminPanel } from './components/AdminPanel';
-import { MyOrders } from './components/MyOrders';
-import { VexaAiAssistant } from './components/VexaAiAssistant';
-import { FloatingWhatsApp } from './components/FloatingWhatsApp';
 import { ShieldCheck, Lock, Heart, Mail } from 'lucide-react';
+
+const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default: m.Checkout })));
+const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
+const MyOrders = lazy(() => import('./components/MyOrders').then(m => ({ default: m.MyOrders })));
+const VexaAiAssistant = lazy(() => import('./components/VexaAiAssistant').then(m => ({ default: m.VexaAiAssistant })));
+const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then(m => ({ default: m.FloatingWhatsApp })));
+
+const PageLoader = () => (
+  <div className="flex min-h-[40vh] items-center justify-center">
+    <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
+  </div>
+);
 
 const AppContent: React.FC = () => {
   const { currentView, language } = useShop();
@@ -17,9 +24,9 @@ const AppContent: React.FC = () => {
   const renderView = () => {
     switch (currentView) {
       case 'shop':     return <ProductList />;
-      case 'checkout': return <Checkout />;
-      case 'admin':    return <AdminPanel />;
-      case 'orders':   return <MyOrders />;
+      case 'checkout': return <Suspense fallback={<PageLoader />}><Checkout /></Suspense>;
+      case 'admin':    return <Suspense fallback={<PageLoader />}><AdminPanel /></Suspense>;
+      case 'orders':   return <Suspense fallback={<PageLoader />}><MyOrders /></Suspense>;
       default:         return <ProductList />;
     }
   };
@@ -27,8 +34,8 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#050101] text-stone-900 flex flex-col font-sans" dir={isArabic ? 'rtl' : 'ltr'}>
       <Navbar />
-      <VexaAiAssistant />
-      <FloatingWhatsApp />
+      <Suspense fallback={null}><VexaAiAssistant /></Suspense>
+      <Suspense fallback={null}><FloatingWhatsApp /></Suspense>
       <main className="vexa-page-shell flex-grow">{renderView()}</main>
 
       <footer className="bg-stone-900 text-stone-300 border-t border-stone-800 py-12 mt-auto">
