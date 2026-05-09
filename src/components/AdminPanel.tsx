@@ -4,7 +4,7 @@ import { Order, Product, CategoryId, ProductVariant } from '../types';
 import {
   Package, Truck, CheckCircle2, XCircle, Trash2, Phone, MapPin,
   Calendar, DollarSign, ClipboardList, Edit, Plus, X, Upload,
-  LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown
+  LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle
 } from 'lucide-react';
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
 
@@ -32,6 +32,8 @@ export const AdminPanel: React.FC = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
+  // Track whether the user actually changed images — prevents overwriting Firebase images on info-only edits
+  const [imagesModifiedByUser, setImagesModifiedByUser] = useState(false);
 
   const [prodForm, setProdForm] = useState<{
     name: string;
@@ -154,6 +156,7 @@ export const AdminPanel: React.FC = () => {
   const openAddModal = () => {
     setEditingProduct(null);
     setNewOptionInputs({});
+    setImagesModifiedByUser(false);
     setProdForm({ name: '', description: '', price: 0, image: '', images: [], categories: ['Sex Toys'], variants: [], rating: 5.0, reviewsCount: Math.floor(Math.random() * 10) + 1, stock: 10, isNew: true });
     setIsModalOpen(true);
   };
@@ -161,8 +164,8 @@ export const AdminPanel: React.FC = () => {
   const openEditModal = async (product: Product) => {
     setEditingProduct(product);
     setNewOptionInputs({});
+    setImagesModifiedByUser(false);
     const cats = getProductCategories(product) as CategoryId[];
-    // Start with what we have locally, open modal immediately
     const localImgs = product.image ? [product.image] : [];
     setProdForm({
       name: product.name || product.nameEn,
@@ -175,7 +178,6 @@ export const AdminPanel: React.FC = () => {
       stock: product.stock, isNew: product.isNew || false
     });
     setIsModalOpen(true);
-    // Fetch the real full images list from Firebase
     setIsLoadingImages(true);
     try {
       const firebaseImgs = await fetchProductImages(product.id);
@@ -231,6 +233,7 @@ export const AdminPanel: React.FC = () => {
         const next = [...(prev.images || []), ...uploaded].slice(0, 10);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
+      setImagesModifiedByUser(true);
     } catch { alert('حدث خطأ في قراءة الصور.'); }
     finally { e.target.value = ''; }
   };
@@ -240,6 +243,7 @@ export const AdminPanel: React.FC = () => {
       const next = (prev.images || []).filter(i => i !== image);
       return { ...prev, images: next, image: prev.image === image ? (next[0] || '') : prev.image };
     });
+    setImagesModifiedByUser(true);
   };
 
   const moveImageUp = (idx: number) => {
@@ -249,6 +253,7 @@ export const AdminPanel: React.FC = () => {
       [imgs[idx - 1], imgs[idx]] = [imgs[idx], imgs[idx - 1]];
       return { ...prev, images: imgs, image: imgs[0] || prev.image };
     });
+    setImagesModifiedByUser(true);
   };
 
   const moveImageDown = (idx: number) => {
@@ -258,26 +263,32 @@ export const AdminPanel: React.FC = () => {
       [imgs[idx + 1], imgs[idx]] = [imgs[idx], imgs[idx + 1]];
       return { ...prev, images: imgs, image: imgs[0] || prev.image };
     });
-  };
-
-  const getTotalImagesSize = (images: string[]) => {
-    return images.reduce((total, img) => total + img.length, 0);
+    setImagesModifiedByUser(true);
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (isLoadingImages) {
+      alert('الصور لم تنتهِ من التحميل بعد. يرجى الانتظار قليلاً ثم الحفظ.');
+      return;
+    }
+
     if (!prodForm.name || !prodForm.price || !prodForm.image) {
       alert('يرجى ملء: الاسم، السعر، والصورة.');
       return;
     }
 
-    const base64Images = (prodForm.images || []).filter(img => img.startsWith('data:'));
-    const totalSize = getTotalImagesSize(base64Images);
-    const MAX_SIZE = 900 * 1024;
-    if (totalSize > MAX_SIZE) {
-      const sizeKB = Math.round(totalSize / 1024);
-      alert(`الصور كبيرة جداً (${sizeKB} KB). الحد الأقصى هو 900 KB.\n\nيرجى حذف بعض الصور أو استخدام رابط URL بدلاً من رفع الصور.`);
-      return;
+    // Size check only for base64 images the user uploaded in this session
+    if (imagesModifiedByUser) {
+      const base64Images = (prodForm.images || []).filter(img => img.startsWith('data:'));
+      const totalSize = base64Images.reduce((t, img) => t + img.length, 0);
+      const MAX_SIZE = 900 * 1024;
+      if (totalSize > MAX_SIZE) {
+        const sizeKB = Math.round(totalSize / 1024);
+        alert(`الصور التي رفعتها كبيرة جداً (${sizeKB} KB). الحد الأقصى 900 KB.\n\nيرجى حذف بعض الصور أو استخدام رابط URL بدلاً من رفع الصور.`);
+        return;
+      }
     }
 
     const primaryCat = prodForm.categories[0] || 'Sex Toys';
@@ -302,7 +313,8 @@ export const AdminPanel: React.FC = () => {
     setIsSaving(true);
     try {
       if (editingProduct) {
-        await updateProduct(editingProduct.id, productData);
+        // Pass imagesModifiedByUser so we NEVER overwrite Firebase images unless user changed them
+        await updateProduct(editingProduct.id, productData, imagesModifiedByUser);
         alert('تم تعديل المنتج بنجاح! ✅');
       } else {
         await addProduct(productData);
@@ -312,13 +324,13 @@ export const AdminPanel: React.FC = () => {
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('400') || msg.toLowerCase().includes('too large') || msg.toLowerCase().includes('maximum')) {
-        alert('الصور كبيرة جداً لحفظها.\n\nالحل: احذف بعض الصور من القائمة أو استخدم رابط URL بدلاً من رفع الصور مباشرة.');
+        alert('الصور كبيرة جداً لحفظها في Firebase.\n\nالحل: احذف بعض الصور من القائمة أو استخدم رابط URL بدلاً من رفع الصور مباشرة.');
       } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('unauthorized')) {
-        alert('خطأ في الصلاحيات. يرجى التحقق من إعدادات Firebase.');
+        alert('خطأ في الصلاحيات. تأكد من إعدادات Firebase Security Rules.');
       } else if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('offline') || msg.toLowerCase().includes('unavailable')) {
-        alert('لا يوجد اتصال بالإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.');
+        alert('لا يوجد اتصال بالإنترنت. تحقق من الاتصال وحاول مجدداً.');
       } else {
-        alert(`حدث خطأ أثناء الحفظ:\n${msg}\n\nإذا استمر الخطأ، جرب تقليل عدد الصور.`);
+        alert(`حدث خطأ أثناء الحفظ:\n${msg}\n\nجرب تقليل عدد الصور إذا استمر الخطأ.`);
       }
     } finally {
       setIsSaving(false);
@@ -522,7 +534,7 @@ export const AdminPanel: React.FC = () => {
 
       {isModalOpen && (
         <div className="fixed inset-0 z-[10001] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4"
-          onClick={() => !isSaving && setIsModalOpen(false)}>
+          onClick={() => !isSaving && !isLoadingImages && setIsModalOpen(false)}>
           <div className="bg-[#0d0d0d] border border-white/15 w-full max-w-xl max-h-[92vh] overflow-y-auto sm:rounded-2xl"
             onClick={e => e.stopPropagation()}>
 
@@ -530,10 +542,18 @@ export const AdminPanel: React.FC = () => {
               <h2 className="text-base font-black text-white">
                 {editingProduct ? 'تعديل المنتج' : 'إضافة منتج جديد'}
               </h2>
-              <button onClick={() => !isSaving && setIsModalOpen(false)} className="text-white/40 hover:text-white">
+              <button onClick={() => !isSaving && !isLoadingImages && setIsModalOpen(false)} className="text-white/40 hover:text-white">
                 <X size={22} />
               </button>
             </div>
+
+            {/* Warning banner while images are loading */}
+            {isLoadingImages && (
+              <div className="mx-5 mt-4 flex items-center gap-2 bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs font-bold px-4 py-3 rounded-xl">
+                <Loader2 size={14} className="animate-spin flex-shrink-0" />
+                <span>جاري تحميل صور المنتج... انتظر حتى تكتمل قبل الحفظ</span>
+              </div>
+            )}
 
             <form onSubmit={handleSaveProduct} className="p-5 space-y-5">
               <div>
@@ -605,6 +625,7 @@ export const AdminPanel: React.FC = () => {
                     ...prev, image: val,
                     images: val ? [val, ...(prev.images || []).filter(i => i !== val)] : (prev.images || [])
                   }));
+                  setImagesModifiedByUser(true);
                 }} dir="ltr" placeholder="https://..."
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
               </div>
@@ -620,8 +641,8 @@ export const AdminPanel: React.FC = () => {
               </div>
 
               {isLoadingImages && (
-                <div className="flex items-center gap-2 text-white/40 text-xs font-bold py-2">
-                  <Loader2 size={14} className="animate-spin" /> جاري تحميل الصور من الخادم...
+                <div className="flex items-center gap-2 text-amber-400/70 text-xs font-bold py-1">
+                  <Loader2 size={14} className="animate-spin" /> جاري تحميل الصور من Firebase...
                 </div>
               )}
 
@@ -629,6 +650,7 @@ export const AdminPanel: React.FC = () => {
                 <div>
                   <p className="text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
                     ترتيب الصور — الأولى هي صورة الواجهة
+                    {imagesModifiedByUser && <span className="text-amber-400 mr-2 normal-case font-bold">• تم التعديل</span>}
                   </p>
                   <div className="space-y-2">
                     {prodForm.images.map((img, idx) => (
@@ -738,10 +760,19 @@ export const AdminPanel: React.FC = () => {
                 <span className="text-sm font-bold text-white/70">وضع علامة "جديد" على هذا المنتج</span>
               </label>
 
-              <button type="submit" disabled={isSaving}
+              {isLoadingImages && (
+                <div className="flex items-center gap-2 bg-amber-950/30 border border-amber-500/20 text-amber-400 text-xs font-bold px-4 py-3 rounded-xl">
+                  <AlertTriangle size={14} className="flex-shrink-0" />
+                  <span>يجب الانتظار حتى تكتمل الصور قبل الحفظ</span>
+                </div>
+              )}
+
+              <button type="submit" disabled={isSaving || isLoadingImages}
                 className="w-full flex items-center justify-center gap-2 bg-white text-black py-3.5 rounded-xl font-black text-sm hover:bg-stone-100 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition">
                 {isSaving
                   ? <><Loader2 size={18} className="animate-spin" /> جاري الحفظ...</>
+                  : isLoadingImages
+                  ? <><Loader2 size={18} className="animate-spin" /> جاري تحميل الصور...</>
                   : <>{editingProduct ? 'حفظ التعديلات' : 'إضافة المنتج'}</>}
               </button>
             </form>
