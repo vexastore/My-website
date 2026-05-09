@@ -155,25 +155,27 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => { localStorage.setItem('adult_store_orders', JSON.stringify(orders)); }, [orders]);
 
   const fetchProductImages = async (productId: string): Promise<string[]> => {
+    // Step 1: try the dedicated gallery collection (primary source, separate try so it never blocks step 2)
     try {
-      // Fetch from both sources in parallel to get ALL images
-      const [gallerySnap, productSnap] = await Promise.all([
-        getDoc(doc(db, IMAGES_COLLECTION, productId)),
-        getDoc(doc(db, PRODUCTS_COLLECTION, productId)),
-      ]);
-      const galleryImgs: string[] = gallerySnap.exists()
-        ? (gallerySnap.data().images as string[]) || []
-        : [];
-      const productData = productSnap.exists() ? productSnap.data() : null;
-      const productImgs: string[] = productData ? (productData.images as string[] || []) : [];
-      // Use whichever source has more images
-      const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
-      if (bestImgs.length > 0) return bestImgs;
-      // Fallback to the single cover image
-      return productData?.image ? [productData.image as string] : [];
-    } catch {
-      return [];
-    }
+      const gallerySnap = await getDoc(doc(db, IMAGES_COLLECTION, productId));
+      if (gallerySnap.exists()) {
+        const imgs = ((gallerySnap.data().images as string[]) || []).filter(Boolean);
+        if (imgs.length > 0) return imgs;
+      }
+    } catch { /* gallery read failed, fall through to product doc */ }
+
+    // Step 2: fallback to the product document (separate try so either source can fail independently)
+    try {
+      const productSnap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
+      if (productSnap.exists()) {
+        const data = productSnap.data();
+        const imgs = ((data.images as string[]) || []).filter(Boolean);
+        if (imgs.length > 0) return imgs;
+        if (data.image) return [data.image as string];
+      }
+    } catch { /* product doc read also failed */ }
+
+    return [];
   };
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
