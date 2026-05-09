@@ -4,6 +4,8 @@ import { ProductCard } from './ProductCard';
 import { SearchX, ShoppingBag, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 import { CATEGORIES, getCategoryTitle, productMatchesCategory } from '../data/categories';
 
+const PAGE_SIZE = 12;
+
 export const ProductList: React.FC = () => {
   const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, language, isProductsLoading } = useShop();
   const isArabic = language === 'ar';
@@ -12,6 +14,7 @@ export const ProductList: React.FC = () => {
   const [openFilterSection, setOpenFilterSection] = useState<'availability' | 'price' | 'categories' | null>(null);
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'in-stock' | 'low-stock'>('all');
   const [sortBy, setSortBy] = useState<'best' | 'price-low' | 'price-high'>('best');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const filteredProducts = products.filter((product) => {
     const q = searchQuery.toLowerCase().trim();
@@ -32,6 +35,9 @@ export const ProductList: React.FC = () => {
     if (sortBy === 'price-high') return b.price - a.price;
     return b.reviewsCount - a.reviewsCount;
   });
+
+  const visibleProducts = filteredProducts.slice(0, visibleCount);
+  const hasMore = visibleCount < filteredProducts.length;
 
   const faqs = [
     {
@@ -98,6 +104,7 @@ export const ProductList: React.FC = () => {
           </div>
           <button
             onClick={() => setIsFilterOpen(true)}
+            aria-label={isArabic ? 'فتح قائمة الفلتر' : 'Open filter menu'}
             className="inline-flex items-center gap-2 border border-white/20 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-white/80 transition hover:bg-white hover:text-black"
           >
             <SlidersHorizontal size={14} />
@@ -129,11 +136,29 @@ export const ProductList: React.FC = () => {
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 gap-x-5 gap-y-14 sm:gap-x-8 sm:gap-y-16 md:grid-cols-3 lg:grid-cols-4">
-            {filteredProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-14 sm:gap-x-8 sm:gap-y-16 md:grid-cols-3 lg:grid-cols-4">
+              {visibleProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} priority={index < 4} />
+              ))}
+            </div>
+            {hasMore && (
+              <div className="mt-14 flex flex-col items-center gap-2">
+                <button
+                  onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
+                  aria-label={isArabic ? 'تحميل المزيد من المنتجات' : 'Load more products'}
+                  className="border border-white/20 px-10 py-3.5 text-[11px] font-black uppercase tracking-[0.22em] text-white/80 transition hover:bg-white hover:text-black active:scale-[0.98]"
+                >
+                  {isArabic ? 'تحميل المزيد' : 'Load more'}
+                </button>
+                <p className="text-[10px] text-white/30">
+                  {isArabic
+                    ? `عرض ${visibleProducts.length} من ${filteredProducts.length}`
+                    : `Showing ${visibleProducts.length} of ${filteredProducts.length}`}
+                </p>
+              </div>
+            )}
+          </>
         ) : (
           <div className="flex flex-col items-center justify-center border border-dashed border-white/15 bg-white/[0.03] px-4 py-20 text-center">
             <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white/50">
