@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { Order } from '../types';
-import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, Package, Truck, CheckCircle2, XCircle } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, Package, Truck, CheckCircle2, XCircle, ClipboardList } from 'lucide-react';
 
 const VexaLogo = () => (
   <div
@@ -27,10 +27,7 @@ export const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
-  const [isTrackingOpen, setIsTrackingOpen] = useState(false);
-  const [trackInput, setTrackInput] = useState('');
-  const [trackedOrder, setTrackedOrder] = useState<Order | null>(null);
-  const [trackNotFound, setTrackNotFound] = useState(false);
+  const [isOrdersOpen, setIsOrdersOpen] = useState(false);
 
   const isArabic = language === 'ar';
 
@@ -97,23 +94,49 @@ export const Navbar: React.FC = () => {
     setView('checkout');
   };
 
-  const handleTrackOrder = () => {
-    const id = trackInput.trim().toUpperCase();
-    if (!id) return;
-    const found = orders.find(o => o.id.toUpperCase() === id) || null;
-    setTrackedOrder(found);
-    setTrackNotFound(!found);
-  };
-
   const getStatusInfo = (status: Order['status']) => {
     const map: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
-      pending:   { icon: <Package size={14} className="animate-pulse" />, label: isArabic ? 'قيد المراجعة' : 'Pending', color: 'bg-amber-50 text-amber-700 border-amber-200' },
-      shipping:  { icon: <Truck size={14} />, label: isArabic ? 'قيد الشحن' : 'Shipped', color: 'bg-blue-50 text-blue-700 border-blue-200' },
-      delivered: { icon: <CheckCircle2 size={14} />, label: isArabic ? 'تم الاستلام' : 'Delivered', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
-      cancelled: { icon: <XCircle size={14} />, label: isArabic ? 'ملغي' : 'Cancelled', color: 'bg-red-50 text-red-600 border-red-200' },
+      pending:   { icon: <Package size={12} className="animate-pulse" />, label: isArabic ? 'قيد المراجعة' : 'Pending', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+      shipping:  { icon: <Truck size={12} />, label: isArabic ? 'قيد الشحن' : 'Shipped', color: 'bg-blue-50 text-blue-700 border-blue-200' },
+      delivered: { icon: <CheckCircle2 size={12} />, label: isArabic ? 'تم الاستلام' : 'Delivered', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
+      cancelled: { icon: <XCircle size={12} />, label: isArabic ? 'ملغي' : 'Cancelled', color: 'bg-red-50 text-red-600 border-red-200' },
     };
     return map[status] || map['pending'];
   };
+
+  /* ── icon buttons shared between both nav bars ── */
+  const IconBar = ({ size }: { size: number }) => (
+    <div className="flex items-center justify-end gap-2.5 sm:gap-4">
+      <button onClick={() => { setIsSearchOpen(v => !v); setIsMenuOpen(false); }} className="text-white transition hover:text-white/70">
+        <Search size={size} strokeWidth={1.4} />
+      </button>
+      <button onClick={toggleLanguage}
+        className="border border-white/20 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black">
+        {isArabic ? 'EN' : 'AR'}
+      </button>
+      {/* My Orders button */}
+      <button
+        onClick={() => { setIsOrdersOpen(true); setIsMenuOpen(false); }}
+        className="relative text-white transition hover:text-white/70"
+        aria-label={isArabic ? 'طلباتي' : 'My Orders'}
+      >
+        <ClipboardList size={size} strokeWidth={1.35} />
+        {orders.length > 0 && (
+          <span className="absolute -right-2 -top-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-600 px-1 text-[10px] font-black text-white">
+            {orders.length}
+          </span>
+        )}
+      </button>
+      <button onClick={handleCartClick} className="relative text-white transition hover:text-white/70" aria-label="Cart">
+        <ShoppingBag size={size} strokeWidth={1.35} />
+        {getCartItemsCount() > 0 && (
+          <span className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-black">
+            {getCartItemsCount()}
+          </span>
+        )}
+      </button>
+    </div>
+  );
 
   return (
     <header className="sticky top-0 z-50 w-full bg-[#050101] text-white" dir="ltr">
@@ -126,23 +149,7 @@ export const Navbar: React.FC = () => {
           <button onClick={openShopHome} className="justify-self-center" aria-label="Vexa Store home">
             <VexaLogo />
           </button>
-          <div className="flex items-center justify-end gap-2.5 sm:gap-5">
-            <button onClick={() => setIsSearchOpen(v => !v)} className="text-white transition hover:text-white/70">
-              <Search size={28} strokeWidth={1.4} />
-            </button>
-            <button onClick={toggleLanguage}
-              className="border border-white/20 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black">
-              {isArabic ? 'EN' : 'AR'}
-            </button>
-            <button onClick={handleCartClick} className="relative text-white transition hover:text-white/70">
-              <ShoppingBag size={28} strokeWidth={1.35} />
-              {getCartItemsCount() > 0 && (
-                <span className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-black">
-                  {getCartItemsCount()}
-                </span>
-              )}
-            </button>
-          </div>
+          <IconBar size={26} />
         </div>
 
         {isSearchOpen && (
@@ -151,13 +158,14 @@ export const Navbar: React.FC = () => {
               <Search size={20} className="text-white/60" />
               <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                 placeholder={isArabic ? 'ابحث عن المنتجات...' : 'Search products...'}
-                className="w-full bg-transparent text-sm font-medium text-white outline-none placeholder:text-white/40" />
+                className="w-full bg-transparent text-sm font-medium text-white outline-none placeholder:text-white/40" autoFocus />
               <button onClick={() => setIsSearchOpen(false)} className="text-white/60 hover:text-white"><X size={18} /></button>
             </div>
           </div>
         )}
       </div>
 
+      {/* ── Full-screen Menu ── */}
       {isMenuOpen && (
         <div className="fixed inset-0 z-[10000] overflow-y-auto bg-[#050101] text-white" dir="ltr">
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
@@ -167,23 +175,7 @@ export const Navbar: React.FC = () => {
                 {activeSubmenu ? <ChevronLeft size={36} strokeWidth={1.2} /> : <X size={38} strokeWidth={1.05} />}
               </button>
               <button onClick={openShopHome} className="justify-self-center"><VexaLogo /></button>
-              <div className="flex items-center justify-end gap-2.5 sm:gap-7">
-                <button onClick={() => { setIsSearchOpen(true); setIsMenuOpen(false); }} className="text-white transition hover:text-white/70">
-                  <Search size={30} strokeWidth={1.25} />
-                </button>
-                <button onClick={toggleLanguage}
-                  className="border border-white/20 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black">
-                  {isArabic ? 'EN' : 'AR'}
-                </button>
-                <button onClick={handleCartClick} className="relative text-white transition hover:text-white/70">
-                  <ShoppingBag size={30} strokeWidth={1.2} />
-                  {getCartItemsCount() > 0 && (
-                    <span className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-black">
-                      {getCartItemsCount()}
-                    </span>
-                  )}
-                </button>
-              </div>
+              <IconBar size={26} />
             </div>
 
             {activeSubmenu === 'Sex Toys' || activeSubmenu === 'Male Toys' ? (
@@ -214,15 +206,10 @@ export const Navbar: React.FC = () => {
                     {cat.hasArrow && <ChevronRight size={30} strokeWidth={1.3} className="opacity-95 transition group-hover:translate-x-2" />}
                   </button>
                 ))}
-                <div className="mt-8 grid grid-cols-2 gap-3 border-t border-white/10 pt-8">
-                  <button
-                    onClick={() => { setIsTrackingOpen(true); setIsMenuOpen(false); }}
-                    className="flex items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black transition">
-                    <Package size={15} /> {isArabic ? 'تتبع طلبي' : 'Track Order'}
-                  </button>
+                <div className="mt-8 border-t border-white/10 pt-8">
                   <button
                     onClick={() => { setView('admin'); setIsMenuOpen(false); }}
-                    className="flex items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black transition">
+                    className="flex w-full items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black transition">
                     <Lock size={15} /> {isArabic ? 'إدارة' : 'Admin'}
                   </button>
                 </div>
@@ -232,81 +219,75 @@ export const Navbar: React.FC = () => {
         </div>
       )}
 
-      {/* Track Order Modal */}
-      {isTrackingOpen && (
-        <div className="fixed inset-0 z-[20000] flex items-center justify-center bg-black/80 backdrop-blur-sm px-4" dir={isArabic ? 'rtl' : 'ltr'}>
-          <div className="w-full max-w-md bg-[#0d0d0d] border border-white/10 rounded-2xl p-6 shadow-2xl">
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="text-lg font-black text-white">{isArabic ? 'تتبع طلبك' : 'Track Your Order'}</h2>
-              <button onClick={() => { setIsTrackingOpen(false); setTrackedOrder(null); setTrackInput(''); setTrackNotFound(false); }}
-                className="text-white/50 hover:text-white transition"><X size={22} /></button>
-            </div>
+      {/* ── My Orders Drawer ── */}
+      {isOrdersOpen && (
+        <div className="fixed inset-0 z-[20000] flex items-end sm:items-center justify-center" dir={isArabic ? 'rtl' : 'ltr'}>
+          {/* backdrop */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setIsOrdersOpen(false)} />
 
-            <div className="flex gap-2 mb-4">
-              <input value={trackInput} onChange={e => setTrackInput(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleTrackOrder()}
-                placeholder={isArabic ? 'رقم الطلب (مثال: ORD-ABC123)' : 'Order ID (e.g. ORD-ABC123)'}
-                className="flex-1 bg-white/5 border border-white/15 text-white text-sm px-4 py-3 rounded-xl outline-none focus:border-white/40 placeholder:text-white/30 transition"
-                dir="ltr" />
-              <button onClick={handleTrackOrder}
-                className="bg-white text-black font-black px-4 py-3 rounded-xl hover:bg-stone-100 transition text-sm">
-                {isArabic ? 'بحث' : 'Search'}
+          <div className="relative w-full max-w-lg bg-[#0d0d0d] rounded-t-3xl sm:rounded-2xl border border-white/10 shadow-2xl max-h-[85vh] flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <ClipboardList size={18} className="text-white/60" />
+                <h2 className="text-base font-black text-white">{isArabic ? 'طلباتي' : 'My Orders'}</h2>
+                {orders.length > 0 && (
+                  <span className="bg-white/10 text-white text-xs font-black px-2 py-0.5 rounded-full">{orders.length}</span>
+                )}
+              </div>
+              <button onClick={() => setIsOrdersOpen(false)} className="text-white/40 hover:text-white transition">
+                <X size={22} />
               </button>
             </div>
 
-            {trackNotFound && (
-              <div className="bg-red-950/30 border border-red-500/20 rounded-xl px-4 py-3 text-sm text-red-300 font-bold text-center">
-                {isArabic ? 'لم يتم العثور على طلب بهذا الرقم.' : 'No order found with this ID.'}
-              </div>
-            )}
-
-            {trackedOrder && (
-              <div className="space-y-3">
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-white/40 uppercase tracking-widest">{isArabic ? 'رقم الطلب' : 'Order ID'}</span>
-                    <span className="text-sm font-black text-white" dir="ltr">{trackedOrder.id}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-white/40 uppercase tracking-widest">{isArabic ? 'الحالة' : 'Status'}</span>
-                    <span className={`inline-flex items-center gap-1.5 border px-3 py-1 rounded-full text-xs font-black ${getStatusInfo(trackedOrder.status).color}`}>
-                      {getStatusInfo(trackedOrder.status).icon} {getStatusInfo(trackedOrder.status).label}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-white/40 uppercase tracking-widest">{isArabic ? 'التاريخ' : 'Date'}</span>
-                    <span className="text-xs text-white/70">{trackedOrder.date}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-black text-white/40 uppercase tracking-widest">{isArabic ? 'الإجمالي' : 'Total'}</span>
-                    <span className="text-sm font-black text-white">${trackedOrder.total.toFixed(2)}</span>
-                  </div>
+            {/* Body */}
+            <div className="overflow-y-auto flex-1 px-4 py-4 space-y-3">
+              {orders.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
+                  <ClipboardList size={40} className="text-white/15" />
+                  <p className="text-sm font-bold text-white/40">{isArabic ? 'لا يوجد طلبات بعد' : 'No orders yet'}</p>
                 </div>
-
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-3">{isArabic ? 'المنتجات' : 'Items'}</p>
-                  <div className="space-y-2">
-                    {trackedOrder.items.map((item, i) => (
-                      <div key={i} className="flex items-center gap-3">
-                        {item.product.image && (
-                          <img src={item.product.image} alt="" className="h-10 w-10 rounded-lg object-cover flex-shrink-0 bg-white/10" />
-                        )}
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-bold text-white truncate">{item.product.name || item.product.nameEn}</p>
-                          <p className="text-[11px] text-white/50">x{item.quantity} · ${(item.product.price * item.quantity).toFixed(2)}</p>
+              ) : (
+                orders.map(order => {
+                  const si = getStatusInfo(order.status);
+                  return (
+                    <div key={order.id} className="bg-white/[0.04] border border-white/8 rounded-2xl overflow-hidden">
+                      {/* Order header */}
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-white/[0.06]">
+                        <div>
+                          <p className="text-[11px] text-white/40 font-bold" dir="ltr">{order.id}</p>
+                          <p className="text-[10px] text-white/25 mt-0.5">{order.date}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center gap-1 border px-2.5 py-1 rounded-full text-[11px] font-black ${si.color}`}>
+                            {si.icon} {si.label}
+                          </span>
+                          <span className="text-sm font-black text-white">${order.total.toFixed(2)}</span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-                  <p className="text-[10px] font-black text-white/40 uppercase tracking-widest mb-2">{isArabic ? 'معلومات التوصيل' : 'Delivery Info'}</p>
-                  <p className="text-xs text-white/80 font-bold">{trackedOrder.customer.name}</p>
-                  <p className="text-xs text-white/50">{trackedOrder.customer.city} · {trackedOrder.customer.address}</p>
-                </div>
-              </div>
-            )}
+                      {/* Items */}
+                      <div className="px-4 py-3 space-y-2">
+                        {order.items.map((item, i) => (
+                          <div key={i} className="flex items-center gap-3">
+                            {item.product.image && (
+                              <img src={item.product.image} alt=""
+                                className="h-10 w-10 rounded-xl object-cover flex-shrink-0 bg-white/10" />
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-bold text-white/80 truncate">{isArabic ? item.product.name : item.product.nameEn}</p>
+                              <p className="text-[11px] text-white/40">x{item.quantity} · ${(item.product.price * item.quantity).toFixed(2)}</p>
+                            </div>
+                          </div>
+                        ))}
+                        <p className="text-[11px] text-white/30 pt-1">
+                          📍 {order.customer.city}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       )}
