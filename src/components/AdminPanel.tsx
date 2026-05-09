@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { Order, Product, CategoryId, ProductVariant } from '../types';
 import {
@@ -18,7 +18,7 @@ const ALL_CATEGORY_IDS: CategoryId[] = [
 ];
 
 export const AdminPanel: React.FC = () => {
-  const { orders, products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder, fetchProductImages } = useShop();
+  const { products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder, fetchProductImages, fetchAllOrdersFromFirebase } = useShop();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => localStorage.getItem('vexa_admin_session') === 'true');
@@ -27,6 +27,22 @@ export const AdminPanel: React.FC = () => {
   const todayKey = new Date().toISOString().slice(0, 10);
   const [selectedOrderDate, setSelectedOrderDate] = useState<string>('all');
 
+  // Firebase-sourced orders (all customers) — loaded when admin unlocks
+  const [firebaseOrders, setFirebaseOrders] = useState<Order[]>([]);
+  const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+
+  const loadOrders = async () => {
+    setIsLoadingOrders(true);
+    try {
+      const all = await fetchAllOrdersFromFirebase();
+      setFirebaseOrders(all);
+    } catch { /* ignore */ }
+    finally { setIsLoadingOrders(false); }
+  };
+
+  // Load orders when admin is already unlocked on mount, or after unlock
+  useEffect(() => { if (isAdminUnlocked) loadOrders(); }, [isAdminUnlocked]); // eslint-disable-line
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -34,6 +50,8 @@ export const AdminPanel: React.FC = () => {
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   // Track whether the user actually changed images — prevents overwriting Firebase images on info-only edits
   const [imagesModifiedByUser, setImagesModifiedByUser] = useState(false);
+  // Backup of Firebase images — protects against accidental deletion
+  const loadedFirebaseImagesRef = useRef<string[]>([]);
 
   const [prodForm, setProdForm] = useState<{
     name: string;
@@ -81,11 +99,11 @@ export const AdminPanel: React.FC = () => {
     return !Number.isNaN(parsed.getTime()) ? parsed.toISOString().slice(0, 10) : 'unknown';
   };
 
-  const availableOrderDates = Array.from(new Set(orders.map(getOrderDateKey)))
+  const availableOrderDates = Array.from(new Set(firebaseOrders.map(getOrderDateKey)))
     .filter(d => d !== 'unknown').sort((a, b) => b.localeCompare(a));
 
   const filteredOrders = selectedOrderDate === 'all'
-    ? orders : orders.filter(o => getOrderDateKey(o) === selectedOrderDate);
+    ? firebaseOrders : firebaseOrders.filter(o => getOrderDateKey(o) === selectedOrderDate);
 
   const totalSales = filteredOrders
     .filter(o => ['delivered', 'pending', 'shipping'].includes(o.status))
@@ -182,13 +200,18 @@ export const AdminPanel: React.FC = () => {
     try {
       const firebaseImgs = await fetchProductImages(product.id);
       if (firebaseImgs.length > 0) {
+        loadedFirebaseImagesRef.current = firebaseImgs;
         setProdForm(prev => ({
           ...prev,
           images: firebaseImgs,
           image: firebaseImgs[0] || prev.image,
         }));
+      } else {
+        loadedFirebaseImagesRef.current = [];
       }
-    } catch { /* keep local fallback */ }
+    } catch {
+      loadedFirebaseImagesRef.current = [];
+    }
     finally { setIsLoadingImages(false); }
   };
 
@@ -301,7 +324,10 @@ export const AdminPanel: React.FC = () => {
       descriptionEn: prodForm.description,
       price: prodForm.price,
       image: prodForm.image || prodForm.images?.[0] || '',
-      images: prodForm.images?.length ? prodForm.images : prodForm.image ? [prodForm.image] : [],
+      // Safety: if imagesModifiedByUser but form images are suspiciously empty, fall back to Firebase backup
+      images: imagesModifiedByUser
+        ? (prodForm.images?.length ? prodForm.images : (loadedFirebaseImagesRef.current.length ? loadedFirebaseImagesRef.current : (prodForm.image ? [prodForm.image] : [])))
+        : (prodForm.images?.length ? prodForm.images : (prodForm.image ? [prodForm.image] : [])),
       category: primaryCat as CategoryId,
       categories: prodForm.categories,
       variants: cleanVariants.length > 0 ? cleanVariants : [],
@@ -394,6 +420,11 @@ export const AdminPanel: React.FC = () => {
 
       {activeTab === 'orders' && (
         <div className="space-y-6">
+          {isLoadingOrders && (
+            <div className="flex items-center gap-2 text-white/40 text-xs py-2">
+              <Loader2 size={14} className="animate-spin" /> جاري تحميل الطلبات من Firebase...
+            </div>
+          )}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
               { label: 'المبيعات', value: `$${totalSales.toFixed(0)}`, color: '' },
@@ -436,7 +467,7 @@ export const AdminPanel: React.FC = () => {
                     <span className="flex items-center gap-1"><DollarSign size={12} />${order.total.toFixed(2)}</span>
                   </div>
                 </div>
-                <button onClick={() => deleteOrder(order.id)} className="text-red-500/60 hover:text-red-400 p-1.5 hover:bg-red-950/30 rounded-lg transition">
+                <button onClick={async () => { await deleteOrder(order.id); loadOrders(); }} className="text-red-500/60 hover:text-red-400 p-1.5 hover:bg-red-950/30 rounded-lg transition">
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -465,7 +496,11 @@ export const AdminPanel: React.FC = () => {
 
               <div className="flex gap-2 flex-wrap pt-1 border-t border-white/5">
                 {(['pending', 'shipping', 'delivered', 'cancelled'] as Order['status'][]).map(s => (
-                  <button key={s} onClick={() => updateOrderStatus(order.id, s)}
+                  <button key={s} onClick={() => {
+                    updateOrderStatus(order.id, s);
+                    // Optimistically update local state
+                    setFirebaseOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: s } : o));
+                  }}
                     className={`px-3 py-1.5 text-[10px] font-black rounded-full transition ${order.status === s ? 'bg-white text-black' : 'border border-white/15 text-white/50 hover:text-white'}`}>
                     {s === 'pending' ? 'مراجعة' : s === 'shipping' ? 'شحن' : s === 'delivered' ? 'استلم' : 'ملغي'}
                   </button>
@@ -621,11 +656,8 @@ export const AdminPanel: React.FC = () => {
                 <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">رابط الصورة الرئيسية *</label>
                 <input value={prodForm.image} onChange={e => {
                   const val = e.target.value;
-                  setProdForm(prev => ({
-                    ...prev, image: val,
-                    images: val ? [val, ...(prev.images || []).filter(i => i !== val)] : (prev.images || [])
-                  }));
-                  setImagesModifiedByUser(true);
+                  // Only update the cover reference — don't touch the images gallery or mark as modified
+                  setProdForm(prev => ({ ...prev, image: val }));
                 }} dir="ltr" placeholder="https://..."
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
               </div>
