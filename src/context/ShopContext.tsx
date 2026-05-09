@@ -72,14 +72,31 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
         if (!snapshot.empty) {
+          const migrationBatch = writeBatch(db);
+          let needsMigration = false;
           const firestoreProducts = snapshot.docs.map(docSnap => {
-            const data = docSnap.data() as Omit<Product, 'id'>;
+            const data = docSnap.data();
+            const embeddedImages: string[] = data.images || [];
+            if (embeddedImages.length > 0) {
+              // Migrate images out of product document into product_images collection
+              migrationBatch.set(doc(db, IMAGES_COLLECTION, docSnap.id), { images: embeddedImages }, { merge: true });
+              // Rewrite product document without images to reduce Firestore read size
+              const { images: _imgs, ...cleanData } = data;
+              void _imgs;
+              migrationBatch.set(doc(db, PRODUCTS_COLLECTION, docSnap.id), cleanData);
+              needsMigration = true;
+            }
+            const { images: _i, ...productData } = data;
+            void _i;
             return {
-              ...data,
+              ...productData,
               id: docSnap.id,
               images: undefined
             } as Product;
           });
+          if (needsMigration) {
+            migrationBatch.commit().catch(() => {});
+          }
           setProducts(firestoreProducts);
         } else {
           const batch = writeBatch(db);
