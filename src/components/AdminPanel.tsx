@@ -204,7 +204,7 @@ export const AdminPanel: React.FC = () => {
     reader.onload = () => {
       const img = new window.Image();
       img.onload = () => {
-        const maxSize = 240;
+        const maxSize = 600;
         const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
         canvas.width = Math.max(1, Math.round(img.width * scale));
@@ -212,7 +212,7 @@ export const AdminPanel: React.FC = () => {
         const ctx = canvas.getContext('2d');
         if (!ctx) { reject(new Error('Canvas not supported')); return; }
         ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        resolve(canvas.toDataURL('image/jpeg', 0.25));
+        resolve(canvas.toDataURL('image/jpeg', 0.65));
       };
       img.onerror = () => reject(new Error('Could not load image'));
       img.src = String(reader.result || '');
@@ -228,7 +228,7 @@ export const AdminPanel: React.FC = () => {
     try {
       const uploaded = await Promise.all(files.map(compressImageFile));
       setProdForm(prev => {
-        const next = [...(prev.images || []), ...uploaded].slice(0, 20);
+        const next = [...(prev.images || []), ...uploaded].slice(0, 10);
         return { ...prev, images: next, image: prev.image || next[0] || '' };
       });
     } catch { alert('حدث خطأ في قراءة الصور.'); }
@@ -260,12 +260,26 @@ export const AdminPanel: React.FC = () => {
     });
   };
 
+  const getTotalImagesSize = (images: string[]) => {
+    return images.reduce((total, img) => total + img.length, 0);
+  };
+
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!prodForm.name || !prodForm.price || !prodForm.image) {
       alert('يرجى ملء: الاسم، السعر، والصورة.');
       return;
     }
+
+    const base64Images = (prodForm.images || []).filter(img => img.startsWith('data:'));
+    const totalSize = getTotalImagesSize(base64Images);
+    const MAX_SIZE = 900 * 1024;
+    if (totalSize > MAX_SIZE) {
+      const sizeKB = Math.round(totalSize / 1024);
+      alert(`الصور كبيرة جداً (${sizeKB} KB). الحد الأقصى هو 900 KB.\n\nيرجى حذف بعض الصور أو استخدام رابط URL بدلاً من رفع الصور.`);
+      return;
+    }
+
     const primaryCat = prodForm.categories[0] || 'Sex Toys';
     const cleanVariants = (prodForm.variants || [])
       .filter(v => v.name.trim() && v.options.length > 0);
@@ -295,8 +309,17 @@ export const AdminPanel: React.FC = () => {
         alert('تم إضافة المنتج! 🎉');
       }
       setIsModalOpen(false);
-    } catch {
-      alert('حدث خطأ أثناء الحفظ. تأكد من اتصالك بالإنترنت.');
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('400') || msg.toLowerCase().includes('too large') || msg.toLowerCase().includes('maximum')) {
+        alert('الصور كبيرة جداً لحفظها.\n\nالحل: احذف بعض الصور من القائمة أو استخدم رابط URL بدلاً من رفع الصور مباشرة.');
+      } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('unauthorized')) {
+        alert('خطأ في الصلاحيات. يرجى التحقق من إعدادات Firebase.');
+      } else if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('offline') || msg.toLowerCase().includes('unavailable')) {
+        alert('لا يوجد اتصال بالإنترنت. يرجى التحقق من الاتصال والمحاولة مرة أخرى.');
+      } else {
+        alert(`حدث خطأ أثناء الحفظ:\n${msg}\n\nإذا استمر الخطأ، جرب تقليل عدد الصور.`);
+      }
     } finally {
       setIsSaving(false);
     }
@@ -588,7 +611,7 @@ export const AdminPanel: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
-                  ارفع صور إضافية (حتى 20 صور)
+                  ارفع صور إضافية (حتى 10 صور)
                 </label>
                 <label className="flex items-center gap-2 border border-dashed border-white/20 hover:border-white/40 text-white/50 hover:text-white/70 px-4 py-3 rounded-xl cursor-pointer transition text-sm font-bold">
                   <Upload size={16} /> اختر صور من الجهاز
