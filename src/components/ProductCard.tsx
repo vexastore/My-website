@@ -185,40 +185,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
             className="relative w-full max-w-lg max-h-[96vh] overflow-y-auto bg-white sm:rounded-2xl shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
-            {/* Close button */}
-            <button
-              onClick={() => setIsDetailsOpen(false)}
-              aria-label={isArabic ? 'إغلاق' : 'Close'}
-              className="absolute top-3 right-3 z-30 bg-black/60 hover:bg-black/80 text-white rounded-full p-1.5 transition backdrop-blur-sm"
-            >
-              <X size={16} />
-            </button>
-
-            {/* ── Same Day Delivery Banner ── */}
-            <div className="bg-black border-b border-white/10 flex items-center justify-between px-4 py-2.5 select-none">
-              <button onClick={prevImage} disabled={modalImages.length <= 1 || selectedImageIndex === 0}
-                aria-label={isArabic ? 'السابق' : 'Previous'}
-                className="text-white/50 hover:text-white transition disabled:opacity-20 p-1">
-                <ChevronLeft size={16} className={isArabic ? 'rotate-180' : ''} />
+            {/* ── Top bar: close button + delivery banner ── */}
+            <div className="sticky top-0 z-30 bg-black flex items-center justify-between px-3 py-2.5 select-none">
+              {/* Close button — always visible, left side in RTL */}
+              <button
+                onClick={() => setIsDetailsOpen(false)}
+                aria-label={isArabic ? 'إغلاق' : 'Close'}
+                className="bg-white/15 hover:bg-white/30 text-white rounded-full p-2 transition flex-shrink-0"
+              >
+                <X size={18} />
               </button>
-              <span className="text-white text-[11px] font-black uppercase tracking-[0.18em] flex items-center gap-1.5">
-                <Zap size={11} className="text-emerald-400" fill="currentColor" />
+
+              <span className="text-white text-[11px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5 mx-2 text-center">
+                <Zap size={11} className="text-emerald-400 flex-shrink-0" fill="currentColor" />
                 {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same Day Delivery in Beirut'}
               </span>
-              <button onClick={nextImage} disabled={modalImages.length <= 1 || selectedImageIndex === modalImages.length - 1}
-                aria-label={isArabic ? 'التالي' : 'Next'}
-                className="text-white/50 hover:text-white transition disabled:opacity-20 p-1">
-                <ChevronRight size={16} className={isArabic ? 'rotate-180' : ''} />
-              </button>
+
+              {/* Image counter pill */}
+              {modalImages.length > 1 ? (
+                <span className="bg-white/20 text-white text-[11px] font-bold px-3 py-1 rounded-full flex-shrink-0">
+                  {selectedImageIndex + 1}/{modalImages.length}
+                </span>
+              ) : <div className="w-10" />}
             </div>
 
-            {/* ── Main image — padding-top hack (works on ALL browsers including old Android) ── */}
-            {/* Outer div creates the 4:3 height via padding-top: 75% */}
+            {/* ── Main image ── */}
             <div
               className="bg-black w-full relative"
-              style={{ paddingTop: '75%', minHeight: '200px' }}
+              style={{ paddingTop: '85%', minHeight: '220px' }}
             >
-              {/* Inner div fills the padded space */}
               <div
                 className="absolute top-0 left-0 right-0 bottom-0 overflow-hidden select-none"
                 onTouchStart={handleTouchStart}
@@ -226,7 +221,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
               >
                 {imagesLoading ? (
                   <div className="w-full h-full flex items-center justify-center">
-                    <Loader2 size={28} className="animate-spin text-white/40" />
+                    <Loader2 size={32} className="animate-spin text-white/40" />
                   </div>
                 ) : selectedImage ? (
                   <img
@@ -234,6 +229,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                     alt={displayName}
                     loading="eager"
                     className="w-full h-full object-contain"
+                    style={{ objectPosition: 'center center' }}
                   />
                 ) : (
                   <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${gradientClass}`}>
@@ -246,21 +242,25 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                   <>
                     <button onClick={prevImage} disabled={selectedImageIndex === 0}
                       aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
-                      className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-2' : 'left-2'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-1.5 transition disabled:opacity-20`}>
-                      <ChevronLeft size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
+                      className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-3' : 'left-3'} bg-black/50 hover:bg-black/80 backdrop-blur rounded-full p-2 transition disabled:opacity-20`}>
+                      <ChevronLeft size={20} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
                     </button>
                     <button onClick={nextImage} disabled={selectedImageIndex === modalImages.length - 1}
                       aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
-                      className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-2' : 'right-2'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-1.5 transition disabled:opacity-20`}>
-                      <ChevronRight size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
+                      className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-3' : 'right-3'} bg-black/50 hover:bg-black/80 backdrop-blur rounded-full p-2 transition disabled:opacity-20`}>
+                      <ChevronRight size={20} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
                     </button>
-                    {/* Page counter */}
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                      <span className="bg-black/60 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur">
-                        {selectedImageIndex + 1}/{modalImages.length}
-                      </span>
-                    </div>
                   </>
+                )}
+
+                {/* Dot indicators at bottom */}
+                {modalImages.length > 1 && (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {modalImages.map((_, i) => (
+                      <button key={i} onClick={e => { e.stopPropagation(); setSelectedImageIndex(i); }}
+                        className={`rounded-full transition-all ${i === selectedImageIndex ? 'w-5 h-2 bg-white' : 'w-2 h-2 bg-white/40'}`} />
+                    ))}
+                  </div>
                 )}
               </div>
             </div>
@@ -301,7 +301,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
               <div className="grid grid-cols-3 gap-2 text-center">
                 {[
                   { icon: <Lock size={20} className="text-stone-600" />, ar: 'الدفع عند\nالاستلام', en: 'Cash on\nDelivery' },
-                  { icon: <PackageCheck size={20} className="text-stone-600" />, ar: 'استرجاع\n30 يوم', en: '30 Days\nReturnable' },
+                  { icon: <PackageCheck size={20} className="text-stone-600" />, ar: 'قابل\nللاسترجاع', en: 'Returnable' },
                   { icon: <Truck size={20} className="text-stone-600" />, ar: 'توصيل سري\nوسريع', en: 'Discreet &\nFast Delivery' },
                 ].map((item, i) => (
                   <div key={i} className="flex flex-col items-center gap-1.5 rounded-xl border border-stone-200 py-3 px-1">
