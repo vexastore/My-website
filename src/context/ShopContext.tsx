@@ -202,8 +202,12 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const newProduct: Product = { ...productWithoutImages, id: newId };
     await setDoc(doc(db, PRODUCTS_COLLECTION, newId), cleanForFirestore(productWithoutImages as Record<string, unknown>));
     if (images && images.length > 0) {
-      await setDoc(doc(db, IMAGES_COLLECTION, newId), { images });
-      imageCacheRef.current.set(newId, images);
+      try {
+        await setDoc(doc(db, IMAGES_COLLECTION, newId), { images });
+        imageCacheRef.current.set(newId, images);
+      } catch {
+        // product_images write failed (possibly Security Rules) — product is still created with main image
+      }
     }
     setProducts(prev => [newProduct, ...prev]);
   };
@@ -215,13 +219,16 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const updated: Product = { ...productWithoutImages, id };
     await setDoc(doc(db, PRODUCTS_COLLECTION, id), cleanForFirestore(productWithoutImages as Record<string, unknown>));
     if (imagesModified) {
-      if (images && images.length > 0) {
-        await setDoc(doc(db, IMAGES_COLLECTION, id), { images });
-        imageCacheRef.current.set(id, images);
-      } else {
-        // User removed all images
-        await deleteDoc(doc(db, IMAGES_COLLECTION, id)).catch(() => {});
-        imageCacheRef.current.delete(id);
+      try {
+        if (images && images.length > 0) {
+          await setDoc(doc(db, IMAGES_COLLECTION, id), { images });
+          imageCacheRef.current.set(id, images);
+        } else {
+          await deleteDoc(doc(db, IMAGES_COLLECTION, id)).catch(() => {});
+          imageCacheRef.current.delete(id);
+        }
+      } catch {
+        // product_images write failed (possibly Security Rules) — product info still saved
       }
     }
     setProducts(prev => prev.map(p => p.id === id ? updated : p));
