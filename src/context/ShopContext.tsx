@@ -52,7 +52,7 @@ interface ShopContextType {
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<Product[]>(MOCK_PRODUCTS);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentView, setViewState] = useState<'shop' | 'checkout' | 'admin' | 'advice' | 'orders'>('shop');
@@ -61,11 +61,10 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(false);
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
-  const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [isProductsLoading, setIsProductsLoading] = useState(false);
 
   useEffect(() => {
     const loadProducts = async () => {
-      setIsProductsLoading(true);
       try {
         const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
         if (!snapshot.empty) {
@@ -81,13 +80,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             batch.set(docRef, product);
           });
           await batch.commit();
-          setProducts(MOCK_PRODUCTS);
         }
       } catch {
-        const stored = localStorage.getItem('adult_store_products');
-        setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
-      } finally {
-        setIsProductsLoading(false);
+        // Keep showing MOCK_PRODUCTS already set as initial state
       }
     };
     loadProducts();
