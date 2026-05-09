@@ -15,13 +15,17 @@ export default defineConfig({
     },
   },
   build: {
+    target: "esnext",
+    minify: "esbuild",
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks: {
-          firebase: ['firebase/app', 'firebase/firestore'],
-          react: ['react', 'react-dom'],
-        }
-      }
-    }
-  }
+          "vendor-react": ["react", "react-dom"],
+          "vendor-firebase": ["firebase/app", "firebase/firestore"],
+          "vendor-icons": ["lucide-react"],
+        },
+      },
+    },
+  },
 });
