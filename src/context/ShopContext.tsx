@@ -6,6 +6,7 @@ import { db } from '../firebase';
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   setDoc,
   deleteDoc,
@@ -14,6 +15,7 @@ import {
 
 const DELIVERY_FEE = 5;
 const PRODUCTS_COLLECTION = 'products';
+const IMAGES_COLLECTION = 'product_images';
 
 interface ShopContextType {
   language: 'en' | 'ar';
@@ -47,6 +49,7 @@ interface ShopContextType {
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
   updateProduct: (id: string, product: Omit<Product, 'id'>) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
+  fetchProductImages: (productId: string) => Promise<string[]>;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -69,16 +72,33 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
         if (!snapshot.empty) {
-          const firestoreProducts = snapshot.docs.map(docSnap => ({
-            ...(docSnap.data() as Omit<Product, 'id'>),
-            id: docSnap.id
-          }));
+          const firestoreProducts = snapshot.docs.map(docSnap => {
+            const data = docSnap.data() as Omit<Product, 'id'>;
+            return {
+              ...data,
+              id: docSnap.id,
+              images: undefined
+            } as Product;
+          });
           setProducts(firestoreProducts);
         } else {
-          setProducts(MOCK_PRODUCTS);
+          const batch = writeBatch(db);
+          MOCK_PRODUCTS.forEach(product => {
+            const { images, ...productWithoutImages } = product;
+            const docRef = doc(db, PRODUCTS_COLLECTION, product.id);
+            batch.set(docRef, productWithoutImages);
+            if (images && images.length > 0) {
+              const imgRef = doc(db, IMAGES_COLLECTION, product.id);
+              batch.set(imgRef, { images });
+            }
+          });
+          await batch.commit();
+          setProducts(MOCK_PRODUCTS.map(p => ({ ...p, images: undefined })));
         }
       } catch {
-        setProducts(MOCK_PRODUCTS);
+        const stored = localStorage.getItem('adult_store_products');
+        const fallback = stored ? JSON.parse(stored) : MOCK_PRODUCTS;
+        setProducts(fallback.map((p: Product) => ({ ...p, images: undefined })));
       } finally {
         setIsProductsLoading(false);
       }
@@ -117,21 +137,49 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [language]);
   useEffect(() => { localStorage.setItem('adult_store_orders', JSON.stringify(orders)); }, [orders]);
 
+  const fetchProductImages = async (productId: string): Promise<string[]> => {
+    try {
+      const gallerySnap = await getDoc(doc(db, IMAGES_COLLECTION, productId));
+      if (gallerySnap.exists()) {
+        return (gallerySnap.data().images as string[]) || [];
+      }
+      const productSnap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
+      if (productSnap.exists()) {
+        const data = productSnap.data();
+        const imgs: string[] = data.images || [];
+        if (imgs.length > 0) return imgs;
+        return data.image ? [data.image] : [];
+      }
+      return [];
+    } catch {
+      return [];
+    }
+  };
+
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    const newProduct: Product = { ...productData, id: newId };
-    await setDoc(doc(db, PRODUCTS_COLLECTION, newId), newProduct);
+    const { images, ...productWithoutImages } = productData;
+    const newProduct: Product = { ...productWithoutImages, id: newId };
+    await setDoc(doc(db, PRODUCTS_COLLECTION, newId), productWithoutImages);
+    if (images && images.length > 0) {
+      await setDoc(doc(db, IMAGES_COLLECTION, newId), { images });
+    }
     setProducts(prev => [newProduct, ...prev]);
   };
 
   const updateProduct = async (id: string, productData: Omit<Product, 'id'>) => {
-    const updated: Product = { ...productData, id };
-    await setDoc(doc(db, PRODUCTS_COLLECTION, id), updated);
+    const { images, ...productWithoutImages } = productData;
+    const updated: Product = { ...productWithoutImages, id };
+    await setDoc(doc(db, PRODUCTS_COLLECTION, id), productWithoutImages);
+    if (images && images.length > 0) {
+      await setDoc(doc(db, IMAGES_COLLECTION, id), { images });
+    }
     setProducts(prev => prev.map(p => p.id === id ? updated : p));
   };
 
   const deleteProduct = async (productId: string) => {
     await deleteDoc(doc(db, PRODUCTS_COLLECTION, productId));
+    await deleteDoc(doc(db, IMAGES_COLLECTION, productId)).catch(() => {});
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
@@ -139,7 +187,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const batch = writeBatch(db);
       updatedProducts.forEach(product => {
-        batch.set(doc(db, PRODUCTS_COLLECTION, product.id), product);
+        const { images, ...productWithoutImages } = product;
+        batch.set(doc(db, PRODUCTS_COLLECTION, product.id), productWithoutImages);
       });
       await batch.commit();
     } catch { /* silent */ }
@@ -250,7 +299,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
       setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
       updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
-      getCartTotal, getDeliveryFee, getCartItemsCount, addProduct, updateProduct, deleteProduct
+      getCartTotal, getDeliveryFee, getCartItemsCount, addProduct, updateProduct,
+      deleteProduct, fetchProductImages
     }}>
       {children}
     </ShopContext.Provider>
