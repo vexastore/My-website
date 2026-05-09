@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockData';
 import { db } from '../firebase';
@@ -65,6 +65,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(false);
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
   const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const imageCacheRef = useRef<Map<string, string[]>>(new Map());
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -155,27 +156,34 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => { localStorage.setItem('adult_store_orders', JSON.stringify(orders)); }, [orders]);
 
   const fetchProductImages = async (productId: string): Promise<string[]> => {
-    // Step 1: try the dedicated gallery collection (primary source, separate try so it never blocks step 2)
+    if (imageCacheRef.current.has(productId)) {
+      return imageCacheRef.current.get(productId)!;
+    }
+
+    let result: string[] = [];
+
     try {
       const gallerySnap = await getDoc(doc(db, IMAGES_COLLECTION, productId));
       if (gallerySnap.exists()) {
         const imgs = ((gallerySnap.data().images as string[]) || []).filter(Boolean);
-        if (imgs.length > 0) return imgs;
+        if (imgs.length > 0) result = imgs;
       }
     } catch { /* gallery read failed, fall through to product doc */ }
 
-    // Step 2: fallback to the product document (separate try so either source can fail independently)
-    try {
-      const productSnap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
-      if (productSnap.exists()) {
-        const data = productSnap.data();
-        const imgs = ((data.images as string[]) || []).filter(Boolean);
-        if (imgs.length > 0) return imgs;
-        if (data.image) return [data.image as string];
-      }
-    } catch { /* product doc read also failed */ }
+    if (result.length === 0) {
+      try {
+        const productSnap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
+        if (productSnap.exists()) {
+          const data = productSnap.data();
+          const imgs = ((data.images as string[]) || []).filter(Boolean);
+          if (imgs.length > 0) result = imgs;
+          else if (data.image) result = [data.image as string];
+        }
+      } catch { /* product doc read also failed */ }
+    }
 
-    return [];
+    imageCacheRef.current.set(productId, result);
+    return result;
   };
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
@@ -185,6 +193,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await setDoc(doc(db, PRODUCTS_COLLECTION, newId), productWithoutImages);
     if (images && images.length > 0) {
       await setDoc(doc(db, IMAGES_COLLECTION, newId), { images });
+      imageCacheRef.current.set(newId, images);
     }
     setProducts(prev => [newProduct, ...prev]);
   };
@@ -195,6 +204,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await setDoc(doc(db, PRODUCTS_COLLECTION, id), productWithoutImages);
     if (images && images.length > 0) {
       await setDoc(doc(db, IMAGES_COLLECTION, id), { images });
+      imageCacheRef.current.set(id, images);
     }
     setProducts(prev => prev.map(p => p.id === id ? updated : p));
   };
@@ -202,6 +212,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteProduct = async (productId: string) => {
     await deleteDoc(doc(db, PRODUCTS_COLLECTION, productId));
     await deleteDoc(doc(db, IMAGES_COLLECTION, productId)).catch(() => {});
+    imageCacheRef.current.delete(productId);
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
