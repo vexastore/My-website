@@ -1,8 +1,9 @@
 
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockData';
 import { db } from '../firebase';
+import { ArTranslation, loadArCache, translateProducts } from '../utils/translate';
 import {
   collection,
   doc,
@@ -51,6 +52,8 @@ interface ShopContextType {
   deleteProduct: (productId: string) => Promise<void>;
   fetchProductImages: (productId: string) => Promise<string[]>;
   invalidateImageCache: (productId: string) => void;
+  arTranslations: Record<string, ArTranslation>;
+  isTranslating: boolean;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -67,6 +70,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
   const [isProductsLoading, setIsProductsLoading] = useState(true);
   const imageCacheRef = useRef<Map<string, string[]>>(new Map());
+  const [arTranslations, setArTranslations] = useState<Record<string, ArTranslation>>(() => loadArCache());
+  const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -138,12 +143,37 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
+  const runTranslation = useCallback(async (currentProducts: Product[]) => {
+    if (currentProducts.length === 0) return;
+    setIsTranslating(true);
+    try {
+      await translateProducts(
+        currentProducts,
+        loadArCache(),
+        (updated) => setArTranslations(updated)
+      );
+    } finally {
+      setIsTranslating(false);
+    }
+  }, []);
+
   const setLanguage = (newLanguage: 'en' | 'ar') => {
     setLanguageState(newLanguage);
     localStorage.setItem('vexa_store_language', newLanguage);
     document.documentElement.lang = newLanguage;
     document.documentElement.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
+    if (newLanguage === 'ar') {
+      setProducts(prev => { runTranslation(prev); return prev; });
+    }
   };
+
+  // Auto-translate on load if language was saved as Arabic
+  useEffect(() => {
+    if (language === 'ar' && products.length > 0) {
+      runTranslation(products);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [products.length, language]);
 
   const toggleLanguage = () => setLanguage(language === 'ar' ? 'en' : 'ar');
 
@@ -358,7 +388,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
       updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
       getCartTotal, getDeliveryFee, getCartItemsCount, addProduct, updateProduct,
-      deleteProduct, fetchProductImages, invalidateImageCache
+      deleteProduct, fetchProductImages, invalidateImageCache,
+      arTranslations, isTranslating
     }}>
       {children}
     </ShopContext.Provider>
