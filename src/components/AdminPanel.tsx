@@ -53,11 +53,11 @@ export const AdminPanel: React.FC = () => {
 
   const [newOptionInputs, setNewOptionInputs] = useState<Record<number, string>>({});
 
-  const getAdminPassword = () => localStorage.getItem('vexa_admin_password') || 'jojoxxjjlljjll';
+  const ADMIN_PASSWORD = 'jojoxxjjlljjll';
 
   const handleAdminLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    if (passwordInput.trim() === getAdminPassword()) {
+    if (passwordInput.trim() === ADMIN_PASSWORD) {
       localStorage.setItem('vexa_admin_session', 'true');
       setIsAdminUnlocked(true);
       setPasswordInput('');
