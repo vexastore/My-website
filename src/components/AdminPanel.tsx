@@ -304,7 +304,7 @@ export const AdminPanel: React.FC = () => {
       images: prodForm.images?.length ? prodForm.images : prodForm.image ? [prodForm.image] : [],
       category: primaryCat as CategoryId,
       categories: prodForm.categories,
-      variants: cleanVariants.length > 0 ? cleanVariants : undefined,
+      variants: cleanVariants.length > 0 ? cleanVariants : [],
       rating: prodForm.rating,
       reviewsCount: prodForm.reviewsCount,
       stock: prodForm.stock,
