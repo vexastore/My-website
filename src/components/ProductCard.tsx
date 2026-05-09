@@ -182,7 +182,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
           dir={isArabic ? 'rtl' : 'ltr'}
         >
           <div
-            className="relative w-full max-w-lg max-h-[96vh] overflow-y-auto bg-white sm:rounded-2xl shadow-2xl flex flex-col"
+            className="relative w-full max-w-lg max-h-[96vh] overflow-y-auto bg-white sm:rounded-2xl shadow-2xl"
             onClick={e => e.stopPropagation()}
           >
             {/* Close button */}
@@ -201,7 +201,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 className="text-white/50 hover:text-white transition disabled:opacity-20 p-1">
                 <ChevronLeft size={16} className={isArabic ? 'rotate-180' : ''} />
               </button>
-              <span className="text-white text-[11px] font-black uppercase tracking-[0.2em] flex items-center gap-1.5">
+              <span className="text-white text-[11px] font-black uppercase tracking-[0.18em] flex items-center gap-1.5">
                 <Zap size={11} className="text-emerald-400" fill="currentColor" />
                 {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same Day Delivery in Beirut'}
               </span>
@@ -212,55 +212,61 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
               </button>
             </div>
 
-            {/* ── Main image ── */}
+            {/* ── Main image — padding-top hack (works on ALL browsers including old Android) ── */}
+            {/* Outer div creates the 4:3 height via padding-top: 75% */}
             <div
-              className="bg-black relative select-none overflow-hidden"
-              style={{ aspectRatio: '4/3' }}
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
+              className="bg-black w-full relative"
+              style={{ paddingTop: '75%' }}
             >
-              {imagesLoading ? (
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <Loader2 size={28} className="animate-spin text-white/40" />
-                </div>
-              ) : selectedImage ? (
-                <img
-                  src={selectedImage}
-                  alt={displayName}
-                  loading="eager"
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${gradientClass}`}>
-                  <span className="text-3xl font-black tracking-widest text-white">VEXA</span>
-                </div>
-              )}
-
-              {/* Side arrows */}
-              {modalImages.length > 1 && (
-                <>
-                  <button onClick={prevImage} disabled={selectedImageIndex === 0}
-                    aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
-                    className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-2' : 'left-2'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-1.5 transition disabled:opacity-20`}>
-                    <ChevronLeft size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
-                  </button>
-                  <button onClick={nextImage} disabled={selectedImageIndex === modalImages.length - 1}
-                    aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
-                    className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-2' : 'right-2'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-1.5 transition disabled:opacity-20`}>
-                    <ChevronRight size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
-                  </button>
-                  {/* Page counter */}
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
-                    <span className="bg-black/60 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur">
-                      {selectedImageIndex + 1}/{modalImages.length}
-                    </span>
+              {/* Inner div fills the padded space */}
+              <div
+                className="absolute top-0 left-0 right-0 bottom-0 overflow-hidden select-none"
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+              >
+                {imagesLoading ? (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Loader2 size={28} className="animate-spin text-white/40" />
                   </div>
-                </>
-              )}
+                ) : selectedImage ? (
+                  <img
+                    src={selectedImage}
+                    alt={displayName}
+                    loading="eager"
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className={`w-full h-full flex items-center justify-center bg-gradient-to-br ${gradientClass}`}>
+                    <span className="text-3xl font-black tracking-widest text-white">VEXA</span>
+                  </div>
+                )}
+
+                {/* Prev / Next arrows */}
+                {modalImages.length > 1 && (
+                  <>
+                    <button onClick={prevImage} disabled={selectedImageIndex === 0}
+                      aria-label={isArabic ? 'الصورة السابقة' : 'Previous image'}
+                      className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'right-2' : 'left-2'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-1.5 transition disabled:opacity-20`}>
+                      <ChevronLeft size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
+                    </button>
+                    <button onClick={nextImage} disabled={selectedImageIndex === modalImages.length - 1}
+                      aria-label={isArabic ? 'الصورة التالية' : 'Next image'}
+                      className={`absolute top-1/2 -translate-y-1/2 ${isArabic ? 'left-2' : 'right-2'} bg-white/20 hover:bg-white/40 backdrop-blur rounded-full p-1.5 transition disabled:opacity-20`}>
+                      <ChevronRight size={18} className={`text-white ${isArabic ? 'rotate-180' : ''}`} />
+                    </button>
+                    {/* Page counter */}
+                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2">
+                      <span className="bg-black/60 text-white text-[11px] font-bold px-3 py-1 rounded-full backdrop-blur">
+                        {selectedImageIndex + 1}/{modalImages.length}
+                      </span>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
 
             {/* ── Product info (white) ── */}
-            <div className="bg-white flex-1 px-5 py-5 space-y-4">
+            <div className="bg-white px-5 py-5 space-y-4">
 
               {/* Name */}
               <div>
@@ -468,7 +474,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 </div>
               )}
 
-              {/* ── ALL images grid (2 columns) — shows every image using .map() ── */}
+              {/* ── ALL images grid (2 columns) using .map() — every image shown ── */}
               {modalImages.length > 1 && (
                 <div className="border-t border-stone-100 pt-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-3">
@@ -478,21 +484,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                     {modalImages.map((img, idx) => (
                       <button
                         key={idx}
-                        onClick={() => setSelectedImageIndex(idx)}
+                        onClick={() => { setSelectedImageIndex(idx); window.scrollTo({ top: 0 }); }}
                         aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
                         className={`relative overflow-hidden rounded-xl border-2 transition-all ${
                           selectedImageIndex === idx
-                            ? 'border-stone-900 opacity-100'
-                            : 'border-stone-200 opacity-80 hover:opacity-100 hover:border-stone-400'
+                            ? 'border-stone-900'
+                            : 'border-stone-200 opacity-75 hover:opacity-100 hover:border-stone-400'
                         }`}
-                        style={{ aspectRatio: '1' }}
                       >
-                        <img
-                          src={img}
-                          alt={`${displayName} ${idx + 1}`}
-                          loading="lazy"
-                          className="w-full h-full object-cover"
-                        />
+                        {/* padding-top trick for 1:1 ratio — works on all Android browsers */}
+                        <div style={{ paddingTop: '100%', position: 'relative' }}>
+                          <img
+                            src={img}
+                            alt={`${displayName} ${idx + 1}`}
+                            loading="lazy"
+                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        </div>
                         {selectedImageIndex === idx && (
                           <div className="absolute inset-0 ring-2 ring-inset ring-stone-900 rounded-xl pointer-events-none" />
                         )}
