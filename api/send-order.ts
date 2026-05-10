@@ -1,16 +1,27 @@
-
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
-const CHAT_ID = process.env.TELEGRAM_CHAT_ID || '8790079700';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+const CHAT_ID = '8790079700';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+  // Verify env var is present
+  if (!BOT_TOKEN) {
+    console.error('[send-order] TELEGRAM_BOT_TOKEN is not set in environment variables');
+    return res.status(500).json({ error: 'TELEGRAM_BOT_TOKEN not configured on server' });
+  }
+
   const order = req.body;
-  if (!order) return res.status(400).json({ error: 'No order data' });
+  if (!order || !order.orderId) {
+    console.error('[send-order] Missing or invalid order body:', req.body);
+    return res.status(400).json({ error: 'No order data' });
+  }
+
+  console.log('[send-order] Processing order:', order.orderId);
 
   const lines = [
     '🛒 <b>طلب جديد - Vexastore!</b>',
@@ -34,17 +45,27 @@ export default async function handler(req: any, res: any) {
   ];
 
   const text = lines.join('\n');
+  const tgUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
 
   try {
-    const tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+    const tgRes = await fetch(tgUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: 'HTML' }),
     });
-    const tgData = await tgRes.json() as { ok: boolean };
-    if (!tgData.ok) return res.status(500).json({ error: 'Telegram error', detail: tgData });
+
+    const tgData = await tgRes.json() as { ok: boolean; description?: string; error_code?: number };
+    console.log('[send-order] Telegram response:', JSON.stringify(tgData));
+
+    if (!tgData.ok) {
+      console.error('[send-order] Telegram API error:', tgData.description, 'code:', tgData.error_code);
+      return res.status(500).json({ error: 'Telegram rejected the message', detail: tgData });
+    }
+
+    console.log('[send-order] ✅ Notification sent for order:', order.orderId);
     return res.status(200).json({ success: true });
-  } catch {
-    return res.status(500).json({ error: 'Failed to send to Telegram' });
+  } catch (err) {
+    console.error('[send-order] fetch to Telegram failed:', err);
+    return res.status(500).json({ error: 'Network error reaching Telegram API' });
   }
 }
