@@ -66,35 +66,46 @@ export const Checkout: React.FC = () => {
     const total = subtotal + deliveryFee;
     const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
-    const itemsString = cart.map(i => {
-      const variantStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-        ? ' [' + Object.entries(i.selectedVariant).map(([k, v]) => `${k}:${v}`).join(', ') + ']'
-        : '';
-      return `${i.product.name} (x${i.quantity})${variantStr}`;
-    }).join(' | ');
+    const orderDate = new Date().toLocaleString('ar-LB', {
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit'
+    });
 
-    const orderData = {
-      orderId,
-      date: new Date().toLocaleString('ar-LB'),
-      customerName: form.name,
-      customerPhone: fullPhone,
-      customerCity: form.city,
-      customerAddress: form.address,
-      customerNotes: form.notes || '—',
-      products: itemsString,
-      subtotalPrice: subtotal.toFixed(2) + ' USD',
-      totalPrice: total.toFixed(2) + ' USD',
-      status: 'جديد'
-    };
+    const itemLines = cart.map(i => {
+      const variantStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
+        ? ' — ' + Object.entries(i.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(', ')
+        : '';
+      return `• ${i.product.name}${variantStr}\n  الكمية: ${i.quantity} × $${i.product.price.toFixed(2)} = $${(i.product.price * i.quantity).toFixed(2)}`;
+    }).join('\n');
+
+    const telegramMessage =
+`🛒 *طلب جديد — ${orderId}*
+
+👤 *العميل:* ${form.name}
+📞 *الهاتف:* ${fullPhone}
+📍 *العنوان:* ${form.city}، ${form.address}
+📝 *ملاحظات:* ${form.notes || '—'}
+
+🛍️ *المنتجات:*
+${itemLines}
+
+💰 *المجموع الفرعي:* $${subtotal.toFixed(2)}
+🚚 *التوصيل:* $${deliveryFee.toFixed(2)}
+✅ *الإجمالي:* $${total.toFixed(2)} USD
+
+📅 *التاريخ:* ${orderDate}`;
 
     try {
-      await fetch('/api/send-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData)
-      });
-      await new Promise(r => setTimeout(r, 600));
-    } catch { /* silent */ } finally {
+      const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
+      const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
+      if (botToken && chatId) {
+        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ chat_id: chatId, text: telegramMessage, parse_mode: 'Markdown' })
+        });
+      }
+    } catch { /* silent — order still saves even if Telegram fails */ } finally {
       const customerInfo: CustomerInfo = {
         name: form.name,
         phone: fullPhone,
