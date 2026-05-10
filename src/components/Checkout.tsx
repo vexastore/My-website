@@ -66,44 +66,11 @@ export const Checkout: React.FC = () => {
     const total = subtotal + deliveryFee;
     const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
-    const orderDate = new Date().toLocaleString('ar-LB', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit'
-    });
-
-    const itemLines = cart.map(i => {
-      const variantStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-        ? ' — ' + Object.entries(i.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(', ')
-        : '';
-      return `• ${i.product.name}${variantStr}\n  الكمية: ${i.quantity} × $${i.product.price.toFixed(2)} = $${(i.product.price * i.quantity).toFixed(2)}`;
-    }).join('\n');
-
-    const telegramMessage =
-`🛒 *طلب جديد — ${orderId}*
-
-👤 *العميل:* ${form.name}
-📞 *الهاتف:* ${fullPhone}
-📍 *العنوان:* ${form.city}، ${form.address}
-📝 *ملاحظات:* ${form.notes || '—'}
-
-🛍️ *المنتجات:*
-${itemLines}
-
-💰 *المجموع الفرعي:* $${subtotal.toFixed(2)}
-🚚 *التوصيل:* $${deliveryFee.toFixed(2)}
-✅ *الإجمالي:* $${total.toFixed(2)} USD
-
-📅 *التاريخ:* ${orderDate}`;
-
-    // Send Telegram notification — dual approach for maximum reliability
-    const BOT_TOKEN = '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
-    const CHAT_ID = '8790079700';
-
     const itemsString = cart.map(i => {
-      const v = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-        ? ' [' + Object.entries(i.selectedVariant).map(([k, v]) => `${k}:${v}`).join(', ') + ']'
+      const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
+        ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${k}:${val}`).join(', ') + ']'
         : '';
-      return `${i.product.name} (x${i.quantity})${v}`;
+      return `${i.product.name} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
     }).join('\n');
 
     const msgText = [
@@ -120,35 +87,18 @@ ${itemLines}
       '',
       `📦 <b>المنتجات:</b>\n${itemsString}`,
       '',
-      `💵 <b>سعر المنتجات:</b> $${subtotal.toFixed(2)} USD`,
+      `💵 <b>المنتجات:</b> $${subtotal.toFixed(2)} USD`,
       `🚚 <b>التوصيل:</b> $5.00 USD`,
       `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
     ].join('\n');
 
     try {
-      // Primary: direct Telegram API (confirmed working)
-      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      await fetch('https://api.telegram.org/bot8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8/sendMessage', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: CHAT_ID, text: msgText, parse_mode: 'HTML' })
+        body: JSON.stringify({ chat_id: '8790079700', text: msgText, parse_mode: 'HTML' })
       });
-    } catch {
-      try {
-        // Fallback: via Vercel serverless function
-        await fetch('/api/send-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            orderId, date: new Date().toLocaleString('ar-LB'),
-            customerName: form.name, customerPhone: fullPhone,
-            customerCity: form.city, customerAddress: form.address,
-            customerNotes: form.notes || '—', products: itemsString,
-            subtotalPrice: subtotal.toFixed(2) + ' USD',
-            totalPrice: total.toFixed(2) + ' USD', status: 'جديد'
-          })
-        });
-      } catch { /* silent */ }
-    } finally {
+    } catch { /* silent */ } finally {
       const customerInfo: CustomerInfo = {
         name: form.name,
         phone: fullPhone,
