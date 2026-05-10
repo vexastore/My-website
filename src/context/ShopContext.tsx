@@ -45,6 +45,7 @@ interface ShopContextType {
   placeOrder: (customer: CustomerInfo) => Order | null;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   deleteOrder: (orderId: string) => void;
+  deleteOrderLocally: (orderId: string) => void;
   fetchAllOrdersFromFirebase: () => Promise<Order[]>;
   getCartTotal: () => number;
   getDeliveryFee: () => number;
@@ -406,6 +407,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  // Customer-side only: removes from local view without touching Firebase admin data
+  const deleteOrderLocally = (orderId: string) => {
+    setOrders(prev => prev.filter(o => o.id !== orderId));
+  };
+
   const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => {
     const snap = await getDocs(collection(db, ORDERS_COLLECTION));
     return snap.docs
@@ -423,7 +429,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       getCartTotal, getDeliveryFee, getCartItemsCount, addProduct, updateProduct,
       deleteProduct, fetchProductImages, invalidateImageCache,
       arTranslations, isTranslating,
-      fetchAllOrdersFromFirebase
+      fetchAllOrdersFromFirebase, deleteOrderLocally
     }}>
       {children}
     </ShopContext.Provider>
