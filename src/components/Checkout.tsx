@@ -96,15 +96,13 @@ ${itemLines}
 📅 *التاريخ:* ${orderDate}`;
 
     try {
-      const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN;
-      const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID;
-      if (botToken && chatId) {
-        await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chat_id: chatId, text: telegramMessage, parse_mode: 'Markdown' })
-        });
-      }
+      const botToken = import.meta.env.VITE_TELEGRAM_BOT_TOKEN || '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
+      const chatId = import.meta.env.VITE_TELEGRAM_CHAT_ID || '8790079700';
+      await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text: telegramMessage, parse_mode: 'Markdown' })
+      });
     } catch { /* silent — order still saves even if Telegram fails */ } finally {
       const customerInfo: CustomerInfo = {
         name: form.name,
