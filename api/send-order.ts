@@ -1,71 +1,89 @@
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = '8790079700';
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID;
+
+export const config = {
+  api: {
+    bodyParser: true,
+  },
+};
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
 
-  // Verify env var is present
-  if (!BOT_TOKEN) {
-    console.error('[send-order] TELEGRAM_BOT_TOKEN is not set in environment variables');
-    return res.status(500).json({ error: 'TELEGRAM_BOT_TOKEN not configured on server' });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  if (!BOT_TOKEN || !CHAT_ID) {
+    console.error('[send-order] Missing env vars');
+    return res.status(500).json({
+      error: 'Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID',
+    });
   }
 
   const order = req.body;
-  if (!order || !order.orderId) {
-    console.error('[send-order] Missing or invalid order body:', req.body);
+
+  if (!order) {
+    console.error('[send-order] Empty body');
     return res.status(400).json({ error: 'No order data' });
   }
 
-  console.log('[send-order] Processing order:', order.orderId);
+  console.log('[send-order] Order received:', order);
 
-  const lines = [
-    '🛒 <b>طلب جديد - Vexastore!</b>',
-    '',
-    `🆔 <b>رقم الطلب:</b> ${order.orderId}`,
-    `📅 <b>التاريخ:</b> ${order.date}`,
-    '',
-    `👤 <b>الاسم:</b> ${order.customerName}`,
-    `📞 <b>الهاتف:</b> ${order.customerPhone}`,
-    `🏙️ <b>المدينة:</b> ${order.customerCity}`,
-    `📍 <b>العنوان:</b> ${order.customerAddress}`,
-    `📝 <b>ملاحظات:</b> ${order.customerNotes || '—'}`,
-    '',
-    '📦 <b>المنتجات:</b>',
-    order.products,
-    '',
-    `💵 <b>سعر المنتجات:</b> ${order.subtotalPrice}`,
-    `🚚 <b>رسوم التوصيل:</b> $5.00 USD`,
-    `💰 <b>المجموع الكلي:</b> ${order.totalPrice}`,
-    `📊 <b>الحالة:</b> ${order.status}`,
-  ];
+  const text = `
+🛒 *طلب جديد - Vexastore*
 
-  const text = lines.join('\n');
-  const tgUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
+🆔 رقم الطلب: ${order.orderId || 'N/A'}
+📅 التاريخ: ${order.date || 'N/A'}
+
+👤 الاسم: ${order.customerName || 'N/A'}
+📞 الهاتف: ${order.customerPhone || 'N/A'}
+🏙️ المدينة: ${order.customerCity || 'N/A'}
+📍 العنوان: ${order.customerAddress || 'N/A'}
+📝 ملاحظات: ${order.customerNotes || '—'}
+
+📦 المنتجات:
+${Array.isArray(order.products) ? order.products.join('\n') : order.products || 'N/A'}
+
+💵 السعر: ${order.subtotalPrice || 'N/A'}
+🚚 التوصيل: $5.00
+💰 المجموع: ${order.totalPrice || 'N/A'}
+`;
 
   try {
-    const tgRes = await fetch(tgUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: CHAT_ID, text, parse_mode: 'HTML' }),
-    });
+    const tgRes = await fetch(
+      `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text,
+          parse_mode: 'Markdown',
+        }),
+      }
+    );
 
-    const tgData = await tgRes.json() as { ok: boolean; description?: string; error_code?: number };
-    console.log('[send-order] Telegram response:', JSON.stringify(tgData));
+    const data = await tgRes.json();
 
-    if (!tgData.ok) {
-      console.error('[send-order] Telegram API error:', tgData.description, 'code:', tgData.error_code);
-      return res.status(500).json({ error: 'Telegram rejected the message', detail: tgData });
+    console.log('[send-order] Telegram response:', data);
+
+    if (!data.ok) {
+      return res.status(500).json({
+        error: 'Telegram error',
+        detail: data,
+      });
     }
 
-    console.log('[send-order] ✅ Notification sent for order:', order.orderId);
     return res.status(200).json({ success: true });
   } catch (err) {
-    console.error('[send-order] fetch to Telegram failed:', err);
-    return res.status(500).json({ error: 'Network error reaching Telegram API' });
+    console.error('[send-order] Failed:', err);
+    return res.status(500).json({ error: 'Server error' });
   }
 }
