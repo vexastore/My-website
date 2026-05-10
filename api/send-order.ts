@@ -1,6 +1,6 @@
 
-const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const CHAT_ID = '8790079700';
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
+const CHAT_ID = process.env.TELEGRAM_CHAT_ID || '8790079700';
 
 export default async function handler(req: any, res: any) {
   res.setHeader('Access-Control-Allow-Origin', '*');
