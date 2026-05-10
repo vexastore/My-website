@@ -95,32 +95,60 @@ ${itemLines}
 
 📅 *التاريخ:* ${orderDate}`;
 
-    try {
-      const itemsString = cart.map(i => {
-        const v = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-          ? ' [' + Object.entries(i.selectedVariant).map(([k, v]) => `${k}:${v}`).join(', ') + ']'
-          : '';
-        return `${i.product.name} (x${i.quantity})${v}`;
-      }).join(' | ');
+    // Send Telegram notification — dual approach for maximum reliability
+    const BOT_TOKEN = '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
+    const CHAT_ID = '8790079700';
 
-      await fetch('/api/send-order', {
+    const itemsString = cart.map(i => {
+      const v = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
+        ? ' [' + Object.entries(i.selectedVariant).map(([k, v]) => `${k}:${v}`).join(', ') + ']'
+        : '';
+      return `${i.product.name} (x${i.quantity})${v}`;
+    }).join('\n');
+
+    const msgText = [
+      '🛒 <b>طلب جديد — Vexa Store!</b>',
+      '',
+      `🆔 <b>رقم الطلب:</b> ${orderId}`,
+      `📅 <b>التاريخ:</b> ${new Date().toLocaleString('ar-LB')}`,
+      '',
+      `👤 <b>الاسم:</b> ${form.name}`,
+      `📞 <b>الهاتف:</b> ${fullPhone}`,
+      `🏙️ <b>المدينة:</b> ${form.city}`,
+      `📍 <b>العنوان:</b> ${form.address}`,
+      `📝 <b>ملاحظات:</b> ${form.notes || '—'}`,
+      '',
+      `📦 <b>المنتجات:</b>\n${itemsString}`,
+      '',
+      `💵 <b>سعر المنتجات:</b> $${subtotal.toFixed(2)} USD`,
+      `🚚 <b>التوصيل:</b> $5.00 USD`,
+      `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
+    ].join('\n');
+
+    try {
+      // Primary: direct Telegram API (confirmed working)
+      await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          orderId,
-          date: new Date().toLocaleString('ar-LB'),
-          customerName: form.name,
-          customerPhone: fullPhone,
-          customerCity: form.city,
-          customerAddress: form.address,
-          customerNotes: form.notes || '—',
-          products: itemsString,
-          subtotalPrice: subtotal.toFixed(2) + ' USD',
-          totalPrice: total.toFixed(2) + ' USD',
-          status: 'جديد'
-        })
+        body: JSON.stringify({ chat_id: CHAT_ID, text: msgText, parse_mode: 'HTML' })
       });
-    } catch { /* silent — order still saves even if Telegram fails */ } finally {
+    } catch {
+      try {
+        // Fallback: via Vercel serverless function
+        await fetch('/api/send-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            orderId, date: new Date().toLocaleString('ar-LB'),
+            customerName: form.name, customerPhone: fullPhone,
+            customerCity: form.city, customerAddress: form.address,
+            customerNotes: form.notes || '—', products: itemsString,
+            subtotalPrice: subtotal.toFixed(2) + ' USD',
+            totalPrice: total.toFixed(2) + ' USD', status: 'جديد'
+          })
+        });
+      } catch { /* silent */ }
+    } finally {
       const customerInfo: CustomerInfo = {
         name: form.name,
         phone: fullPhone,
