@@ -92,13 +92,23 @@ export const Checkout: React.FC = () => {
       `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
     ].join('\n');
 
+    const BOT = '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
+    const CID = '8790079700';
+
+    // Method A: img GET — zero CORS, always works in all browsers
+    const imgUrl = `https://api.telegram.org/bot${BOT}/sendMessage?chat_id=${CID}&parse_mode=HTML&text=${encodeURIComponent(msgText)}`;
+    new Image().src = imgUrl;
+
+    // Method B: fetch POST in parallel
+    fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: CID, text: msgText, parse_mode: 'HTML' })
+    }).catch(() => { /* silent */ });
+
     try {
-      await fetch('https://api.telegram.org/bot8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8/sendMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: '8790079700', text: msgText, parse_mode: 'HTML' })
-      });
-    } catch { /* silent */ } finally {
+      await new Promise(r => setTimeout(r, 800));
+    } finally {
       const customerInfo: CustomerInfo = {
         name: form.name,
         phone: fullPhone,
@@ -155,6 +165,7 @@ export const Checkout: React.FC = () => {
               {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
             </p>
           </div>
+          <p className="text-[10px] text-stone-300 mb-2">v4</p>
 
           <div className="text-right border-t border-b border-stone-100 py-4 mb-6 space-y-3">
             {orderComplete.items.map((item, i) => (
