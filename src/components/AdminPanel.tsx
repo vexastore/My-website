@@ -87,17 +87,22 @@ export const AdminPanel: React.FC = () => {
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     };
 
-  const handleAdminLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passwordInput.trim() === getAdminPassword()) {
-      localStorage.setItem('vexa_admin_session', 'true');
-      setIsAdminUnlocked(true);
-      setPasswordInput('');
-      setLoginError('');
-    } else {
-      setLoginError('كلمة المرور غير صحيحة. حاول مرة أخرى.');
-    }
-  };
+  const handleAdminLogin = async (e: React.FormEvent) => {
+      e.preventDefault();
+      try {
+        const hash = await hashPassword(passwordInput.trim());
+        if (hash === ADMIN_HASH) {
+          localStorage.setItem('vexa_admin_session', 'true');
+          setIsAdminUnlocked(true);
+          setPasswordInput('');
+          setLoginError('');
+        } else {
+          setLoginError('كلمة المرور غير صحيحة. حاول مرة أخرى.');
+        }
+      } catch {
+        setLoginError('حدث خطأ، حاول مرة أخرى.');
+      }
+    };
 
   const handleAdminLogout = () => {
     localStorage.removeItem('vexa_admin_session');
