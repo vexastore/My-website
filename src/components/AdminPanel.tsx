@@ -23,11 +23,10 @@ export const AdminPanel: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => localStorage.getItem('vexa_admin_session') === 'true');
   const [passwordInput, setPasswordInput] = useState('');
-
-  const todayKey = new Date().toISOString().slice(0, 10);
+  const [loginError, setLoginError] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('all');
-    const [selectedMonth, setSelectedMonth] = useState<string>('all');
-    const [selectedDay, setSelectedDay] = useState<string>('all');
+  const [selectedMonth, setSelectedMonth] = useState<string>('all');
+  const [selectedDay, setSelectedDay] = useState<string>('all');
 
   // Firebase-sourced orders (all customers) — loaded when admin unlocks
   const [firebaseOrders, setFirebaseOrders] = useState<Order[]>([]);
@@ -78,31 +77,28 @@ export const AdminPanel: React.FC = () => {
   const [newOptionInputs, setNewOptionInputs] = useState<Record<number, string>>({});
 
   const ADMIN_HASH = 'ea6a140ff34999b68233c4d393701f8b0ec1516571fe9a66d994e9c094aeb065';
-
-    const hashPassword = async (pwd: string): Promise<string> => {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(pwd);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-    };
+  const hashPassword = async (pwd: string): Promise<string> => {
+    const enc = new TextEncoder();
+    const buf = await crypto.subtle.digest('SHA-256', enc.encode(pwd));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+  };
 
   const handleAdminLogin = async (e: React.FormEvent) => {
-      e.preventDefault();
-      try {
-        const hash = await hashPassword(passwordInput.trim());
-        if (hash === ADMIN_HASH) {
-          localStorage.setItem('vexa_admin_session', 'true');
-          setIsAdminUnlocked(true);
-          setPasswordInput('');
-          setLoginError('');
-        } else {
-          setLoginError('كلمة المرور غير صحيحة. حاول مرة أخرى.');
-        }
-      } catch {
-        setLoginError('حدث خطأ، حاول مرة أخرى.');
+    e.preventDefault();
+    try {
+      const hash = await hashPassword(passwordInput.trim());
+      if (hash === ADMIN_HASH) {
+        localStorage.setItem('vexa_admin_session', 'true');
+        setIsAdminUnlocked(true);
+        setPasswordInput('');
+        setLoginError('');
+      } else {
+        setLoginError('كلمة المرور غير صحيحة. حاول مرة أخرى.');
       }
-    };
+    } catch {
+      setLoginError('حدث خطأ، حاول مرة أخرى.');
+    }
+  };
 
   const handleAdminLogout = () => {
     localStorage.removeItem('vexa_admin_session');
@@ -114,33 +110,23 @@ export const AdminPanel: React.FC = () => {
     const parsed = new Date(order.date);
     return !Number.isNaN(parsed.getTime()) ? parsed.toISOString().slice(0, 10) : 'unknown';
   };
+
   const MONTH_AR = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+  const availableYears = Array.from(new Set(firebaseOrders.map(o => getOrderDateKey(o).slice(0,4)).filter(y => y.length === 4))).sort((a,b) => b.localeCompare(a));
+  const availableMonths = selectedYear === 'all' ? [] : Array.from(new Set(firebaseOrders.filter(o => getOrderDateKey(o).startsWith(selectedYear)).map(o => getOrderDateKey(o).slice(5,7)).filter(Boolean))).sort();
+  const availableDays = (selectedYear === 'all' || selectedMonth === 'all') ? [] : Array.from(new Set(firebaseOrders.filter(o => getOrderDateKey(o).startsWith(selectedYear + '-' + selectedMonth)).map(o => getOrderDateKey(o).slice(8,10)).filter(Boolean))).sort();
+  const filteredOrders = firebaseOrders.filter(o => {
+    const dk = getOrderDateKey(o);
+    if (selectedYear !== 'all' && !dk.startsWith(selectedYear)) return false;
+    if (selectedMonth !== 'all' && !dk.startsWith(selectedYear + '-' + selectedMonth)) return false;
+    if (selectedDay !== 'all' && dk !== selectedYear + '-' + selectedMonth + '-' + selectedDay) return false;
+    return true;
+  });
 
-    const availableYears = Array.from(new Set(
-      firebaseOrders.map(o => getOrderDateKey(o).slice(0, 4)).filter(y => y && y.length === 4)
-    )).sort((a, b) => b.localeCompare(a));
+  const totalSales = filteredOrders
+    .filter(o => ['delivered', 'pending', 'shipping'].includes(o.status))
+    .reduce((sum, o) => sum + o.total, 0);
 
-    const availableMonths = selectedYear === 'all' ? [] : Array.from(new Set(
-      firebaseOrders.filter(o => getOrderDateKey(o).startsWith(selectedYear))
-        .map(o => getOrderDateKey(o).slice(5, 7)).filter(Boolean)
-    )).sort();
-
-    const availableDays = (selectedYear === 'all' || selectedMonth === 'all') ? [] : Array.from(new Set(
-      firebaseOrders.filter(o => getOrderDateKey(o).startsWith(`${selectedYear}-${selectedMonth}`))
-        .map(o => getOrderDateKey(o).slice(8, 10)).filter(Boolean)
-    )).sort();
-
-    const filteredOrders = firebaseOrders.filter(o => {
-      const dk = getOrderDateKey(o);
-      if (selectedYear !== 'all' && !dk.startsWith(selectedYear)) return false;
-      if (selectedMonth !== 'all' && !dk.startsWith(`${selectedYear}-${selectedMonth}`)) return false;
-      if (selectedDay !== 'all' && dk !== `${selectedYear}-${selectedMonth}-${selectedDay}`) return false;
-      return true;
-    });
-
-    const totalSales = filteredOrders
-      .filter(o => ['delivered', 'pending', 'shipping'].includes(o.status))
-      .reduce((sum, o) => sum + o.total, 0);
   const getStatusBadge = (status: Order['status']) => ({
     pending:   <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-2 rounded-full text-[10px] font-bold"><Package size={12} className="animate-pulse" /> مراجعة</span>,
     shipping:  <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-2 rounded-full text-[10px] font-bold"><Truck size={12} /> شحن</span>,
@@ -477,33 +463,27 @@ export const AdminPanel: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2 bg-[#111] border border-white/10 rounded-xl px-4 py-3">
-              <span className="text-xs text-white/50 font-black">تصفية حسب:</span>
-              <select value={selectedYear} onChange={e => { setSelectedYear(e.target.value); setSelectedMonth('all'); setSelectedDay('all'); }}
-                className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none cursor-pointer">
-                <option value="all">كل السنوات</option>
-                {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+            <span className="text-xs text-white/50 font-black">تصفية حسب:</span>
+            <select value={selectedYear} onChange={e => { setSelectedYear(e.target.value); setSelectedMonth('all'); setSelectedDay('all'); }} className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none">
+              <option value="all">كل السنوات</option>
+              {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
+            </select>
+            {selectedYear !== 'all' && (
+              <select value={selectedMonth} onChange={e => { setSelectedMonth(e.target.value); setSelectedDay('all'); }} className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none">
+                <option value="all">كل الأشهر</option>
+                {availableMonths.map(m => <option key={m} value={m}>{MONTH_AR[parseInt(m)] || m}</option>)}
               </select>
-              {selectedYear !== 'all' && (
-                <select value={selectedMonth} onChange={e => { setSelectedMonth(e.target.value); setSelectedDay('all'); }}
-                  className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none cursor-pointer">
-                  <option value="all">كل الأشهر</option>
-                  {availableMonths.map(m => <option key={m} value={m}>{MONTH_AR[parseInt(m)] || m}</option>)}
-                </select>
-              )}
-              {selectedYear !== 'all' && selectedMonth !== 'all' && (
-                <select value={selectedDay} onChange={e => setSelectedDay(e.target.value)}
-                  className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none cursor-pointer">
-                  <option value="all">كل الأيام</option>
-                  {availableDays.map(d => <option key={d} value={d}>{parseInt(d)}</option>)}
-                </select>
-              )}
-              {(selectedYear !== 'all' || selectedMonth !== 'all' || selectedDay !== 'all') && (
-                <button onClick={() => { setSelectedYear('all'); setSelectedMonth('all'); setSelectedDay('all'); }}
-                  className="text-[10px] font-black text-red-400/70 hover:text-red-400 border border-red-500/20 px-2 py-1 rounded-lg transition">
-                  ✕ مسح الفلتر
-                </button>
-              )}
-            </div>
+            )}
+            {selectedYear !== 'all' && selectedMonth !== 'all' && (
+              <select value={selectedDay} onChange={e => setSelectedDay(e.target.value)} className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none">
+                <option value="all">كل الأيام</option>
+                {availableDays.map(d => <option key={d} value={d}>{parseInt(d)}</option>)}
+              </select>
+            )}
+            {(selectedYear !== 'all' || selectedMonth !== 'all' || selectedDay !== 'all') && (
+              <button onClick={() => { setSelectedYear('all'); setSelectedMonth('all'); setSelectedDay('all'); }} className="text-[10px] font-black text-red-400/70 hover:text-red-400 border border-red-500/20 px-2 py-1 rounded-lg transition">✕ مسح</button>
+            )}
+          </div>
           {filteredOrders.length === 0 ? (
             <div className="text-center py-16 text-white/30 border border-white/10 rounded-xl">
               <ClipboardList size={40} className="mx-auto mb-3 opacity-30" />
