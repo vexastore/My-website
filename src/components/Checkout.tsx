@@ -107,18 +107,18 @@ export const Checkout: React.FC = () => {
       new Image().src = `https://api.telegram.org/bot${BOT}/sendMessage?chat_id=${CID}&parse_mode=HTML&text=${encodeURIComponent(msgText)}`;
       await new Promise(r => setTimeout(r, 600));
     }
-      const customerInfo: CustomerInfo = {
-        name: form.name,
-        phone: fullPhone,
-        countryCode: form.countryCode,
-        city: form.city,
-        address: form.address,
-        notes: form.notes
-      };
-      const placed = placeOrder(customerInfo);
-      setIsSubmitting(false);
-      if (placed) setOrderComplete(placed);
-    }
+
+    const customerInfo: CustomerInfo = {
+      name: form.name,
+      phone: fullPhone,
+      countryCode: form.countryCode,
+      city: form.city,
+      address: form.address,
+      notes: form.notes
+    };
+    const placed = placeOrder(customerInfo);
+    setIsSubmitting(false);
+    if (placed) setOrderComplete(placed);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -389,3 +389,4 @@ export const Checkout: React.FC = () => {
     </div>
   );
 };
+
