@@ -182,35 +182,43 @@ import React, { useState } from 'react';
                   </div>
                 </div>
 
-                {/* Delete button */}
-                <div className="px-4 pb-4">
-                  {isConfirmingDelete ? (
-                    <div className="bg-red-950/30 border border-red-500/30 rounded-2xl p-4 space-y-3">
-                      <div className="flex items-center gap-2 text-red-400">
-                        <AlertTriangle size={16} />
-                        <p className="text-sm font-black">هل تريد حذف هذا الطلب من سجلاتك؟</p>
+                {/* Delete button - only when delivered */}
+                {order.status === "delivered" ? (
+                  <div className="px-4 pb-4">
+                    {isConfirmingDelete ? (
+                      <div className="bg-red-950/30 border border-red-500/30 rounded-2xl p-4 space-y-3">
+                        <div className="flex items-center gap-2 text-red-400">
+                          <AlertTriangle size={16} />
+                          <p className="text-sm font-black">هل تريد حذف هذا الطلب من سجلاتك؟</p>
+                        </div>
+                        <p className="text-xs text-white/40">سيُحذف الطلب من جهازك فقط. لن يؤثر هذا على طلبك الفعلي.</p>
+                        <div className="flex gap-2">
+                          <button onClick={() => confirmDelete(order.id)}
+                            className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-xs transition active:scale-95">
+                            نعم، احذف
+                          </button>
+                          <button onClick={() => setDeletingId(null)}
+                            className="flex-1 py-2 border border-white/15 text-white/60 hover:text-white font-black rounded-xl text-xs transition">
+                            إلغاء
+                          </button>
+                        </div>
                       </div>
-                      <p className="text-xs text-white/40">سيُحذف الطلب من جهازك فقط. لن يؤثر هذا على طلبك الفعلي.</p>
-                      <div className="flex gap-2">
-                        <button onClick={() => confirmDelete(order.id)}
-                          className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-xs transition active:scale-95">
-                          نعم، احذف
-                        </button>
-                        <button onClick={() => setDeletingId(null)}
-                          className="flex-1 py-2 border border-white/15 text-white/60 hover:text-white font-black rounded-xl text-xs transition">
-                          إلغاء
-                        </button>
-                      </div>
+                    ) : (
+                      <button onClick={() => setDeletingId(order.id)}
+                        className="w-full flex items-center justify-center gap-2 border border-white/10 hover:border-red-500/30 text-white/30 hover:text-red-400 py-2.5 rounded-xl text-xs font-bold transition">
+                        <Trash2 size={14} />
+                        حذف هذا الطلب من سجلاتي
+                      </button>
+                    )}
+                  </div>
+) : order.status !== "cancelled" ? (
+                  <div className="px-4 pb-4">
+                    <div className="flex items-center justify-center gap-2 text-white/20 text-xs py-2">
+                      <Truck size={13} />
+                      <span>يمكن حذف الطلب بعد التوصيل</span>
                     </div>
-                  ) : (
-                    <button onClick={() => setDeletingId(order.id)}
-                      className="w-full flex items-center justify-center gap-2 border border-white/10 hover:border-red-500/30 text-white/30 hover:text-red-400 py-2.5 rounded-xl text-xs font-bold transition">
-                      <Trash2 size={14} />
-                      حذف هذا الطلب من سجلاتي
-                    </button>
-                  )}
-                </div>
-              </div>
+                  </div>
+                ) : null}
             );
           })}
         </div>
