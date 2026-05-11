@@ -92,20 +92,21 @@ export const Checkout: React.FC = () => {
       `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
     ].join('\n');
 
-    const BOT = '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
-    const CID = '8790079700';
-    // Send to Telegram — awaited so it completes before order is placed
+    // Send to secure backend → Telegram (token never exposed to browser)
     try {
-      const tgRes = await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ chat_id: CID, text: msgText, parse_mode: "HTML" })
+      const tgRes = await fetch('/api/notify-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ msgText }),
       });
-      if (!tgRes.ok) throw new Error("tg failed");
-    } catch {
-      // Fallback: img GET (no CORS)
-      new Image().src = `https://api.telegram.org/bot${BOT}/sendMessage?chat_id=${CID}&parse_mode=HTML&text=${encodeURIComponent(msgText)}`;
-      await new Promise(r => setTimeout(r, 600));
+      if (!tgRes.ok) {
+        const err = await tgRes.json().catch(() => ({}));
+        console.error('[Checkout] notify-order error:', err);
+      } else {
+        console.log('[Checkout] Telegram notification sent successfully');
+      }
+    } catch (err) {
+      console.error('[Checkout] Failed to reach notify-order API:', err);
     }
 
     const customerInfo: CustomerInfo = {
