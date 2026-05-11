@@ -4,7 +4,7 @@ import { Order, Product, CategoryId, ProductVariant } from '../types';
 import {
   Package, Truck, CheckCircle2, XCircle, Trash2, Phone, MapPin,
   Calendar, DollarSign, ClipboardList, Edit, Plus, X, Upload,
-  LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle
+  LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
 
@@ -27,6 +27,9 @@ export const AdminPanel: React.FC = () => {
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedDay, setSelectedDay] = useState<string>('all');
+  const [calOpen, setCalOpen] = useState(false);
+  const [calNavYear, setCalNavYear] = useState(() => new Date().getFullYear());
+  const [calNavMonth, setCalNavMonth] = useState(() => new Date().getMonth() + 1);
 
   // Firebase-sourced orders (all customers) — loaded when admin unlocks
   const [firebaseOrders, setFirebaseOrders] = useState<Order[]>([]);
@@ -126,6 +129,14 @@ export const AdminPanel: React.FC = () => {
   const totalSales = filteredOrders
     .filter(o => ['delivered', 'pending', 'shipping'].includes(o.status))
     .reduce((sum, o) => sum + o.total, 0);
+  // Calendar helpers
+  const orderDaySet = new Set(firebaseOrders.map(o => getOrderDateKey(o)));
+  const calFirstDay = new Date(calNavYear, calNavMonth - 1, 1).getDay();
+  const calDaysCount = new Date(calNavYear, calNavMonth, 0).getDate();
+  const calMonthStr = String(calNavMonth).padStart(2, '0');
+  const calYearStr = String(calNavYear);
+  const goCalPrev = () => { if (calNavMonth === 1) { setCalNavMonth(12); setCalNavYear(y => y-1); } else setCalNavMonth(m => m-1); };
+  const goCalNext = () => { if (calNavMonth === 12) { setCalNavMonth(1); setCalNavYear(y => y+1); } else setCalNavMonth(m => m+1); };
 
   const getStatusBadge = (status: Order['status']) => ({
     pending:   <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-2 rounded-full text-[10px] font-bold"><Package size={12} className="animate-pulse" /> مراجعة</span>,
@@ -462,28 +473,61 @@ export const AdminPanel: React.FC = () => {
             ))}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 bg-[#111] border border-white/10 rounded-xl px-4 py-3">
-            <span className="text-xs text-white/50 font-black">تصفية حسب:</span>
-            <select value={selectedYear} onChange={e => { setSelectedYear(e.target.value); setSelectedMonth('all'); setSelectedDay('all'); }} className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none">
-              <option value="all">كل السنوات</option>
-              {availableYears.map(y => <option key={y} value={y}>{y}</option>)}
-            </select>
-            {selectedYear !== 'all' && (
-              <select value={selectedMonth} onChange={e => { setSelectedMonth(e.target.value); setSelectedDay('all'); }} className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none">
-                <option value="all">كل الأشهر</option>
-                {availableMonths.map(m => <option key={m} value={m}>{MONTH_AR[parseInt(m)] || m}</option>)}
-              </select>
-            )}
-            {selectedYear !== 'all' && selectedMonth !== 'all' && (
-              <select value={selectedDay} onChange={e => setSelectedDay(e.target.value)} className="border border-white/15 bg-[#0d0d0d] text-white text-xs px-3 py-1.5 rounded-lg outline-none">
-                <option value="all">كل الأيام</option>
-                {availableDays.map(d => <option key={d} value={d}>{parseInt(d)}</option>)}
-              </select>
-            )}
-            {(selectedYear !== 'all' || selectedMonth !== 'all' || selectedDay !== 'all') && (
-              <button onClick={() => { setSelectedYear('all'); setSelectedMonth('all'); setSelectedDay('all'); }} className="text-[10px] font-black text-red-400/70 hover:text-red-400 border border-red-500/20 px-2 py-1 rounded-lg transition">✕ مسح</button>
+          {/* Calendar date filter */}
+          <div className="flex items-center gap-3">
+            <button onClick={() => setCalOpen(true)}
+              className="flex items-center gap-2 bg-[#111] border border-white/15 hover:border-purple-500/50 px-4 py-2.5 rounded-xl text-sm font-black text-white transition">
+              <Calendar size={16} className="text-purple-400" />
+              {selectedDay !== "all" ? `${parseInt(selectedDay)} ${MONTH_AR[parseInt(selectedMonth)]} ${selectedYear}` : selectedMonth !== "all" ? `${MONTH_AR[parseInt(selectedMonth)]} ${selectedYear}` : selectedYear !== "all" ? selectedYear : "كل الطلبات"}
+            </button>
+            {(selectedYear !== "all") && (
+              <button onClick={() => { setSelectedYear("all"); setSelectedMonth("all"); setSelectedDay("all"); }}
+                className="text-[11px] text-red-400/70 hover:text-red-400 border border-red-500/20 px-2.5 py-1.5 rounded-lg font-black transition">✕ مسح</button>
             )}
           </div>
+          {/* Calendar popup */}
+          {calOpen && (
+            <div className="fixed inset-0 z-[60] flex items-end justify-center bg-black/70" onClick={() => setCalOpen(false)}>
+              <div className="w-full max-w-sm bg-[#141414] border border-white/10 rounded-t-3xl p-5 pb-8" onClick={e => e.stopPropagation()}>
+                {/* Month navigation */}
+                <div className="flex items-center justify-between mb-5">
+                  <button onClick={goCalPrev} className="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition"><ChevronRight size={18} className="text-white" /></button>
+                  <span className="font-black text-white text-base">{MONTH_AR[calNavMonth]} {calNavYear}</span>
+                  <button onClick={goCalNext} className="h-9 w-9 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition"><ChevronLeft size={18} className="text-white" /></button>
+                </div>
+                {/* Week day headers */}
+                <div className="grid grid-cols-7 mb-2">
+                  {["ح","ن","ث","ر","خ","ج","س"].map(d => (
+                    <div key={d} className="text-center text-[11px] text-white/30 font-black py-1">{d}</div>
+                  ))}
+                </div>
+                {/* Days grid */}
+                <div className="grid grid-cols-7 gap-1">
+                  {Array.from({length: calFirstDay}).map((_, i) => <div key={"e"+i} />)}
+                  {Array.from({length: calDaysCount}, (_, i) => i + 1).map(day => {
+                    const ds = String(day).padStart(2, "0");
+                    const dk = calYearStr + "-" + calMonthStr + "-" + ds;
+                    const hasOrder = orderDaySet.has(dk);
+                    const isSel = selectedYear === calYearStr && selectedMonth === calMonthStr && selectedDay === ds;
+                    return (
+                      <button key={day} disabled={!hasOrder}
+                        onClick={() => { setSelectedYear(calYearStr); setSelectedMonth(calMonthStr); setSelectedDay(ds); setCalOpen(false); }}
+                        className={"h-10 w-full rounded-xl text-sm font-black transition " + (isSel ? "bg-purple-600 text-white" : hasOrder ? "bg-white/10 text-white hover:bg-purple-500/30" : "text-white/15 cursor-default")}>
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+                {/* Actions */}
+                <div className="flex gap-3 mt-5">
+                  <button onClick={() => { setSelectedYear("all"); setSelectedMonth("all"); setSelectedDay("all"); setCalOpen(false); }}
+                    className="flex-1 py-3 border border-white/10 text-white/60 hover:text-white rounded-2xl text-sm font-black transition">كل الطلبات</button>
+                  <button onClick={() => setCalOpen(false)}
+                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl text-sm font-black transition">إغلاق</button>
+                </div>
+              </div>
+            </div>
+          )}
           {filteredOrders.length === 0 ? (
             <div className="text-center py-16 text-white/30 border border-white/10 rounded-xl">
               <ClipboardList size={40} className="mx-auto mb-3 opacity-30" />
