@@ -94,21 +94,19 @@ export const Checkout: React.FC = () => {
 
     const BOT = '8695367603:AAH3zD1_OprIfIxl0MVUX9K9w4YIR2U6lA8';
     const CID = '8790079700';
-
-    // Method A: img GET — zero CORS, always works in all browsers
-    const imgUrl = `https://api.telegram.org/bot${BOT}/sendMessage?chat_id=${CID}&parse_mode=HTML&text=${encodeURIComponent(msgText)}`;
-    new Image().src = imgUrl;
-
-    // Method B: fetch POST in parallel
-    fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: CID, text: msgText, parse_mode: 'HTML' })
-    }).catch(() => { /* silent */ });
-
+    // Send to Telegram — awaited so it completes before order is placed
     try {
-      await new Promise(r => setTimeout(r, 800));
-    } finally {
+      const tgRes = await fetch(`https://api.telegram.org/bot${BOT}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ chat_id: CID, text: msgText, parse_mode: "HTML" })
+      });
+      if (!tgRes.ok) throw new Error("tg failed");
+    } catch {
+      // Fallback: img GET (no CORS)
+      new Image().src = `https://api.telegram.org/bot${BOT}/sendMessage?chat_id=${CID}&parse_mode=HTML&text=${encodeURIComponent(msgText)}`;
+      await new Promise(r => setTimeout(r, 600));
+    }
       const customerInfo: CustomerInfo = {
         name: form.name,
         phone: fullPhone,
