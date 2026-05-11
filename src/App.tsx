@@ -1,4 +1,3 @@
-
 import React, { lazy, Suspense } from 'react';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
@@ -8,7 +7,6 @@ import { ShieldCheck, Lock, Heart, Mail } from 'lucide-react';
 const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default: m.Checkout })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const MyOrders = lazy(() => import('./components/MyOrders').then(m => ({ default: m.MyOrders })));
-const VexaAiAssistant = lazy(() => import('./components/VexaAiAssistant').then(m => ({ default: m.VexaAiAssistant })));
 const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then(m => ({ default: m.FloatingWhatsApp })));
 
 const PageLoader = () => (
@@ -34,7 +32,6 @@ const AppContent: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#050101] text-stone-900 flex flex-col font-sans" dir={isArabic ? 'rtl' : 'ltr'}>
       <Navbar />
-      <Suspense fallback={null}><VexaAiAssistant /></Suspense>
       <Suspense fallback={null}><FloatingWhatsApp /></Suspense>
       <main className="vexa-page-shell flex-grow">{renderView()}</main>
 
