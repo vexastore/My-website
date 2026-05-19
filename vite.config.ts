@@ -18,6 +18,7 @@ export default defineConfig({
     target: "esnext",
     minify: "esbuild",
     chunkSizeWarningLimit: 600,
+    cssMinify: true,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -27,5 +28,8 @@ export default defineConfig({
         },
       },
     },
+  },
+  server: {
+    allowedHosts: true,
   },
 });
