@@ -208,6 +208,13 @@ export const Navbar: React.FC = () => {
                     {cat.hasArrow && <ChevronRight size={30} strokeWidth={1.3} className="opacity-95 transition group-hover:translate-x-2" />}
                   </button>
                 ))}
+                <button
+                    onClick={() => { setView('about'); setIsMenuOpen(false); setActiveSubmenu(null); }}
+                    className="flex w-full items-center justify-between text-left font-light tracking-wide text-white transition hover:text-white/70"
+                  >
+                    <span className="text-[24px] sm:text-3xl md:text-4xl">{isArabic ? 'عن المتجر' : 'About Us'}</span>
+                    <Info size={24} strokeWidth={1.3} className="text-white/40" />
+                  </button>
                 <div className="mt-8 border-t border-white/10 pt-8">
                   <button
                     onClick={() => { setView('admin'); setIsMenuOpen(false); }}
