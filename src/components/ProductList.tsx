@@ -114,7 +114,7 @@ export const ProductList: React.FC = () => {
               {searchQuery
                 ? (isArabic ? `نتائج البحث: ${searchQuery}` : `Search: ${searchQuery}`)
                 : getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')}
-            </h2>
+            </h1>
           </div>
           <button
             onClick={() => setIsFilterOpen(true)}
