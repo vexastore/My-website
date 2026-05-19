@@ -311,7 +311,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       );
       const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
       if (currentCartQty + quantity > product.stock) {
-        alert(`عذراً، الكمية المطلوبة غير متوفرة حالياً. الكمية المتبقية: ${product.stock}`);
+        window.dispatchEvent(new CustomEvent('vexa-toast', { detail: { message: `الكمية المتبقية: ${product.stock}`, type: 'error' } }));
         return prevCart;
       }
       if (existingItemIndex > -1) {
@@ -333,7 +333,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       prevCart.map(item => {
         if (item.product.id === productId) {
           if (quantity > item.product.stock) {
-            alert(`عذراً، الكمية المتوفرة هي ${item.product.stock} فقط.`);
+            window.dispatchEvent(new CustomEvent('vexa-toast', { detail: { message: `الكمية المتوفرة: ${item.product.stock}`, type: 'error' } }));
             return item;
           }
           return { ...item, quantity };
