@@ -8,6 +8,7 @@ const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const MyOrders = lazy(() => import('./components/MyOrders').then(m => ({ default: m.MyOrders })));
 const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then(m => ({ default: m.FloatingWhatsApp })));
+const VexaToast = lazy(() => import('./components/VexaToast').then(m => ({ default: m.VexaToast })));
 
 const PageLoader = () => (
   <div className="flex min-h-[40vh] items-center justify-center">
@@ -33,6 +34,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen bg-[#050101] text-stone-900 flex flex-col font-sans" dir={isArabic ? 'rtl' : 'ltr'}>
       <Navbar />
       <Suspense fallback={null}><FloatingWhatsApp /></Suspense>
+      <Suspense fallback={null}><VexaToast /></Suspense>
       <main className="vexa-page-shell flex-grow">{renderView()}</main>
 
       <footer className="bg-stone-900 text-stone-300 border-t border-stone-800 py-12 mt-auto">
