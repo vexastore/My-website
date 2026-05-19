@@ -1,9 +1,191 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <!-- Homepage -->
   <url>
-    <loc>https://vexastore.vercel.app/</loc>
-    <lastmod>2025-05-19</lastmod>
-    <changefreq>weekly</changefreq>
+    <loc>https://vexatoys.com/</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/"/>
   </url>
+
+  <!-- Sex Toys -->
+  <url>
+    <loc>https://vexatoys.com/?category=Sex+Toys</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Vibrators -->
+  <url>
+    <loc>https://vexatoys.com/?category=Vibrators</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Male Toys -->
+  <url>
+    <loc>https://vexatoys.com/?category=Male+Toys</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Dildos -->
+  <url>
+    <loc>https://vexatoys.com/?category=Dildos</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Lingerie -->
+  <url>
+    <loc>https://vexatoys.com/?category=Lingerie</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- BDSM -->
+  <url>
+    <loc>https://vexatoys.com/?category=BDSM</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Holiday Collection -->
+  <url>
+    <loc>https://vexatoys.com/?category=Holiday+Collection</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- New Arrivals -->
+  <url>
+    <loc>https://vexatoys.com/?category=New+Arrivals</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Butt Plugs -->
+  <url>
+    <loc>https://vexatoys.com/?category=Butt+Plugs</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Anal Toys -->
+  <url>
+    <loc>https://vexatoys.com/?category=Anal+Toys</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Bondage -->
+  <url>
+    <loc>https://vexatoys.com/?category=Bondage</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Sex Dolls -->
+  <url>
+    <loc>https://vexatoys.com/?category=Sex+Dolls</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Strap Ons -->
+  <url>
+    <loc>https://vexatoys.com/?category=Strap+Ons</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Kegel Balls -->
+  <url>
+    <loc>https://vexatoys.com/?category=Kegel+Balls</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Sexual Enhancers -->
+  <url>
+    <loc>https://vexatoys.com/?category=Sexual+Enhancers</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Penis Pumps -->
+  <url>
+    <loc>https://vexatoys.com/?category=Penis+Pumps</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Cock Rings -->
+  <url>
+    <loc>https://vexatoys.com/?category=Cock+Rings</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Masturbators -->
+  <url>
+    <loc>https://vexatoys.com/?category=Masturbators</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Chastity -->
+  <url>
+    <loc>https://vexatoys.com/?category=Chastity</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Sex Machines -->
+  <url>
+    <loc>https://vexatoys.com/?category=Sex+Machines</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Lubricants -->
+  <url>
+    <loc>https://vexatoys.com/?category=Lubricants</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Poppers -->
+  <url>
+    <loc>https://vexatoys.com/?category=Poppers</loc>
+    <lastmod>2025-05-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
 </urlset>
