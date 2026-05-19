@@ -85,7 +85,7 @@ export const ProductList: React.FC = () => {
           <ChevronLeft size={20} strokeWidth={1.4} className="text-white/55" />
           <h2 className="text-center text-[11px] font-black uppercase tracking-[0.34em] text-white/65 sm:text-sm">
             {isArabic ? 'توصيل بنفس اليوم في بيروت' : 'Same Day Delivery in Beirut'}
-          </p>
+          </h2>
           <ChevronRight size={20} strokeWidth={1.4} className="text-white/55" />
         </div>
       </section>
