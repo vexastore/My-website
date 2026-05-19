@@ -136,7 +136,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
             {hasRealImage ? (
               <img
                 src={cardImage}
-                alt={displayName}
+                alt={isArabic ? `شراء ${displayName} في لبنان - متجر فيكسا` : `Buy ${displayName} in Lebanon - Vexa Store`}
                 loading={priority ? 'eager' : 'lazy'}
                 decoding={priority ? 'sync' : 'async'}
                 fetchPriority={priority ? 'high' : 'low'}
@@ -231,7 +231,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 ) : selectedImage ? (
                   <img
                     src={selectedImage}
-                    alt={displayName}
+                    alt={isArabic ? `شراء ${displayName} في لبنان - متجر فيكسا` : `Buy ${displayName} in Lebanon - Vexa Store`}
                     loading="eager"
                     className="w-full h-full object-contain"
                     style={{ objectPosition: 'center center' }}
@@ -501,7 +501,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                         <div style={{ paddingTop: '100%', position: 'relative' }}>
                           <img
                             src={img}
-                            alt={`${displayName} ${idx + 1}`}
+                            alt={isArabic ? `صورة ${displayName} في لبنان - متجر فيكسا - ${idx + 1}` : `${displayName} Lebanon - Vexa Store - ${idx + 1}`}
                             loading="lazy"
                             style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                           />
