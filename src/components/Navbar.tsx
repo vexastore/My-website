@@ -10,7 +10,7 @@ const VexaLogo = () => (
   >
     <img
       src="/vexa-logo.jpg"
-      alt="Vexa Store Lebanon"
+      alt="متجر فيكسا - أفضل متجر ألعاب زوجية ولانجري في لبنان"
       className="h-[62px] w-[62px] sm:h-[76px] sm:w-[76px] rounded-full object-cover"
       style={{ border: '2.5px solid rgba(220,30,30,0.75)', boxShadow: '0 0 18px rgba(220,20,20,0.6), 0 0 36px rgba(180,0,0,0.35)' }}
     />
