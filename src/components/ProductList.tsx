@@ -83,7 +83,7 @@ export const ProductList: React.FC = () => {
       <section className="border-y border-white/10 bg-[#141414]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-3.5 text-white sm:px-8 sm:py-4">
           <ChevronLeft size={20} strokeWidth={1.4} className="text-white/55" />
-          <p className="text-center text-[11px] font-black uppercase tracking-[0.34em] text-white/65 sm:text-sm">
+          <h2 className="text-center text-[11px] font-black uppercase tracking-[0.34em] text-white/65 sm:text-sm">
             {isArabic ? 'توصيل بنفس اليوم في بيروت' : 'Same Day Delivery in Beirut'}
           </p>
           <ChevronRight size={20} strokeWidth={1.4} className="text-white/55" />
@@ -96,7 +96,7 @@ export const ProductList: React.FC = () => {
             <p className="text-[10px] font-black uppercase tracking-[0.36em] text-white/35">
               {isArabic ? 'مجموعة متجر فيكسا' : 'Vexa Store Collection'}
             </p>
-            <h2 className="mt-2 max-w-3xl text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
+            <h1 className="mt-2 max-w-3xl text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
               {searchQuery
                 ? (isArabic ? `نتائج البحث: ${searchQuery}` : `Search: ${searchQuery}`)
                 : getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')}
