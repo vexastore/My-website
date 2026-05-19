@@ -1,14 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from './ProductCard';
 import { SearchX, ShoppingBag, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
-import { CATEGORIES, getCategoryTitle, productMatchesCategory } from '../data/categories';
+import { CATEGORIES, getCategoryTitle, productMatchesCategory, getCategorySeoTab } from '../data/categories';
 
 const PAGE_SIZE = 12;
 
 export const ProductList: React.FC = () => {
   const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, language, isProductsLoading } = useShop();
   const isArabic = language === 'ar';
+  // Dynamic title + meta description per category (SEO)
+  useEffect(() => {
+    const cat = CATEGORIES.find(c => c.id === activeCategory);
+    if (cat) {
+      document.title = cat.seoTab[isArabic ? 'ar' : 'en'];
+      const metaDesc = document.querySelector('meta[name="description"]');
+      if (metaDesc) {
+        const desc = isArabic
+          ? cat.titlePage.ar + ' - توصيل سري بنفس اليوم في بيروت. دفع عند الاستلام. تغليف سري 100%. متجر فيكسا لبنان.'
+          : cat.titlePage.en + ' - Same day discreet delivery in Beirut. Cash on delivery. 100% discreet packaging. Vexa Store Lebanon.';
+        metaDesc.setAttribute('content', desc);
+      }
+    }
+  }, [activeCategory, isArabic]);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [openFilterSection, setOpenFilterSection] = useState<'availability' | 'price' | 'categories' | null>(null);
