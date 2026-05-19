@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockData';
 import { db } from '../firebase';
@@ -8,8 +8,10 @@ import {
   getDocs,
   setDoc,
   deleteDoc,
-  writeBatch
+  writeBatch,
+  getDoc
 } from 'firebase/firestore';
+import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about';
 
@@ -24,6 +26,7 @@ interface ShopContextType {
   searchQuery: string;
   is18PlusVerified: boolean;
   isProductsLoading: boolean;
+  arTranslations: Record<string, ArTranslation>;
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   setLanguage: (language: 'en' | 'ar') => void;
   toggleLanguage: () => void;
@@ -42,14 +45,19 @@ interface ShopContextType {
   deleteOrderLocally: (orderId: string) => void;
   getCartTotal: () => number;
   getCartItemsCount: () => number;
+  getDeliveryFee: () => number;
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
   updateProduct: (id: string, product: Omit<Product, 'id'>) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
+  fetchProductImages: (productId: string) => Promise<string[]>;
+  fetchAllOrdersFromFirebase: () => Promise<Order[]>;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 const PRODUCTS_COLLECTION = 'products';
+const ORDERS_COLLECTION = 'orders';
+const DELIVERY_FEE = 5;
 
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -62,6 +70,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(false);
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
   const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [arTranslations, setArTranslations] = useState<Record<string, ArTranslation>>(() => loadArCache());
 
   // Load products from Firebase Firestore on mount
   useEffect(() => {
@@ -77,7 +86,6 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }));
           setProducts(firestoreProducts);
         } else {
-          // First time: upload mock products to Firestore
           const batch = writeBatch(db);
           MOCK_PRODUCTS.forEach(product => {
             const docRef = doc(db, PRODUCTS_COLLECTION, product.id);
@@ -88,7 +96,6 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (error) {
         console.error('Error loading products from Firestore:', error);
-        // Fallback to localStorage if Firestore fails
         const stored = localStorage.getItem('adult_store_products');
         setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
       } finally {
@@ -98,6 +105,17 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     loadProducts();
   }, []);
+
+  // Auto-translate English products to Arabic when language is Arabic
+  useEffect(() => {
+    if (language !== 'ar' || products.length === 0) return;
+    const englishOnly = products.filter(p => !arTranslations[p.id]);
+    if (englishOnly.length === 0) return;
+
+    translateProducts(englishOnly, arTranslations, (updated) => {
+      setArTranslations(updated);
+    }).catch(() => {});
+  }, [language, products]); // eslint-disable-line
 
   // Load cart, orders, age, language from localStorage
   useEffect(() => {
@@ -160,6 +178,34 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
+  const fetchProductImages = async (productId: string): Promise<string[]> => {
+    try {
+      const docSnap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
+      if (docSnap.exists()) {
+        const data = docSnap.data() as Product;
+        return data.images && data.images.length > 0 ? data.images : (data.image ? [data.image] : []);
+      }
+    } catch (error) {
+      console.error('Error fetching product images:', error);
+    }
+    return [];
+  };
+
+  const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => {
+    try {
+      const snapshot = await getDocs(collection(db, ORDERS_COLLECTION));
+      if (!snapshot.empty) {
+        return snapshot.docs.map(docSnap => ({
+          ...(docSnap.data() as Omit<Order, 'id'>),
+          id: docSnap.id
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching orders from Firebase:', error);
+    }
+    return orders;
+  };
+
   const updateStockInFirestore = async (updatedProducts: Product[]) => {
     try {
       const batch = writeBatch(db);
@@ -190,6 +236,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIs18PlusVerified(true);
     localStorage.setItem('adult_store_age_verified', 'true');
   };
+
+  const getDeliveryFee = () => DELIVERY_FEE;
 
   const addToCart = (product: Product, quantity: number = 1) => {
     setCart(prevCart => {
@@ -229,18 +277,18 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearCart = () => setCart([]);
-  const getCartTotal = () => cart.reduce((t, i) => t + i.product.price * i.quantity, 0);
+  const getCartTotal = () => cart.reduce((t, i) => t + i.product.price * i.quantity, 0) + DELIVERY_FEE;
   const getCartItemsCount = () => cart.reduce((c, i) => c + i.quantity, 0);
 
   const placeOrder = (customer: CustomerInfo): Order | null => {
     if (cart.length === 0) return null;
 
-    const total = getCartTotal();
+    const subtotal = cart.reduce((t, i) => t + i.product.price * i.quantity, 0);
     const newOrder: Order = {
       id: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
       items: [...cart],
       customer,
-      total,
+      total: subtotal + DELIVERY_FEE,
       date: new Date().toLocaleString('ar-EG'),
       dateKey: new Date().toISOString().slice(0, 10),
       status: 'pending'
@@ -269,7 +317,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const deleteOrder = (orderId: string) => {
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟')) {
-      setOrders(prev => prev.filter(o => o.id !== orderId));
+      deleteOrderLocally(orderId);
     }
   };
 
@@ -277,11 +325,12 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <ShopContext.Provider
       value={{
         language, products, cart, orders, currentView, selectedArticle,
-        activeCategory, searchQuery, is18PlusVerified, isProductsLoading,
+        activeCategory, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
         setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
         setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
-        getCartTotal, getCartItemsCount, addProduct, updateProduct, deleteProduct, deleteOrderLocally
+        deleteOrderLocally, getCartTotal, getCartItemsCount, getDeliveryFee,
+        addProduct, updateProduct, deleteProduct, fetchProductImages, fetchAllOrdersFromFirebase
       }}
     >
       {children}
