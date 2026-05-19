@@ -11,12 +11,14 @@ import {
   writeBatch
 } from 'firebase/firestore';
 
+type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about';
+
 interface ShopContextType {
   language: 'en' | 'ar';
   products: Product[];
   cart: CartItem[];
   orders: Order[];
-  currentView: 'shop' | 'checkout' | 'admin' | 'advice';
+  currentView: ViewType;
   selectedArticle: AdviceArticle | null;
   activeCategory: string;
   searchQuery: string;
@@ -25,7 +27,7 @@ interface ShopContextType {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   setLanguage: (language: 'en' | 'ar') => void;
   toggleLanguage: () => void;
-  setView: (view: 'shop' | 'checkout' | 'admin' | 'advice') => void;
+  setView: (view: ViewType) => void;
   setSelectedArticle: (article: AdviceArticle | null) => void;
   setActiveCategory: (category: string) => void;
   setSearchQuery: (query: string) => void;
@@ -52,7 +54,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [currentView, setViewState] = useState<'shop' | 'checkout' | 'admin' | 'advice'>('shop');
+  const [currentView, setViewState] = useState<ViewType>('shop');
   const [selectedArticle, setSelectedArticleState] = useState<AdviceArticle | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>('Sex Toys');
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -171,7 +173,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // ──────────────────────────────────────────────────────────────────────────
 
-  const setView = (view: 'shop' | 'checkout' | 'admin' | 'advice') => {
+  const setView = (view: ViewType) => {
     setViewState(view);
     if (view !== 'advice') setSelectedArticleState(null);
     window.scrollTo(0, 0);
