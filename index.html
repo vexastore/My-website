@@ -3,21 +3,79 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="متجر فيكسا — توصيل سري في لبنان. منتجات زوجية فاخرة، لانجري، هزازات. توصيل في نفس اليوم في بيروت." />
+
+    <!-- ═══ SEO: Title - keyword first ═══ -->
+    <title>متجر فيكسا | ألعاب زوجية وهزازات ولانجري في لبنان - توصيل سري بيروت</title>
+
+    <!-- ═══ SEO: Meta Description - marketing copy with keyword ═══ -->
+    <meta name="description" content="أفضل متجر لشراء ألعاب زوجية، هزازات، ولانجري فاخر في لبنان. توصيل سري في نفس اليوم في بيروت وخلال 72 ساعة لكل لبنان. دفع عند الاستلام. تغليف سري 100%." />
+
+    <!-- ═══ SEO: Keywords ═══ -->
+    <meta name="keywords" content="ألعاب زوجية لبنان, هزازات بيروت, لانجري لبنان, منتجات حميمية, توصيل سري لبنان, sex toys Lebanon, vibrators Beirut, lingerie Lebanon, متجر سري بيروت" />
+
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#050101" />
-    <meta property="og:title" content="متجر فيكسا (Vexa Store) | خصوصية مطلقة وتسوق آمن" />
-    <meta property="og:description" content="متجر فيكسا — توصيل سري في لبنان. منتجات زوجية فاخرة، لانجري، هزازات. توصيل في نفس اليوم في بيروت." />
+    <meta name="author" content="Vexa Store Lebanon" />
+
+    <!-- ═══ Open Graph - social sharing ═══ -->
+    <meta property="og:title" content="متجر فيكسا | ألعاب زوجية وهزازات ولانجري في لبنان" />
+    <meta property="og:description" content="أفضل متجر لشراء ألعاب زوجية، هزازات، ولانجري فاخر في لبنان. توصيل سري في نفس اليوم في بيروت. دفع عند الاستلام." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://vexastore.vercel.app/" />
     <meta property="og:image" content="https://vexastore.vercel.app/opengraph.jpg" />
+    <meta property="og:locale" content="ar_LB" />
+    <meta property="og:site_name" content="Vexa Store Lebanon" />
+
+    <!-- ═══ Twitter Card ═══ -->
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="متجر فيكسا | ألعاب زوجية وهزازات في لبنان" />
+    <meta name="twitter:description" content="أفضل متجر لشراء ألعاب زوجية ولانجري في لبنان. توصيل سري في بيروت." />
+    <meta name="twitter:image" content="https://vexastore.vercel.app/opengraph.jpg" />
+
     <link rel="canonical" href="https://vexastore.vercel.app/" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://firestore.googleapis.com" />
     <link rel="preconnect" href="https://firebase.googleapis.com" />
     <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>متجر فيكسا (Vexa Store) | خصوصية مطلقة وتسوق آمن</title>
+
+    <!-- ═══ JSON-LD Structured Data ═══ -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "OnlineStore",
+      "name": "Vexa Store Lebanon",
+      "alternateName": "متجر فيكسا",
+      "url": "https://vexastore.vercel.app/",
+      "logo": "https://vexastore.vercel.app/vexa-logo.jpg",
+      "image": "https://vexastore.vercel.app/opengraph.jpg",
+      "description": "أفضل متجر لشراء ألعاب زوجية، هزازات، ولانجري فاخر في لبنان مع توصيل سري في بيروت وجميع المناطق.",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+96176730767",
+        "contactType": "customer service",
+        "areaServed": "LB",
+        "availableLanguage": ["Arabic", "English"]
+      },
+      "address": {
+        "@type": "PostalAddress",
+        "addressCountry": "LB",
+        "addressLocality": "Beirut"
+      },
+      "sameAs": [
+        "https://wa.me/96176730767"
+      ],
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "منتجات متجر فيكسا",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "ألعاب زوجية" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "هزازات" } },
+          { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "لانجري فاخر" } }
+        ]
+      }
+    }
+    </script>
+
     <style>
       .no-scrollbar::-webkit-scrollbar { display: none; }
       .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
