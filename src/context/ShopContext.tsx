@@ -39,6 +39,7 @@ interface ShopContextType {
   placeOrder: (customer: CustomerInfo) => Order | null;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   deleteOrder: (orderId: string) => void;
+  deleteOrderLocally: (orderId: string) => void;
   getCartTotal: () => number;
   getCartItemsCount: () => number;
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
@@ -262,6 +263,10 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
   };
 
+  const deleteOrderLocally = (orderId: string) => {
+    setOrders(prev => prev.filter(o => o.id !== orderId));
+  };
+
   const deleteOrder = (orderId: string) => {
     if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟')) {
       setOrders(prev => prev.filter(o => o.id !== orderId));
@@ -276,7 +281,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
         setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
-        getCartTotal, getCartItemsCount, addProduct, updateProduct, deleteProduct
+        getCartTotal, getCartItemsCount, addProduct, updateProduct, deleteProduct, deleteOrderLocally
       }}
     >
       {children}
