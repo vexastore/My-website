@@ -1,14 +1,16 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 import { ProductList } from './components/ProductList';
-import { ShieldCheck, Lock, Heart, Mail } from 'lucide-react';
+import { ShieldCheck, Lock, Heart, Mail, Info } from 'lucide-react';
+import { getCategorySeoTab } from './data/categories';
 
 const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default: m.Checkout })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const MyOrders = lazy(() => import('./components/MyOrders').then(m => ({ default: m.MyOrders })));
 const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then(m => ({ default: m.FloatingWhatsApp })));
 const VexaToast = lazy(() => import('./components/VexaToast').then(m => ({ default: m.VexaToast })));
+const About = lazy(() => import('./components/About').then(m => ({ default: m.About })));
 
 const PageLoader = () => (
   <div className="flex min-h-[40vh] items-center justify-center">
@@ -17,8 +19,36 @@ const PageLoader = () => (
 );
 
 const AppContent: React.FC = () => {
-  const { currentView, language } = useShop();
+  const { currentView, language, activeCategory, searchQuery, setView } = useShop();
   const isArabic = language === 'ar';
+
+  /* ── Dynamic browser tab title ── */
+  useEffect(() => {
+    const lang = isArabic ? 'ar' : 'en';
+    if (currentView === 'shop') {
+      if (searchQuery) {
+        document.title = isArabic
+          ? `نتائج البحث: ${searchQuery} | متجر فيكسا لبنان`
+          : `Search: ${searchQuery} | Vexa Store Lebanon`;
+      } else {
+        document.title = getCategorySeoTab(activeCategory, lang);
+      }
+    } else if (currentView === 'checkout') {
+      document.title = isArabic
+        ? 'إتمام الطلب | متجر فيكسا لبنان'
+        : 'Checkout | Vexa Store Lebanon';
+    } else if (currentView === 'about') {
+      document.title = isArabic
+        ? 'عن متجر فيكسا | ألعاب زوجية ولانجري في لبنان'
+        : 'About Vexa Store | Sex Toys & Lingerie Lebanon - Discreet Delivery';
+    } else if (currentView === 'orders') {
+      document.title = isArabic
+        ? 'طلباتي | متجر فيكسا لبنان'
+        : 'My Orders | Vexa Store Lebanon';
+    } else if (currentView === 'admin') {
+      document.title = 'Admin Panel | Vexa Store';
+    }
+  }, [currentView, activeCategory, searchQuery, isArabic]);
 
   const renderView = () => {
     switch (currentView) {
@@ -26,6 +56,7 @@ const AppContent: React.FC = () => {
       case 'checkout': return <Suspense fallback={<PageLoader />}><Checkout /></Suspense>;
       case 'admin':    return <Suspense fallback={<PageLoader />}><AdminPanel /></Suspense>;
       case 'orders':   return <Suspense fallback={<PageLoader />}><MyOrders /></Suspense>;
+      case 'about':    return <Suspense fallback={<PageLoader />}><About /></Suspense>;
       default:         return <ProductList />;
     }
   };
@@ -128,6 +159,13 @@ const AppContent: React.FC = () => {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-t border-stone-800 mt-10 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-500 font-medium">
           <p>© {new Date().getFullYear()} Vexa Store. {isArabic ? 'جميع الحقوق محفوظة.' : 'All rights reserved.'}</p>
           <div className="flex items-center gap-4">
+            <button
+              onClick={() => setView('about')}
+              className="flex items-center gap-1 hover:text-stone-300 transition"
+            >
+              <Info size={12} />
+              {isArabic ? 'عن المتجر' : 'About Us'}
+            </button>
             <span className="flex items-center gap-1 hover:text-stone-400 cursor-pointer">
               <Lock size={12} /> {isArabic ? 'سياسة الخصوصية السرية' : 'Privacy Policy'}
             </span>
