@@ -12,6 +12,22 @@ const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then
 const VexaToast = lazy(() => import('./components/VexaToast').then(m => ({ default: m.VexaToast })));
 const About = lazy(() => import('./components/About').then(m => ({ default: m.About })));
 
+
+// ── SEO: category slug ↔ category ID mapping ──
+const CATEGORY_SLUGS: Record<string, string> = {
+  'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
+  'Dildos': 'dildos', 'Lingerie': 'lingerie', 'BDSM': 'bdsm',
+  'Holiday Collection': 'holiday-collection', 'New Arrivals': 'new-arrivals',
+  'Butt Plugs': 'butt-plugs', 'Anal Toys': 'anal-toys', 'Bondage': 'bondage',
+  'Sex Dolls': 'sex-dolls', 'Strap Ons': 'strap-ons', 'Kegel Balls': 'kegel-balls',
+  'Sexual Enhancers': 'sexual-enhancers', 'Penis Pumps': 'penis-pumps',
+  'Cock Rings': 'cock-rings', 'Masturbators': 'masturbators', 'Chastity': 'chastity',
+  'Sex Machines': 'sex-machines', 'Lubricants': 'lubricants', 'Poppers': 'poppers',
+};
+const SLUG_TO_CATEGORY: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_SLUGS).map(([k, v]) => [v, k])
+);
+
 const PageLoader = () => (
   <div className="flex min-h-[40vh] items-center justify-center">
     <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60" />
@@ -52,12 +68,13 @@ const AppContent: React.FC = () => {
 
   /* ── URL sync: on mount, read URL → set view/category ── */
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
     const path = window.location.pathname;
     if (path === '/about') {
       setView('about');
-    } else if (params.has('category')) {
-      setActiveCategory(decodeURIComponent(params.get('category')!));
+    } else if (path !== '/') {
+      const slug = path.replace(/^//, '');
+      const cat = SLUG_TO_CATEGORY[slug];
+      if (cat) setActiveCategory(cat);
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -66,7 +83,8 @@ const AppContent: React.FC = () => {
     if (currentView === 'about') {
       window.history.replaceState(null, '', '/about');
     } else if (currentView === 'shop') {
-      window.history.replaceState(null, '', '/?category=' + encodeURIComponent(activeCategory));
+      const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/s+/g, '-');
+      window.history.replaceState(null, '', '/' + slug);
     }
   }, [currentView, activeCategory]);
 
