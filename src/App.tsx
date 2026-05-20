@@ -19,7 +19,7 @@ const PageLoader = () => (
 );
 
 const AppContent: React.FC = () => {
-  const { currentView, language, activeCategory, searchQuery, setView } = useShop();
+  const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory } = useShop();
   const isArabic = language === 'ar';
 
   /* ── Dynamic browser tab title ── */
@@ -49,6 +49,54 @@ const AppContent: React.FC = () => {
       document.title = 'Admin Panel | Vexa Store';
     }
   }, [currentView, activeCategory, searchQuery, isArabic]);
+
+  /* ── URL sync: on mount, read URL → set view/category ── */
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const path = window.location.pathname;
+    if (path === '/about') {
+      setView('about');
+    } else if (params.has('category')) {
+      setActiveCategory(decodeURIComponent(params.get('category')!));
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── URL sync: update URL when view/category changes ── */
+  useEffect(() => {
+    if (currentView === 'about') {
+      window.history.replaceState(null, '', '/about');
+    } else if (currentView === 'shop') {
+      window.history.replaceState(null, '', '/?category=' + encodeURIComponent(activeCategory));
+    }
+  }, [currentView, activeCategory]);
+
+  /* ── Dynamic meta description per category ── */
+  useEffect(() => {
+    const catMeta: Record<string, string> = {
+      'Sex Toys': 'اشتر أفضل ألعاب زوجية في لبنان — هزازات، ديلدو، لانجري. توصيل سري في نفس اليوم في بيروت، دفع عند الاستلام. متجر فيكسا.',
+      'Vibrators': 'هزازات فاخرة في لبنان. اختر من أفضل الماركات — توصيل سري في نفس اليوم في بيروت، دفع عند الاستلام. متجر فيكسا.',
+      'Male Toys': 'ألعاب رجالية فاخرة في لبنان — توصيل سري وسريع في بيروت وجميع المناطق. دفع عند الاستلام. متجر فيكسا.',
+      'Dildos': 'ديلدو آمن مصنوع من السيليكون الطبي — توصيل سري في لبنان في نفس اليوم، دفع عند الاستلام. متجر فيكسا.',
+      'Lingerie': 'لانجري فاخر في لبنان — دانتيل، ساتان، وأطقم حميمية. توصيل سري وسريع في بيروت وكل لبنان. متجر فيكسا.',
+      'BDSM': 'ألعاب BDSM آمنة للمبتدئين في لبنان — قيود، ريش، عصابات عين. توصيل سري في بيروت. متجر فيكسا.',
+      'Holiday Collection': 'هدايا رومانسية وأطقم مميزة في لبنان — مثالية للمناسبات. توصيل سري في بيروت، دفع عند الاستلام. متجر فيكسا.',
+      'New Arrivals': 'أحدث منتجات متجر فيكسا في لبنان. توصيل سري في بيروت وجميع المناطق خلال 72 ساعة.',
+      'Butt Plugs': 'سدادة شرجية آمنة ومريحة في لبنان — توصيل سري في بيروت، دفع عند الاستلام. متجر فيكسا.',
+      'Anal Toys': 'ألعاب شرجية متنوعة في لبنان — توصيل سري في بيروت وكل لبنان. متجر فيكسا.',
+      'Lubricants': 'مواد تشحيم مائية آمنة على البشرة في لبنان — توصيل سري في بيروت، دفع عند الاستلام. متجر فيكسا.',
+      'Masturbators': 'أدوات استمناء رجالية فاخرة في لبنان — توصيل سري في بيروت. متجر فيكسا.',
+      'Cock Rings': 'حلقات قضيب سيليكون طبي في لبنان — توصيل سري في بيروت وكل لبنان. متجر فيكسا.',
+    };
+    const defaultDesc = 'أفضل متجر لشراء ألعاب زوجية، هزازات، ولانجري فاخر في لبنان. توصيل سري في نفس اليوم في بيروت وخلال 72 ساعة لكل لبنان. دفع عند الاستلام. تغليف سري 100%.';
+    const desc = currentView === 'about'
+      ? 'تعرف على متجر فيكسا — المتجر الأكثر أماناً وخصوصية للمنتجات الزوجية واللانجري في لبنان. توصيل سري في بيروت.'
+      : (catMeta[activeCategory] || defaultDesc);
+    document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
+    document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', window.location.href);
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', window.location.href);
+  }, [currentView, activeCategory]);
 
   const renderView = () => {
     switch (currentView) {
