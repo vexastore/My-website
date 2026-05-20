@@ -57,6 +57,7 @@ const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 const PRODUCTS_COLLECTION = 'products';
 const ORDERS_COLLECTION = 'orders';
+const IMAGES_COLLECTION = 'product_images';
 const DELIVERY_FEE = 5;
 
 export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -180,15 +181,21 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProductImages = async (productId: string): Promise<string[]> => {
     try {
-      const docSnap = await getDoc(doc(db, PRODUCTS_COLLECTION, productId));
-      if (docSnap.exists()) {
-        const data = docSnap.data() as Product;
-        return data.images && data.images.length > 0 ? data.images : (data.image ? [data.image] : []);
-      }
-    } catch (error) {
-      console.error('Error fetching product images:', error);
+      const [gallerySnap, productSnap] = await Promise.all([
+        getDoc(doc(db, IMAGES_COLLECTION, productId)),
+        getDoc(doc(db, PRODUCTS_COLLECTION, productId)),
+      ]);
+      const galleryImgs: string[] = gallerySnap.exists()
+        ? (gallerySnap.data().images as string[]) || []
+        : [];
+      const productData = productSnap.exists() ? productSnap.data() : null;
+      const productImgs: string[] = productData ? (productData.images as string[] || []) : [];
+      const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
+      if (bestImgs.length > 0) return bestImgs;
+      return productData?.image ? [productData.image as string] : [];
+    } catch {
+      return [];
     }
-    return [];
   };
 
   const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => {
