@@ -112,6 +112,50 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
     }
   }, [product.id, cardImage, fetchProductImages]);
 
+  /* ── JSON-LD structured data per product (for Google rich snippets) ── */
+  useEffect(() => {
+    const prevScript = document.getElementById('vexa-product-jsonld');
+    if (prevScript) prevScript.remove();
+    if (!isDetailsOpen) return;
+
+    const jsonLd: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.nameEn || product.name,
+      description: product.descriptionEn || product.description,
+      image: modalImages.length > 0 ? modalImages : [product.image],
+      sku: product.id,
+      brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
+      offers: {
+        '@type': 'Offer',
+        price: product.price,
+        priceCurrency: 'USD',
+        availability: product.stock > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        url: window.location.href,
+        seller: { '@type': 'Organization', name: 'Vexa Store Lebanon' },
+      },
+    };
+    if (product.reviewsCount > 0) {
+      jsonLd.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: product.rating,
+        reviewCount: product.reviewsCount,
+        bestRating: 5,
+        worstRating: 1,
+      };
+    }
+
+    const script = document.createElement('script');
+    script.id = 'vexa-product-jsonld';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+
+    return () => { document.getElementById('vexa-product-jsonld')?.remove(); };
+  }, [isDetailsOpen, product, modalImages]);
+
   return (
     <>
       {/* ── PRODUCT CARD ── */}
