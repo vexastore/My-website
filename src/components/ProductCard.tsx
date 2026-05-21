@@ -464,7 +464,127 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 </button>
               )}
 
-              {/* Delivery Info Accordion */}
+              {/* WhatsApp Share */}
+              <button
+                type="button"
+                onClick={() => {
+                  const name = isArabic ? product.name : (product.nameEn || product.name);
+                  const price = product.price + ' 
+              <div className="border-t border-stone-200">
+                <button
+                  type="button"
+                  onClick={() => setIsDeliveryOpen(v => !v)}
+                  aria-expanded={isDeliveryOpen}
+                  className="flex w-full items-center justify-between py-3.5"
+                >
+                  <span className="text-[11px] font-black uppercase tracking-[0.18em] text-stone-700 flex items-center gap-2">
+                    <ShieldCheck size={13} className="text-stone-400" />
+                    {isArabic ? 'معلومات التوصيل' : 'DELIVERY INFO'}
+                  </span>
+                  <ChevronDown size={15} className={`text-stone-400 transition-transform duration-200 ${isDeliveryOpen ? 'rotate-180' : ''}`} />
+                </button>
+
+                {isDeliveryOpen && (
+                  <div className="pb-4 space-y-3 text-sm leading-relaxed text-stone-600">
+                    {isArabic ? (
+                      <>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">توصيل سري في لبنان</h4>
+                          <p>خصوصيتك أولويتنا. كل طلب يُشحن في كرتون عادي مغلق بدون أي إشارة إلى محتواه أو اسم المتجر.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">توصيل في نفس اليوم في بيروت</h4>
+                          <p>يصل طلبك خلال ساعات من الشراء لأقصى قدر من الراحة.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">توصيل لكل لبنان خلال 72 ساعة</h4>
+                          <p>خارج بيروت؟ نوصل لجميع المناطق بشكل سري وسريع.</p>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">Discreet Delivery Across Lebanon</h4>
+                          <p>Every order is shipped in plain, unbranded packaging with no indication of its contents.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">Same-Day Delivery in Beirut</h4>
+                          <p>Orders arrive within hours of purchase for maximum convenience.</p>
+                        </div>
+                        <div>
+                          <h4 className="font-black text-stone-800 mb-1">Nationwide Delivery Within 72 Hours</h4>
+                          <p>We deliver discreetly to all regions across Lebanon.</p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Description */}
+              {displayDesc && (
+                <div className="text-sm leading-7 text-stone-600 border-t border-stone-100 pt-4">
+                  <p>{displayDesc}</p>
+                </div>
+              )}
+
+              {/* ── ALL images grid (2 columns) using .map() — every image shown ── */}
+              {modalImages.length > 1 && (
+                <div className="border-t border-stone-100 pt-4">
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-3">
+                    {isArabic ? `صور المنتج (${modalImages.length})` : `Product images (${modalImages.length})`}
+                  </p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {modalImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => { setSelectedImageIndex(idx); window.scrollTo({ top: 0 }); }}
+                        aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
+                        className={`relative overflow-hidden rounded-xl border-2 transition-all ${
+                          selectedImageIndex === idx
+                            ? 'border-stone-900'
+                            : 'border-stone-200 opacity-75 hover:opacity-100 hover:border-stone-400'
+                        }`}
+                      >
+                        {/* padding-top trick for 1:1 ratio — works on all Android browsers */}
+                        <div style={{ paddingTop: '100%', position: 'relative' }}>
+                          <img
+                            src={img}
+                            alt={isArabic ? `صورة ${displayName} في لبنان - متجر فيكسا - ${idx + 1}` : `${displayName} Lebanon - Vexa Store - ${idx + 1}`}
+                            loading="lazy"
+                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                          />
+                        </div>
+                        {selectedImageIndex === idx && (
+                          <div className="absolute inset-0 ring-2 ring-inset ring-stone-900 rounded-xl pointer-events-none" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+};;
+                  const url = window.location.href;
+                  const msg = isArabic
+                    ? `شوفوا هالمنتج من متجر فيكسا 🔥\n${name}\n💰 السعر: ${price}\n🛒 ${url}`
+                    : `Check this product from Vexa Store 🔥\n${name}\n💰 Price: ${price}\n🛒 ${url}`;
+                  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold bg-[#25D366] hover:bg-[#1ebe5d] text-white transition active:scale-[0.98]"
+              >
+                <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.845-1.587-5.921.003-6.556 5.338-11.891 11.893-11.891 3.176.001 6.165 1.236 8.413 3.484 2.248 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.916 3.21 1.399 4.909 1.4 5.424 0 9.835-4.411 9.838-9.835.002-2.628-1.021-5.1-2.88-6.958-1.859-1.859-4.331-2.88-6.955-2.881-5.423 0-9.835 4.412-9.838 9.836-.001 1.79.491 3.535 1.425 5.047l-1.012 3.7 3.784-.993zm11.458-7.228c-.312-.156-1.847-.91-2.132-1.014-.285-.104-.492-.156-.7.156-.207.312-.802 1.014-.983 1.221-.181.208-.363.234-.675.078-.312-.156-1.317-.485-2.51-1.549-.928-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.136-.636.141-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.207.052-.39-.026-.546-.078-.156-.7-1.688-.959-2.311-.253-.61-.51-.527-.7-.537-.182-.01-.39-.01-.597-.01-.208 0-.545.078-.83.39-.285.312-1.089 1.065-1.089 2.597 0 1.533 1.115 3.013 1.271 3.221.156.208 2.193 3.349 5.313 4.699.742.32 1.32.512 1.77.654.745.237 1.423.204 1.959.124.597-.089 1.847-.754 2.108-1.442.261-.689.261-1.274.182-1.39-.078-.118-.285-.182-.597-.338z"/>
+                </svg>
+                {isArabic ? 'شارك على واتساب' : 'Share on WhatsApp'}
+              </button>
+
+                            {/* Delivery Info Accordion */}
               <div className="border-t border-stone-200">
                 <button
                   type="button"
