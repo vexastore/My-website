@@ -75,7 +75,7 @@ const AppContent: React.FC = () => {
     } else if (w.__INITIAL_CATEGORY__) {
       setActiveCategory(w.__INITIAL_CATEGORY__);
     } else if (path !== '/') {
-      const slug = path.replace(/^//, '');
+      const slug = path.replace(/^\//, '');
       const cat = SLUG_TO_CATEGORY[slug];
       if (cat) setActiveCategory(cat);
     }
