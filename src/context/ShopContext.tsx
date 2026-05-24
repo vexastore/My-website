@@ -53,6 +53,37 @@ interface ShopContextType {
   fetchAllOrdersFromFirebase: () => Promise<Order[]>;
 }
 
+
+// ── URL slug → category mapping (for synchronous URL-based initialization) ──
+const URL_SLUG_TO_CATEGORY: Record<string, string> = {
+  'sex-toys': 'Sex Toys', 'vibrators': 'Vibrators', 'male-toys': 'Male Toys',
+  'dildos': 'Dildos', 'lingerie': 'Lingerie', 'bdsm': 'BDSM',
+  'holiday-collection': 'Holiday Collection', 'new-arrivals': 'New Arrivals',
+  'butt-plugs': 'Butt Plugs', 'anal-toys': 'Anal Toys', 'bondage': 'Bondage',
+  'sex-dolls': 'Sex Dolls', 'strap-ons': 'Strap Ons', 'kegel-balls': 'Kegel Balls',
+  'sexual-enhancers': 'Sexual Enhancers', 'penis-pumps': 'Penis Pumps',
+  'cock-rings': 'Cock Rings', 'masturbators': 'Masturbators', 'chastity': 'Chastity',
+  'sex-machines': 'Sex Machines', 'lubricants': 'Lubricants', 'poppers': 'Poppers',
+};
+
+function getInitialCategory(): string {
+  try {
+    const w = window as typeof window & { __INITIAL_CATEGORY__?: string };
+    if (w.__INITIAL_CATEGORY__) return w.__INITIAL_CATEGORY__;
+    const slug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+    return URL_SLUG_TO_CATEGORY[slug] || 'Sex Toys';
+  } catch { return 'Sex Toys'; }
+}
+
+function getInitialView(): ViewType {
+  try {
+    const w = window as typeof window & { __INITIAL_VIEW__?: string };
+    if (w.__INITIAL_VIEW__ === 'about') return 'about';
+    if (window.location.pathname === '/about') return 'about';
+  } catch {}
+  return 'shop';
+}
+
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
 const PRODUCTS_COLLECTION = 'products';
@@ -64,9 +95,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [products, setProducts] = useState<Product[]>([]);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [currentView, setViewState] = useState<ViewType>('shop');
+  const [currentView, setViewState] = useState<ViewType>(getInitialView);
   const [selectedArticle, setSelectedArticleState] = useState<AdviceArticle | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>('Sex Toys');
+  const [activeCategory, setActiveCategory] = useState<string>(getInitialCategory);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(false);
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
