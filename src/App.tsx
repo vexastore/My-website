@@ -66,11 +66,14 @@ const AppContent: React.FC = () => {
     }
   }, [currentView, activeCategory, searchQuery, isArabic]);
 
-  /* ── URL sync: on mount, read URL → set view/category ── */
+  /* ── URL sync: on mount, read pre-rendered window globals OR path → set view/category ── */
   useEffect(() => {
+    const w = window as typeof window & { __INITIAL_CATEGORY__?: string; __INITIAL_VIEW__?: string };
     const path = window.location.pathname;
-    if (path === '/about') {
+    if (w.__INITIAL_VIEW__ === 'about' || path === '/about') {
       setView('about');
+    } else if (w.__INITIAL_CATEGORY__) {
+      setActiveCategory(w.__INITIAL_CATEGORY__);
     } else if (path !== '/') {
       const slug = path.replace(/^//, '');
       const cat = SLUG_TO_CATEGORY[slug];
