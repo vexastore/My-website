@@ -5,7 +5,29 @@
       "has": [{ "type": "host", "value": "www.vexatoys.com" }],
       "destination": "https://vexatoys.com/$1",
       "permanent": true
-    }
+    },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Sex Toys"}],          "destination": "/sex-toys",          "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Vibrators"}],         "destination": "/vibrators",         "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Male Toys"}],         "destination": "/male-toys",         "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Dildos"}],            "destination": "/dildos",            "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Lingerie"}],          "destination": "/lingerie",          "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"BDSM"}],              "destination": "/bdsm",              "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Holiday Collection"}],"destination": "/holiday-collection","permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"New Arrivals"}],      "destination": "/new-arrivals",      "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Butt Plugs"}],        "destination": "/butt-plugs",        "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Anal Toys"}],         "destination": "/anal-toys",         "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Bondage"}],           "destination": "/bondage",           "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Sex Dolls"}],         "destination": "/sex-dolls",         "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Strap Ons"}],         "destination": "/strap-ons",         "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Kegel Balls"}],       "destination": "/kegel-balls",       "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Sexual Enhancers"}],  "destination": "/sexual-enhancers",  "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Penis Pumps"}],       "destination": "/penis-pumps",       "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Cock Rings"}],        "destination": "/cock-rings",        "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Masturbators"}],      "destination": "/masturbators",      "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Chastity"}],          "destination": "/chastity",          "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Sex Machines"}],      "destination": "/sex-machines",      "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Lubricants"}],        "destination": "/lubricants",        "permanent": true },
+    { "source": "/", "has": [{"type":"query","key":"category","value":"Poppers"}],           "destination": "/poppers",           "permanent": true }
   ],
   "rewrites": [
     { "source": "/sex-toys",          "destination": "/sex-toys.html" },
@@ -36,15 +58,11 @@
   "headers": [
     {
       "source": "/assets/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
       "source": "/robots.txt",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=86400" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=86400" }]
     },
     {
       "source": "/sitemap.xml",
@@ -55,18 +73,16 @@
     },
     {
       "source": "/(.*\\.html)",
-      "headers": [
-        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
     },
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options",  "value": "nosniff" },
-        { "key": "X-Frame-Options",         "value": "DENY" },
-        { "key": "X-XSS-Protection",        "value": "1; mode=block" },
-        { "key": "Referrer-Policy",         "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy",      "value": "camera=(), microphone=(), geolocation=()" }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options",        "value": "DENY" },
+        { "key": "X-XSS-Protection",       "value": "1; mode=block" },
+        { "key": "Referrer-Policy",        "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy",     "value": "camera=(), microphone=(), geolocation=()" }
       ]
     }
   ]
