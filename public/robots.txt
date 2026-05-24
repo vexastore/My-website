@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Block admin panel from indexing
-Disallow: /?view=admin
+Disallow: /admin
 
 # Sitemap location
 Sitemap: https://vexatoys.com/sitemap.xml
