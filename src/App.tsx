@@ -117,7 +117,12 @@ const AppContent: React.FC = () => {
     document.querySelector('meta[property="og:url"]')?.setAttribute('content', window.location.href);
     const canonical = document.querySelector('link[rel="canonical"]');
     if (canonical) canonical.setAttribute('href', window.location.href);
-  }, [currentView, activeCategory]);
+    // ── Dynamic og:title + twitter tags per category/view ──
+      const ogTitle = document.title;
+      document.querySelector('meta[property="og:title"]')?.setAttribute('content', ogTitle);
+      document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', ogTitle);
+      document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
+    }, [currentView, activeCategory]);
 
   const handleCatLink = (e: React.MouseEvent, catId: string) => {
     e.preventDefault();
