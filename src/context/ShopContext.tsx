@@ -35,7 +35,7 @@ interface ShopContextType {
   setActiveCategory: (category: string) => void;
   setSearchQuery: (query: string) => void;
   verifyAge: () => void;
-  addToCart: (product: Product, quantity?: number) => void;
+  addToCart: (product: Product, quantity?: number, selectedVariants?: Record<string, string>) => void;
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -151,11 +151,15 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Load cart, orders, age, language from localStorage
   useEffect(() => {
-    const storedCart = localStorage.getItem('adult_store_cart');
-    if (storedCart) setCart(JSON.parse(storedCart));
+    try {
+      const storedCart = localStorage.getItem('adult_store_cart');
+      if (storedCart) setCart(JSON.parse(storedCart));
+    } catch { setCart([]); }
 
-    const storedOrders = localStorage.getItem('adult_store_orders');
-    if (storedOrders) setOrders(JSON.parse(storedOrders));
+    try {
+      const storedOrders = localStorage.getItem('adult_store_orders');
+      if (storedOrders) setOrders(JSON.parse(storedOrders));
+    } catch { setOrders([]); }
 
     const storedAgeVerify = localStorage.getItem('adult_store_age_verified');
     if (storedAgeVerify === 'true') setIs18PlusVerified(true);
@@ -277,7 +281,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const getDeliveryFee = () => DELIVERY_FEE;
 
-  const addToCart = (product: Product, quantity: number = 1) => {
+  const addToCart = (product: Product, quantity: number = 1, selectedVariants?: Record<string, string>) => {
     setCart(prevCart => {
       const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
       const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
@@ -288,9 +292,15 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (existingItemIndex > -1) {
         const newCart = [...prevCart];
         newCart[existingItemIndex].quantity += quantity;
+        if (selectedVariants && Object.keys(selectedVariants).length > 0) {
+          newCart[existingItemIndex].selectedVariant = selectedVariants;
+        }
         return newCart;
       }
-      return [...prevCart, { product, quantity }];
+      return [...prevCart, {
+        product, quantity,
+        selectedVariant: selectedVariants && Object.keys(selectedVariants).length > 0 ? selectedVariants : undefined
+      }];
     });
   };
 
