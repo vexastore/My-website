@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Product, ProductVariant } from '../types';
 import { useShop } from '../context/ShopContext';
 import { Star, ShoppingCart, X, PackageCheck, ShieldCheck, Zap, ChevronLeft, ChevronRight, ChevronDown, Truck, Lock, Minus, Plus, Loader2 } from 'lucide-react';
