@@ -469,107 +469,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 type="button"
                 onClick={() => {
                   const name = isArabic ? product.name : (product.nameEn || product.name);
-                  const price = product.price + ' 
-              <div className="border-t border-stone-200">
-                <button
-                  type="button"
-                  onClick={() => setIsDeliveryOpen(v => !v)}
-                  aria-expanded={isDeliveryOpen}
-                  className="flex w-full items-center justify-between py-3.5"
-                >
-                  <span className="text-[11px] font-black uppercase tracking-[0.18em] text-stone-700 flex items-center gap-2">
-                    <ShieldCheck size={13} className="text-stone-400" />
-                    {isArabic ? 'معلومات التوصيل' : 'DELIVERY INFO'}
-                  </span>
-                  <ChevronDown size={15} className={`text-stone-400 transition-transform duration-200 ${isDeliveryOpen ? 'rotate-180' : ''}`} />
-                </button>
-
-                {isDeliveryOpen && (
-                  <div className="pb-4 space-y-3 text-sm leading-relaxed text-stone-600">
-                    {isArabic ? (
-                      <>
-                        <div>
-                          <h4 className="font-black text-stone-800 mb-1">توصيل سري في لبنان</h4>
-                          <p>خصوصيتك أولويتنا. كل طلب يُشحن في كرتون عادي مغلق بدون أي إشارة إلى محتواه أو اسم المتجر.</p>
-                        </div>
-                        <div>
-                          <h4 className="font-black text-stone-800 mb-1">توصيل في نفس اليوم في بيروت</h4>
-                          <p>يصل طلبك خلال ساعات من الشراء لأقصى قدر من الراحة.</p>
-                        </div>
-                        <div>
-                          <h4 className="font-black text-stone-800 mb-1">توصيل لكل لبنان خلال 72 ساعة</h4>
-                          <p>خارج بيروت؟ نوصل لجميع المناطق بشكل سري وسريع.</p>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div>
-                          <h4 className="font-black text-stone-800 mb-1">Discreet Delivery Across Lebanon</h4>
-                          <p>Every order is shipped in plain, unbranded packaging with no indication of its contents.</p>
-                        </div>
-                        <div>
-                          <h4 className="font-black text-stone-800 mb-1">Same-Day Delivery in Beirut</h4>
-                          <p>Orders arrive within hours of purchase for maximum convenience.</p>
-                        </div>
-                        <div>
-                          <h4 className="font-black text-stone-800 mb-1">Nationwide Delivery Within 72 Hours</h4>
-                          <p>We deliver discreetly to all regions across Lebanon.</p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              {/* Description */}
-              {displayDesc && (
-                <div className="text-sm leading-7 text-stone-600 border-t border-stone-100 pt-4">
-                  <p>{displayDesc}</p>
-                </div>
-              )}
-
-              {/* ── ALL images grid (2 columns) using .map() — every image shown ── */}
-              {modalImages.length > 1 && (
-                <div className="border-t border-stone-100 pt-4">
-                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-3">
-                    {isArabic ? `صور المنتج (${modalImages.length})` : `Product images (${modalImages.length})`}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {modalImages.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => { setSelectedImageIndex(idx); window.scrollTo({ top: 0 }); }}
-                        aria-label={`${isArabic ? 'صورة' : 'Image'} ${idx + 1}`}
-                        className={`relative overflow-hidden rounded-xl border-2 transition-all ${
-                          selectedImageIndex === idx
-                            ? 'border-stone-900'
-                            : 'border-stone-200 opacity-75 hover:opacity-100 hover:border-stone-400'
-                        }`}
-                      >
-                        {/* padding-top trick for 1:1 ratio — works on all Android browsers */}
-                        <div style={{ paddingTop: '100%', position: 'relative' }}>
-                          <img
-                            src={img}
-                            alt={isArabic ? `صورة ${displayName} في لبنان - متجر فيكسا - ${idx + 1}` : `${displayName} Lebanon - Vexa Store - ${idx + 1}`}
-                            loading="lazy"
-                            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-                          />
-                        </div>
-                        {selectedImageIndex === idx && (
-                          <div className="absolute inset-0 ring-2 ring-inset ring-stone-900 rounded-xl pointer-events-none" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </>
-  );
-};;
+                  const price = '$' + product.price.toFixed(2) + ' USD';
                   const url = window.location.href;
                   const msg = isArabic
                     ? `شوفوا هالمنتج من متجر فيكسا 🔥\n${name}\n💰 السعر: ${price}\n🛒 ${url}`
@@ -584,7 +484,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 {isArabic ? 'شارك على واتساب' : 'Share on WhatsApp'}
               </button>
 
-                            {/* Delivery Info Accordion */}
+              {/* Delivery Info Accordion */}
               <div className="border-t border-stone-200">
                 <button
                   type="button"
@@ -643,7 +543,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 </div>
               )}
 
-              {/* ── ALL images grid (2 columns) using .map() — every image shown ── */}
+              {/* ALL images grid (2 columns) */}
               {modalImages.length > 1 && (
                 <div className="border-t border-stone-100 pt-4">
                   <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-3">
@@ -661,7 +561,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                             : 'border-stone-200 opacity-75 hover:opacity-100 hover:border-stone-400'
                         }`}
                       >
-                        {/* padding-top trick for 1:1 ratio — works on all Android browsers */}
                         <div style={{ paddingTop: '100%', position: 'relative' }}>
                           <img
                             src={img}
@@ -684,4 +583,4 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
       )}
     </>
   );
-};
+}
