@@ -83,9 +83,7 @@ const CATEGORIES = [
 const SLUG_TO_NAME_AR = { 'sex-toys':'ألعاب زوجية','vibrators':'هزازات','dildos':'ديلدو','lingerie':'لانجري','male-toys':'ألعاب رجالية','bdsm':'BDSM','butt-plugs':'سدادة شرجية','anal-toys':'ألعاب الشرج','bondage':'عبودية','sex-dolls':'دمى جنسية','strap-ons':'ستراب أون','kegel-balls':'كيغل بولز','sexual-enhancers':'معززات جنسية','penis-pumps':'مضخات القضيب','cock-rings':'حلقات القضيب','masturbators':'مستمني','chastity':'العفة','sex-machines':'ماكينات الجنس','lubricants':'مواد التشحيم','poppers':'بوبرز','new-arrivals':'وصل حديثاً','holiday-collection':'مجموعة الأعياد' };
 const SLUG_TO_NAME_EN  = { 'sex-toys':'Sex Toys','vibrators':'Vibrators','dildos':'Dildos','lingerie':'Lingerie','male-toys':'Male Toys','bdsm':'BDSM','butt-plugs':'Butt Plugs','anal-toys':'Anal Toys','bondage':'Bondage','sex-dolls':'Sex Dolls','strap-ons':'Strap-ons','kegel-balls':'Kegel Balls','sexual-enhancers':'Sexual Enhancers','penis-pumps':'Penis Pumps','cock-rings':'Cock Rings','masturbators':'Masturbators','chastity':'Chastity','sex-machines':'Sex Machines','lubricants':'Lubricants','poppers':'Poppers','new-arrivals':'New Arrivals','holiday-collection':'Holiday Collection' };
 
-const SEO_STYLE = `<style id="seo-style">#seo-preamble{font-family:Arial,sans-serif;padding:14px 18px;background:#060606;color:#bbb;border-bottom:1px solid #1a1a1a;font-size:14px;line-height:1.65}#seo-preamble .seo-ar{direction:rtl;text-align:right}#seo-preamble .seo-en{direction:ltr;text-align:left;margin-top:12px;border-top:1px solid #1a1a1a;padding-top:12px}#seo-preamble h1,#seo-preamble h2{font-size:18px;font-weight:700;color:#ddd;margin:0 0 8px}#seo-preamble p{margin:0 0 8px;color:#999}#seo-preamble ul{margin:0;padding-inline-start:18px;color:#888}#seo-preamble li{margin-bottom:3px}#seo-related{font-family:Arial,sans-serif;padding:10px 18px 12px;background:#060606;border-bottom:1px solid #1a1a1a;font-size:12px;direction:rtl}#seo-related a{color:#666;text-decoration:none;margin:0 4px}#seo-related a:hover{color:#999}#seo-related span{color:#444}</style>`;
-
-let base;
+  // seo-preamble removed — SEO data is in JSON-LD + meta tags only
 try {
   base = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
 } catch (err) {
@@ -137,7 +135,6 @@ function generateCategoryPage(cat) {
   const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p><a href="https://vexatoys.com">vexatoys.com</a></div></noscript>`;
   html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_CATEGORY__="${cat.name}";</script>\n${noscript}\n</head>`);
   const content = `<div id="seo-preamble"><div class="seo-ar">${cat.seoAr}</div><div class="seo-en">${cat.seoEn}</div></div>\n${buildRelated(cat.related)}`;
-  html = html.replace('<div id="root">', `${content}\n<div id="root">`);
   return html;
 }
 
