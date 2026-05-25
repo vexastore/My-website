@@ -1,8 +1,13 @@
 User-agent: *
 Allow: /
 
-# Block admin panel from indexing
+# Block non-indexable internal pages
 Disallow: /admin
+Disallow: /checkout
+Disallow: /orders
+
+# Block old query-parameter category URLs (all redirected to clean slugs)
+Disallow: /*?category=
 
 # Sitemap location
 Sitemap: https://vexatoys.com/sitemap.xml
