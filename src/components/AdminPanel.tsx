@@ -21,7 +21,7 @@ export const AdminPanel: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder, fetchProductImages, fetchAllOrdersFromFirebase } = useShop();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => localStorage.getItem('vexa_admin_session') === 'true');
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => sessionStorage.getItem('vexa_admin_session') === 'true');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
   const [selectedYear, setSelectedYear] = useState<string>('all');
@@ -87,24 +87,44 @@ export const AdminPanel: React.FC = () => {
   };
 
   const handleAdminLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const hash = await hashPassword(passwordInput.trim());
-      if (hash === ADMIN_HASH) {
-        localStorage.setItem('vexa_admin_session', 'true');
-        setIsAdminUnlocked(true);
-        setPasswordInput('');
-        setLoginError('');
-      } else {
-        setLoginError('كلمة المرور غير صحيحة. حاول مرة أخرى.');
+      e.preventDefault();
+      const lockData = sessionStorage.getItem('vexa_admin_lockout');
+      if (lockData) {
+        const { until } = JSON.parse(lockData);
+        if (Date.now() < until) {
+          const mins = Math.ceil((until - Date.now()) / 60000);
+          setLoginError('حساب مقفل. حاول بعد ' + mins + ' دقيقة.');
+          return;
+        }
       }
-    } catch {
-      setLoginError('حدث خطأ، حاول مرة أخرى.');
-    }
-  };
+      try {
+        const hash = await hashPassword(passwordInput.trim());
+        if (hash === ADMIN_HASH) {
+          sessionStorage.setItem('vexa_admin_session', 'true');
+          sessionStorage.removeItem('vexa_admin_lockout');
+          setIsAdminUnlocked(true);
+          setPasswordInput('');
+          setLoginError('');
+        } else {
+          const prevLock = lockData ? JSON.parse(lockData) : { attempts: 0 };
+          const newAttempts = (prevLock.attempts || 0) + 1;
+          if (newAttempts >= 3) {
+            const until = Date.now() + 30 * 60 * 1000;
+            sessionStorage.setItem('vexa_admin_lockout', JSON.stringify({ until, attempts: newAttempts }));
+            setLoginError('3 محاولات خاطئة. الحساب مقفل لمدة 30 دقيقة.');
+          } else {
+            sessionStorage.setItem('vexa_admin_lockout', JSON.stringify({ until: 0, attempts: newAttempts }));
+            setLoginError('كلمة المرور غير صحيحة. محاولة ' + newAttempts + '/3');
+          }
+        }
+      } catch {
+        setLoginError('حدث خطأ، حاول مرة أخرى.');
+      }
+    };
 
   const handleAdminLogout = () => {
-    localStorage.removeItem('vexa_admin_session');
+    sessionStorage.removeItem('vexa_admin_session');
+    sessionStorage.removeItem('vexa_admin_lockout');
     setIsAdminUnlocked(false);
   };
 
