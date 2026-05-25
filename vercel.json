@@ -378,6 +378,10 @@
       "destination": "/product-:id.html"
     },
     {
+      "source": "/product/:slug",
+      "destination": "/api/product/:slug"
+    },
+    {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
