@@ -85,7 +85,15 @@ const SLUG_TO_NAME_EN  = { 'sex-toys':'Sex Toys','vibrators':'Vibrators','dildos
 
 const SEO_STYLE = `<style id="seo-style">#seo-preamble{font-family:Arial,sans-serif;padding:14px 18px;background:#060606;color:#bbb;border-bottom:1px solid #1a1a1a;font-size:14px;line-height:1.65}#seo-preamble .seo-ar{direction:rtl;text-align:right}#seo-preamble .seo-en{direction:ltr;text-align:left;margin-top:12px;border-top:1px solid #1a1a1a;padding-top:12px}#seo-preamble h1,#seo-preamble h2{font-size:18px;font-weight:700;color:#ddd;margin:0 0 8px}#seo-preamble p{margin:0 0 8px;color:#999}#seo-preamble ul{margin:0;padding-inline-start:18px;color:#888}#seo-preamble li{margin-bottom:3px}#seo-related{font-family:Arial,sans-serif;padding:10px 18px 12px;background:#060606;border-bottom:1px solid #1a1a1a;font-size:12px;direction:rtl}#seo-related a{color:#666;text-decoration:none;margin:0 4px}#seo-related a:hover{color:#999}#seo-related span{color:#444}</style>`;
 
-const base = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
+let base;
+try {
+  base = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
+} catch (err) {
+  console.error('❌ Could not read dist/index.html:', err.message);
+  console.error('   distDir =', distDir);
+  console.error('   Listing dist/:', fs.existsSync(distDir) ? fs.readdirSync(distDir).slice(0,10).join(', ') : 'NOT FOUND');
+  process.exit(1);
+}
 
 function patchMeta(html, { title, canonical, descAr, descEn, keywords, ogTitle, ogUrl }) {
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`);
