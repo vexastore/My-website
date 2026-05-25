@@ -109,7 +109,13 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loadProducts = async () => {
       setIsProductsLoading(true);
       try {
-        const snapshot = await getDocs(collection(db, PRODUCTS_COLLECTION));
+        const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Firestore timeout')), 8000)
+          );
+          const snapshot = await Promise.race([
+            getDocs(collection(db, PRODUCTS_COLLECTION)),
+            timeoutPromise
+          ]) as Awaited<ReturnType<typeof getDocs>>;
 
         if (!snapshot.empty) {
           const firestoreProducts = snapshot.docs.map(docSnap => ({
@@ -127,7 +133,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProducts(MOCK_PRODUCTS);
         }
       } catch (error) {
-        console.error('Error loading products from Firestore:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Firestore load error:', error);
         const stored = localStorage.getItem('adult_store_products');
         setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
       } finally {
@@ -243,7 +249,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }));
       }
     } catch (error) {
-      console.error('Error fetching orders from Firebase:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Firestore orders error:', error);
     }
     return orders;
   };
@@ -256,7 +262,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
       await batch.commit();
     } catch (error) {
-      console.error('Error updating stock in Firestore:', error);
+      if (process.env.NODE_ENV === 'development') console.error('Firestore stock error:', error);
     }
   };
 
