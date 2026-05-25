@@ -134,7 +134,7 @@ function generateCategoryPage(cat) {
   });
   const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p><a href="https://vexatoys.com">vexatoys.com</a></div></noscript>`;
   html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_CATEGORY__="${cat.name}";</script>\n${noscript}\n</head>`);
-  const content = `<div id="seo-preamble"><div class="seo-ar">${cat.seoAr}</div><div class="seo-en">${cat.seoEn}</div></div>\n${buildRelated(cat.related)}`;
+  // visible SEO block removed — meta+JSON-LD handles indexing
   return html;
 }
 
@@ -178,7 +178,7 @@ function generateProductPage(product) {
   const categoryNameAr = SLUG_TO_NAME_AR[categorySlug] || product.category || '';
   const categoryNameEn = SLUG_TO_NAME_EN[categorySlug] || product.category || '';
 
-  const seoContent = `<div id="seo-preamble"><div class="seo-ar">
+    // visible SEO block removed
     <nav aria-label="Breadcrumb" style="font-size:12px;margin-bottom:8px">
       <a href="https://vexatoys.com" style="color:#666;text-decoration:none">فيكسا</a>
       <span style="color:#555;margin:0 6px">›</span>
@@ -230,7 +230,6 @@ function generateProductPage(product) {
     ogUrl: canonical,
   });
   html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";</script>\n${noscript}\n</head>`);
-  html = html.replace('<div id="root">', `${seoContent}\n<div id="root">`);
   return html;
 }
 
@@ -251,8 +250,7 @@ async function main() {
   aboutHtml = aboutHtml.replace(/(<meta property="og:url" content=")[^"]*(")/,      `$1https://vexatoys.com/about$2`);
   aboutHtml = aboutHtml.replace(/(<meta property="og:title" content=")[^"]*(")/,    `$1عن متجر فيكسا | Vexa Store Lebanon$2`);
   aboutHtml = aboutHtml.replace('</head>', `${SEO_STYLE}\n<script>window.__INITIAL_VIEW__="about";</script>\n</head>`);
-  const aboutContent = `<div id="seo-preamble"><div class="seo-ar"><h1>عن متجر فيكسا — ألعاب زوجية ولانجري في لبنان</h1><p>متجر فيكسا هو المتجر الأكثر أماناً وخصوصية للمنتجات الزوجية في لبنان.</p><ul><li>توصيل سري 100% في بيروت ولبنان</li><li>دفع عند الاستلام</li><li>منتجات أصلية وآمنة طبياً</li></ul></div><div class="seo-en"><h2>About Vexa Store Lebanon</h2><p>Vexa Store is Lebanon's most discreet and trusted adult products store.</p><ul><li>100% discreet delivery in Beirut and Lebanon</li><li>Cash on delivery</li><li>Original body-safe products</li></ul></div></div>`;
-  aboutHtml = aboutHtml.replace('<div id="root">', `${aboutContent}\n<div id="root">`);
+    // visible SEO block removed
   fs.writeFileSync(path.join(distDir, 'about.html'), aboutHtml);
   console.log('✓ about.html');
 
