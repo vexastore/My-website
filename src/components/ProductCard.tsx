@@ -235,8 +235,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
             onClick={e => e.stopPropagation()}
           >
             {/* ── Top bar: close button + delivery banner ── */}
-            <div className="sticky top-0 z-30 bg-black flex items-center justify-between px-3 py-2.5 select-none">
-              {/* Close button — always visible, left side in RTL */}
+            <div className="sticky top-0 z-30 bg-black flex items-center justify-between px-3 py-1.5 select-none">
+              {/* Close button */}
               <button
                 onClick={() => setIsDetailsOpen(false)}
                 aria-label={isArabic ? 'إغلاق' : 'Close'}
@@ -244,11 +244,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
               >
                 <X size={18} />
               </button>
-
-              <span className="text-white text-[11px] font-black uppercase tracking-[0.15em] flex items-center gap-1.5 mx-2 text-center">
-                <Zap size={11} className="text-emerald-400 flex-shrink-0" fill="currentColor" />
-                {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same Day Delivery in Beirut'}
-              </span>
 
               {/* Image counter pill */}
               {modalImages.length > 1 ? (
