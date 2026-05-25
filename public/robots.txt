@@ -1,13 +1,25 @@
 User-agent: *
-Allow: /
+  Allow: /
 
-# Block non-indexable internal pages
-Disallow: /admin
-Disallow: /checkout
-Disallow: /orders
+  # Block non-indexable internal pages
+  Disallow: /admin
+  Disallow: /checkout
+  Disallow: /orders
 
-# Block old query-parameter category URLs (all redirected to clean slugs)
-Disallow: /*?category=
+  # Block old query-parameter category URLs (all redirected to clean slugs)
+  Disallow: /*?category=
 
-# Sitemap location
-Sitemap: https://vexatoys.com/sitemap.xml
+  # Block build artifacts
+  Disallow: /assets/
+
+  # Allow important assets
+  Allow: /favicon.png
+  Allow: /opengraph.jpg
+  Allow: /apple-touch-icon.png
+
+  # Crawl delay (optional - prevents server overload)
+  Crawl-delay: 1
+
+  # Sitemap location
+  Sitemap: https://vexatoys.com/sitemap.xml
+  
