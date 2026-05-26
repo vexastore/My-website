@@ -3,8 +3,8 @@ import { StrictMode } from "react";
   import "./index.css";
   import App from "./App";
 
-  // Remove pre-rendered SEO elements from DOM once React is ready.
-  // Google crawler (no JS) indexes them for SEO. Real users never see them.
+  // Remove pre-rendered SEO elements once React mounts.
+  // Google's crawler (no JS) indexes them; real users never see them.
   function removeSeoPlaceholders() {
     document.getElementById('seo-preamble')?.remove();
     document.getElementById('seo-related')?.remove();
@@ -17,6 +17,5 @@ import { StrictMode } from "react";
     </StrictMode>
   );
 
-  // Remove after first render is committed
   requestAnimationFrame(removeSeoPlaceholders);
   
