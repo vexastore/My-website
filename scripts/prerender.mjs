@@ -106,11 +106,12 @@ function patchMeta(html, { title, canonical, descAr, descEn, keywords, ogTitle, 
   return html;
 }
 
-function buildRelated(slugs) {
-  const ar = slugs.map(s => `<a href="https://vexatoys.com/${s}">${SLUG_TO_NAME_AR[s]||s}</a>`).join('<span> | </span>');
-  const en = slugs.map(s => `<a href="https://vexatoys.com/${s}">${SLUG_TO_NAME_EN[s]||s}</a>`).join('<span> | </span>');
-  return `<div id="seo-related"><span style="color:#555;margin-left:8px">ذات صلة:</span>${ar}&nbsp;&nbsp;<span style="direction:ltr;display:inline">Related: ${en}</span></div>`;
-}
+function buildRelated(slugs, hidden = false) {
+    const ar = slugs.map(s => `<a href="https://vexatoys.com/${s}">${SLUG_TO_NAME_AR[s]||s}</a>`).join('<span> | </span>');
+    const en = slugs.map(s => `<a href="https://vexatoys.com/${s}">${SLUG_TO_NAME_EN[s]||s}</a>`).join(' | ');
+    const style = hidden ? ' aria-hidden="true" style="display:none;position:absolute;width:1px;height:1px;overflow:hidden"' : '';
+    return `<div id="seo-related"${style}><span dir="rtl">ذات صلة: ${ar}</span><br><span dir="ltr">${en}</span></div>`;
+  }
 
 function generateCategoryPage(cat) {
   const jsonLd = JSON.stringify({
@@ -134,9 +135,11 @@ function generateCategoryPage(cat) {
   });
   const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p><a href="https://vexatoys.com">vexatoys.com</a></div></noscript>`;
   html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_CATEGORY__="${cat.name}";</script>\n${noscript}\n</head>`);
-  // visible SEO block removed — meta+JSON-LD handles indexing
-  return html;
-}
+  const content = `<div id="seo-preamble" aria-hidden="true" style="display:none;position:absolute;width:1px;height:1px;overflow:hidden"><div class="seo-ar">${cat.seoAr}</div><div class="seo-en">${cat.seoEn}</div></div>
+${buildRelated(cat.related,true)}`;
+    html = html.replace('<div id="root">', `${content}\n<div id="root">`);
+    return html;
+  }
 
 function generateProductPage(product) {
   const nameEn = product.nameEn || product.nameAr || 'Product';
@@ -178,7 +181,7 @@ function generateProductPage(product) {
   const categoryNameAr = SLUG_TO_NAME_AR[categorySlug] || product.category || '';
   const categoryNameEn = SLUG_TO_NAME_EN[categorySlug] || product.category || '';
 
-    // visible SEO block removed
+    const seoContent = `<div id="seo-preamble" aria-hidden="true" style="display:none;position:absolute;width:1px;height:1px;overflow:hidden"><p>${nameAr}</p><p>${nameEn}</p></div>`;
     <nav aria-label="Breadcrumb" style="font-size:12px;margin-bottom:8px">
       <a href="https://vexatoys.com" style="color:#666;text-decoration:none">فيكسا</a>
       <span style="color:#555;margin:0 6px">›</span>
@@ -230,8 +233,9 @@ function generateProductPage(product) {
     ogUrl: canonical,
   });
   html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";</script>\n${noscript}\n</head>`);
-  return html;
-}
+    html = html.replace('<div id="root">', `${seoContent}\n<div id="root">`);
+    return html;
+  }
 
 // ── MAIN (async) ─────────────────────────────────────────────────────────────
 async function main() {
@@ -250,7 +254,7 @@ async function main() {
   aboutHtml = aboutHtml.replace(/(<meta property="og:url" content=")[^"]*(")/,      `$1https://vexatoys.com/about$2`);
   aboutHtml = aboutHtml.replace(/(<meta property="og:title" content=")[^"]*(")/,    `$1عن متجر فيكسا | Vexa Store Lebanon$2`);
   aboutHtml = aboutHtml.replace('</head>', `${SEO_STYLE}\n<script>window.__INITIAL_VIEW__="about";</script>\n</head>`);
-    // visible SEO block removed
+    const aboutContent = `<div id="seo-preamble" aria-hidden="true" style="display:none;position:absolute;width:1px;height:1px;overflow:hidden"><h1>عن متجر فيكسا — ألعاب زوجية ولانجري في لبنان</h1><p>متجر فيكسا هو المتجر الأكثر أماناً وخصوصية للمنتجات الزوجية في لبنان.</p><h2>About Vexa Store Lebanon</h2><p>Vexa Store is Lebanon's most discreet and trusted adult products store.</p></div>`;
   fs.writeFileSync(path.join(distDir, 'about.html'), aboutHtml);
   console.log('✓ about.html');
 
