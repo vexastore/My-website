@@ -183,7 +183,6 @@ function generateProductPage(product) {
   const descEn = product.descriptionEn || '';
   const descAr = product.descriptionAr || '';
   const price  = parseFloat(product.price) || 0;
-  const oldPrice = Math.round(price * 1.23);
   const canonical = `https://vexatoys.com/product/${product.id}`;
 
   const jsonLd = JSON.stringify({
@@ -212,50 +211,9 @@ function generateProductPage(product) {
     ]},
   });
 
-  const starsHtml = (r) => '★'.repeat(Math.floor(r)) + '☆'.repeat(5 - Math.floor(r));
   const categorySlug = (product.categories?.[0] || product.category || 'sex-toys').toLowerCase().replace(/\s+/g,'-');
   const categoryNameAr = SLUG_TO_NAME_AR[categorySlug] || product.category || '';
   const categoryNameEn = SLUG_TO_NAME_EN[categorySlug] || product.category || '';
-
-    const seoContent = `<div id="seo-preamble" style="display:none;"><p>${nameAr}</p></div>`;
-    <nav aria-label="Breadcrumb" style="font-size:12px;margin-bottom:8px">
-      <a href="https://vexatoys.com" style="color:#666;text-decoration:none">فيكسا</a>
-      <span style="color:#555;margin:0 6px">›</span>
-      <a href="https://vexatoys.com/${categorySlug}" style="color:#666;text-decoration:none">${categoryNameAr}</a>
-      <span style="color:#555;margin:0 6px">›</span>
-      <span style="color:#999">${nameAr}</span>
-    </nav>
-    <h1>${nameAr} — متجر فيكسا لبنان</h1>
-    <p style="color:#888;margin:4px 0 8px">
-      <span style="color:#f59e0b">${starsHtml(product.rating)}</span>
-      ${product.rating}/5 (${product.reviewsCount} تقييم) ·
-      <strong style="color:#4ade80">${product.stock > 0 ? 'متوفر' : 'نفذ'}</strong> ·
-      <strong style="color:#fff">$${price.toFixed(2)}</strong>
-      <del style="color:#555;margin-right:8px">$${oldPrice.toFixed(2)}</del>
-    </p>
-    ${descAr ? `<p>${descAr}</p>` : ''}
-    <ul>
-      <li>توصيل سري في نفس اليوم — بيروت</li>
-      <li>دفع عند الاستلام</li>
-      <li>تغليف سري 100%</li>
-    </ul>
-  </div><div class="seo-en">
-    <h2>${nameEn} — Vexa Store Lebanon</h2>
-    <p>
-      <span style="color:#f59e0b">${starsHtml(product.rating)}</span>
-      ${product.rating}/5 (${product.reviewsCount} reviews) ·
-      <strong style="color:#4ade80">${product.stock > 0 ? 'In Stock' : 'Out of Stock'}</strong> ·
-      <strong style="color:#fff">$${price.toFixed(2)} USD</strong>
-      <del style="color:#555;margin-left:8px">$${oldPrice.toFixed(2)}</del>
-    </p>
-    ${descEn ? `<p>${descEn}</p>` : ''}
-    <ul>
-      <li>Same-day discreet delivery — Beirut</li>
-      <li>Cash on delivery (COD)</li>
-      <li>100% plain sealed packaging</li>
-    </ul>
-    <p><strong>Category:</strong> <a href="https://vexatoys.com/${categorySlug}" style="color:#888">${categoryNameEn}</a></p>
-  </div></div>`;
 
   const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${nameAr}</h1><p>${descAr}</p><p>السعر: $${price.toFixed(2)} USD</p><a href="https://vexatoys.com/${categorySlug}">العودة إلى ${categoryNameAr}</a></div></noscript>`;
 
@@ -269,9 +227,9 @@ function generateProductPage(product) {
     ogUrl: canonical,
   });
   html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";</script>\n${noscript}\n</head>`);
-    html = html.replace('<div id="root">', `${seoContent}\n<div id="root">`);
-    return html;
-  }
+  return html;
+}
+
 
 // ── MAIN (async) ─────────────────────────────────────────────────────────────
 async function main() {
@@ -300,7 +258,7 @@ async function main() {
   aboutHtml = aboutHtml.replace(/(<meta property="og:url" content=")[^"]*(")/,      `$1https://vexatoys.com/about$2`);
   aboutHtml = aboutHtml.replace(/(<meta property="og:title" content=")[^"]*(")/,    `$1عن متجر فيكسا | Vexa Store Lebanon$2`);
   aboutHtml = aboutHtml.replace('</head>', `${SEO_STYLE}\n<script>window.__INITIAL_VIEW__="about";</script>\n</head>`);
-    const aboutContent = `<div id="seo-preamble" style="display:none;"><h1>عن متجر فيكسا — ألعاب زوجية ولانجري في لبنان</h1><p>متجر فيكسا هو المتجر الأكثر أماناً وخصوصية للمنتجات الزوجية في لبنان.</p><h2>About Vexa Store Lebanon</h2><p>Vexa Store is Lebanon's most discreet and trusted adult products store.</p></div>`;
+  // SEO content for about page is handled by JSON-LD and meta tags only
   fs.writeFileSync(path.join(distDir, 'about.html'), aboutHtml);
   console.log('✓ about.html');
 
