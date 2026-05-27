@@ -5,6 +5,7 @@
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="language" content="Arabic" />
+      <meta name="format-detection" content="telephone=no" />
 
       <!-- ═══ SEO: Title - keyword first ═══ -->
       <title>متجر فيكسا | ألعاب زوجية وهزازات ولانجري في لبنان - توصيل سري بيروت</title>
@@ -56,7 +57,27 @@
       <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
       <link rel="dns-prefetch" href="https://firebase.googleapis.com" />
 
-      <!-- ═══ JSON-LD Structured Data ═══ -->
+      <!-- ═══ JSON-LD: WebSite + SearchAction ═══ -->
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Vexa Store Lebanon",
+        "alternateName": "متجر فيكسا",
+        "url": "https://vexatoys.com/",
+        "inLanguage": ["ar", "en"],
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://vexatoys.com/?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+      </script>
+
+      <!-- ═══ JSON-LD: OnlineStore (Organization) ═══ -->
       <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -96,6 +117,48 @@
             { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "مزلقات", "url": "https://vexatoys.com/lubricants" } }
           ]
         }
+      }
+      </script>
+
+      <!-- ═══ JSON-LD: FAQ ═══ -->
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "هل التوصيل سري في لبنان؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "نعم، جميع الطلبات تُشحن بتغليف سري محكم 100% بدون أي إشارة لمحتوى الطرد. التوصيل متاح في نفس اليوم في بيروت وخلال 24-72 ساعة لكل لبنان."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "هل يمكن الدفع عند الاستلام؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "نعم، متجر فيكسا يقبل الدفع نقداً عند الاستلام (COD) لجميع الطلبات في لبنان."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "ما هي مناطق التوصيل؟",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "نوصل لجميع مناطق لبنان — بيروت في نفس اليوم، وجبل لبنان والشمال والجنوب والبقاع خلال 24-72 ساعة."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are products authentic and body-safe?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, all products at Vexa Store Lebanon are 100% authentic and made from body-safe materials such as medical-grade silicone, ABS plastic, and stainless steel. We do not sell counterfeit products."
+            }
+          }
+        ]
       }
       </script>
 
