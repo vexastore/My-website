@@ -82,8 +82,7 @@ const CATEGORIES = [
 
 const SLUG_TO_NAME_AR = { 'sex-toys':'ألعاب زوجية','vibrators':'هزازات','dildos':'ديلدو','lingerie':'لانجري','male-toys':'ألعاب رجالية','bdsm':'BDSM','butt-plugs':'سدادة شرجية','anal-toys':'ألعاب الشرج','bondage':'عبودية','sex-dolls':'دمى جنسية','strap-ons':'ستراب أون','kegel-balls':'كيغل بولز','sexual-enhancers':'معززات جنسية','penis-pumps':'مضخات القضيب','cock-rings':'حلقات القضيب','masturbators':'مستمني','chastity':'العفة','sex-machines':'ماكينات الجنس','lubricants':'مواد التشحيم','poppers':'بوبرز','new-arrivals':'وصل حديثاً','holiday-collection':'مجموعة الأعياد' };
 const SLUG_TO_NAME_EN  = { 'sex-toys':'Sex Toys','vibrators':'Vibrators','dildos':'Dildos','lingerie':'Lingerie','male-toys':'Male Toys','bdsm':'BDSM','butt-plugs':'Butt Plugs','anal-toys':'Anal Toys','bondage':'Bondage','sex-dolls':'Sex Dolls','strap-ons':'Strap-ons','kegel-balls':'Kegel Balls','sexual-enhancers':'Sexual Enhancers','penis-pumps':'Penis Pumps','cock-rings':'Cock Rings','masturbators':'Masturbators','chastity':'Chastity','sex-machines':'Sex Machines','lubricants':'Lubricants','poppers':'Poppers','new-arrivals':'New Arrivals','holiday-collection':'Holiday Collection' };
-
-  // seo-preamble removed — SEO data is in JSON-LD + meta tags only
+const SEO_STYLE = ''; // SEO data handled via JSON-LD + meta tags only
 try {
   base = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
 } catch (err) {
@@ -171,9 +170,6 @@ function generateCategoryPage(cat, catProducts = []) {
     });
     const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p><a href="https://vexatoys.com">vexatoys.com</a></div></noscript>`;
     html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_CATEGORY__="${cat.name}";</script>\n${noscript}\n</head>`);
-    const content = `<div id="seo-preamble" aria-hidden="true" style="display:none;position:absolute;width:1px;height:1px;overflow:hidden"><div class="seo-ar">${cat.seoAr}</div><div class="seo-en">${cat.seoEn}</div></div>
-  ${buildRelated(cat.related,true)}`;
-    html = html.replace('<div id="root">', `${content}\n<div id="root">`);
     return html;
   }
   
