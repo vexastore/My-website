@@ -113,34 +113,70 @@ function buildRelated(slugs, hidden = false) {
     return `<div id="seo-related"${style}><span dir="rtl">ذات صلة: ${ar}</span><br><span dir="ltr">${en}</span></div>`;
   }
 
-function generateCategoryPage(cat) {
-  const jsonLd = JSON.stringify({
-    '@context':'https://schema.org','@type':'CollectionPage',
-    name: cat.titleEn, alternateName: cat.titleAr, description: cat.descEn,
-    url: `https://vexatoys.com/${cat.slug}`,
-    inLanguage: ['ar','en'],
-    publisher: { '@type':'Organization', name:'Vexa Store Lebanon', url:'https://vexatoys.com', logo:{ '@type':'ImageObject', url:'https://vexatoys.com/vexa-logo.jpg' } },
-    breadcrumb: { '@type':'BreadcrumbList', itemListElement: [
-      { '@type':'ListItem', position:1, name:'Vexa Store Lebanon', item:'https://vexatoys.com/' },
-      { '@type':'ListItem', position:2, name:cat.name, item:`https://vexatoys.com/${cat.slug}` },
-    ]},
-    isPartOf: { '@type':'WebSite', name:'Vexa Store Lebanon', url:'https://vexatoys.com' },
-  });
+function generateCategoryPage(cat, catProducts = []) {
+    // Build ItemList of Products with offers — required by Google Product rich results
+    const priceValidUntil = new Date(Date.now() + 60*24*60*60*1000).toISOString().slice(0,10);
+    const itemListElements = catProducts.slice(0, 20).map((p, i) => {
+      const price = parseFloat(p.price) || 0;
+      const prod = {
+        '@type': 'Product',
+        name: p.nameEn || p.nameAr || p.name || cat.name,
+        alternateName: p.nameAr || p.nameEn || '',
+        image: p.image ? [p.image] : [],
+        sku: p.id,
+        brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
+        offers: {
+          '@type': 'Offer',
+          price: price.toFixed(2),
+          priceCurrency: 'USD',
+          availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          url: `https://vexatoys.com/product/${p.id}`,
+          seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
+          priceValidUntil,
+        },
+      };
+      if (p.rating && p.reviewsCount > 0) {
+        prod.aggregateRating = {
+          '@type': 'AggregateRating',
+          ratingValue: parseFloat(p.rating).toFixed(1),
+          reviewCount: parseInt(p.reviewsCount),
+          bestRating: 5, worstRating: 1,
+        };
+      }
+      return { '@type': 'ListItem', position: i + 1, item: prod };
+    });
 
-  let html = patchMeta(base, {
-    title: `${cat.titleAr} | ${cat.titleEn}`,
-    canonical: `https://vexatoys.com/${cat.slug}`,
-    descAr: cat.descAr, descEn: cat.descEn, keywords: cat.keywords,
-    ogTitle: cat.titleAr,
-  });
-  const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p><a href="https://vexatoys.com">vexatoys.com</a></div></noscript>`;
-  html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_CATEGORY__="${cat.name}";</script>\n${noscript}\n</head>`);
-  const content = `<div id="seo-preamble" aria-hidden="true" style="display:none;position:absolute;width:1px;height:1px;overflow:hidden"><div class="seo-ar">${cat.seoAr}</div><div class="seo-en">${cat.seoEn}</div></div>
-${buildRelated(cat.related,true)}`;
+    const schemaObj = {
+      '@context':'https://schema.org','@type':'CollectionPage',
+      name: cat.titleEn, alternateName: cat.titleAr, description: cat.descEn,
+      url: `https://vexatoys.com/${cat.slug}`,
+      inLanguage: ['ar','en'],
+      publisher: { '@type':'Organization', name:'Vexa Store Lebanon', url:'https://vexatoys.com', logo:{ '@type':'ImageObject', url:'https://vexatoys.com/vexa-logo.jpg' } },
+      breadcrumb: { '@type':'BreadcrumbList', itemListElement: [
+        { '@type':'ListItem', position:1, name:'Vexa Store Lebanon', item:'https://vexatoys.com/' },
+        { '@type':'ListItem', position:2, name:cat.name, item:`https://vexatoys.com/${cat.slug}` },
+      ]},
+      isPartOf: { '@type':'WebSite', name:'Vexa Store Lebanon', url:'https://vexatoys.com' },
+    };
+    if (itemListElements.length > 0) {
+      schemaObj.mainEntity = { '@type':'ItemList', numberOfItems: itemListElements.length, itemListElement: itemListElements };
+    }
+    const jsonLd = JSON.stringify(schemaObj);
+
+    let html = patchMeta(base, {
+      title: `${cat.titleAr} | ${cat.titleEn}`,
+      canonical: `https://vexatoys.com/${cat.slug}`,
+      descAr: cat.descAr, descEn: cat.descEn, keywords: cat.keywords,
+      ogTitle: cat.titleAr,
+    });
+    const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p><a href="https://vexatoys.com">vexatoys.com</a></div></noscript>`;
+    html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_CATEGORY__="${cat.name}";</script>\n${noscript}\n</head>`);
+    const content = `<div id="seo-preamble" aria-hidden="true" style="display:none;position:absolute;width:1px;height:1px;overflow:hidden"><div class="seo-ar">${cat.seoAr}</div><div class="seo-en">${cat.seoEn}</div></div>
+  ${buildRelated(cat.related,true)}`;
     html = html.replace('<div id="root">', `${content}\n<div id="root">`);
     return html;
   }
-
+  
 function generateProductPage(product) {
   const nameEn = product.nameEn || product.nameAr || 'Product';
   const nameAr = product.nameAr || product.nameEn || 'منتج';
@@ -239,11 +275,21 @@ function generateProductPage(product) {
 
 // ── MAIN (async) ─────────────────────────────────────────────────────────────
 async function main() {
-  // 1. Generate all category pages
+  // 1. Generate all category pages (fetch products for schema)
+    const allProducts = await fetchAllProducts();
+    console.log(`   Loaded ${allProducts.length} products for category schemas`);
+
   for (const cat of CATEGORIES) {
-    fs.writeFileSync(path.join(distDir, `${cat.slug}.html`), generateCategoryPage(cat));
-    console.log(`✓ ${cat.slug}.html`);
-  }
+      const catName = cat.name.toLowerCase();
+      const catProds = allProducts.filter(p => {
+        const pCat  = (p.category  || '').toLowerCase();
+        const pCats = (p.categories || []).map(x => x.toLowerCase());
+        return pCat === catName || pCat === cat.slug ||
+               pCats.includes(catName) || pCats.includes(cat.slug);
+      });
+      fs.writeFileSync(path.join(distDir, `${cat.slug}.html`), generateCategoryPage(cat, catProds));
+      console.log(`✓ ${cat.slug}.html (${catProds.length} products in schema)`);
+    }
 
   // 2. About page
   let aboutHtml = base;
