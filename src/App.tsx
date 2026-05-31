@@ -11,6 +11,7 @@ const MyOrders = lazy(() => import('./components/MyOrders').then(m => ({ default
 const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then(m => ({ default: m.FloatingWhatsApp })));
 const VexaToast = lazy(() => import('./components/VexaToast').then(m => ({ default: m.VexaToast })));
 const About = lazy(() => import('./components/About').then(m => ({ default: m.About })));
+const ProductPage = lazy(() => import('./components/ProductPage').then(m => ({ default: m.ProductPage })));
 
 const CATEGORY_SLUGS: Record<string, string> = {
   'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
@@ -55,7 +56,7 @@ const PageLoader = () => (
 );
 
 const AppContent: React.FC = () => {
-  const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory } = useShop();
+  const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory, selectedProduct } = useShop();
   const isArabic = language === 'ar';
 
   useEffect(() => {
@@ -78,6 +79,8 @@ const AppContent: React.FC = () => {
       document.title = isArabic ? 'طلباتي | متجر فيكسا لبنان' : 'My Orders | Vexa Store Lebanon';
     } else if (currentView === 'admin') {
       document.title = 'Admin Panel | Vexa Store';
+    } else if (currentView === 'product' && selectedProduct) {
+      document.title = `${selectedProduct.nameEn || selectedProduct.name} | Vexa Store Lebanon`;
     }
   }, [currentView, activeCategory, searchQuery, isArabic]);
 
@@ -89,7 +92,7 @@ const AppContent: React.FC = () => {
       const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
       window.history.replaceState(null, '', '/' + slug);
     }
-  }, [currentView, activeCategory]);
+  }, [currentView, activeCategory, selectedProduct]);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -138,6 +141,7 @@ const AppContent: React.FC = () => {
       case 'admin':    return <Suspense fallback={<PageLoader />}><AdminPanel /></Suspense>;
       case 'orders':   return <Suspense fallback={<PageLoader />}><MyOrders /></Suspense>;
       case 'about':    return <Suspense fallback={<PageLoader />}><About /></Suspense>;
+      case 'product':  return <Suspense fallback={<PageLoader />}><ProductPage /></Suspense>;
       default:         return <ProductList />;
     }
   };
