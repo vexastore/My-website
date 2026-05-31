@@ -14,6 +14,17 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const FIREBASE_API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
 const FIREBASE_PROJECT  = 'vexa-store';
 
+// ── URL-friendly slug from English product name ───────────────────────────
+function toSlug(name) {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/, '')
+    .slice(0, 60) || 'product';
+}
+
 // ── Fetch all products from Firestore REST API (no browser APIs needed) ──────
 async function fetchAllProducts() {
   const allDocs = [];
@@ -129,7 +140,7 @@ function generateCategoryPage(cat, catProducts = []) {
           price: price.toFixed(2),
           priceCurrency: 'USD',
           availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-          url: `https://vexatoys.com/product/${p.id}`,
+          url: `https://vexatoys.com/product/${toSlug(p.nameEn || p.nameAr || p.name || '') || p.id}`,
           seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
           priceValidUntil,
         },
@@ -179,7 +190,8 @@ function generateProductPage(product) {
   const descEn = product.descriptionEn || '';
   const descAr = product.descriptionAr || '';
   const price  = parseFloat(product.price) || 0;
-  const canonical = `https://vexatoys.com/product/${product.id}`;
+  const slug   = product.slug || toSlug(nameEn);
+  const canonical = `https://vexatoys.com/product/${slug}`;
 
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
@@ -214,15 +226,15 @@ function generateProductPage(product) {
   const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${nameAr}</h1><p>${descAr}</p><p>السعر: $${price.toFixed(2)} USD</p><a href="https://vexatoys.com/${categorySlug}">العودة إلى ${categoryNameAr}</a></div></noscript>`;
 
   let html = patchMeta(base, {
-    title: `${nameAr} | ${nameEn} — متجر فيكسا لبنان | Vexa Store Lebanon`,
+    title: `${nameEn} | Vexa Store Lebanon`,
     canonical,
     descAr: `${nameAr} — $${price.toFixed(2)} — ${product.stock > 0 ? 'متوفر' : 'نفذ المخزون'}. ${descAr.slice(0,100)}`,
     descEn: `${nameEn} — $${price.toFixed(2)} USD — ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy at Vexa Store Lebanon.`,
     keywords: `${nameEn} Lebanon, ${nameAr} لبنان, buy ${nameEn} Beirut, ${categoryNameEn} Lebanon, Vexa Store`,
-    ogTitle: `${nameAr} | ${nameEn}`,
+    ogTitle: nameEn,
     ogUrl: canonical,
   });
-  html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";</script>\n${noscript}\n</head>`);
+  html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";window.__INITIAL_PRODUCT_SLUG__="${slug}";</script>\n${noscript}\n</head>`);
   return html;
 }
 
@@ -267,10 +279,36 @@ async function main() {
   const productDir = path.join(distDir, 'product');
   if (!fs.existsSync(productDir)) fs.mkdirSync(productDir, { recursive: true });
 
+  const slugSet = new Set();
   for (const product of products) {
+    // Build unique slug from English name
+    const rawSlug = toSlug(product.nameEn || product.nameAr || '');
+    let slug = rawSlug;
+    if (!slug || slugSet.has(slug)) {
+      const base_ = rawSlug || toSlug(product.id) || 'product';
+      let i = 2; slug = base_;
+      while (slugSet.has(slug)) { slug = base_ + '-' + i; i++; }
+    }
+    slugSet.add(slug);
+    product.slug = slug;
+
+    // 1. Slug-based HTML (canonical SEO page)
     const html = generateProductPage(product);
-    fs.writeFileSync(path.join(distDir, `product-${product.id}.html`), html);
-    productUrls.push(`https://vexatoys.com/product/${product.id}`);
+    fs.writeFileSync(path.join(distDir, `product-${slug}.html`), html);
+
+    // 2. ID-based redirect page (preserves old indexed URLs with 301-like redirect)
+    if (product.id !== slug) {
+      const rHtml = `<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8">
+<title>${product.nameEn || product.nameAr || 'Product'} | Vexa Store Lebanon</title>
+<link rel="canonical" href="https://vexatoys.com/product/${slug}">
+<meta http-equiv="refresh" content="0;url=https://vexatoys.com/product/${slug}">
+<script>window.location.replace('/product/${slug}');</script>
+</head><body><a href="/product/${slug}">View product</a></body></html>`;
+      fs.writeFileSync(path.join(distDir, `product-${product.id}.html`), rHtml);
+    }
+
+    productUrls.push(`https://vexatoys.com/product/${slug}`);
     process.stdout.write('.');
   }
   if (products.length > 0) console.log(`\n✓ ${products.length} product pages generated`);
