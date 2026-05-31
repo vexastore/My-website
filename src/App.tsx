@@ -88,6 +88,11 @@ const AppContent: React.FC = () => {
     if (typeof window === 'undefined') return;
     if (currentView === 'about') {
       window.history.replaceState(null, '', '/about');
+    } else if (currentView === 'product' && selectedProduct) {
+      const prodSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug ||
+        (selectedProduct.nameEn || selectedProduct.name || '').toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 60);
+      window.history.replaceState(null, '', '/product/' + prodSlug);
     } else if (currentView === 'shop') {
       const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
       window.history.replaceState(null, '', '/' + slug);
@@ -125,7 +130,7 @@ const AppContent: React.FC = () => {
       document.querySelector('meta[property="og:title"]')?.setAttribute('content', ogTitle);
       document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', ogTitle);
       document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
-    }, [currentView, activeCategory]);
+    }, [currentView, activeCategory, selectedProduct]);
 
   const handleCatLink = (e: React.MouseEvent, catId: string) => {
     e.preventDefault();
