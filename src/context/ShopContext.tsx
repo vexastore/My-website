@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 
-type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about';
+type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
 
 interface ShopContextType {
   language: 'en' | 'ar';
@@ -51,6 +51,8 @@ interface ShopContextType {
   deleteProduct: (productId: string) => Promise<void>;
   fetchProductImages: (productId: string) => Promise<string[]>;
   fetchAllOrdersFromFirebase: () => Promise<Order[]>;
+  selectedProduct: Product | null;
+  setSelectedProduct: (product: Product | null) => void;
 }
 
 
@@ -77,9 +79,10 @@ function getInitialCategory(): string {
 
 function getInitialView(): ViewType {
   try {
-    const w = window as typeof window & { __INITIAL_VIEW__?: string };
+    const w = window as typeof window & { __INITIAL_VIEW__?: string; __INITIAL_PRODUCT_SLUG__?: string };
     if (w.__INITIAL_VIEW__ === 'about') return 'about';
     if (window.location.pathname === '/about') return 'about';
+    if (w.__INITIAL_PRODUCT_SLUG__ || window.location.pathname.startsWith('/product/')) return 'product';
   } catch {}
   return 'shop';
 }
@@ -103,6 +106,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
   const [isProductsLoading, setIsProductsLoading] = useState(true);
   const [arTranslations, setArTranslations] = useState<Record<string, ArTranslation>>(() => loadArCache());
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Load products from Firebase Firestore on mount
   useEffect(() => {
@@ -143,6 +147,28 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     loadProducts();
   }, []);
+
+  // Resolve initial product page from URL slug after products load
+  useEffect(() => {
+    if (isProductsLoading || products.length === 0) return;
+    if (currentView !== 'product' || selectedProduct) return;
+    try {
+      const w = window as typeof window & { __INITIAL_PRODUCT_SLUG__?: string };
+      const slug = w.__INITIAL_PRODUCT_SLUG__ ||
+        window.location.pathname.replace(/^\/product\//, '').replace(/\/$/, '');
+      if (!slug) { setViewState('shop'); return; }
+      const toSl = (n: string) => (n||'').toLowerCase()
+        .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-')
+        .replace(/-+/g,'-').replace(/^-+|-+$/,'').slice(0,60);
+      const found = products.find(p =>
+        (p as Product & { slug?: string }).slug === slug ||
+        toSl(p.nameEn || p.name || '') === slug ||
+        p.id === slug
+      );
+      if (found) setSelectedProduct(found);
+      else setViewState('shop');
+    } catch { setViewState('shop'); }
+  }, [isProductsLoading, products]); // eslint-disable-line
 
   // Auto-translate English products to Arabic when language is Arabic
   useEffect(() => {
@@ -384,7 +410,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
         deleteOrderLocally, getCartTotal, getCartItemsCount, getDeliveryFee,
-        addProduct, updateProduct, deleteProduct, fetchProductImages, fetchAllOrdersFromFirebase
+        addProduct, updateProduct, deleteProduct, fetchProductImages, fetchAllOrdersFromFirebase,
+        selectedProduct, setSelectedProduct
       }}
     >
       {children}
