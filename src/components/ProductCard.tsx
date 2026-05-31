@@ -465,7 +465,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
                 onClick={() => {
                   const name = isArabic ? product.name : (product.nameEn || product.name);
                   const price = '$' + product.price.toFixed(2) + ' USD';
-                  const url = window.location.href;
+                  const productSlug = (product.nameEn || product.name || '')
+                    .toLowerCase().replace(/[^a-z0-9\s-]/g,'')
+                    .replace(/\s+/g,'-').replace(/-+/g,'-')
+                    .replace(/^-+|-+$/,'').slice(0,60) || product.id;
+                  const url = `https://vexatoys.com/product/${productSlug}`;
                   const msg = isArabic
                     ? `شوفوا هالمنتج من متجر فيكسا 🔥\n${name}\n💰 السعر: ${price}\n🛒 ${url}`
                     : `Check this product from Vexa Store 🔥\n${name}\n💰 Price: ${price}\n🛒 ${url}`;
