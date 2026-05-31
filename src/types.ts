@@ -14,6 +14,7 @@ export type CategoryId =
   | 'Lubricants' | 'Poppers';
 
 export interface Product {
+  slug?: string;
   id: string;
   name: string;
   nameEn: string;
