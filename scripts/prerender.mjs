@@ -103,7 +103,7 @@ try {
   process.exit(1);
 }
 
-function patchMeta(html, { title, canonical, descAr, descEn, keywords, ogTitle, ogUrl }) {
+function patchMeta(html, { title, canonical, descAr, descEn, keywords, ogTitle, ogUrl, ogImage }) {
   html = html.replace(/<title>[^<]*<\/title>/, `<title>${title}</title>`);
   html = html.replace(/<link rel="canonical"[^>]*>/, `<link rel="canonical" href="${canonical}" />`);
   html = html.replace(/(<meta name="description" content=")[^"]*(")/,       `$1${descAr} ${descEn}$2`);
@@ -113,6 +113,12 @@ function patchMeta(html, { title, canonical, descAr, descEn, keywords, ogTitle, 
   html = html.replace(/(<meta property="og:description" content=")[^"]*(")/,`$1${descAr}$2`);
   html = html.replace(/(<meta name="twitter:title" content=")[^"]*(")/,      `$1${ogTitle || title}$2`);
   html = html.replace(/(<meta name="twitter:description" content=")[^"]*(")/,`$1${descAr}$2`);
+  if (ogImage) {
+    html = html.replace(/(<meta property="og:image" content=")[^"]*(")/,      `$1${ogImage}$2`);
+    html = html.replace(/(<meta name="twitter:image" content=")[^"]*(")/,      `$1${ogImage}$2`);
+    html = html.replace(/(<meta property="og:image:alt" content=")[^"]*(")/,  `$1${ogTitle || title}$2`);
+    html = html.replace(/(<meta name="twitter:image:alt" content=")[^"]*(")/,  `$1${ogTitle || title}$2`);
+  }
   return html;
 }
 
@@ -233,8 +239,10 @@ function generateProductPage(product) {
     keywords: `${nameEn} Lebanon, ${nameAr} لبنان, buy ${nameEn} Beirut, ${categoryNameEn} Lebanon, Vexa Store`,
     ogTitle: nameEn,
     ogUrl: canonical,
+    ogImage: product.image || '',
   });
-  html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";window.__INITIAL_PRODUCT_SLUG__="${slug}";</script>\n${noscript}\n</head>`);
+  const preloadImg = product.image ? `<link rel="preload" as="image" href="${product.image}" fetchpriority="high">` : '';
+  html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n${preloadImg}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";window.__INITIAL_PRODUCT_SLUG__="${slug}";</script>\n${noscript}\n</head>`);
   return html;
 }
 
@@ -327,7 +335,7 @@ async function main() {
 
   fs.writeFileSync(
     path.join(distDir, 'sitemap.xml'),
-    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${categoryUrls.join('\n')}\n</urlset>\n`
+    `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${categoryUrls.join('\n')}\n${productUrls.map(u=>`  <url><loc>${u}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>`).join('\n')}\n</urlset>\n`
   );
   console.log(`✓ sitemap.xml — ${2 + CATEGORIES.length + productUrls.length} URLs total (clean URLs only)`);
   console.log(`\n✅ Pre-rendering complete: ${CATEGORIES.length} categories + ${products.length} products + sitemap`);
