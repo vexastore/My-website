@@ -1,4 +1,4 @@
-import React, { lazy, Suspense, useEffect } from 'react';
+import React, { lazy, Suspense, useEffect, useRef } from 'react';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 import { ProductList } from './components/ProductList';
@@ -84,18 +84,26 @@ const AppContent: React.FC = () => {
     }
   }, [currentView, activeCategory, searchQuery, isArabic]);
 
+  const lastProductPathRef = useRef('');
+
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (currentView === 'about') {
       window.history.replaceState(null, '', '/about');
+      lastProductPathRef.current = '';
     } else if (currentView === 'product' && selectedProduct) {
       const prodSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug ||
         (selectedProduct.nameEn || selectedProduct.name || '').toLowerCase()
           .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').slice(0, 60);
-      window.history.replaceState(null, '', '/product/' + prodSlug);
+      const productPath = '/product/' + prodSlug;
+      if (lastProductPathRef.current !== productPath) {
+        lastProductPathRef.current = productPath;
+        window.history.pushState(null, '', productPath);
+      }
     } else if (currentView === 'shop') {
       const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
       window.history.replaceState(null, '', '/' + slug);
+      lastProductPathRef.current = '';
     }
   }, [currentView, activeCategory, selectedProduct]);
 
