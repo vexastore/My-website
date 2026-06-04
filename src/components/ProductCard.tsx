@@ -54,6 +54,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
 
   const handleCardClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    window.history.pushState(null, '', productHref);
     navigateToProduct();
   };
 
