@@ -4,6 +4,16 @@ import { useShop } from '../context/ShopContext';
 import { Star, ShoppingCart } from 'lucide-react';
 import { CATEGORIES, getProductCategories } from '../data/categories';
 
+function toSlug(name: string): string {
+  return (name || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/, '')
+    .slice(0, 60) || 'product';
+}
+
 interface ProductCardProps {
   product: Product;
   priority?: boolean;
@@ -34,12 +44,21 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
     ? (product.name || product.nameEn)
     : (product.nameEn || product.name);
 
+  const productSlug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
+  const productHref = `/product/${productSlug}`;
+
   const navigateToProduct = () => {
     setSelectedProduct(product);
     setView('product');
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigateToProduct();
+  };
+
   const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
     e.stopPropagation();
     if (remainingStock > 0) {
       addToCart(product, 1);
@@ -47,13 +66,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
   };
 
   return (
-    <div
-      onClick={navigateToProduct}
-      role="button"
+    <a
+      href={productHref}
+      onClick={handleCardClick}
       aria-label={displayName}
-      tabIndex={0}
-      onKeyDown={e => e.key === 'Enter' && navigateToProduct()}
-      className="group cursor-pointer bg-[#050505] text-white"
+      className="group cursor-pointer bg-[#050505] text-white block"
     >
       <div className="relative overflow-hidden rounded-xl border border-white/5 bg-[#101010] shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
         {product.isNew && (
@@ -129,6 +146,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
             : (isArabic ? 'إضافة للسلة' : 'Add to cart')}
         </button>
       </div>
-    </div>
+    </a>
   );
 };
