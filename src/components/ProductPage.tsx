@@ -45,17 +45,70 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     product.variants.every((v: ProductVariant) => variants[v.name]);
 
   useEffect(() => {
-    // Update page title + meta for this product
+    const slug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
+    const canonical = `https://vexatoys.com/product/${slug}`;
+
+    // ── Meta tags ──
     const title = `${product.nameEn || product.name} | Vexa Store Lebanon`;
     document.title = title;
     const desc = `${product.nameEn || product.name} — $${product.price.toFixed(2)} USD — ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
-    const slug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-    const canonical = `https://vexatoys.com/product/${slug}`;
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical);
     document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonical);
+    if (product.image) {
+      document.querySelector('meta[property="og:image"]')?.setAttribute('content', product.image);
+    }
+
+    // ── JSON-LD Product schema ──
+    const jsonLd: Record<string, unknown> = {
+      '@context': 'https://schema.org',
+      '@type': 'Product',
+      name: product.nameEn || product.name,
+      alternateName: product.name || product.nameEn,
+      description: product.descriptionEn || product.description,
+      image: product.image ? [product.image] : [],
+      sku: product.id,
+      brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
+      offers: {
+        '@type': 'Offer',
+        price: product.price.toFixed(2),
+        priceCurrency: 'USD',
+        availability: product.stock > 0
+          ? 'https://schema.org/InStock'
+          : 'https://schema.org/OutOfStock',
+        url: canonical,
+        seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
+        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      },
+      breadcrumb: {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Vexa Store Lebanon', item: 'https://vexatoys.com/' },
+          { '@type': 'ListItem', position: 2, name: product.nameEn || product.name, item: canonical },
+        ],
+      },
+    };
+    if (product.reviewsCount > 0) {
+      jsonLd.aggregateRating = {
+        '@type': 'AggregateRating',
+        ratingValue: product.rating,
+        reviewCount: product.reviewsCount,
+        bestRating: 5,
+        worstRating: 1,
+      };
+    }
+
+    const existing = document.getElementById('vexa-product-jsonld');
+    if (existing) existing.remove();
+    const script = document.createElement('script');
+    script.id = 'vexa-product-jsonld';
+    script.type = 'application/ld+json';
+    script.text = JSON.stringify(jsonLd);
+    document.head.appendChild(script);
+
+    return () => { document.getElementById('vexa-product-jsonld')?.remove(); };
   }, [product]);
 
   useEffect(() => {
