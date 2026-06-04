@@ -170,6 +170,39 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch { setViewState('shop'); }
   }, [isProductsLoading, products]); // eslint-disable-line
 
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const toSl = (n: string) => (n||'').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-')
+      .replace(/-+/g,'-').replace(/^-+|-+$/,'').slice(0,60);
+
+    const handlePop = () => {
+      const path = window.location.pathname;
+      if (path.startsWith('/product/')) {
+        const slug = path.replace(/^\/product\//, '').replace(/\/$/, '');
+        const found = products.find(p =>
+          (p as Product & { slug?: string }).slug === slug ||
+          toSl(p.nameEn || p.name || '') === slug ||
+          p.id === slug
+        );
+        if (found) { setSelectedProduct(found); setViewState('product'); }
+        else setViewState('shop');
+      } else if (path === '/about') {
+        setViewState('about');
+        setSelectedProduct(null);
+      } else {
+        const slug = path.replace(/^\//, '').replace(/\/$/, '');
+        const cat = URL_SLUG_TO_CATEGORY[slug];
+        if (cat) setActiveCategory(cat);
+        setViewState('shop');
+        setSelectedProduct(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePop);
+    return () => window.removeEventListener('popstate', handlePop);
+  }, [products]); // eslint-disable-line
+
   // Auto-translate English products to Arabic when language is Arabic
   useEffect(() => {
     if (language !== 'ar' || products.length === 0) return;
