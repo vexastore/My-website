@@ -234,7 +234,13 @@ function generateCategoryPage(cat, catProducts = []) {
       descAr: cat.descAr, descEn: cat.descEn, keywords: cat.keywords,
       ogTitle: cat.titleAr,
     });
-    const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p><a href="https://vexatoys.com">vexatoys.com</a></div></noscript>`;
+    const productLinksHtml = catProducts.slice(0, 40).map(p => {
+      const slug = p.slug || toSlug(p.nameEn || p.nameAr || p.name || '') || p.id;
+      const label = (p.nameEn || p.nameAr || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      const price = parseFloat(p.price || 0).toFixed(2);
+      return `<li><a href="/product/${slug}">${label}</a> — $${price} USD</li>`;
+    }).join('');
+    const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${cat.titleAr}</h1><p>${cat.descAr}</p>${productLinksHtml ? `<ul style="list-style:none;padding:0">${productLinksHtml}</ul>` : ''}<p><a href="https://vexatoys.com">vexatoys.com</a></p></div></noscript>`;
     html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n<script>window.__INITIAL_CATEGORY__="${cat.name}";</script>\n${noscript}\n</head>`);
     return html;
   }
