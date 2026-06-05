@@ -5,6 +5,7 @@ import React, { useState } from 'react';
 
   interface ProductCardProps {
     product: Product;
+    priority?: boolean;
   }
 
   function toSlug(text: string): string {
@@ -32,9 +33,8 @@ import React, { useState } from 'react';
     const cartQty = cartItem ? cartItem.quantity : 0;
     const remainingStock = product.stock - cartQty;
 
-    const pSlug = product.slug || toSlug(product.nameEn || product.name || product.id);
-    const catSlug = product.categorySlug || toSlug(product.category || '');
-    const productUrl = `/${catSlug}/${pSlug}`;
+    const pSlug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || product.id);
+    const productUrl = `/products/${pSlug}`;
     const productFullUrl = `https://vexatoys.com${productUrl}`;
 
     const handleCopyLink = (e: React.MouseEvent) => {
@@ -61,7 +61,6 @@ import React, { useState } from 'react';
             SALE
           </span>
 
-          {/* Copy link button */}
           <button
             type="button"
             onClick={handleCopyLink}
@@ -138,7 +137,6 @@ import React, { useState } from 'react';
             <span className="text-xs font-black text-white/35">({product.reviewsCount})</span>
           </div>
 
-          {/* Product link row */}
           <div className="mt-3 flex items-center justify-center gap-1.5 px-2">
             <Link2 size={10} className="shrink-0 text-white/20" />
             <span className="truncate text-[10px] text-white/20 font-mono">
