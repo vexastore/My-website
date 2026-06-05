@@ -48,10 +48,10 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     const slug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
     const canonical = `https://vexatoys.com/product/${slug}`;
 
-    // ââ Meta tags ââ
+    // Ã¢ÂÂÃ¢ÂÂ Meta tags Ã¢ÂÂÃ¢ÂÂ
     const title = `${product.nameEn || product.name} | Vexa Store Lebanon`;
     document.title = title;
-    const desc = `${product.nameEn || product.name} â $${product.price.toFixed(2)} USD â ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
+    const desc = `${product.nameEn || product.name} Ã¢ÂÂ $${product.price.toFixed(2)} USD Ã¢ÂÂ ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
@@ -61,7 +61,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
       document.querySelector('meta[property="og:image"]')?.setAttribute('content', product.image);
     }
 
-    // ââ JSON-LD Product schema ââ
+    // Ã¢ÂÂÃ¢ÂÂ JSON-LD Product schema Ã¢ÂÂÃ¢ÂÂ
     const jsonLd: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -140,7 +140,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     const name = isArabic ? (product.name || product.nameEn) : (product.nameEn || product.name);
     const slug  = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
     const msg   = isArabic
-      ? `ÙØ±Ø­Ø¨Ø§Ù ÙØªØ¬Ø± ÙÙÙØ³Ø§Ø Ø£Ø±ÙØ¯ Ø§ÙØ·ÙØ¨:\n*${name}*\nØ§ÙØ³Ø¹Ø±: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com/product/${slug}`
+      ? `ÃÂÃÂ±ÃÂ­ÃÂ¨ÃÂ§ÃÂ ÃÂÃÂªÃÂ¬ÃÂ± ÃÂÃÂÃÂÃÂ³ÃÂ§ÃÂ ÃÂ£ÃÂ±ÃÂÃÂ¯ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨:\n*${name}*\nÃÂ§ÃÂÃÂ³ÃÂ¹ÃÂ±: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com/product/${slug}`
       : `Hello Vexa Store, I want to order:\n*${name}*\nPrice: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com/product/${slug}`;
     window.open('https://wa.me/96176730767?text=' + encodeURIComponent(msg), '_blank');
   };
@@ -152,11 +152,11 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
   return (
     <div className="min-h-screen bg-[#050101] text-white" dir={isArabic ? 'rtl' : 'ltr'}>
-      {/* ââ Breadcrumb bar ââ */}
+      {/* Ã¢ÂÂÃ¢ÂÂ Breadcrumb bar Ã¢ÂÂÃ¢ÂÂ */}
       <nav className="sticky top-0 z-30 bg-black/90 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3">
         <button
           onClick={goBack}
-          aria-label={isArabic ? 'Ø±Ø¬ÙØ¹' : 'Back'}
+          aria-label={isArabic ? 'ÃÂ±ÃÂ¬ÃÂÃÂ¹' : 'Back'}
           className="flex items-center gap-1.5 text-white/60 hover:text-white transition text-sm font-bold"
         >
           <ArrowLeft size={16} className={isArabic ? 'rotate-180' : ''} />
@@ -168,7 +168,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
       <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
 
-        {/* ââ Image carousel ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ Image carousel Ã¢ÂÂÃ¢ÂÂ */}
         <div className="relative bg-black rounded-2xl overflow-hidden aspect-square">
           {imgsLoading ? (
             <div className="absolute inset-0 flex items-center justify-center">
@@ -177,7 +177,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           ) : selectedImg ? (
             <img
               src={selectedImg}
-              alt={isArabic ? `Ø´Ø±Ø§Ø¡ ${displayName} ÙÙ ÙØ¨ÙØ§Ù â ÙØªØ¬Ø± ÙÙÙØ³Ø§` : `Buy ${displayName} in Lebanon â Vexa Store`}
+              alt={isArabic ? `ÃÂ´ÃÂ±ÃÂ§ÃÂ¡ ${displayName} ÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ§ÃÂ Ã¢ÂÂ ÃÂÃÂªÃÂ¬ÃÂ± ÃÂÃÂÃÂÃÂ³ÃÂ§` : `Buy ${displayName} in Lebanon Ã¢ÂÂ Vexa Store`}
               className="w-full h-full object-contain"
               loading="eager"
             />
@@ -232,7 +232,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           </div>
         )}
 
-        {/* ââ Product info ââ */}
+        {/* Ã¢ÂÂÃ¢ÂÂ Product info Ã¢ÂÂÃ¢ÂÂ */}
         <div className="space-y-4">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 mb-1">{primaryCatName}</p>
@@ -250,7 +250,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               ))}
             </div>
             <span className="text-sm font-bold text-amber-400">{product.rating}/5</span>
-            <span className="text-sm text-stone-500">({product.reviewsCount} {isArabic ? 'ØªÙÙÙÙ' : 'reviews'})</span>
+            <span className="text-sm text-stone-500">({product.reviewsCount} {isArabic ? 'ÃÂªÃÂÃÂÃÂÃÂ' : 'reviews'})</span>
           </div>
 
           {/* Price */}
@@ -265,22 +265,22 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           {remaining > 0 && remaining <= 5 && (
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse flex-shrink-0" />
-              <span className="text-sm font-bold text-amber-400">{isArabic ? `ÙØªØ¨ÙÙ ${remaining} ÙÙØ·` : `Only ${remaining} left`}</span>
+              <span className="text-sm font-bold text-amber-400">{isArabic ? `ÃÂÃÂªÃÂ¨ÃÂÃÂ ${remaining} ÃÂÃÂÃÂ·` : `Only ${remaining} left`}</span>
             </div>
           )}
           {remaining <= 0 && (
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-              <span className="text-sm font-bold text-red-400">{isArabic ? 'ÙÙØ° Ø§ÙÙØ®Ø²ÙÙ' : 'Out of stock'}</span>
+              <span className="text-sm font-bold text-red-400">{isArabic ? 'ÃÂÃÂÃÂ° ÃÂ§ÃÂÃÂÃÂ®ÃÂ²ÃÂÃÂ' : 'Out of stock'}</span>
             </div>
           )}
 
           {/* Trust badges */}
           <div className="grid grid-cols-3 gap-2 text-center">
             {[
-              { icon: <Lock size={18} />, ar: 'Ø§ÙØ¯ÙØ¹ Ø¹ÙØ¯\nØ§ÙØ§Ø³ØªÙØ§Ù', en: 'Cash on\nDelivery' },
-              { icon: <PackageCheck size={18} />, ar: 'ÙØ§Ø¨Ù\nÙÙØ§Ø³ØªØ±Ø¬Ø§Ø¹', en: 'Returnable' },
-              { icon: <Truck size={18} />, ar: 'ØªÙØµÙÙ Ø³Ø±Ù\nÙØ³Ø±ÙØ¹', en: 'Discreet &\nFast' },
+              { icon: <Lock size={18} />, ar: 'ÃÂ§ÃÂÃÂ¯ÃÂÃÂ¹ ÃÂ¹ÃÂÃÂ¯\nÃÂ§ÃÂÃÂ§ÃÂ³ÃÂªÃÂÃÂ§ÃÂ', en: 'Cash on\nDelivery' },
+              { icon: <PackageCheck size={18} />, ar: 'ÃÂÃÂ§ÃÂ¨ÃÂ\nÃÂÃÂÃÂ§ÃÂ³ÃÂªÃÂ±ÃÂ¬ÃÂ§ÃÂ¹', en: 'Returnable' },
+              { icon: <Truck size={18} />, ar: 'ÃÂªÃÂÃÂµÃÂÃÂ ÃÂ³ÃÂ±ÃÂ\nÃÂÃÂ³ÃÂ±ÃÂÃÂ¹', en: 'Discreet &\nFast' },
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 py-3 px-1 bg-white/5">
                 <span className="text-stone-400">{item.icon}</span>
@@ -297,7 +297,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               <p className="text-xs font-black text-stone-300 mb-2">
                 {isArabic ? v.name : (v.nameEn || v.name)}
                 {!variants[v.name] && variantError && (
-                  <span className="text-red-400 ms-1">({isArabic ? 'ÙØ·ÙÙØ¨' : 'required'})</span>
+                  <span className="text-red-400 ms-1">({isArabic ? 'ÃÂÃÂ·ÃÂÃÂÃÂ¨' : 'required'})</span>
                 )}
               </p>
               <div className="flex flex-wrap gap-2">
@@ -317,7 +317,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           {/* Quantity */}
           {remaining > 0 && (
             <div className="flex items-center gap-4">
-              <span className="text-sm font-black text-stone-300">{isArabic ? 'Ø§ÙÙÙÙØ©' : 'Quantity'}</span>
+              <span className="text-sm font-black text-stone-300">{isArabic ? 'ÃÂ§ÃÂÃÂÃÂÃÂÃÂ©' : 'Quantity'}</span>
               <div className="flex items-center border border-white/20 rounded-lg overflow-hidden">
                 <button onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1}
                   className="px-3 py-2 text-stone-400 hover:bg-white/10 transition disabled:opacity-30">
@@ -343,17 +343,17 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               }`}>
               <ShoppingCart size={17} />
               {remaining <= 0
-                ? (isArabic ? 'ÙÙØ° Ø§ÙÙØ®Ø²ÙÙ' : 'Out of stock')
+                ? (isArabic ? 'ÃÂÃÂÃÂ° ÃÂ§ÃÂÃÂÃÂ®ÃÂ²ÃÂÃÂ' : 'Out of stock')
                 : variantError
-                ? (isArabic ? 'Ø§Ø®ØªØ± Ø§ÙØ®ÙØ§Ø±Ø§Øª' : 'Select options first')
-                : (isArabic ? 'Ø¥Ø¶Ø§ÙØ© ÙÙØ³ÙØ©' : 'Add to cart')}
+                ? (isArabic ? 'ÃÂ§ÃÂ®ÃÂªÃÂ± ÃÂ§ÃÂÃÂ®ÃÂÃÂ§ÃÂ±ÃÂ§ÃÂª' : 'Select options first')
+                : (isArabic ? 'ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂÃÂÃÂ³ÃÂÃÂ©' : 'Add to cart')}
             </button>
 
             {remaining > 0 && (
               <button onClick={handleBuyNow}
                 className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black bg-gradient-to-r from-red-600 to-rose-500 text-white hover:from-red-700 hover:to-rose-600 transition active:scale-[0.98]">
                 <Zap size={16} fill="currentColor" />
-                {isArabic ? 'Ø´Ø±Ø§Ø¡ Ø§ÙØ¢Ù' : 'Buy it now'}
+                {isArabic ? 'ÃÂ´ÃÂ±ÃÂ§ÃÂ¡ ÃÂ§ÃÂÃÂ¢ÃÂ' : 'Buy it now'}
               </button>
             )}
 
@@ -362,8 +362,29 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.845-1.587-5.921.003-6.556 5.338-11.891 11.893-11.891 3.176.001 6.165 1.236 8.413 3.484 2.248 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.916 3.21 1.399 4.909 1.4 5.424 0 9.835-4.411 9.838-9.835.002-2.628-1.021-5.1-2.88-6.958-1.859-1.859-4.331-2.88-6.955-2.881-5.423 0-9.835 4.412-9.838 9.836-.001 1.79.491 3.535 1.425 5.047l-1.012 3.7 3.784-.993zm11.458-7.228c-.312-.156-1.847-.91-2.132-1.014-.285-.104-.492-.156-.7.156-.207.312-.802 1.014-.983 1.221-.181.208-.363.234-.675.078-.312-.156-1.317-.485-2.51-1.549-.928-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.136-.636.141-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.207.052-.39-.026-.546-.078-.156-.7-1.688-.959-2.311-.253-.61-.51-.527-.7-.537-.182-.01-.39-.01-.597-.01-.208 0-.545.078-.83.39-.285.312-1.089 1.065-1.089 2.597 0 1.533 1.115 3.013 1.271 3.221.156.208 2.193 3.349 5.313 4.699.742.32 1.32.512 1.77.654.745.237 1.423.204 1.959.124.597-.089 1.847-.754 2.108-1.442.261-.689.261-1.274.182-1.39-.078-.118-.285-.182-.597-.338z"/>
               </svg>
-              {isArabic ? 'Ø§Ø·ÙØ¨ Ø¹Ø¨Ø± ÙØ§ØªØ³Ø§Ø¨' : 'Order via WhatsApp'}
+              {isArabic ? 'ÃÂ§ÃÂ·ÃÂÃÂ¨ ÃÂ¹ÃÂ¨ÃÂ± ÃÂÃÂ§ÃÂªÃÂ³ÃÂ§ÃÂ¨' : 'Order via WhatsApp'}
             </button>
+
+            {/* ── Shareable product link ── */}
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2.5">
+              <Link2 size={13} className="shrink-0 text-stone-500" />
+              <a
+                href={productFullLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex-1 truncate text-xs text-stone-500 hover:text-white transition"
+              >
+                {productFullLink}
+              </a>
+              <button
+                type="button"
+                title={isArabic ? 'نسخ الرابط' : 'Copy link'}
+                onClick={() => { try { navigator.clipboard.writeText(productFullLink); } catch {} }}
+                className="shrink-0 text-stone-500 hover:text-white transition p-1"
+              >
+                <Copy size={13} />
+              </button>
+            </div>
           </div>
 
           {/* Delivery accordion */}
@@ -373,7 +394,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               className="flex w-full items-center justify-between py-2">
               <span className="text-xs font-black uppercase tracking-[0.18em] text-stone-400 flex items-center gap-2">
                 <ShieldCheck size={13} />
-                {isArabic ? 'ÙØ¹ÙÙÙØ§Øª Ø§ÙØªÙØµÙÙ' : 'DELIVERY INFO'}
+                {isArabic ? 'ÃÂÃÂ¹ÃÂÃÂÃÂÃÂ§ÃÂª ÃÂ§ÃÂÃÂªÃÂÃÂµÃÂÃÂ' : 'DELIVERY INFO'}
               </span>
               <ChevronDown size={15} className={`text-stone-400 transition-transform ${deliveryOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -381,15 +402,15 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               <div className="pt-2 pb-4 space-y-3 text-sm text-stone-400 leading-relaxed">
                 {isArabic ? (
                   <>
-                    <p><span className="font-black text-white">ØªÙØµÙÙ Ø³Ø±Ù ÙÙ Ø¨ÙØ±ÙØª:</span> ÙÙØ³ Ø§ÙÙÙÙ.</p>
-                    <p><span className="font-black text-white">ÙÙ ÙØ¨ÙØ§Ù:</span> Ø®ÙØ§Ù 24-72 Ø³Ø§Ø¹Ø©.</p>
-                    <p><span className="font-black text-white">Ø§ÙØªØºÙÙÙ:</span> ÙØ±ØªÙÙ Ø¹Ø§Ø¯Ù ÙØºÙÙ Ø¨Ø¯ÙÙ Ø£Ù Ø¥Ø´Ø§Ø±Ø© ÙÙÙØ­ØªÙÙ.</p>
-                    <p><span className="font-black text-white">Ø§ÙØ¯ÙØ¹:</span> ÙÙØ¯Ø§Ù Ø£Ù Ø¨Ø§ÙØ´Ø¨ÙØ© Ø¹ÙØ¯ Ø§ÙØ§Ø³ØªÙØ§Ù.</p>
+                    <p><span className="font-black text-white">ÃÂªÃÂÃÂµÃÂÃÂ ÃÂ³ÃÂ±ÃÂ ÃÂÃÂ ÃÂ¨ÃÂÃÂ±ÃÂÃÂª:</span> ÃÂÃÂÃÂ³ ÃÂ§ÃÂÃÂÃÂÃÂ.</p>
+                    <p><span className="font-black text-white">ÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ§ÃÂ:</span> ÃÂ®ÃÂÃÂ§ÃÂ 24-72 ÃÂ³ÃÂ§ÃÂ¹ÃÂ©.</p>
+                    <p><span className="font-black text-white">ÃÂ§ÃÂÃÂªÃÂºÃÂÃÂÃÂ:</span> ÃÂÃÂ±ÃÂªÃÂÃÂ ÃÂ¹ÃÂ§ÃÂ¯ÃÂ ÃÂÃÂºÃÂÃÂ ÃÂ¨ÃÂ¯ÃÂÃÂ ÃÂ£ÃÂ ÃÂ¥ÃÂ´ÃÂ§ÃÂ±ÃÂ© ÃÂÃÂÃÂÃÂ­ÃÂªÃÂÃÂ.</p>
+                    <p><span className="font-black text-white">ÃÂ§ÃÂÃÂ¯ÃÂÃÂ¹:</span> ÃÂÃÂÃÂ¯ÃÂ§ÃÂ ÃÂ£ÃÂ ÃÂ¨ÃÂ§ÃÂÃÂ´ÃÂ¨ÃÂÃÂ© ÃÂ¹ÃÂÃÂ¯ ÃÂ§ÃÂÃÂ§ÃÂ³ÃÂªÃÂÃÂ§ÃÂ.</p>
                   </>
                 ) : (
                   <>
                     <p><span className="font-black text-white">Beirut:</span> Same-day discreet delivery.</p>
-                    <p><span className="font-black text-white">All Lebanon:</span> Within 24â72 hours.</p>
+                    <p><span className="font-black text-white">All Lebanon:</span> Within 24Ã¢ÂÂ72 hours.</p>
                     <p><span className="font-black text-white">Packaging:</span> Plain sealed box, no store name or logo.</p>
                     <p><span className="font-black text-white">Payment:</span> Cash or card on delivery.</p>
                   </>
@@ -402,7 +423,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           {displayDesc && (
             <div className="border-t border-white/10 pt-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500 mb-3">
-                {isArabic ? 'ØªÙØ§ØµÙÙ Ø§ÙÙÙØªØ¬' : 'PRODUCT DETAILS'}
+                {isArabic ? 'ÃÂªÃÂÃÂ§ÃÂµÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬' : 'PRODUCT DETAILS'}
               </p>
               <p className="text-sm text-stone-400 leading-relaxed">{displayDesc}</p>
             </div>
