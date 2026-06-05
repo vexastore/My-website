@@ -57,7 +57,7 @@ interface ShopContextType {
 }
 
 
-// ââ URL slug â category mapping (for synchronous URL-based initialization) ââ
+// Ã¢ÂÂÃ¢ÂÂ URL slug Ã¢ÂÂ category mapping (for synchronous URL-based initialization) Ã¢ÂÂÃ¢ÂÂ
 const URL_SLUG_TO_CATEGORY: Record<string, string> = {
   'sex-toys': 'Sex Toys', 'vibrators': 'Vibrators', 'male-toys': 'Male Toys',
   'dildos': 'Dildos', 'lingerie': 'Lingerie', 'bdsm': 'BDSM',
@@ -123,10 +123,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ]) as Awaited<ReturnType<typeof getDocs>>;
 
         if (!snapshot.empty) {
-          const firestoreProducts = snapshot.docs.map(docSnap => ({
-            ...(docSnap.data() as Omit<Product, 'id'>),
-            id: docSnap.id
-          }));
+          const firestoreProducts = snapshot.docs.map(docSnap => {
+            const data = docSnap.data() as Omit<Product, 'id'> & { slug?: string; link?: string };
+            const pSlug = data.slug || toSlugLocal(data.nameEn || data.name || docSnap.id);
+            return { ...data, id: docSnap.id, link: data.link || `https://www.vexatoys.com/product/${pSlug}` };
+          });
           setProducts(firestoreProducts);
         } else {
           const batch = writeBatch(db);
@@ -260,7 +261,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('adult_store_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // âââ Firestore product operations âââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Firestore product operations Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -326,7 +327,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
   const toSlugLocal = (n: string) => (n || '').toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
@@ -364,7 +365,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
       const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
       if (currentCartQty + quantity > product.stock) {
-        alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØ·ÙÙØ¨Ø© ØºÙØ± ÙØªÙÙØ±Ø© Ø­Ø§ÙÙØ§Ù. Ø§ÙÙÙÙØ© Ø§ÙÙØªØ¨ÙÙØ©: ${product.stock}`);
+        alert(`ÃÂ¹ÃÂ°ÃÂ±ÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂ·ÃÂÃÂÃÂ¨ÃÂ© ÃÂºÃÂÃÂ± ÃÂÃÂªÃÂÃÂÃÂ±ÃÂ© ÃÂ­ÃÂ§ÃÂÃÂÃÂ§ÃÂ. ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂªÃÂ¨ÃÂÃÂÃÂ©: ${product.stock}`);
         return prevCart;
       }
       if (existingItemIndex > -1) {
@@ -392,7 +393,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       prevCart.map(item => {
         if (item.product.id === productId) {
           if (quantity > item.product.stock) {
-            alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØªÙÙØ±Ø© ÙÙ ${item.product.stock} ÙÙØ·.`);
+            alert(`ÃÂ¹ÃÂ°ÃÂ±ÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂªÃÂÃÂÃÂ±ÃÂ© ÃÂÃÂ ${item.product.stock} ÃÂÃÂÃÂ·.`);
             return item;
           }
           return { ...item, quantity };
@@ -442,7 +443,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteOrder = (orderId: string) => {
-    if (window.confirm('ÙÙ Ø£ÙØª ÙØªØ£ÙØ¯ ÙÙ Ø±ØºØ¨ØªÙ ÙÙ Ø­Ø°Ù ÙØ°Ø§ Ø§ÙØ·ÙØ¨ ÙÙØ§Ø¦ÙØ§ÙØ')) {
+    if (window.confirm('ÃÂÃÂ ÃÂ£ÃÂÃÂª ÃÂÃÂªÃÂ£ÃÂÃÂ¯ ÃÂÃÂ ÃÂ±ÃÂºÃÂ¨ÃÂªÃÂ ÃÂÃÂ ÃÂ­ÃÂ°ÃÂ ÃÂÃÂ°ÃÂ§ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ ÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂ§ÃÂÃÂ')) {
       deleteOrderLocally(orderId);
     }
   };
