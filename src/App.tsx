@@ -1,7 +1,7 @@
 import React, { lazy, Suspense, useEffect } from 'react';
   import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
-import { ProductPage } from './components/ProductPage';
+
 import { ProductList } from './components/ProductList';
 import { ShieldCheck, Lock, Heart, Mail, Info } from 'lucide-react';
 import { getCategorySeoTab } from './data/categories';
@@ -92,12 +92,15 @@ const AppContent: React.FC = () => {
     if (currentView === 'about') {
       window.history.replaceState(null, '', '/about');
     } else if (currentView === 'product' && selectedProduct) {
-      const prodSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug ||
+      const pSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug ||
         (selectedProduct.nameEn || selectedProduct.name || '').toLowerCase()
           .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-      const productPath = '/product/' + prodSlug;
+      const cSlug = (selectedProduct as typeof selectedProduct & { categorySlug?: string }).categorySlug ||
+        (selectedProduct.category || '').toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+      const productPath = `/${cSlug}/${pSlug}`;
       if (window.location.pathname !== productPath) {
-        window.history.pushState(null, '', productPath);
+        window.history.replaceState(null, '', productPath);
       }
     } else if (currentView === 'shop') {
       const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
