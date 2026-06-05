@@ -79,14 +79,18 @@ function getInitialCategory(): string {
 }
 
 function getInitialView(): ViewType {
-  try {
-    const w = window as typeof window & { __INITIAL_VIEW__?: string; __INITIAL_PRODUCT_SLUG__?: string };
-    if (w.__INITIAL_VIEW__ === 'about') return 'about';
-    if (window.location.pathname === '/about') return 'about';
-    if (w.__INITIAL_PRODUCT_SLUG__ || window.location.pathname.startsWith('/product/')) return 'product';
-  } catch {}
-  return 'shop';
-}
+    try {
+      const w = window as typeof window & { __INITIAL_VIEW__?: string; __INITIAL_PRODUCT_SLUG__?: string };
+      if (w.__INITIAL_VIEW__ === 'about') return 'about';
+      if (window.location.pathname === '/about') return 'about';
+      if (w.__INITIAL_PRODUCT_SLUG__ || window.location.pathname.startsWith('/product/')) return 'product';
+      // Detect /:categorySlug/:productSlug  (e.g. /dildos/rose-vibrator)
+      const parts = window.location.pathname.split('/').filter(Boolean);
+      const SINGLE_VIEWS = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml'];
+      if (parts.length === 2 && !SINGLE_VIEWS.includes(parts[0])) return 'product';
+    } catch {}
+    return 'shop';
+  }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
@@ -169,26 +173,41 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   // Resolve initial product page from URL slug after products load
-  useEffect(() => {
-    if (isProductsLoading || products.length === 0) return;
-    if (currentView !== 'product' || selectedProduct) return;
-    try {
-      const w = window as typeof window & { __INITIAL_PRODUCT_SLUG__?: string };
-      const slug = w.__INITIAL_PRODUCT_SLUG__ ||
-        window.location.pathname.replace(/^\/product\//, '').replace(/\/$/, '');
-      if (!slug) { setViewState('shop'); return; }
-      const toSl = (n: string) => (n||'').toLowerCase()
-        .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-')
-        .replace(/-+/g,'-').replace(/^-+|-+$/,'').slice(0,60);
-      const found = products.find(p =>
-        (p as Product & { slug?: string }).slug === slug ||
-        toSl(p.nameEn || p.name || '') === slug ||
-        p.id === slug
-      );
-      if (found) setSelectedProduct(found);
-      else setViewState('shop');
-    } catch { setViewState('shop'); }
-  }, [isProductsLoading, products]); // eslint-disable-line
+    useEffect(() => {
+      if (isProductsLoading || products.length === 0) return;
+      if (currentView !== 'product' || selectedProduct) return;
+      try {
+        const w = window as typeof window & { __INITIAL_PRODUCT_SLUG__?: string };
+        const pathname = window.location.pathname;
+        const parts = pathname.split('/').filter(Boolean);
+        const toSl = (n: string) => (n||'').toLowerCase()
+          .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-')
+          .replace(/-+/g,'-').replace(/^-+|-+$/,'').slice(0,60);
+
+        let slug = '';
+        let catSlug = '';
+        if (w.__INITIAL_PRODUCT_SLUG__) {
+          slug = w.__INITIAL_PRODUCT_SLUG__;
+        } else if (parts.length === 2) {
+          catSlug = parts[0];
+          slug = parts[1];
+        } else {
+          slug = pathname.replace(/^\/product\//, '').replace(/\/$/, '');
+        }
+
+        if (!slug) { setViewState('shop'); return; }
+
+        const found = products.find(p => {
+          const pSlug = (p as Product & { slug?: string }).slug || toSl(p.nameEn || p.name || '');
+          const pCat  = (p as Product & { categorySlug?: string }).categorySlug || toSl(p.category || '');
+          const slugOk = pSlug === slug || toSl(p.nameEn || p.name || '') === slug || p.id === slug;
+          const catOk  = !catSlug || pCat === catSlug;
+          return slugOk && catOk;
+        });
+        if (found) setSelectedProduct(found);
+        else setViewState('shop');
+      } catch { setViewState('shop'); }
+    }, [isProductsLoading, products]); // eslint-disable-line
 
   // Handle browser back/forward buttons
   useEffect(() => {
