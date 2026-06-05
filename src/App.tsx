@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useEffect } from 'react';
+  import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 import { ProductList } from './components/ProductList';
@@ -55,6 +56,23 @@ const PageLoader = () => (
   </div>
 );
 
+  // Reads /:categorySlug/:productSlug URL params, finds product, renders ProductPage
+  const ProductByUrl: React.FC = () => {
+    const { categorySlug, productSlug } = useParams<{ categorySlug: string; productSlug: string }>();
+    const { products, isProductsLoading, setSelectedProduct } = useShop();
+
+    useEffect(() => {
+      if (isProductsLoading || !products.length || !productSlug) return;
+      const found = products.find(
+        (p) => p.slug === productSlug && (p.categorySlug === categorySlug || !categorySlug)
+      );
+      if (found) setSelectedProduct(found);
+    }, [products, isProductsLoading, categorySlug, productSlug, setSelectedProduct]);
+
+    return <ProductPage />;
+  };
+
+  
 const AppContent: React.FC = () => {
   const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory, selectedProduct } = useShop();
   const isArabic = language === 'ar';
@@ -159,7 +177,12 @@ const AppContent: React.FC = () => {
       <Navbar />
       <Suspense fallback={null}><FloatingWhatsApp /></Suspense>
       <Suspense fallback={null}><VexaToast /></Suspense>
-      <main className="vexa-page-shell flex-grow">{renderView()}</main>
+      <main className="vexa-page-shell flex-grow">
+          <Routes>
+            <Route path="/:categorySlug/:productSlug" element={<ProductByUrl />} />
+            <Route path="*" element={<>{renderView()}</>} />
+          </Routes>
+        </main>
 
       <footer className="bg-stone-900 text-stone-300 border-t border-stone-800 mt-auto">
 
@@ -288,8 +311,10 @@ const AppContent: React.FC = () => {
 
 export default function App() {
   return (
-    <ShopProvider>
-      <AppContent />
-    </ShopProvider>
+    <BrowserRouter>
+      <ShopProvider>
+        <AppContent />
+      </ShopProvider>
+    </BrowserRouter>
   );
 }
