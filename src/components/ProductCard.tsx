@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
   import { Product } from '../types';
   import { useShop } from '../context/ShopContext';
-  import { Star } from 'lucide-react';
+  import { Star, Link2, Check } from 'lucide-react';
 
   interface ProductCardProps {
     product: Product;
@@ -19,6 +19,7 @@ import React from 'react';
   export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     const { cart, language } = useShop();
     const isArabic = language === 'ar';
+    const [copied, setCopied] = useState(false);
 
     const categoryShort = product.category === 'Holiday Collection' ? 'Holiday' : product.category;
     const oldPrice = Math.round(product.price * 1.23);
@@ -31,10 +32,23 @@ import React from 'react';
     const cartQty = cartItem ? cartItem.quantity : 0;
     const remainingStock = product.stock - cartQty;
 
-    // Build the real product URL
     const pSlug = product.slug || toSlug(product.nameEn || product.name || product.id);
     const catSlug = product.categorySlug || toSlug(product.category || '');
     const productUrl = `/${catSlug}/${pSlug}`;
+    const productFullUrl = `https://vexatoys.com${productUrl}`;
+
+    const handleCopyLink = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      try {
+        navigator.clipboard.writeText(productFullUrl).then(() => {
+          setCopied(true);
+          setTimeout(() => setCopied(false), 2000);
+        });
+      } catch {
+        setCopied(false);
+      }
+    };
 
     return (
       <a
@@ -46,6 +60,30 @@ import React from 'react';
           <span className="absolute left-4 top-4 z-10 bg-white px-3 py-2 text-sm font-black uppercase text-black sm:text-base">
             SALE
           </span>
+
+          {/* Copy link button */}
+          <button
+            type="button"
+            onClick={handleCopyLink}
+            title={isArabic ? 'نسخ رابط المنتج' : 'Copy product link'}
+            className={`absolute right-3 top-3 z-20 flex items-center gap-1 rounded-full px-2 py-1.5 text-[10px] font-black uppercase tracking-wide transition-all duration-200 ${
+              copied
+                ? 'bg-green-500 text-white'
+                : 'bg-black/60 text-white/60 hover:bg-white/20 hover:text-white'
+            }`}
+          >
+            {copied ? (
+              <>
+                <Check size={11} />
+                <span>{isArabic ? 'تم النسخ' : 'Copied'}</span>
+              </>
+            ) : (
+              <>
+                <Link2 size={11} />
+                <span>{isArabic ? 'رابط' : 'Link'}</span>
+              </>
+            )}
+          </button>
 
           <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.6),transparent_18%),radial-gradient(circle_at_72%_34%,rgba(255,255,255,0.28),transparent_10%)] opacity-50" />
@@ -99,8 +137,15 @@ import React from 'react';
             </div>
             <span className="text-xs font-black text-white/35">({product.reviewsCount})</span>
           </div>
+
+          {/* Product link row */}
+          <div className="mt-3 flex items-center justify-center gap-1.5 px-2">
+            <Link2 size={10} className="shrink-0 text-white/20" />
+            <span className="truncate text-[10px] text-white/20 font-mono">
+              vexatoys.com{productUrl}
+            </span>
+          </div>
         </div>
       </a>
     );
   };
-  
