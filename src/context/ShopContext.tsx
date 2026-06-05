@@ -82,11 +82,15 @@ function getInitialView(): ViewType {
     try {
       const w = window as typeof window & { __INITIAL_VIEW__?: string; __INITIAL_PRODUCT_SLUG__?: string };
       if (w.__INITIAL_VIEW__ === 'about') return 'about';
-      if (window.location.pathname === '/about') return 'about';
-      if (w.__INITIAL_PRODUCT_SLUG__ || window.location.pathname.startsWith('/product/')) return 'product';
-      // Detect /:categorySlug/:productSlug  (e.g. /dildos/rose-vibrator)
-      const parts = window.location.pathname.split('/').filter(Boolean);
-      const SINGLE_VIEWS = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml'];
+      const path = window.location.pathname;
+      if (path === '/about') return 'about';
+      // /products/:slug  — primary product URL format
+      if (path.startsWith('/products/')) return 'product';
+      // Legacy /product/:slug format
+      if (w.__INITIAL_PRODUCT_SLUG__ || path.startsWith('/product/')) return 'product';
+      // Legacy /:categorySlug/:productSlug  (e.g. /dildos/rose-vibrator)
+      const parts = path.split('/').filter(Boolean);
+      const SINGLE_VIEWS = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml', 'products'];
       if (parts.length === 2 && !SINGLE_VIEWS.includes(parts[0])) return 'product';
     } catch {}
     return 'shop';
@@ -188,6 +192,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         let catSlug = '';
         if (w.__INITIAL_PRODUCT_SLUG__) {
           slug = w.__INITIAL_PRODUCT_SLUG__;
+        } else if (pathname.startsWith('/products/')) {
+          slug = pathname.replace(/^\/products\//, '').replace(/\/$/, '');
         } else if (parts.length === 2) {
           catSlug = parts[0];
           slug = parts[1];
@@ -217,7 +223,18 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handlePop = () => {
       const path = window.location.pathname;
-      if (path.startsWith('/product/')) {
+      // /products/:slug — primary format
+      if (path.startsWith('/products/')) {
+        const slug = path.replace(/^\/products\//, '').replace(/\/$/, '');
+        const found = products.find(p =>
+          (p as Product & { slug?: string }).slug === slug ||
+          toSl(p.nameEn || p.name || '') === slug ||
+          p.id === slug
+        );
+        if (found) { setSelectedProduct(found); setViewState('product'); }
+        else setViewState('shop');
+      // Legacy /product/:slug
+      } else if (path.startsWith('/product/')) {
         const slug = path.replace(/^\/product\//, '').replace(/\/$/, '');
         const found = products.find(p =>
           (p as Product & { slug?: string }).slug === slug ||
@@ -230,8 +247,20 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setViewState('about');
         setSelectedProduct(null);
       } else {
-        const slug = path.replace(/^\//, '').replace(/\/$/, '');
-        const cat = URL_SLUG_TO_CATEGORY[slug];
+        // Legacy /:catSlug/:pSlug
+        const parts = path.split('/').filter(Boolean);
+        if (parts.length === 2) {
+          const slug = parts[1];
+          const catSlug = parts[0];
+          const found = products.find(p => {
+            const pSlug = (p as Product & { slug?: string }).slug || toSl(p.nameEn || p.name || '');
+            const pCat = (p as Product & { categorySlug?: string }).categorySlug || toSl(p.category || '');
+            return (pSlug === slug || toSl(p.nameEn || p.name || '') === slug || p.id === slug) && (!catSlug || pCat === catSlug);
+          });
+          if (found) { setSelectedProduct(found); setViewState('product'); return; }
+        }
+        const catSlug = path.replace(/^\//, '').replace(/\/$/, '');
+        const cat = URL_SLUG_TO_CATEGORY[catSlug];
         if (cat) setActiveCategory(cat);
         setViewState('shop');
         setSelectedProduct(null);
@@ -378,8 +407,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const navigateToProduct = (product: Product) => {
       const pSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
-      const catSlug = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || '');
-      window.location.href = `/${catSlug}/${pSlug}`;
+      window.location.href = `/products/${pSlug}`;
     };
 
   const setSelectedArticle = (article: AdviceArticle | null) => {
