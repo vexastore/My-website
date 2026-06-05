@@ -31,6 +31,7 @@ interface ShopContextType {
   setLanguage: (language: 'en' | 'ar') => void;
   toggleLanguage: () => void;
   setView: (view: ViewType) => void;
+  navigateToProduct: (product: Product) => void;
   setSelectedArticle: (article: AdviceArticle | null) => void;
   setActiveCategory: (category: string) => void;
   setSearchQuery: (query: string) => void;
@@ -56,7 +57,7 @@ interface ShopContextType {
 }
 
 
-// ── URL slug → category mapping (for synchronous URL-based initialization) ──
+// ââ URL slug â category mapping (for synchronous URL-based initialization) ââ
 const URL_SLUG_TO_CATEGORY: Record<string, string> = {
   'sex-toys': 'Sex Toys', 'vibrators': 'Vibrators', 'male-toys': 'Male Toys',
   'dildos': 'Dildos', 'lingerie': 'Lingerie', 'bdsm': 'BDSM',
@@ -259,7 +260,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('adult_store_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // ─── Firestore product operations ─────────────────────────────────────────
+  // âââ Firestore product operations âââââââââââââââââââââââââââââââââââââââââ
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -325,13 +326,25 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // ──────────────────────────────────────────────────────────────────────────
+  // ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
-  const setView = (view: ViewType) => {
-    setViewState(view);
-    if (view !== 'advice') setSelectedArticleState(null);
-    window.scrollTo(0, 0);
-  };
+  const toSlugLocal = (n: string) => (n || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
+      .replace(/^-+|-+$/, '').slice(0, 60) || 'product';
+
+    const setView = (view: ViewType) => {
+      setViewState(view);
+      if (view !== 'advice') setSelectedArticleState(null);
+      window.scrollTo(0, 0);
+    };
+
+    const navigateToProduct = (product: Product) => {
+      const slug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
+      window.history.pushState(null, '', '/product/' + slug);
+      setSelectedProduct(product);
+      setViewState('product');
+      window.scrollTo(0, 0);
+    };
 
   const setSelectedArticle = (article: AdviceArticle | null) => {
     setSelectedArticleState(article);
@@ -351,7 +364,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
       const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
       if (currentCartQty + quantity > product.stock) {
-        alert(`عذراً، الكمية المطلوبة غير متوفرة حالياً. الكمية المتبقية: ${product.stock}`);
+        alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØ·ÙÙØ¨Ø© ØºÙØ± ÙØªÙÙØ±Ø© Ø­Ø§ÙÙØ§Ù. Ø§ÙÙÙÙØ© Ø§ÙÙØªØ¨ÙÙØ©: ${product.stock}`);
         return prevCart;
       }
       if (existingItemIndex > -1) {
@@ -379,7 +392,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       prevCart.map(item => {
         if (item.product.id === productId) {
           if (quantity > item.product.stock) {
-            alert(`عذراً، الكمية المتوفرة هي ${item.product.stock} فقط.`);
+            alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØªÙÙØ±Ø© ÙÙ ${item.product.stock} ÙÙØ·.`);
             return item;
           }
           return { ...item, quantity };
@@ -429,7 +442,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteOrder = (orderId: string) => {
-    if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟')) {
+    if (window.confirm('ÙÙ Ø£ÙØª ÙØªØ£ÙØ¯ ÙÙ Ø±ØºØ¨ØªÙ ÙÙ Ø­Ø°Ù ÙØ°Ø§ Ø§ÙØ·ÙØ¨ ÙÙØ§Ø¦ÙØ§ÙØ')) {
       deleteOrderLocally(orderId);
     }
   };
@@ -443,6 +456,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
         deleteOrderLocally, getCartTotal, getCartItemsCount, getDeliveryFee,
+        navigateToProduct,
         addProduct, updateProduct, deleteProduct, fetchProductImages, fetchAllOrdersFromFirebase,
         selectedProduct, setSelectedProduct
       }}
