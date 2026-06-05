@@ -15,6 +15,7 @@ export type CategoryId =
 
 export interface Product {
   slug?: string;
+  link?: string;
   id: string;
   name: string;
   nameEn: string;
