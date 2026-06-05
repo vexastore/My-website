@@ -123,12 +123,30 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ]) as Awaited<ReturnType<typeof getDocs>>;
 
         if (!snapshot.empty) {
-          const firestoreProducts = snapshot.docs.map(docSnap => {
-            const data = docSnap.data() as Omit<Product, 'id'> & { slug?: string; link?: string };
-            const pSlug = data.slug || toSlugLocal(data.nameEn || data.name || docSnap.id);
-            return { ...data, id: docSnap.id, link: data.link || `https://www.vexatoys.com/product/${pSlug}` };
-          });
-          setProducts(firestoreProducts);
+          const toBackfill: Array<{ id: string; slug: string; categorySlug: string }> = [];
+            const firestoreProducts = snapshot.docs.map(docSnap => {
+              const data = docSnap.data() as Omit<Product, 'id'> & { slug?: string; categorySlug?: string; link?: string };
+              const pSlug = data.slug || toSlugLocal(data.nameEn || data.name || docSnap.id);
+              const catSlug = data.categorySlug || toSlugLocal(data.category || '');
+              if (!data.slug || !data.categorySlug) {
+                toBackfill.push({ id: docSnap.id, slug: pSlug, categorySlug: catSlug });
+              }
+              return {
+                ...data, id: docSnap.id, slug: pSlug, categorySlug: catSlug,
+                link: data.link || `https://www.vexatoys.com/${catSlug}/${pSlug}`
+              };
+            });
+            setProducts(firestoreProducts);
+            // Persist missing slug/categorySlug back to Firestore
+            if (toBackfill.length > 0) {
+              try {
+                const batchUpd = writeBatch(db);
+                toBackfill.forEach(({ id, slug, categorySlug }) => {
+                  batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
+                });
+                await batchUpd.commit();
+              } catch (_) { /* silent — non-blocking */ }
+            }
         } else {
           const batch = writeBatch(db);
           MOCK_PRODUCTS.forEach(product => {
