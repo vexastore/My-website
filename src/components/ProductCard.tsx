@@ -1,146 +1,106 @@
 import React from 'react';
-import { Product } from '../types';
-import { useShop } from '../context/ShopContext';
-import { Star, ShoppingCart } from 'lucide-react';
-import { CATEGORIES, getProductCategories } from '../data/categories';
+  import { Product } from '../types';
+  import { useShop } from '../context/ShopContext';
+  import { Star } from 'lucide-react';
 
-function toSlug(name: string): string {
-  return (name || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/, '')
-    .slice(0, 60) || 'product';
-}
+  interface ProductCardProps {
+    product: Product;
+  }
 
-interface ProductCardProps {
-  product: Product;
-  priority?: boolean;
-}
+  function toSlug(text: string): string {
+    return (text || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .replace(/^-+|-+$/, '')
+      .slice(0, 60);
+  }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
-  const { addToCart, cart, language, navigateToProduct } = useShop();
-  const isArabic = language === 'ar';
+  export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+    const { cart, language } = useShop();
+    const isArabic = language === 'ar';
 
-  const cardImage = product.image || '';
-  const hasRealImage = !!cardImage;
+    const categoryShort = product.category === 'Holiday Collection' ? 'Holiday' : product.category;
+    const oldPrice = Math.round(product.price * 1.23);
+    const gradientClass =
+      product.category === 'Lingerie' || product.category === 'BDSM' || product.category === 'Holiday Collection'
+        ? 'from-[#351018] via-[#9a1f55] to-[#bf2f65]'
+        : 'from-[#1b1547] via-[#5a35bc] to-[#9d6cff]';
 
-  const productCats = getProductCategories(product);
-  const primaryCatId = productCats[0] || product.category;
-  const primaryCatName = CATEGORIES.find(c => c.id === primaryCatId)?.name?.[isArabic ? 'ar' : 'en'] || primaryCatId;
+    const cartItem = cart.find((item) => item.product.id === product.id);
+    const cartQty = cartItem ? cartItem.quantity : 0;
+    const remainingStock = product.stock - cartQty;
 
-  const oldPrice = Math.round(product.price * 1.23);
-  const gradientClass =
-    primaryCatId === 'Lingerie' || primaryCatId === 'BDSM' || primaryCatId === 'Holiday Collection'
-      ? 'from-[#351018] via-[#9a1f55] to-[#bf2f65]'
-      : 'from-[#1b1547] via-[#5a35bc] to-[#9d6cff]';
+    // Build the real product URL
+    const pSlug = product.slug || toSlug(product.nameEn || product.name || product.id);
+    const catSlug = product.categorySlug || toSlug(product.category || '');
+    const productUrl = `/${catSlug}/${pSlug}`;
 
-  const cartItem = cart.find(i => i.product.id === product.id);
-  const cartQty = cartItem ? cartItem.quantity : 0;
-  const remainingStock = product.stock - cartQty;
-
-  const displayName = isArabic
-    ? (product.name || product.nameEn)
-    : (product.nameEn || product.name);
-
-  const productSlug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-  const productHref = `/product/${productSlug}`;
-
-  const handleCardClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    navigateToProduct(product);
-  };
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (remainingStock > 0) {
-      addToCart(product, 1);
-    }
-  };
-
-  return (
-    <a
-      href={productHref}
-      onClick={handleCardClick}
-      aria-label={displayName}
-      className="group cursor-pointer bg-[#050505] text-white block"
-    >
-      <div className="relative overflow-hidden rounded-xl border border-white/5 bg-[#101010] shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
-        {product.isNew && (
-          <span className="absolute right-3 top-3 z-10 bg-emerald-400 text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-full">
-            {isArabic ? 'ÃÂ¬ÃÂ¯ÃÂÃÂ¯' : 'New'}
+    return (
+      <a
+        href={productUrl}
+        className="group cursor-pointer bg-[#050505] text-white block no-underline"
+        aria-label={isArabic ? product.name : product.nameEn}
+      >
+        <div className="relative overflow-hidden rounded-md border border-white/5 bg-[#101010] p-0 shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
+          <span className="absolute left-4 top-4 z-10 bg-white px-3 py-2 text-sm font-black uppercase text-black sm:text-base">
+            SALE
           </span>
-        )}
-        <span className="absolute left-3 top-3 z-10 bg-white/90 text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-full">
-          {isArabic ? 'ÃÂªÃÂ®ÃÂÃÂÃÂ¶' : 'Sale'}
-        </span>
-        <div className={`relative aspect-square overflow-hidden ${hasRealImage ? 'bg-black' : `bg-gradient-to-br ${gradientClass}`}`}>
-          {hasRealImage ? (
-            <img
-              src={cardImage}
-              alt={isArabic ? `ÃÂ´ÃÂ±ÃÂ§ÃÂ¡ ${displayName} ÃÂÃÂ ÃÂÃÂ¨ÃÂÃÂ§ÃÂ - ÃÂÃÂªÃÂ¬ÃÂ± ÃÂÃÂÃÂÃÂ³ÃÂ§` : `Buy ${displayName} in Lebanon - Vexa Store`}
-              loading={priority ? 'eager' : 'lazy'}
-              decoding={priority ? 'sync' : 'async'}
-              fetchPriority={priority ? 'high' : 'low'}
-              width="400"
-              height="400"
-              className="h-full w-full object-cover opacity-90 transition-transform duration-500 group-hover:scale-105"
-              onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-            />
-          ) : (
+
+          <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.6),transparent_18%),radial-gradient(circle_at_72%_34%,rgba(255,255,255,0.28),transparent_10%)] opacity-50" />
+            <div className="absolute left-1/2 top-1/2 h-[58%] w-[35%] -translate-x-1/2 -translate-y-1/2 rounded-[999px] border-[18px] border-white/18 bg-white/8 shadow-2xl shadow-white/20" />
+            <div className="absolute left-1/2 top-[58%] h-[16%] w-[36%] -translate-x-1/2 rounded-full bg-black/25 blur-[1px]" />
+            <div className="absolute left-[22%] top-[69%] h-10 w-10 rotate-45 bg-white/16" />
+            <div className="absolute right-[21%] top-[22%] h-8 w-8 rotate-45 bg-white/16" />
+            <div className="absolute left-[18%] top-[25%] h-8 w-8 rounded-full bg-white/25" />
+            <div className="absolute right-[15%] top-[25%] h-5 w-5 rounded-full bg-white/25" />
+
             <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
               <span className="text-2xl font-black tracking-[0.18em] sm:text-3xl">VEXA</span>
-              <span className="mt-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/90 sm:text-xs">Premium</span>
+              <span className="mt-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/90 sm:text-xs">
+                {product.category === 'Dildos'
+                  ? 'Medical Silicone'
+                  : product.category === 'Lingerie'
+                  ? 'Soft Fit'
+                  : product.category === 'Male Toys'
+                  ? 'Discreet'
+                  : product.category === 'BDSM'
+                  ? 'Starter Kit'
+                  : 'Premium'}
+              </span>
             </div>
-          )}
-          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2.5 pt-6 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-white">
-            <span className="truncate max-w-[60%]">{primaryCatName}</span>
-            <span className={remainingStock <= 3 ? 'text-red-400' : 'text-white/70'}>
-              {Math.max(remainingStock, 0)} {isArabic ? 'ÃÂÃÂªÃÂ¨ÃÂÃÂ' : 'left'}
-            </span>
+
+            <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs">
+              <span>{categoryShort}</span>
+              <span>{Math.max(remainingStock, 0)} LEFT</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="pt-4 px-0.5">
-        <h3
-          className="line-clamp-2 text-xs font-black uppercase tracking-[0.1em] text-white/80 sm:text-sm leading-snug"
-          title={displayName}
-        >
-          {displayName}
-        </h3>
-        <div className="mt-2 flex items-baseline gap-2">
-          <span className="text-base font-black text-white sm:text-xl">${product.price.toFixed(2)}</span>
-          <span className="text-xs font-bold text-white/30 line-through">${oldPrice.toFixed(2)}</span>
-          <span className="text-[10px] text-white/40 font-bold">USD</span>
-        </div>
-        <div className="mt-2 flex items-center gap-1.5 text-amber-400">
-          <div className="flex items-center gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} size={10} fill="currentColor" className={i < Math.floor(product.rating) ? '' : 'opacity-20'} />
-            ))}
+        <div className="pt-5 text-center sm:pt-6">
+          <h3
+            className="truncate text-sm font-black uppercase tracking-[0.14em] text-white/80 sm:text-lg"
+            title={isArabic ? product.name : product.nameEn}
+          >
+            {isArabic ? product.name : product.nameEn}
+          </h3>
+
+          <div className="mt-3 flex items-center justify-center gap-2 sm:gap-3">
+            <span className="text-lg font-black text-white sm:text-2xl">${product.price.toFixed(2)} USD</span>
+            <span className="text-sm font-black text-white/25 line-through sm:text-base">${oldPrice.toFixed(2)} USD</span>
           </div>
-          <span className="text-[10px] font-bold text-white/30">({product.reviewsCount})</span>
-        </div>
 
-        <button
-          onClick={handleAddToCart}
-          disabled={remainingStock <= 0}
-          aria-label={isArabic ? `ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ${displayName} ÃÂÃÂÃÂ³ÃÂÃÂ©` : `Add ${displayName} to cart`}
-          className={`mt-3 w-full flex items-center justify-center gap-2 rounded-lg py-2 text-[11px] font-black uppercase tracking-wider transition active:scale-[0.97] ${
-            remainingStock <= 0
-              ? 'bg-white/5 text-white/20 cursor-not-allowed'
-              : 'bg-white/10 hover:bg-white/20 text-white border border-white/10'
-          }`}
-        >
-          <ShoppingCart size={13} />
-          {remainingStock <= 0
-            ? (isArabic ? 'ÃÂÃÂÃÂ° ÃÂ§ÃÂÃÂÃÂ®ÃÂ²ÃÂÃÂ' : 'Out of stock')
-            : (isArabic ? 'ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂÃÂÃÂ³ÃÂÃÂ©' : 'Add to cart')}
-        </button>
-      </div>
-    </a>
-  );
-};
+          <div className="mt-3 flex items-center justify-center gap-2 text-[#7d650c] sm:mt-4">
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} size={11} fill="currentColor" className={i < Math.floor(product.rating) ? '' : 'opacity-25'} />
+              ))}
+            </div>
+            <span className="text-xs font-black text-white/35">({product.reviewsCount})</span>
+          </div>
+        </div>
+      </a>
+    );
+  };
+  
