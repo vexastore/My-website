@@ -95,10 +95,7 @@ const AppContent: React.FC = () => {
       const pSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug ||
         (selectedProduct.nameEn || selectedProduct.name || '').toLowerCase()
           .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-      const cSlug = (selectedProduct as typeof selectedProduct & { categorySlug?: string }).categorySlug ||
-        (selectedProduct.category || '').toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-      const productPath = `/${cSlug}/${pSlug}`;
+      const productPath = `/products/${pSlug}`;
       if (window.location.pathname !== productPath) {
         window.history.replaceState(null, '', productPath);
       }
