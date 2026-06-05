@@ -20,7 +20,7 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = false }) => {
-  const { addToCart, cart, language, setView, setSelectedProduct } = useShop();
+  const { addToCart, cart, language, setView, setSelectedProduct, navigateToProduct } = useShop();
   const isArabic = language === 'ar';
 
   const cardImage = product.image || '';
@@ -76,17 +76,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
       <div className="relative overflow-hidden rounded-xl border border-white/5 bg-[#101010] shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
         {product.isNew && (
           <span className="absolute right-3 top-3 z-10 bg-emerald-400 text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-full">
-            {isArabic ? 'جديد' : 'New'}
+            {isArabic ? 'Ø¬Ø¯ÙØ¯' : 'New'}
           </span>
         )}
         <span className="absolute left-3 top-3 z-10 bg-white/90 text-black px-2 py-0.5 text-[9px] font-black uppercase tracking-widest rounded-full">
-          {isArabic ? 'تخفيض' : 'Sale'}
+          {isArabic ? 'ØªØ®ÙÙØ¶' : 'Sale'}
         </span>
         <div className={`relative aspect-square overflow-hidden ${hasRealImage ? 'bg-black' : `bg-gradient-to-br ${gradientClass}`}`}>
           {hasRealImage ? (
             <img
               src={cardImage}
-              alt={isArabic ? `شراء ${displayName} في لبنان - متجر فيكسا` : `Buy ${displayName} in Lebanon - Vexa Store`}
+              alt={isArabic ? `Ø´Ø±Ø§Ø¡ ${displayName} ÙÙ ÙØ¨ÙØ§Ù - ÙØªØ¬Ø± ÙÙÙØ³Ø§` : `Buy ${displayName} in Lebanon - Vexa Store`}
               loading={priority ? 'eager' : 'lazy'}
               decoding={priority ? 'sync' : 'async'}
               fetchPriority={priority ? 'high' : 'low'}
@@ -104,7 +104,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-3 pb-2.5 pt-6 flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-white">
             <span className="truncate max-w-[60%]">{primaryCatName}</span>
             <span className={remainingStock <= 3 ? 'text-red-400' : 'text-white/70'}>
-              {Math.max(remainingStock, 0)} {isArabic ? 'متبقي' : 'left'}
+              {Math.max(remainingStock, 0)} {isArabic ? 'ÙØªØ¨ÙÙ' : 'left'}
             </span>
           </div>
         </div>
@@ -134,7 +134,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
         <button
           onClick={handleAddToCart}
           disabled={remainingStock <= 0}
-          aria-label={isArabic ? `إضافة ${displayName} للسلة` : `Add ${displayName} to cart`}
+          aria-label={isArabic ? `Ø¥Ø¶Ø§ÙØ© ${displayName} ÙÙØ³ÙØ©` : `Add ${displayName} to cart`}
           className={`mt-3 w-full flex items-center justify-center gap-2 rounded-lg py-2 text-[11px] font-black uppercase tracking-wider transition active:scale-[0.97] ${
             remainingStock <= 0
               ? 'bg-white/5 text-white/20 cursor-not-allowed'
@@ -143,8 +143,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority = fa
         >
           <ShoppingCart size={13} />
           {remainingStock <= 0
-            ? (isArabic ? 'نفذ المخزون' : 'Out of stock')
-            : (isArabic ? 'إضافة للسلة' : 'Add to cart')}
+            ? (isArabic ? 'ÙÙØ° Ø§ÙÙØ®Ø²ÙÙ' : 'Out of stock')
+            : (isArabic ? 'Ø¥Ø¶Ø§ÙØ© ÙÙØ³ÙØ©' : 'Add to cart')}
         </button>
       </div>
     </a>
