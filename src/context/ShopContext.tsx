@@ -358,11 +358,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     const navigateToProduct = (product: Product) => {
-      const slug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
-      window.history.pushState(null, '', '/product/' + slug);
-      setSelectedProduct(product);
-      setViewState('product');
-      window.scrollTo(0, 0);
+      const pSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
+      const catSlug = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || '');
+      window.location.href = `/${catSlug}/${pSlug}`;
     };
 
   const setSelectedArticle = (article: AdviceArticle | null) => {
