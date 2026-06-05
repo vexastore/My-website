@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect } from 'react';
   import { BrowserRouter, Routes, Route, useParams } from 'react-router-dom';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
+import { ProductPage } from './components/ProductPage';
 import { ProductList } from './components/ProductList';
 import { ShieldCheck, Lock, Heart, Mail, Info } from 'lucide-react';
 import { getCategorySeoTab } from './data/categories';
