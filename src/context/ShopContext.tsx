@@ -210,8 +210,14 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const catOk  = !catSlug || pCat === catSlug;
           return slugOk && catOk;
         });
-        if (found) setSelectedProduct(found);
-        else setViewState('shop');
+        if (found) {
+          setSelectedProduct(found);
+        } else if (!window.location.pathname.startsWith('/products/')) {
+          // Only revert to shop if we're NOT on a /products/ path
+          // (prevents URL from reverting when product lookup fails)
+          setViewState('shop');
+        }
+        // else: stay in 'product' view — ProductPage shows loading state
       } catch { setViewState('shop'); }
     }, [isProductsLoading, products]); // eslint-disable-line
 
