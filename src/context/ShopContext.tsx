@@ -421,7 +421,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const navigateToProduct = (product: Product) => {
       const pSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
       const catSlug = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');
-      window.location.href = `/${catSlug}/${pSlug}`;
+      const productPath = `/${catSlug}/${pSlug}`;
+      window.history.pushState(null, '', productPath);
+      setSelectedProduct(product);
+      setViewState('product');
+      window.scrollTo(0, 0);
     };
 
   const setSelectedArticle = (article: AdviceArticle | null) => {
