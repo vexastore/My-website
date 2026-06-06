@@ -143,6 +143,7 @@ const CATEGORIES = [
 const SLUG_TO_NAME_AR = { 'sex-toys':'ألعاب زوجية','vibrators':'هزازات','dildos':'ديلدو','lingerie':'لانجري','male-toys':'ألعاب رجالية','bdsm':'BDSM','butt-plugs':'سدادة شرجية','anal-toys':'ألعاب الشرج','bondage':'عبودية','sex-dolls':'دمى جنسية','strap-ons':'ستراب أون','kegel-balls':'كيغل بولز','sexual-enhancers':'معززات جنسية','penis-pumps':'مضخات القضيب','cock-rings':'حلقات القضيب','masturbators':'مستمني','chastity':'العفة','sex-machines':'ماكينات الجنس','lubricants':'مواد التشحيم','poppers':'بوبرز','new-arrivals':'وصل حديثاً','holiday-collection':'مجموعة الأعياد' };
 const SLUG_TO_NAME_EN  = { 'sex-toys':'Sex Toys','vibrators':'Vibrators','dildos':'Dildos','lingerie':'Lingerie','male-toys':'Male Toys','bdsm':'BDSM','butt-plugs':'Butt Plugs','anal-toys':'Anal Toys','bondage':'Bondage','sex-dolls':'Sex Dolls','strap-ons':'Strap-ons','kegel-balls':'Kegel Balls','sexual-enhancers':'Sexual Enhancers','penis-pumps':'Penis Pumps','cock-rings':'Cock Rings','masturbators':'Masturbators','chastity':'Chastity','sex-machines':'Sex Machines','lubricants':'Lubricants','poppers':'Poppers','new-arrivals':'New Arrivals','holiday-collection':'Holiday Collection' };
 const SEO_STYLE = ''; // SEO data handled via JSON-LD + meta tags only
+let base;
 try {
   base = fs.readFileSync(path.join(distDir, 'index.html'), 'utf8');
 } catch (err) {
