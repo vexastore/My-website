@@ -17,7 +17,7 @@ function toSlug(text: string): string {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { cart, language } = useShop();
+  const { cart, language, navigateToProduct } = useShop();
   const isArabic = language === 'ar';
   const [copied, setCopied] = useState(false);
 
@@ -37,6 +37,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const productUrl = `/${catSlug}/${pSlug}`;
   const productFullUrl = `https://vexatoys.com${productUrl}`;
 
+  const handleProductClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    navigateToProduct(product);
+  };
+
   const handleCopyLink = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -49,6 +54,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   return (
     <a
       href={productUrl}
+      onClick={handleProductClick}
       className="group cursor-pointer bg-[#050505] text-white block no-underline"
       aria-label={isArabic ? product.name : product.nameEn}
     >
