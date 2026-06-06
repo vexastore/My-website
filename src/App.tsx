@@ -100,8 +100,11 @@ const AppContent: React.FC = () => {
         window.history.replaceState(null, '', productPath);
       }
     } else if (currentView === 'shop') {
-      const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
-      window.history.replaceState(null, '', '/' + slug);
+      // Don't revert URL if we're on a /products/ path
+      if (!window.location.pathname.startsWith('/products/')) {
+        const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
+        window.history.replaceState(null, '', '/' + slug);
+      }
     }
   }, [currentView, activeCategory, selectedProduct]);
 
