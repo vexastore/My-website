@@ -212,12 +212,19 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
         if (found) {
           setSelectedProduct(found);
-        } else if (!window.location.pathname.startsWith('/products/')) {
-          // Only revert to shop if we're NOT on a /products/ path
-          // (prevents URL from reverting when product lookup fails)
-          setViewState('shop');
+        } else {
+          // Only revert to shop if we're not currently on a product-style URL
+          // /:catSlug/:pSlug pattern (2 path segments, not a known single view)
+          const SINGLE_VIEWS_CHECK = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml', 'products', 'product'];
+          const pts = window.location.pathname.split('/').filter(Boolean);
+          const isProductPath = (
+            pts.length === 2 && !SINGLE_VIEWS_CHECK.includes(pts[0])
+          ) || window.location.pathname.startsWith('/products/') || window.location.pathname.startsWith('/product/');
+          if (!isProductPath) {
+            setViewState('shop');
+          }
+          // else: stay in 'product' view — ProductPage shows loading state
         }
-        // else: stay in 'product' view — ProductPage shows loading state
       } catch { setViewState('shop'); }
     }, [isProductsLoading, products]); // eslint-disable-line
 
@@ -413,7 +420,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const navigateToProduct = (product: Product) => {
       const pSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
-      window.location.href = `/products/${pSlug}`;
+      const catSlug = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');
+      window.location.href = `/${catSlug}/${pSlug}`;
     };
 
   const setSelectedArticle = (article: AdviceArticle | null) => {
