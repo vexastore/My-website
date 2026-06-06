@@ -92,16 +92,22 @@ const AppContent: React.FC = () => {
     if (currentView === 'about') {
       window.history.replaceState(null, '', '/about');
     } else if (currentView === 'product' && selectedProduct) {
-      const pSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug ||
-        (selectedProduct.nameEn || selectedProduct.name || '').toLowerCase()
-          .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-      const productPath = `/products/${pSlug}`;
+      const toSl = (s: string) => (s || '').toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+      const pSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug || toSl(selectedProduct.nameEn || selectedProduct.name || '');
+      const cSlug = (selectedProduct as typeof selectedProduct & { categorySlug?: string }).categorySlug || toSl(selectedProduct.category || 'sex-toys');
+      const productPath = `/${cSlug}/${pSlug}`;
       if (window.location.pathname !== productPath) {
         window.history.replaceState(null, '', productPath);
       }
     } else if (currentView === 'shop') {
-      // Don't revert URL if we're on a /products/ path
-      if (!window.location.pathname.startsWith('/products/')) {
+      // Don't revert URL if we're on a /:catSlug/:pSlug product path
+      const pts = window.location.pathname.split('/').filter(Boolean);
+      const SINGLE = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml', 'products', 'product'];
+      const onProductPath = (pts.length === 2 && !SINGLE.includes(pts[0]))
+        || window.location.pathname.startsWith('/products/')
+        || window.location.pathname.startsWith('/product/');
+      if (!onProductPath) {
         const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
         window.history.replaceState(null, '', '/' + slug);
       }
