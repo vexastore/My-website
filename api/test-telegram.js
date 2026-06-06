@@ -1,67 +1,38 @@
 export default async function handler(req, res) {
-  const botToken = process.env.TELEGRAM_BOT_TOKEN;
+  const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_CHAT_ID;
 
-  if (!botToken || !chatId) {
+  if (!token || !chatId) {
     return res.status(500).json({
       ok: false,
       error: 'Missing env vars',
-      hasToken: !!botToken,
-      hasChatId: !!chatId
+      has_token: !!token,
+      has_chat_id: !!chatId
     });
   }
 
   try {
-    // Test 1: check bot info
-    const meRes = await fetch(`https://api.telegram.org/bot${botToken}/getMe`);
-    const meData = await meRes.json();
+    const url = `https://api.telegram.org/bot${token}/sendMessage`;
+    const body = JSON.stringify({
+      chat_id: chatId,
+      text: '✅ Vexa Store Telegram test — ' + new Date().toISOString(),
+      parse_mode: 'HTML'
+    });
 
-    if (!meData.ok) {
-      return res.status(200).json({
-        ok: false,
-        step: 'getMe',
-        error: meData.description,
-        errorCode: meData.error_code,
-        hint: meData.error_code === 401
-          ? 'TELEGRAM_BOT_TOKEN غلط أو انتهت صلاحيته — يجب تغييره في Vercel env vars'
-          : 'خطأ في Telegram API'
-      });
-    }
-
-    // Test 2: send test message
-    const msgRes = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: '✅ اختبار Vexa Store — التيليغرام يعمل بشكل صحيح!',
-        parse_mode: 'HTML'
-      })
+      body
     });
-    const msgData = await msgRes.json();
 
-    if (!msgData.ok) {
-      return res.status(200).json({
-        ok: false,
-        step: 'sendMessage',
-        botName: meData.result?.username,
-        error: msgData.description,
-        errorCode: msgData.error_code,
-        hint: msgData.error_code === 400
-          ? 'TELEGRAM_CHAT_ID غلط — تحقق من رقم المجموعة أو القناة'
-          : msgData.error_code === 403
-          ? 'البوت تم طرده من المجموعة — أعده للمجموعة'
-          : 'خطأ في إرسال الرسالة'
-      });
-    }
+    const data = await response.json();
 
     return res.status(200).json({
-      ok: true,
-      botName: meData.result?.username,
-      messageId: msgData.result?.message_id,
-      message: 'تم إرسال رسالة اختبار إلى التيليغرام بنجاح!'
+      ok: data.ok,
+      telegram_response: data,
+      env_token_length: token.length,
+      env_chat_id: chatId
     });
-
   } catch (err) {
     return res.status(500).json({ ok: false, error: err.message });
   }
