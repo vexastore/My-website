@@ -160,18 +160,12 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
               } catch (_) { /* silent — non-blocking */ }
             }
         } else {
-          const batch = writeBatch(db);
-          MOCK_PRODUCTS.forEach(product => {
-            const docRef = doc(db, PRODUCTS_COLLECTION, product.id);
-            batch.set(docRef, product);
-          });
-          await batch.commit();
-          setProducts(MOCK_PRODUCTS);
+          setProducts([]);
         }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') console.error('Firestore load error:', error);
         const stored = localStorage.getItem('adult_store_products');
-        setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
+        setProducts(stored ? JSON.parse(stored) : []);
       } finally {
         setIsProductsLoading(false);
       }
