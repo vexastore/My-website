@@ -69,6 +69,10 @@ const URL_SLUG_TO_CATEGORY: Record<string, string> = {
   'sex-machines': 'Sex Machines', 'lubricants': 'Lubricants', 'poppers': 'Poppers',
 };
 
+const CATEGORY_TO_SLUG: Record<string, string> = Object.fromEntries(
+  Object.entries(URL_SLUG_TO_CATEGORY).map(([slug, cat]) => [cat, slug])
+);
+
 function getInitialCategory(): string {
   try {
     const w = window as typeof window & { __INITIAL_CATEGORY__?: string };
@@ -428,6 +432,18 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       window.scrollTo(0, 0);
     };
 
+    const navigateToCategoryFn = (category: string) => {
+      const slug = CATEGORY_TO_SLUG[category] || category.toLowerCase().replace(/\s+/g, '-');
+      const catPath = `/${slug}`;
+      if (window.location.pathname !== catPath) {
+        window.history.pushState(null, '', catPath);
+      }
+      setActiveCategory(category);
+      setSelectedProduct(null);
+      setViewState('shop');
+      window.scrollTo(0, 0);
+    };
+
   const setSelectedArticle = (article: AdviceArticle | null) => {
     setSelectedArticleState(article);
     if (article) setViewState('advice');
@@ -535,7 +551,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         language, products, cart, orders, currentView, selectedArticle,
         activeCategory, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
         setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
-        setActiveCategory, setSearchQuery, verifyAge, addToCart, removeFromCart,
+        setActiveCategory: navigateToCategoryFn, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
         deleteOrderLocally, getCartTotal, getCartItemsCount, getDeliveryFee,
         navigateToProduct,
