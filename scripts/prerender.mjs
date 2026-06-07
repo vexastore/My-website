@@ -188,7 +188,7 @@ function generateCategoryPage(cat, catProducts = []) {
         '@type': 'Product',
         name: p.nameEn || p.nameAr || p.name || cat.name,
         alternateName: p.nameAr || p.nameEn || '',
-        image: p.image ? [p.image] : [],
+        image: (p.image && !p.image.startsWith('data:')) ? [p.image] : [],
         sku: p.id,
         brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
         offers: {
@@ -261,7 +261,7 @@ function generateProductPage(product) {
     name: nameEn,
     alternateName: nameAr,
     description: descEn || descAr,
-    image: product.image ? [product.image] : [],
+    image: (product.image && !product.image.startsWith('data:')) ? [product.image] : [],
     sku: product.id,
     brand: { '@type':'Brand', name:'Vexa Store Lebanon' },
     offers: {
@@ -295,9 +295,9 @@ function generateProductPage(product) {
     keywords: `${nameEn} Lebanon, ${nameAr} لبنان, buy ${nameEn} Beirut, ${categoryNameEn} Lebanon, Vexa Store`,
     ogTitle: nameEn,
     ogUrl: canonical,
-    ogImage: product.image || '',
+    ogImage: (product.image && !product.image.startsWith('data:')) ? product.image : '',
   });
-  const preloadImg = product.image ? `<link rel="preload" as="image" href="${product.image}" fetchpriority="high">` : '';
+  const preloadImg = (product.image && !product.image.startsWith('data:')) ? `<link rel="preload" as="image" href="${product.image}" fetchpriority="high">` : '';
   html = html.replace('</head>', `<script type="application/ld+json">${jsonLd}</script>\n${SEO_STYLE}\n${preloadImg}\n<script>window.__INITIAL_PRODUCT_ID__="${product.id}";window.__INITIAL_PRODUCT_SLUG__="${slug}";</script>\n${noscript}\n</head>`);
   return html;
 }
