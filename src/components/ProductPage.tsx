@@ -57,7 +57,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical);
     document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonical);
-    if (product.image) {
+    if (product.image && !product.image.startsWith('data:')) {
       document.querySelector('meta[property="og:image"]')?.setAttribute('content', product.image);
     }
 
@@ -68,7 +68,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
       name: product.nameEn || product.name,
       alternateName: product.name || product.nameEn,
       description: product.descriptionEn || product.description,
-      image: product.image ? [product.image] : [],
+      image: (product.image && !product.image.startsWith('data:')) ? [product.image] : [],
       sku: product.id,
       brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
       offers: {
