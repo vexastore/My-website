@@ -57,7 +57,7 @@ interface ShopContextType {
 }
 
 
-// Ã¢ÂÂÃ¢ÂÂ URL slug Ã¢ÂÂ category mapping (for synchronous URL-based initialization) Ã¢ÂÂÃ¢ÂÂ
+// ── URL slug → category mapping (for synchronous URL-based initialization) ──
 const URL_SLUG_TO_CATEGORY: Record<string, string> = {
   'sex-toys': 'Sex Toys', 'vibrators': 'Vibrators', 'male-toys': 'Male Toys',
   'dildos': 'Dildos', 'lingerie': 'Lingerie', 'bdsm': 'BDSM',
@@ -88,7 +88,7 @@ function getInitialView(): ViewType {
       if (w.__INITIAL_VIEW__ === 'about') return 'about';
       const path = window.location.pathname;
       if (path === '/about') return 'about';
-      // /products/:slug  — primary product URL format
+      // /products/:slug   primary product URL format
       if (path.startsWith('/products/')) return 'product';
       // Legacy /product/:slug format
       if (w.__INITIAL_PRODUCT_SLUG__ || path.startsWith('/product/')) return 'product';
@@ -157,7 +157,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
                 });
                 await batchUpd.commit();
-              } catch (_) { /* silent — non-blocking */ }
+              } catch (_) { /* silent  non-blocking */ }
             }
         } else {
           setProducts([]);
@@ -221,7 +221,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (!isProductPath) {
             setViewState('shop');
           }
-          // else: stay in 'product' view — ProductPage shows loading state
+          // else: stay in 'product' view  ProductPage shows loading state
         }
       } catch { setViewState('shop'); }
     }, [isProductsLoading, products]); // eslint-disable-line
@@ -234,7 +234,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const handlePop = () => {
       const path = window.location.pathname;
-      // /products/:slug — primary format
+      // /products/:slug  primary format
       if (path.startsWith('/products/')) {
         const slug = path.replace(/^\/products\//, '').replace(/\/$/, '');
         const found = products.find(p =>
@@ -338,7 +338,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('adult_store_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Firestore product operations Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ─── Firestore product operations ─────────────────────────────────────────
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -404,7 +404,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+  // ──────────────────────────────────────────────────────────────────────────
 
   const toSlugLocal = (n: string) => (n || '').toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
@@ -456,7 +456,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
       const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
       if (currentCartQty + quantity > product.stock) {
-        alert(`ÃÂ¹ÃÂ°ÃÂ±ÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂ·ÃÂÃÂÃÂ¨ÃÂ© ÃÂºÃÂÃÂ± ÃÂÃÂªÃÂÃÂÃÂ±ÃÂ© ÃÂ­ÃÂ§ÃÂÃÂÃÂ§ÃÂ. ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂªÃÂ¨ÃÂÃÂÃÂ©: ${product.stock}`);
+        alert(`عذراً، الكمية المطلوبة غير متوفرة حالياً. الكمية المتبقية: ${product.stock}`);
         return prevCart;
       }
       if (existingItemIndex > -1) {
@@ -484,7 +484,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       prevCart.map(item => {
         if (item.product.id === productId) {
           if (quantity > item.product.stock) {
-            alert(`ÃÂ¹ÃÂ°ÃÂ±ÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂªÃÂÃÂÃÂ±ÃÂ© ÃÂÃÂ ${item.product.stock} ÃÂÃÂÃÂ·.`);
+            alert(`عذراً، الكمية المتوفرة هي ${item.product.stock} فقط.`);
             return item;
           }
           return { ...item, quantity };
@@ -534,7 +534,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const deleteOrder = (orderId: string) => {
-    if (window.confirm('ÃÂÃÂ ÃÂ£ÃÂÃÂª ÃÂÃÂªÃÂ£ÃÂÃÂ¯ ÃÂÃÂ ÃÂ±ÃÂºÃÂ¨ÃÂªÃÂ ÃÂÃÂ ÃÂ­ÃÂ°ÃÂ ÃÂÃÂ°ÃÂ§ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ ÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂ§ÃÂÃÂ')) {
+    if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟')) {
       deleteOrderLocally(orderId);
     }
   };
