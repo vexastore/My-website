@@ -726,8 +726,12 @@
       "destination": "/about.html"
     },
     {
-      "source": "/product/:id",
-      "destination": "/product-:id.html"
+      "source": "/product/:slug",
+      "destination": "/api/product/:slug"
+    },
+    {
+      "source": "/:category/:slug",
+      "destination": "/api/product/:slug"
     },
     {
       "source": "/((?!api/).*)",
