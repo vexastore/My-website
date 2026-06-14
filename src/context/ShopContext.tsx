@@ -78,7 +78,8 @@ function getInitialCategory(): string {
     const w = window as typeof window & { __INITIAL_CATEGORY__?: string };
     if (w.__INITIAL_CATEGORY__) return w.__INITIAL_CATEGORY__;
     const slug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
-    return URL_SLUG_TO_CATEGORY[slug] || 'Sex Toys';
+    const firstSeg = slug.split("/")[0];
+    return URL_SLUG_TO_CATEGORY[slug] || URL_SLUG_TO_CATEGORY[firstSeg] || "Sex Toys";
   } catch { return 'Sex Toys'; }
 }
 
