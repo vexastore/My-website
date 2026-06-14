@@ -66,11 +66,11 @@
       .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
   }
 
-  function buildProductUrl(slug) {
+  function buildProductUrl(slug, lastmod) {
     const loc = `https://vexatoys.com/product/${slug}`;
     return `  <url>
       <loc>${loc}</loc>
-      <lastmod>${today()}</lastmod>
+      <lastmod>${lastmod || today()}</lastmod>
       <changefreq>weekly</changefreq>
       <priority>0.80</priority>
       <xhtml:link rel="alternate" hreflang="ar" href="${loc}"/>
@@ -94,7 +94,8 @@
             const existingSlug = fields.slug?.stringValue || '';
             const id = doc.name.split('/').pop();
             const slug = existingSlug || toSlug(nameEn) || id;
-            return buildProductUrl(slug);
+            const lastmod = doc.updateTime?.slice(0, 10) || doc.createTime?.slice(0, 10) || today();
+            return buildProductUrl(slug, lastmod);
           });
         }
       }
