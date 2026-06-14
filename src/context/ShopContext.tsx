@@ -145,7 +145,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
               }
               return {
                 ...data, id: docSnap.id, slug: pSlug, categorySlug: catSlug,
-                link: data.link || `https://www.vexatoys.com/${catSlug}/${pSlug}`
+                link: data.link || `https://vexatoys.com/${catSlug}/${pSlug}`
               };
             });
             setProducts(firestoreProducts);
