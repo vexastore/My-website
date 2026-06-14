@@ -820,5 +820,10 @@
         }
       ]
     }
-  ]
+  ],
+  "functions": {
+    "api/product/[slug].js": {
+      "includeFiles": "dist/index.html"
+    }
+  }
 }
