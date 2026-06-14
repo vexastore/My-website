@@ -395,6 +395,38 @@ async function main() {
   );
   console.log(`✓ sitemap.xml — ${2 + CATEGORIES.length + productUrls.length} URLs total (clean URLs only, no duplicates)`);
   console.log(`\n✅ Pre-rendering complete: ${CATEGORIES.length} categories + ${products.length} products + sitemap`);
+
+  // 5. IndexNow — instant notification to Bing, Yandex, Seznam, Naver + partners
+  const INDEXNOW_KEY = 'a1b2c3d4e5f6789012345678901234ab';
+  const allIndexNowUrls = [
+    'https://vexatoys.com/',
+    'https://vexatoys.com/about',
+    ...CATEGORIES.map(c => `https://vexatoys.com/${c.slug}`),
+    ...productUrls,
+  ];
+  try {
+    const inRes = await fetch('https://api.indexnow.org/indexnow', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body:    JSON.stringify({
+        host:        'vexatoys.com',
+        key:         INDEXNOW_KEY,
+        keyLocation: `https://vexatoys.com/${INDEXNOW_KEY}.txt`,
+        urlList:     allIndexNowUrls,
+      }),
+      signal: AbortSignal.timeout(10000),
+    });
+    console.log(`✓ IndexNow: ${inRes.status} — submitted ${allIndexNowUrls.length} URLs to search engines`);
+  } catch (e) {
+    console.warn('⚠ IndexNow submit failed (non-critical):', e.message);
+  }
+  try {
+    await fetch(
+      'https://www.bing.com/ping?sitemap=https%3A%2F%2Fvexatoys.com%2Fsitemap.xml',
+      { signal: AbortSignal.timeout(5000) }
+    );
+    console.log('✓ Bing sitemap ping sent');
+  } catch {}
 }
 
 main().catch(err => { console.error('❌ Prerender failed:', err); console.warn('⚠ Continuing build with static sitemap fallback.'); });
