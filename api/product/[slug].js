@@ -10,7 +10,7 @@
       .replace(/[^a-z0-9\s-]/g, '')
       .replace(/\s+/g, '-')
       .replace(/-+/g, '-')
-      .slice(0, 80);
+      .slice(0, 60);
   }
 
   function escHtml(s) {
@@ -107,6 +107,7 @@
 
       <!-- Twitter Card -->
       <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:site" content="@vexastore" />
       <meta name="twitter:title" content="${titleAr}" />
       <meta name="twitter:description" content="${descAr}" />
       <meta name="twitter:image" content="${escHtml(image)}" />
