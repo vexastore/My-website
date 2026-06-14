@@ -40,13 +40,15 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const primaryCatId   = productCats[0] || product.category;
   const primaryCatName = CATEGORIES.find(c => c.id === primaryCatId)?.name?.[isArabic ? 'ar' : 'en'] || primaryCatId;
   const catSlug        = (primaryCatId || 'sex-toys').toLowerCase().replace(/\s+/g, '-');
+  const productSlug    = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
+  const productUrl     = `/${catSlug}/${productSlug}`;
 
   const allVariantsSelected = !product.variants?.length ||
     product.variants.every((v: ProductVariant) => variants[v.name]);
 
   useEffect(() => {
     const slug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-    const canonical = `https://vexatoys.com/product/${slug}`;
+    const canonical = `https://vexatoys.com${productUrl}`;
 
     // Ã¢ÂÂÃ¢ÂÂ Meta tags Ã¢ÂÂÃ¢ÂÂ
     const title = `${product.nameEn || product.name} | Vexa Store Lebanon`;
@@ -60,6 +62,12 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     if (product.image && !product.image.startsWith('data:')) {
       document.querySelector('meta[property="og:image"]')?.setAttribute('content', product.image);
     }
+
+    // Twitter Card meta tags
+    document.querySelector('meta[name="twitter:site"]')?.setAttribute('content', '@vexastore');
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
+    document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', product.image || 'https://vexatoys.com/opengraph.jpg');
 
     // Ã¢ÂÂÃ¢ÂÂ JSON-LD Product schema Ã¢ÂÂÃ¢ÂÂ
     const jsonLd: Record<string, unknown> = {
@@ -140,13 +148,13 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     const name = isArabic ? (product.name || product.nameEn) : (product.nameEn || product.name);
     const slug  = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
     const msg   = isArabic
-      ? `ÃÂÃÂ±ÃÂ­ÃÂ¨ÃÂ§ÃÂ ÃÂÃÂªÃÂ¬ÃÂ± ÃÂÃÂÃÂÃÂ³ÃÂ§ÃÂ ÃÂ£ÃÂ±ÃÂÃÂ¯ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨:\n*${name}*\nÃÂ§ÃÂÃÂ³ÃÂ¹ÃÂ±: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com/product/${slug}`
-      : `Hello Vexa Store, I want to order:\n*${name}*\nPrice: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com/product/${slug}`;
+      ? `ÃÂÃÂ±ÃÂ­ÃÂ¨ÃÂ§ÃÂ ÃÂÃÂªÃÂ¬ÃÂ± ÃÂÃÂÃÂÃÂ³ÃÂ§ÃÂ ÃÂ£ÃÂ±ÃÂÃÂ¯ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨:\n*${name}*\nÃÂ§ÃÂÃÂ³ÃÂ¹ÃÂ±: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com${productUrl}`
+      : `Hello Vexa Store, I want to order:\n*${name}*\nPrice: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com${productUrl}`;
     window.open('https://wa.me/96176730767?text=' + encodeURIComponent(msg), '_blank');
   };
 
   const productSlugForLink = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-  const productFullLink = (product as Product & { link?: string }).link || `https://www.vexatoys.com/product/${productSlugForLink}`;
+  const productFullLink = (product as Product & { link?: string }).link || `https://vexatoys.com${productUrl}`;
 
   const selectedImg = images[imgIdx] || product.image || '';
 
