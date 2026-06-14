@@ -257,12 +257,7 @@
       for (const doc of docs) {
         const fields = doc.fields || {};
         const nameEn = fields.nameEn?.stringValue || fields.name?.stringValue || '';
-        const docSlug = nameEn
-          .toLowerCase().trim()
-          .replace(/[^a-z0-9\s-]/g, '')
-          .replace(/\s+/g, '-')
-          .replace(/-+/g, '-')
-          .slice(0, 80);
+        const docSlug = toSlug(nameEn);
 
         if (docSlug === slug) {
           foundProduct = {
