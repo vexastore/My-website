@@ -1,4 +1,5 @@
 import React, { lazy, Suspense, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
   import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 
@@ -60,6 +61,8 @@ const PageLoader = () => (
 
 const AppContent: React.FC = () => {
   const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory, selectedProduct } = useShop();
+  const navigate = useNavigate();
+  const location = useLocation();
   const isArabic = language === 'ar';
 
   useEffect(() => {
@@ -90,15 +93,15 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (currentView === 'about') {
-      window.history.replaceState(null, '', '/about');
+      navigate('/about', { replace: true });
     } else if (currentView === 'product' && selectedProduct) {
       const toSl = (s: string) => (s || '').toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
       const pSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug || toSl(selectedProduct.nameEn || selectedProduct.name || '');
       const cSlug = (selectedProduct as typeof selectedProduct & { categorySlug?: string }).categorySlug || toSl(selectedProduct.category || 'sex-toys');
       const productPath = `/${cSlug}/${pSlug}`;
-      if (window.location.pathname !== productPath) {
-        window.history.replaceState(null, '', productPath);
+      if (location.pathname !== productPath) {
+        navigate(productPath, { replace: true });
       }
     } else if (currentView === 'shop') {
       // Don't revert URL if we're on a /:catSlug/:pSlug product path
@@ -109,7 +112,7 @@ const AppContent: React.FC = () => {
         || window.location.pathname.startsWith('/product/');
       if (!onProductPath) {
         const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
-        window.history.replaceState(null, '', '/' + slug);
+        navigate('/' + slug, { replace: true });
       }
     }
   }, [currentView, activeCategory, selectedProduct]);
