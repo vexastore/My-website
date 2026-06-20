@@ -171,7 +171,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch (error) {
         if (process.env.NODE_ENV === 'development') console.error('Firestore load error:', error);
         const stored = localStorage.getItem('adult_store_products');
-        setProducts(stored ? JSON.parse(stored) : []);
+        setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
       } finally {
         setIsProductsLoading(false);
       }
