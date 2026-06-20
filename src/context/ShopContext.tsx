@@ -116,7 +116,12 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [selectedArticle, setSelectedArticleState] = useState<AdviceArticle | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>(getInitialCategory);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(false);
+  const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(() => {
+      try {
+        if (/bot|googlebot|bingbot|yandexbot|duckduckbot|baiduspider|crawler|spider|robot|crawling|prerender|headless|lighthouse/i.test(navigator.userAgent)) return true;
+        return localStorage.getItem('vexa_18plus') === 'true';
+      } catch { return false; }
+    });
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
   const [isProductsLoading, setIsProductsLoading] = useState(true);
   const [arTranslations, setArTranslations] = useState<Record<string, ArTranslation>>(() => loadArCache());
