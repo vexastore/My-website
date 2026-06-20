@@ -386,7 +386,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               </a>
               <button
                 type="button"
-                title={isArabic ? 'F3. 'D1'(7' : 'Copy link'}
+                title={isArabic ? 'نسخ الرابط' : 'Copy link'}
                 onClick={() => { try { navigator.clipboard.writeText(productFullLink); } catch {} }}
                 className="shrink-0 text-stone-500 hover:text-white transition p-1"
               >
