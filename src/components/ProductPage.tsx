@@ -50,10 +50,10 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     const slug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
     const canonical = `https://vexatoys.com${productUrl}`;
 
-    // Ã¢ÂÂÃ¢ÂÂ Meta tags Ã¢ÂÂÃ¢ÂÂ
+    // ── Meta tags ──
     const title = `${product.nameEn || product.name} | Vexa Store Lebanon`;
     document.title = title;
-    const desc = `${product.nameEn || product.name} Ã¢ÂÂ $${product.price.toFixed(2)} USD Ã¢ÂÂ ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
+    const desc = `${product.nameEn || product.name} — $${product.price.toFixed(2)} USD — ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
@@ -69,7 +69,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
     document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', product.image || 'https://vexatoys.com/opengraph.jpg');
 
-    // Ã¢ÂÂÃ¢ÂÂ JSON-LD Product schema Ã¢ÂÂÃ¢ÂÂ
+    // ── JSON-LD Product schema ──
     const jsonLd: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'Product',
@@ -160,11 +160,11 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
   return (
     <div className="min-h-screen bg-[#050101] text-white" dir={isArabic ? 'rtl' : 'ltr'}>
-      {/* Ã¢ÂÂÃ¢ÂÂ Breadcrumb bar Ã¢ÂÂÃ¢ÂÂ */}
+      {/* ── Breadcrumb bar ── */}
       <nav className="sticky top-0 z-30 bg-black/90 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3">
         <button
           onClick={goBack}
-          aria-label={isArabic ? 'ÃÂ±ÃÂ¬ÃÂÃÂ¹' : 'Back'}
+          aria-label={isArabic ? 'رجوع' : 'Back'}
           className="flex items-center gap-1.5 text-white/60 hover:text-white transition text-sm font-bold"
         >
           <ArrowLeft size={16} className={isArabic ? 'rotate-180' : ''} />
@@ -240,7 +240,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           </div>
         )}
 
-        {/* Ã¢ÂÂÃ¢ÂÂ Product info Ã¢ÂÂÃ¢ÂÂ */}
+        {/* ── Product info ── */}
         <div className="space-y-4">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 mb-1">{primaryCatName}</p>
@@ -279,7 +279,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           {remaining <= 0 && (
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-              <span className="text-sm font-bold text-red-400">{isArabic ? 'ÃÂÃÂÃÂ° ÃÂ§ÃÂÃÂÃÂ®ÃÂ²ÃÂÃÂ' : 'Out of stock'}</span>
+              <span className="text-sm font-bold text-red-400">{isArabic ? 'نفذ المخزون' : 'Out of stock'}</span>
             </div>
           )}
 
@@ -431,7 +431,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           {displayDesc && (
             <div className="border-t border-white/10 pt-4">
               <p className="text-xs font-black uppercase tracking-[0.18em] text-stone-500 mb-3">
-                {isArabic ? 'ÃÂªÃÂÃÂ§ÃÂµÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬' : 'PRODUCT DETAILS'}
+                {isArabic ? 'تفاصيل المنتج' : 'PRODUCT DETAILS'}
               </p>
               <p className="text-sm text-stone-400 leading-relaxed">{displayDesc}</p>
             </div>
