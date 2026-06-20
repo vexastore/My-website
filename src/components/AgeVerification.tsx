@@ -2,11 +2,18 @@ import React from 'react';
 import { useShop } from '../context/ShopContext';
 import { ShieldAlert } from 'lucide-react';
 
+function isSearchBot(): boolean {
+  if (typeof navigator === 'undefined') return true;
+  return /bot|googlebot|bingbot|yandexbot|duckduckbot|slurp|baiduspider|facebookexternalhit|twitterbot|linkedinbot|crawler|spider|robot|crawling|prerender|headless/i.test(
+    navigator.userAgent
+  );
+}
+
 export const AgeVerification: React.FC = () => {
   const { is18PlusVerified, verifyAge, language, toggleLanguage } = useShop();
   const isArabic = language === 'ar';
 
-  if (is18PlusVerified) return null;
+  if (is18PlusVerified || isSearchBot()) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-stone-950 px-4 text-white" dir={isArabic ? 'rtl' : 'ltr'}>
