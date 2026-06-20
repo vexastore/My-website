@@ -1,485 +1,417 @@
 <?xml version="1.0" encoding="UTF-8"?>
-  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-          xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 
-    <url>
-      <loc>https://vexatoys.com/</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>1.0</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/"/>
-    </url>
+  <!-- ═══ Home ═══ -->
+  <url>
+    <loc>https://vexatoys.com/</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/"/>
+  </url>
+
+  <!-- ═══ About ═══ -->
+  <url>
+    <loc>https://vexatoys.com/about</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/about"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/about"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/about"/>
+  </url>
+
+  <!-- ═══ Top-level Category Pages ═══ -->
+  <url>
+    <loc>https://vexatoys.com/sex-toys</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sex-toys"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sex-toys"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sex-toys"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/about</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.7</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/about"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/about"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/about"/>
-    </url>
+    <loc>https://vexatoys.com/vibrators</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/vibrators"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/vibrators"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/vibrators"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/sex-toys</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.95</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sex-toys"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sex-toys"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sex-toys"/>
-    </url>
+    <loc>https://vexatoys.com/lingerie</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/lingerie"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/lingerie"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/lingerie"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/vibrators</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.95</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/vibrators"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/vibrators"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/vibrators"/>
-    </url>
+    <loc>https://vexatoys.com/new-arrivals</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.90</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/new-arrivals"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/new-arrivals"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/new-arrivals"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/lingerie</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.90</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/lingerie"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/lingerie"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/lingerie"/>
-    </url>
+    <loc>https://vexatoys.com/male-toys</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/male-toys"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/male-toys"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/male-toys"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/new-arrivals</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>daily</changefreq>
-      <priority>0.90</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/new-arrivals"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/new-arrivals"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/new-arrivals"/>
-    </url>
+    <loc>https://vexatoys.com/dildos</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.90</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/dildos"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/dildos"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/dildos"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/male-toys</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.85</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/male-toys"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/male-toys"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/male-toys"/>
-    </url>
+    <loc>https://vexatoys.com/bdsm</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/bdsm"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/bdsm"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/bdsm"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/dildos</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.85</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/dildos"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/dildos"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/dildos"/>
-    </url>
+    <loc>https://vexatoys.com/holiday-collection</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/holiday-collection"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/holiday-collection"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/holiday-collection"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/bdsm</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/bdsm"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/bdsm"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/bdsm"/>
-    </url>
+    <loc>https://vexatoys.com/lubricants</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/lubricants"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/lubricants"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/lubricants"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/holiday-collection</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.75</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/holiday-collection"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/holiday-collection"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/holiday-collection"/>
-    </url>
+    <loc>https://vexatoys.com/masturbators</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/masturbators"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/masturbators"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/masturbators"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/lubricants</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.75</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/lubricants"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/lubricants"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/lubricants"/>
-    </url>
+    <loc>https://vexatoys.com/cock-rings</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/cock-rings"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/cock-rings"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/cock-rings"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/masturbators</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.75</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/masturbators"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/masturbators"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/masturbators"/>
-    </url>
+    <loc>https://vexatoys.com/butt-plugs</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/butt-plugs"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/butt-plugs"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/butt-plugs"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/cock-rings</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.70</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/cock-rings"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/cock-rings"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/cock-rings"/>
-    </url>
+    <loc>https://vexatoys.com/anal-toys</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/anal-toys"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/anal-toys"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/anal-toys"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/butt-plugs</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.70</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/butt-plugs"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/butt-plugs"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/butt-plugs"/>
-    </url>
+    <loc>https://vexatoys.com/bondage</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/bondage"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/bondage"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/bondage"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/anal-toys</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.70</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/anal-toys"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/anal-toys"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/anal-toys"/>
-    </url>
+    <loc>https://vexatoys.com/sex-dolls</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sex-dolls"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sex-dolls"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sex-dolls"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/bondage</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.70</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/bondage"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/bondage"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/bondage"/>
-    </url>
+    <loc>https://vexatoys.com/strap-ons</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/strap-ons"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/strap-ons"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/strap-ons"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/sex-dolls</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.70</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sex-dolls"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sex-dolls"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sex-dolls"/>
-    </url>
+    <loc>https://vexatoys.com/kegel-balls</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/kegel-balls"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/kegel-balls"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/kegel-balls"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/strap-ons</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.70</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/strap-ons"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/strap-ons"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/strap-ons"/>
-    </url>
+    <loc>https://vexatoys.com/sexual-enhancers</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sexual-enhancers"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sexual-enhancers"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sexual-enhancers"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/kegel-balls</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.65</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/kegel-balls"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/kegel-balls"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/kegel-balls"/>
-    </url>
+    <loc>https://vexatoys.com/penis-pumps</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/penis-pumps"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/penis-pumps"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/penis-pumps"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/sexual-enhancers</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.65</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sexual-enhancers"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sexual-enhancers"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sexual-enhancers"/>
-    </url>
+    <loc>https://vexatoys.com/chastity</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/chastity"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/chastity"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/chastity"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/penis-pumps</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.65</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/penis-pumps"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/penis-pumps"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/penis-pumps"/>
-    </url>
+    <loc>https://vexatoys.com/sex-machines</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sex-machines"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sex-machines"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sex-machines"/>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/chastity</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.60</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/chastity"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/chastity"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/chastity"/>
-    </url>
+    <loc>https://vexatoys.com/poppers</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.75</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/poppers"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/poppers"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/poppers"/>
+  </url>
+
+  <!-- ═══ Product Pages ═══ -->
+  <url>
+    <loc>https://vexatoys.com/sex-toys/luxury-couple-massage-set</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/sex-machines</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.60</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/sex-machines"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/sex-machines"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/sex-machines"/>
-    </url>
+    <loc>https://vexatoys.com/sex-toys/dual-pulse-stimulation-device</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/poppers</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.60</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/poppers"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/poppers"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/poppers"/>
-    </url>
-
-    <url>
-      <loc>https://vexatoys.com/product/luxury-couple-massage-set</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/luxury-couple-massage-set"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/luxury-couple-massage-set"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/luxury-couple-massage-set"/>
-    </url>
+    <loc>https://vexatoys.com/sex-toys/ultra-smooth-water-based-lubricant-200ml</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/dual-pulse-stimulation-device</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/dual-pulse-stimulation-device"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/dual-pulse-stimulation-device"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/dual-pulse-stimulation-device"/>
-    </url>
+    <loc>https://vexatoys.com/vibrators/upgraded-smart-rose-vibrator</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/ultra-smooth-water-based-lubricant-200ml</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/ultra-smooth-water-based-lubricant-200ml"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/ultra-smooth-water-based-lubricant-200ml"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/ultra-smooth-water-based-lubricant-200ml"/>
-    </url>
+    <loc>https://vexatoys.com/vibrators/wand-massager-for-muscle-and-intimate-use</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/upgraded-smart-rose-vibrator</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/upgraded-smart-rose-vibrator"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/upgraded-smart-rose-vibrator"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/upgraded-smart-rose-vibrator"/>
-    </url>
+    <loc>https://vexatoys.com/vibrators/mini-wireless-bullet-vibrator</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/wand-massager-for-muscle-and-intimate-use</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/wand-massager-for-muscle-and-intimate-use"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/wand-massager-for-muscle-and-intimate-use"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/wand-massager-for-muscle-and-intimate-use"/>
-    </url>
+    <loc>https://vexatoys.com/male-toys/smart-male-masturbator-stimulator</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/mini-wireless-bullet-vibrator</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/mini-wireless-bullet-vibrator"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/mini-wireless-bullet-vibrator"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/mini-wireless-bullet-vibrator"/>
-    </url>
+    <loc>https://vexatoys.com/male-toys/flexible-silicone-men-rings-set-of-3</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/smart-male-masturbator-stimulator</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/smart-male-masturbator-stimulator"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/smart-male-masturbator-stimulator"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/smart-male-masturbator-stimulator"/>
-    </url>
+    <loc>https://vexatoys.com/male-toys/ribbed-automatic-stimulation-sleeve</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/flexible-silicone-men-rings-set-of-3</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/flexible-silicone-men-rings-set-of-3"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/flexible-silicone-men-rings-set-of-3"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/flexible-silicone-men-rings-set-of-3"/>
-    </url>
+    <loc>https://vexatoys.com/dildos/realistic-silicone-dildo-with-suction-cup</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/ribbed-automatic-stimulation-sleeve</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/ribbed-automatic-stimulation-sleeve"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/ribbed-automatic-stimulation-sleeve"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/ribbed-automatic-stimulation-sleeve"/>
-    </url>
+    <loc>https://vexatoys.com/dildos/luxury-glass-dildo-for-temperature-play</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/realistic-silicone-dildo-with-suction-cup</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/realistic-silicone-dildo-with-suction-cup"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/realistic-silicone-dildo-with-suction-cup"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/realistic-silicone-dildo-with-suction-cup"/>
-    </url>
+    <loc>https://vexatoys.com/dildos/flexible-curved-g-spot-dildo</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/luxury-glass-dildo-for-temperature-play</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/luxury-glass-dildo-for-temperature-play"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/luxury-glass-dildo-for-temperature-play"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/luxury-glass-dildo-for-temperature-play"/>
-    </url>
+    <loc>https://vexatoys.com/lingerie/luxury-black-lace-babydoll</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/flexible-curved-g-spot-dildo</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/flexible-curved-g-spot-dildo"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/flexible-curved-g-spot-dildo"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/flexible-curved-g-spot-dildo"/>
-    </url>
+    <loc>https://vexatoys.com/lingerie/crimson-red-satin-bodysuit</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/luxury-black-lace-babydoll</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/luxury-black-lace-babydoll"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/luxury-black-lace-babydoll"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/luxury-black-lace-babydoll"/>
-    </url>
+    <loc>https://vexatoys.com/lingerie/soft-silk-kimono-robe</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/crimson-red-satin-bodysuit</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/crimson-red-satin-bodysuit"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/crimson-red-satin-bodysuit"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/crimson-red-satin-bodysuit"/>
-    </url>
+    <loc>https://vexatoys.com/bdsm/soft-leather-restraints-starter-kit</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/soft-silk-kimono-robe</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/soft-silk-kimono-robe"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/soft-silk-kimono-robe"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/soft-silk-kimono-robe"/>
-    </url>
+    <loc>https://vexatoys.com/bdsm/luxury-silk-blindfold-with-tickler-feather</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/soft-leather-restraints-starter-kit</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/soft-leather-restraints-starter-kit"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/soft-leather-restraints-starter-kit"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/soft-leather-restraints-starter-kit"/>
-    </url>
+    <loc>https://vexatoys.com/bdsm/short-leather-flogger-crop</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/luxury-silk-blindfold-with-tickler-feather</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/luxury-silk-blindfold-with-tickler-feather"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/luxury-silk-blindfold-with-tickler-feather"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/luxury-silk-blindfold-with-tickler-feather"/>
-    </url>
+    <loc>https://vexatoys.com/holiday-collection/24-days-of-romance-advent-calendar</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/short-leather-flogger-crop</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/short-leather-flogger-crop"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/short-leather-flogger-crop"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/short-leather-flogger-crop"/>
-    </url>
+    <loc>https://vexatoys.com/holiday-collection/sexy-santa-cosplay-lingerie-set</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/24-days-of-romance-advent-calendar</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/24-days-of-romance-advent-calendar"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/24-days-of-romance-advent-calendar"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/24-days-of-romance-advent-calendar"/>
-    </url>
+    <loc>https://vexatoys.com/sex-toys/luxury-massage-candle-vanilla-oud</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/sexy-santa-cosplay-lingerie-set</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/sexy-santa-cosplay-lingerie-set"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/sexy-santa-cosplay-lingerie-set"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/sexy-santa-cosplay-lingerie-set"/>
-    </url>
+    <loc>https://vexatoys.com/vibrators/smart-interactive-audio-massager</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/luxury-massage-candle-vanilla-oud</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/luxury-massage-candle-vanilla-oud"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/luxury-massage-candle-vanilla-oud"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/luxury-massage-candle-vanilla-oud"/>
-    </url>
+    <loc>https://vexatoys.com/lingerie/luxury-gold-lace-lingerie-2-piece-set</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
 
   <url>
-      <loc>https://vexatoys.com/product/smart-interactive-audio-massager</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/smart-interactive-audio-massager"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/smart-interactive-audio-massager"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/smart-interactive-audio-massager"/>
-    </url>
+    <loc>https://vexatoys.com/sex-toys/organic-essential-oils-set-arousal-deep-sleep</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.80</priority>
+  </url>
 
-  <url>
-      <loc>https://vexatoys.com/product/luxury-gold-lace-lingerie-2-piece-set</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/luxury-gold-lace-lingerie-2-piece-set"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/luxury-gold-lace-lingerie-2-piece-set"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/luxury-gold-lace-lingerie-2-piece-set"/>
-    </url>
-
-  <url>
-      <loc>https://vexatoys.com/product/organic-essential-oils-set-arousal-deep-sleep</loc>
-      <lastmod>2026-06-05</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>0.80</priority>
-      <xhtml:link rel="alternate" hreflang="ar" href="https://vexatoys.com/product/organic-essential-oils-set-arousal-deep-sleep"/>
-      <xhtml:link rel="alternate" hreflang="en" href="https://vexatoys.com/product/organic-essential-oils-set-arousal-deep-sleep"/>
-      <xhtml:link rel="alternate" hreflang="x-default" href="https://vexatoys.com/product/organic-essential-oils-set-arousal-deep-sleep"/>
-    </url>
-
-  </urlset>
+</urlset>
