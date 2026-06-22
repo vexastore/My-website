@@ -134,14 +134,20 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
         const PROJECT_ID = 'vexa-store';
-        const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/products?pageSize=500&key=${API_KEY}`;
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 20000);
-        const response = await fetch(url, { signal: controller.signal });
-        clearTimeout(timer);
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        const json = await response.json();
-        const docs: any[] = json.documents || [];
+        const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/products`;
+        const docs: any[] = [];
+        let pageToken = '';
+        do {
+          const url = `${BASE_URL}?pageSize=300&key=${API_KEY}${pageToken ? '&pageToken=' + pageToken : ''}`;
+          const controller = new AbortController();
+          const timer = setTimeout(() => controller.abort(), 20000);
+          const response = await fetch(url, { signal: controller.signal });
+          clearTimeout(timer);
+          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          const json = await response.json();
+          if (json.documents) docs.push(...json.documents);
+          pageToken = json.nextPageToken || '';
+        } while (pageToken);
         if (docs.length === 0) {
           const stored = localStorage.getItem('adult_store_products');
           setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
