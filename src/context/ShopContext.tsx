@@ -6,7 +6,6 @@ import {
   collection,
   doc,
   getDocs,
-  getDocsFromServer,
   setDoc,
   deleteDoc,
   writeBatch,
@@ -133,45 +132,58 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const loadProducts = async () => {
       setIsProductsLoading(true);
       try {
-        const timeoutPromise = new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Firestore timeout')), 8000)
-          );
-          const snapshot = await Promise.race([
-            getDocsFromServer(collection(db, PRODUCTS_COLLECTION)),
-            timeoutPromise
-          ]) as Awaited<ReturnType<typeof getDocs>>;
-
-        if (!snapshot.empty) {
-          const toBackfill: Array<{ id: string; slug: string; categorySlug: string }> = [];
-            const firestoreProducts = snapshot.docs.map(docSnap => {
-              const data = docSnap.data() as Omit<Product, 'id'> & { slug?: string; categorySlug?: string; link?: string };
-              const pSlug = data.slug || toSlugLocal(data.nameEn || data.name || docSnap.id);
-              const catSlug = data.categorySlug || toSlugLocal(data.category || '');
-              if (!data.slug || !data.categorySlug) {
-                toBackfill.push({ id: docSnap.id, slug: pSlug, categorySlug: catSlug });
-              }
-              return {
-                ...data, id: docSnap.id, slug: pSlug, categorySlug: catSlug,
-                link: data.link || `https://vexatoys.com/${catSlug}/${pSlug}`
-              };
-            });
-            setProducts(firestoreProducts);
-            // Persist missing slug/categorySlug back to Firestore
-            if (toBackfill.length > 0) {
-              try {
-                const batchUpd = writeBatch(db);
-                toBackfill.forEach(({ id, slug, categorySlug }) => {
-                  batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
-                });
-                await batchUpd.commit();
-              } catch (_) { /* silent  non-blocking */ }
-            }
-        } else {
+        const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
+        const PROJECT_ID = 'vexa-store';
+        const url = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/products?pageSize=500&key=${API_KEY}`;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 20000);
+        const response = await fetch(url, { signal: controller.signal });
+        clearTimeout(timer);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const json = await response.json();
+        const docs: any[] = json.documents || [];
+        if (docs.length === 0) {
           const stored = localStorage.getItem('adult_store_products');
           setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
+          return;
+        }
+        function parseField(field: any): any {
+          if (!field) return null;
+          if ('stringValue' in field) return field.stringValue;
+          if ('integerValue' in field) return Number(field.integerValue);
+          if ('doubleValue' in field) return field.doubleValue;
+          if ('booleanValue' in field) return field.booleanValue;
+          if ('nullValue' in field) return null;
+          if ('arrayValue' in field) return (field.arrayValue.values || []).map(parseField);
+          if ('mapValue' in field) {
+            const obj: any = {};
+            for (const [k, v] of Object.entries(field.mapValue.fields || {})) obj[k] = parseField(v as any);
+            return obj;
+          }
+          return null;
+        }
+        const toBackfill: Array<{ id: string; slug: string; categorySlug: string }> = [];
+        const firestoreProducts = docs.map((document: any) => {
+          const id = String(document.name).split('/').pop();
+          const data: any = {};
+          for (const [k, v] of Object.entries(document.fields || {})) data[k] = parseField(v);
+          const pSlug = data.slug || toSlugLocal(data.nameEn || data.name || id);
+          const catSlug = data.categorySlug || toSlugLocal(data.category || '');
+          if (!data.slug || !data.categorySlug) toBackfill.push({ id, slug: pSlug, categorySlug: catSlug });
+          return { ...data, id, slug: pSlug, categorySlug: catSlug, link: data.link || `https://vexatoys.com/${catSlug}/${pSlug}` };
+        });
+        setProducts(firestoreProducts);
+        if (toBackfill.length > 0) {
+          try {
+            const batchUpd = writeBatch(db);
+            toBackfill.forEach(({ id, slug, categorySlug }) => {
+              batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
+            });
+            await batchUpd.commit();
+          } catch (_) { /* silent non-blocking */ }
         }
       } catch (error) {
-        if (process.env.NODE_ENV === 'development') console.error('Firestore load error:', error);
+        if (process.env.NODE_ENV === 'development') console.error('Products load error:', error);
         const stored = localStorage.getItem('adult_store_products');
         setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
       } finally {
