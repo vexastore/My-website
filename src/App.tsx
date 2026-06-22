@@ -2,6 +2,7 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
   import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
+import { OpenInBrowserBanner } from './components/OpenInBrowserBanner';
 
 import { ProductList } from './components/ProductList';
 import { ShieldCheck, Lock, Heart, Mail, Info } from 'lucide-react';
@@ -171,6 +172,7 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#050101] text-stone-900 flex flex-col font-sans" dir={isArabic ? 'rtl' : 'ltr'}>
+      <OpenInBrowserBanner />
       <Navbar />
       <Suspense fallback={null}><FloatingWhatsApp /></Suspense>
       <Suspense fallback={null}><VexaToast /></Suspense>
