@@ -7,6 +7,8 @@ import {
   LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
+import { db } from '../firebase';
+import { collection, doc, writeBatch } from 'firebase/firestore';
 
 const ALL_CATEGORY_IDS: CategoryId[] = [
   'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie',
@@ -24,6 +26,8 @@ export const AdminPanel: React.FC = () => {
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => sessionStorage.getItem('vexa_admin_session') === 'true');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncResult, setSyncResult] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedDay, setSelectedDay] = useState<string>('all');
@@ -80,6 +84,34 @@ export const AdminPanel: React.FC = () => {
   const [newOptionInputs, setNewOptionInputs] = useState<Record<number, string>>({});
 
   const ADMIN_HASH = 'ea6a140ff34999b68233c4d393701f8b0ec1516571fe9a66d994e9c094aeb065';
+  const syncAllToFirebase = async () => {
+    const stored = localStorage.getItem('adult_store_products');
+    if (!stored) { alert('لا توجد منتجات في المتصفح للرفع.'); return; }
+    const localProducts: Product[] = JSON.parse(stored);
+    if (!localProducts.length) { alert('لا توجد منتجات.'); return; }
+    if (!window.confirm(`سيتم رفع ${localProducts.length} منتج لـ Firebase. متأكد?`)) return;
+    setIsSyncing(true);
+    setSyncResult(null);
+    try {
+      const CHUNK = 400;
+      let saved = 0;
+      for (let i = 0; i < localProducts.length; i += CHUNK) {
+        const batch = writeBatch(db);
+        localProducts.slice(i, i + CHUNK).forEach(p => {
+          batch.set(doc(collection(db, 'products'), p.id), p);
+        });
+        await batch.commit();
+        saved += Math.min(CHUNK, localProducts.length - i);
+      }
+      setSyncResult(`✅ تم رفع ${saved} منتج لـ Firebase بنجاح!`);
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setSyncResult('❌ خطأ: ' + msg);
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   const hashPassword = async (pwd: string): Promise<string> => {
     const enc = new TextEncoder();
     const buf = await crypto.subtle.digest('SHA-256', enc.encode(pwd));
@@ -456,7 +488,17 @@ export const AdminPanel: React.FC = () => {
         <div>
           <h1 className="text-2xl font-black text-white">لوحة التحكم</h1>
           <p className="text-xs text-white/40 mt-1">المنتجات محفوظة على Firebase ✅</p>
+          {syncResult && (
+            <p className="text-xs font-bold mt-1 ${syncResult.startsWith('✅') ? 'text-green-400' : 'text-red-400'}">{syncResult}</p>
+          )}
         </div>
+        <button
+          onClick={syncAllToFirebase}
+          disabled={isSyncing}
+          className="flex items-center gap-2 border border-amber-500/40 bg-amber-950/30 px-4 py-2 text-xs font-bold text-amber-300 hover:text-amber-200 rounded-lg transition disabled:opacity-50 ml-2"
+        >
+          {isSyncing ? <><Loader2 size={14} className="animate-spin" /> جاري الرفع...</> : '⬆️ رفع كل المنتجات لـ Firebase'}
+        </button>
         <button onClick={handleAdminLogout}
           className="flex items-center gap-2 border border-white/15 px-4 py-2 text-xs font-bold text-white/60 hover:text-white rounded-lg transition">
           <LogOut size={14} /> خروج
