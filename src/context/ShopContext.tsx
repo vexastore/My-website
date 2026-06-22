@@ -6,6 +6,7 @@ import {
   collection,
   doc,
   getDocs,
+  getDocsFromServer,
   setDoc,
   deleteDoc,
   writeBatch,
@@ -136,7 +137,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setTimeout(() => reject(new Error('Firestore timeout')), 8000)
           );
           const snapshot = await Promise.race([
-            getDocs(collection(db, PRODUCTS_COLLECTION)),
+            getDocsFromServer(collection(db, PRODUCTS_COLLECTION)),
             timeoutPromise
           ]) as Awaited<ReturnType<typeof getDocs>>;
 
