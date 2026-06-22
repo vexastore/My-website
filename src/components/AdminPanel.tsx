@@ -85,26 +85,23 @@ export const AdminPanel: React.FC = () => {
 
   const ADMIN_HASH = 'ea6a140ff34999b68233c4d393701f8b0ec1516571fe9a66d994e9c094aeb065';
   const syncAllToFirebase = async () => {
-    const stored = localStorage.getItem('adult_store_products');
-    if (!stored) { alert('لا توجد منتجات في المتصفح للرفع.'); return; }
-    const localProducts: Product[] = JSON.parse(stored);
-    if (!localProducts.length) { alert('لا توجد منتجات.'); return; }
-    if (!window.confirm(`سيتم رفع ${localProducts.length} منتج لـ Firebase. متأكد?`)) return;
+    if (!products.length) { alert('لا توجد منتجات لرفعها.'); return; }
+    if (!window.confirm('سيتم رفع ' + products.length + ' منتج لـ Firebase. متأكد؟')) return;
     setIsSyncing(true);
     setSyncResult(null);
     try {
       const CHUNK = 400;
       let saved = 0;
-      for (let i = 0; i < localProducts.length; i += CHUNK) {
+      for (let i = 0; i < products.length; i += CHUNK) {
         const batch = writeBatch(db);
-        localProducts.slice(i, i + CHUNK).forEach(p => {
+        products.slice(i, i + CHUNK).forEach(p => {
           batch.set(doc(collection(db, 'products'), p.id), p);
         });
         await batch.commit();
-        saved += Math.min(CHUNK, localProducts.length - i);
+        saved += Math.min(CHUNK, products.length - i);
       }
-      setSyncResult(`✅ تم رفع ${saved} منتج لـ Firebase بنجاح!`);
-    } catch (e: unknown) {
+      setSyncResult('✅ تم رفع ' + saved + ' منتج لـ Firebase بنجاح!');
+    } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setSyncResult('❌ خطأ: ' + msg);
     } finally {
