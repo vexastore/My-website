@@ -1,3 +1,4 @@
+'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockData';
@@ -73,8 +74,10 @@ const CATEGORY_TO_SLUG: Record<string, string> = Object.fromEntries(
   Object.entries(URL_SLUG_TO_CATEGORY).map(([slug, cat]) => [cat, slug])
 );
 
-function getInitialCategory(): string {
+function getInitialCategory(override?: string): string {
+  if (override) return override;
   try {
+    if (typeof window === 'undefined') return 'Sex Toys';
     const w = window as typeof window & { __INITIAL_CATEGORY__?: string };
     if (w.__INITIAL_CATEGORY__) return w.__INITIAL_CATEGORY__;
     const slug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
@@ -108,13 +111,19 @@ const ORDERS_COLLECTION = 'orders';
 const IMAGES_COLLECTION = 'product_images';
 const DELIVERY_FEE = 5;
 
-export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [products, setProducts] = useState<Product[]>([]);
+export const ShopProvider: React.FC<{
+  children: React.ReactNode;
+  initialProducts?: Product[];
+  initialCategory?: string;
+  initialView?: string;
+  initialProductSlug?: string;
+}> = ({ children, initialProducts, initialCategory, initialView: initialViewProp, initialProductSlug }) => {
+  const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
-  const [currentView, setViewState] = useState<ViewType>(getInitialView);
+  const [currentView, setViewState] = useState<ViewType>(() => getInitialView(initialViewProp));
   const [selectedArticle, setSelectedArticleState] = useState<AdviceArticle | null>(null);
-  const [activeCategory, setActiveCategory] = useState<string>(getInitialCategory);
+  const [activeCategory, setActiveCategory] = useState<string>(() => getInitialCategory(initialCategory));
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [is18PlusVerified, setIs18PlusVerified] = useState<boolean>(() => {
       try {
@@ -123,12 +132,13 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } catch { return false; }
     });
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
-  const [isProductsLoading, setIsProductsLoading] = useState(true);
+  const [isProductsLoading, setIsProductsLoading] = useState(!initialProducts || initialProducts.length === 0);
   const [arTranslations, setArTranslations] = useState<Record<string, ArTranslation>>(() => loadArCache());
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Load products from Firebase Firestore on mount
   useEffect(() => {
+    if (initialProducts && initialProducts.length > 0) return; // SSR-provided products
     const loadProducts = async () => {
       setIsProductsLoading(true);
       try {
@@ -206,6 +216,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (currentView !== 'product' || selectedProduct) return;
       try {
         const w = window as typeof window & { __INITIAL_PRODUCT_SLUG__?: string };
+        if (initialProductSlug) w.__INITIAL_PRODUCT_SLUG__ = initialProductSlug;
         const pathname = window.location.pathname;
         const parts = pathname.split('/').filter(Boolean);
         const toSl = (n: string) => (n||'').toLowerCase()
