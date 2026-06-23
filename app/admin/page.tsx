@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { ShopApp } from '@/src/ShopApp';
 
 export const metadata: Metadata = {
-  title: 'Admin Panel | Vexa Store',
+  title: 'Admin Panel — Vexa Store',
   robots: { index: false, follow: false },
 };
 
