@@ -1,6 +1,11 @@
 {
   "redirects": [
-    { "source": "/(.*)", "has": [{"type":"host","value":"www.vexatoys.com"}], "destination": "https://vexatoys.com/$1", "permanent": true }
+    {
+      "source": "/(.*)",
+      "has": [{ "type": "host", "value": "www.vexatoys.com" }],
+      "destination": "https://vexatoys.com/$1",
+      "permanent": true
+    }
   ],
   "headers": [
     {
