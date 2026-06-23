@@ -1,3 +1,4 @@
+'use client';
 import React, { lazy, Suspense, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
   import { ShopProvider, useShop } from './context/ShopContext';
@@ -60,7 +61,7 @@ const PageLoader = () => (
 
   // Reads /:categorySlug/:productSlug URL params, finds product, renders ProductPage
 
-const AppContent: React.FC = () => {
+export const AppContent: React.FC = () => {
   const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory, selectedProduct } = useShop();
   const navigate = useNavigate();
   const location = useLocation();
