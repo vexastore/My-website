@@ -38,8 +38,16 @@ export default async function CategoryPage({ params }: Props) {
   if (!categoryId) notFound();
 
   const meta = getCategoryMeta(slug);
-  const products = await fetchProductsServer();
-  const catProducts = products.filter(p => p.categorySlug === slug || p.category === categoryId).slice(0, 10);
+
+  // Fetch only for JSON-LD (thin data — no images array, no descriptions)
+  let jsonLdProducts: { name: string; url: string; image: string; price: number; stock: number }[] = [];
+  try {
+    const all = await fetchProductsServer();
+    jsonLdProducts = all
+      .filter(p => p.categorySlug === slug || p.category === categoryId)
+      .slice(0, 8)
+      .map(p => ({ name: p.nameEn || p.name, url: `https://vexatoys.com/${slug}/${p.slug}`, image: p.image || '', price: p.price, stock: p.stock }));
+  } catch { /* non-blocking */ }
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -53,45 +61,25 @@ export default async function CategoryPage({ params }: Props) {
       },
       {
         '@type': 'CollectionPage',
-        '@id': `https://vexatoys.com/${slug}`,
         name: meta.titleEn,
         description: meta.descEn,
         url: `https://vexatoys.com/${slug}`,
-        publisher: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
-        ...(catProducts.length > 0 && {
-          hasPart: catProducts.map(p => ({
+        ...(jsonLdProducts.length > 0 && {
+          hasPart: jsonLdProducts.map(p => ({
             '@type': 'Product',
-            name: p.nameEn || p.name,
-            url: `https://vexatoys.com/${p.categorySlug}/${p.slug}`,
+            name: p.name,
+            url: p.url,
             image: p.image,
-            offers: {
-              '@type': 'Offer',
-              price: p.price,
-              priceCurrency: 'USD',
-              availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-              seller: { '@type': 'Organization', name: 'Vexa Store Lebanon' },
-            },
+            offers: { '@type': 'Offer', price: p.price, priceCurrency: 'USD', availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', seller: { '@type': 'Organization', name: 'Vexa Store Lebanon' } },
           })),
         }),
       },
       {
         '@type': 'FAQPage',
         mainEntity: [
-          {
-            '@type': 'Question',
-            name: 'Do you deliver discreetly in Lebanon?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Yes. All orders arrive in a plain sealed box with no store logo or product name for full privacy. Same-day delivery in Beirut.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'Can I pay cash on delivery?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Yes. Cash on delivery (COD) is available. No online payment required.' },
-          },
-          {
-            '@type': 'Question',
-            name: 'How fast is delivery?',
-            acceptedAnswer: { '@type': 'Answer', text: 'Same-day delivery in Beirut. Within 48-72 hours for other regions in Lebanon.' },
-          },
+          { '@type': 'Question', name: 'Do you deliver discreetly in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Plain sealed box, no logo, same-day delivery in Beirut.' } },
+          { '@type': 'Question', name: 'Can I pay cash on delivery?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Cash on delivery (COD) is available. No online payment required.' } },
+          { '@type': 'Question', name: 'How fast is delivery?', acceptedAnswer: { '@type': 'Answer', text: 'Same-day in Beirut, 48-72 hours for other regions.' } },
         ],
       },
     ],
@@ -100,7 +88,8 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ShopApp initialProducts={products} initialCategory={categoryId} initialView="shop" />
+      {/* No initialProducts — Firebase fetches client-side (keeps HTML small) */}
+      <ShopApp initialCategory={categoryId} initialView="shop" />
     </>
   );
 }
