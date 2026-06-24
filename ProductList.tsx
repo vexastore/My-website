@@ -3,8 +3,22 @@ import { useShop } from '../context/ShopContext';
 import { ProductCard } from './ProductCard';
 import { SearchX, ShoppingBag, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 
+const ProductSkeleton: React.FC = () => (
+  <div className="bg-[#050505] animate-pulse">
+    <div className="relative overflow-hidden rounded-md border border-white/5 bg-[#101010] shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
+      <div className="aspect-[1.05/1] bg-[#1a1a1a]" />
+      <div className="p-3 space-y-2">
+        <div className="h-3 bg-white/10 rounded w-1/3" />
+        <div className="h-4 bg-white/10 rounded w-3/4" />
+        <div className="h-3 bg-white/10 rounded w-1/2" />
+        <div className="h-8 bg-white/10 rounded mt-3" />
+      </div>
+    </div>
+  </div>
+);
+
 export const ProductList: React.FC = () => {
-  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, language } = useShop();
+  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, language, isProductsLoading } = useShop();
   const isArabic = language === 'ar';
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -81,7 +95,7 @@ export const ProductList: React.FC = () => {
         : 'Yes. Cash on delivery is available. No online payment is required.'
     },
     {
-      q: isArabic ? 'ما هي سياسة الإرجاع؟' : 'What’s your return policy?',
+      q: isArabic ? 'ما هي سياسة الإرجاع؟' : 'What\'s your return policy?',
       a: isArabic
         ? 'راحتك وثقتك مهمة لنا. كل منتج يتم فحصه وتغليفه بعناية قبل الشحن. إذا وصلتك أي مشكلة في الطلب أو التغليف، تواصل معنا فوراً وسنساعدك بأفضل حل مناسب.'
         : 'Your comfort and trust matter to us. Every item is carefully checked and discreetly packed before shipping. If there is any issue with your order or packaging on arrival, contact us right away and our support team will make it right.'
@@ -124,11 +138,17 @@ export const ProductList: React.FC = () => {
         </div>
 
         <div className="mb-8 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-white/35">
-          <span>{filteredProducts.length} {isArabic ? 'منتج' : 'items'}</span>
+          <span>{isProductsLoading ? '...' : filteredProducts.length} {isArabic ? 'منتج' : 'items'}</span>
           <span>{activeCategory}</span>
         </div>
 
-        {filteredProducts.length > 0 ? (
+        {isProductsLoading ? (
+          <div className="grid grid-cols-2 gap-x-5 gap-y-14 sm:gap-x-8 sm:gap-y-16 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ProductSkeleton key={i} />
+            ))}
+          </div>
+        ) : filteredProducts.length > 0 ? (
           <div className="grid grid-cols-2 gap-x-5 gap-y-14 sm:gap-x-8 sm:gap-y-16 md:grid-cols-3 lg:grid-cols-4">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
