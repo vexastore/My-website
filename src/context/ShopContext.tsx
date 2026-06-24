@@ -139,8 +139,27 @@ export const ShopProvider: React.FC<{
   // Load products from Firebase Firestore on mount
   useEffect(() => {
     if (initialProducts && initialProducts.length > 0) return; // SSR-provided products
-    const loadProducts = async () => {
-      setIsProductsLoading(true);
+
+      // ── Cache-first: show products instantly from localStorage ──
+      const CACHE_KEY = 'adult_store_products';
+      const CACHE_TS_KEY = 'adult_store_products_ts';
+      const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+      const cachedRaw = localStorage.getItem(CACHE_KEY);
+      const cachedTs = Number(localStorage.getItem(CACHE_TS_KEY) || 0);
+      const cacheAge = Date.now() - cachedTs;
+      if (cachedRaw) {
+        try {
+          const cached = JSON.parse(cachedRaw);
+          if (cached.length > 0) {
+            setProducts(cached);
+            setIsProductsLoading(false);
+            if (cacheAge < CACHE_TTL) return; // Fresh cache — skip Firebase
+          }
+        } catch (_) {}
+      }
+
+      const loadProducts = async () => {
+        if (!cachedRaw) setIsProductsLoading(true); // Only show spinner if no cache
       try {
         const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
         const PROJECT_ID = 'vexa-store';
@@ -189,7 +208,12 @@ export const ShopProvider: React.FC<{
           return { ...data, id, slug: pSlug, categorySlug: catSlug, link: data.link || `https://vexatoys.com/${catSlug}/${pSlug}` };
         });
         setProducts(firestoreProducts);
-        if (toBackfill.length > 0) {
+          // Save fresh products + timestamp to localStorage
+          try {
+            localStorage.setItem('adult_store_products', JSON.stringify(firestoreProducts));
+            localStorage.setItem('adult_store_products_ts', String(Date.now()));
+          } catch (_) {}
+          if (toBackfill.length > 0) {
           try {
             const batchUpd = writeBatch(db);
             toBackfill.forEach(({ id, slug, categorySlug }) => {
