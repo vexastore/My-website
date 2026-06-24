@@ -137,58 +137,110 @@ export const ShopProvider: React.FC<{
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Load products from Firebase Firestore on mount
-  useEffect(() => {
-    if (initialProducts && initialProducts.length > 0) return; // SSR-provided products
+    useEffect(() => {
+      if (initialProducts && initialProducts.length > 0) return;
 
-      // ── Cache-first: show products instantly from localStorage ──
       const CACHE_KEY = 'adult_store_products';
       const CACHE_TS_KEY = 'adult_store_products_ts';
-      const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+      const CACHE_TTL = 5 * 60 * 1000;
       const cachedRaw = localStorage.getItem(CACHE_KEY);
       const cachedTs = Number(localStorage.getItem(CACHE_TS_KEY) || 0);
-      const cacheAge = Date.now() - cachedTs;
+
       if (cachedRaw) {
         try {
           const cached = JSON.parse(cachedRaw);
-          if (cached.length > 0) {
+          if (Array.isArray(cached) && cached.length > 0 && cached[0].slug) {
             setProducts(cached);
             setIsProductsLoading(false);
-            if (cacheAge < CACHE_TTL) return; // Fresh cache — skip Firebase
+            if (Date.now() - cachedTs < CACHE_TTL) return;
           }
-        } catch (_) {}
+        } catch (_) {
+          localStorage.removeItem(CACHE_KEY);
+        }
       }
 
       const loadProducts = async () => {
-        if (!cachedRaw) setIsProductsLoading(true); // Only show spinner if no cache
-      try {
-        const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
-        const PROJECT_ID = 'vexa-store';
-        const BASE_URL = `https://firestore.googleapis.com/v1/projects/${PROJECT_ID}/databases/(default)/documents/products`;
-        const docs: any[] = [];
-        let pageToken = '';
-        do {
-          const url = `${BASE_URL}?pageSize=300&key=${API_KEY}${pageToken ? '&pageToken=' + pageToken : ''}`;
-          const controller = new AbortController();
-          const timer = setTimeout(() => controller.abort(), 20000);
-          const response = await fetch(url, { signal: controller.signal });
-          clearTimeout(timer);
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
-          const json = await response.json();
-          if (json.documents) docs.push(...json.documents);
-          pageToken = json.nextPageToken || '';
-        } while (pageToken);
-        if (docs.length === 0) {
-          const stored = localStorage.getItem('adult_store_products');
-          setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
-          return;
+        if (!cachedRaw) setIsProductsLoading(true);
+
+        function parseField(field: any): any {
+          if (!field) return null;
+          if ('stringValue' in field) return field.stringValue;
+          if ('integerValue' in field) return Number(field.integerValue);
+          if ('doubleValue' in field) return field.doubleValue;
+          if ('booleanValue' in field) return field.booleanValue;
+          if ('nullValue' in field) return null;
+          if ('arrayValue' in field) return (field.arrayValue.values || []).map(parseField);
+          if ('mapValue' in field) {
+            const obj: any = {};
+            for (const [k, v] of Object.entries(field.mapValue.fields || {})) obj[k] = parseField(v as any);
+            return obj;
+          }
+          return null;
         }
-                setProducts(firestoreProducts);
+        function makeSlug(n: string): string {
+          return (n||'').toLowerCase().replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-').replace(/-+/g,'-').replace(/^-+|-+$/,'').slice(0,60)||'product';
+        }
+        function parseDocs(docList: any[]) {
+          return docList.map((document: any) => {
+            const id = String(document.name).split('/').pop() as string;
+            const d: any = {};
+            for (const [k, v] of Object.entries(document.fields || {})) d[k] = parseField(v);
+            const slug = d.slug || makeSlug(d.nameEn || d.name || id);
+            const categorySlug = d.categorySlug || makeSlug(d.category || '');
+            return { ...d, id, slug, categorySlug, link: d.link || `https://vexatoys.com/${categorySlug}/${slug}` };
+          });
+        }
+
+        try {
+          const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
+          const BASE = `https://firestore.googleapis.com/v1/projects/vexa-store/databases/(default)/documents/products`;
+
+          // أول 20 منتج بسرعة
+          const ctrl1 = new AbortController();
+          const t1 = setTimeout(() => ctrl1.abort(), 10000);
+          const r1 = await fetch(`${BASE}?pageSize=20&key=${API_KEY}`, { signal: ctrl1.signal });
+          clearTimeout(t1);
+          if (!r1.ok) throw new Error(`HTTP ${r1.status}`);
+          const j1 = await r1.json();
+          const firstDocs: any[] = j1.documents || [];
+
+          if (firstDocs.length > 0) {
+            setProducts(parseDocs(firstDocs));
+            setIsProductsLoading(false);
+          }
+
+          // باقي المنتجات في الخلفية
+          const allDocs: any[] = [...firstDocs];
+          let pageToken: string = j1.nextPageToken || '';
+          while (pageToken) {
+            const ctrl = new AbortController();
+            const t = setTimeout(() => ctrl.abort(), 15000);
+            const r = await fetch(`${BASE}?pageSize=100&key=${API_KEY}&pageToken=${encodeURIComponent(pageToken)}`, { signal: ctrl.signal });
+            clearTimeout(t);
+            if (!r.ok) break;
+            const j = await r.json();
+            if (j.documents) allDocs.push(...j.documents);
+            pageToken = j.nextPageToken || '';
+          }
+
+          if (allDocs.length === 0) {
+            if (!cachedRaw) setProducts(MOCK_PRODUCTS);
+            setIsProductsLoading(false);
+            return;
+          }
+
+          const firestoreProducts = parseDocs(allDocs);
+          setProducts(firestoreProducts);
+          setIsProductsLoading(false);
+
           try {
-            localStorage.setItem('adult_store_products', JSON.stringify(firestoreProducts));
-            localStorage.setItem('adult_store_products_ts', String(Date.now()));
+            localStorage.setItem(CACHE_KEY, JSON.stringify(firestoreProducts));
+            localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
           } catch (_) {}
-          const toBackfill = docs
-            .filter((d: any) => !d.fields?.slug || !d.fields?.categorySlug)
+
+          // Backfill missing slugs in Firebase
+          const toBackfill = allDocs
+            .filter((d: any) => !d.fields?.slug?.stringValue || !d.fields?.categorySlug?.stringValue)
             .map((d: any) => {
               const id = String(d.name).split('/').pop() as string;
               const p = firestoreProducts.find((x: any) => x.id === id);
@@ -202,20 +254,19 @@ export const ShopProvider: React.FC<{
                 batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
               });
               await batchUpd.commit();
-            } catch (_) { /* silent non-blocking */ }
+            } catch (_) {}
           }
-      } catch (error) {
-        if (process.env.NODE_ENV === 'development') console.error('Products load error:', error);
-        const stored = localStorage.getItem('adult_store_products');
-        setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
-      } finally {
-        setIsProductsLoading(false);
-      }
-    };
+        } catch (err) {
+          if (process.env.NODE_ENV === 'development') console.error('Products load error:', err);
+          if (!cachedRaw) {
+            setProducts(MOCK_PRODUCTS);
+            setIsProductsLoading(false);
+          }
+        }
+      };
 
-    loadProducts();
-  }, []);
-
+      loadProducts();
+    }, [])
   // Resolve initial product page from URL slug after products load
     useEffect(() => {
       if (isProductsLoading || products.length === 0) return;
