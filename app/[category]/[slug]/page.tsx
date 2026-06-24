@@ -8,6 +8,14 @@ interface Props { params: Promise<{ category: string; slug: string }> }
 
 export const revalidate = 3600;
 
+const STORE_LOGO = 'https://vexatoys.com/vexa-logo.jpg';
+
+/** Returns a valid https:// URL, or the store logo if the image is a base64 data URI / empty. */
+function toImageUrl(raw: string | undefined | null): string {
+  if (raw && (raw.startsWith('http://') || raw.startsWith('https://'))) return raw;
+  return STORE_LOGO;
+}
+
 export async function generateStaticParams() {
   try {
     const products = await fetchProductsServer();
@@ -22,7 +30,6 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug } = await params;
   const meta = getCategoryMeta(category);
-  const fallbackImg = 'https://vexatoys.com/vexa-logo.jpg';
 
   try {
     const products = await fetchProductsServer();
@@ -31,7 +38,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     const name = product.nameEn || product.name || slug;
     const desc = (product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`).slice(0, 160);
-    const imgUrl = product.image || fallbackImg;
+    const imgUrl = toImageUrl(product.image);
     const pageUrl = `https://vexatoys.com/${category}/${slug}`;
 
     return {
@@ -83,6 +90,10 @@ export default async function ProductPage({ params }: Props) {
         .replace(/\n+/g, ' ')
         .trim()
         .slice(0, 500);
+      // JSON-LD image must be a real URL — skip base64 data URIs entirely
+      const jsonLdImage = toImageUrl(p.image) !== STORE_LOGO
+        ? [p.image]
+        : [];
 
       jsonLd = {
         '@context': 'https://schema.org',
@@ -100,7 +111,7 @@ export default async function ProductPage({ params }: Props) {
             name: productName,
             url: productUrl,
             description: productDesc,
-            image: p.image ? [p.image] : [],
+            image: jsonLdImage,
             sku: p.id,
             brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
             offers: {
