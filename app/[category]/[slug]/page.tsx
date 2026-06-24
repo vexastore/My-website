@@ -15,7 +15,6 @@ export async function generateStaticParams() {
       .filter(p => p.slug && p.categorySlug)
       .map(p => ({ category: p.categorySlug, slug: p.slug }));
   } catch {
-    // Fallback: at least pre-render category shells
     return CATEGORY_META.map(c => ({ category: c.slug, slug: 'index' }));
   }
 }
@@ -52,6 +51,10 @@ export default async function ProductPage({ params }: Props) {
   const categoryId = SLUG_TO_CATEGORY[category];
   if (!categoryId) notFound();
 
+  const meta = getCategoryMeta(category);
+  const categoryLabel = meta.titleEn.split('|')[0].trim();
+  const productUrl = `https://vexatoys.com/${category}/${slug}`;
+
   let jsonLd = null;
   let initialProducts = undefined;
 
@@ -60,8 +63,13 @@ export default async function ProductPage({ params }: Props) {
     const p = products.find(pr => pr.slug === slug || pr.id === slug);
 
     if (p) {
-      // Pass initial product so Google sees real HTML content (not blank)
       initialProducts = [p];
+
+      const productName = p.nameEn || p.name || slug;
+      const productDesc = (p.descriptionEn || p.description || '')
+        .replace(/\n+/g, ' ')
+        .trim()
+        .slice(0, 500);
 
       jsonLd = {
         '@context': 'https://schema.org',
@@ -70,30 +78,37 @@ export default async function ProductPage({ params }: Props) {
             '@type': 'BreadcrumbList',
             itemListElement: [
               { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
-              { '@type': 'ListItem', position: 2, name: categoryId, item: `https://vexatoys.com/${category}` },
-              { '@type': 'ListItem', position: 3, name: p.nameEn || p.name, item: `https://vexatoys.com/${category}/${slug}` },
+              { '@type': 'ListItem', position: 2, name: categoryLabel, item: `https://vexatoys.com/${category}` },
+              { '@type': 'ListItem', position: 3, name: productName, item: productUrl },
             ],
           },
           {
             '@type': 'Product',
-            name: p.nameEn || p.name,
-            description: (p.descriptionEn || p.description || '').slice(0, 500),
+            name: productName,
+            url: productUrl,
+            description: productDesc,
             image: p.image ? [p.image] : [],
             sku: p.id,
             brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
             offers: {
               '@type': 'Offer',
-              url: `https://vexatoys.com/${category}/${slug}`,
+              url: productUrl,
               price: p.price,
               priceCurrency: 'USD',
-              availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              availability: p.stock > 0
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
               itemCondition: 'https://schema.org/NewCondition',
-              seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
+              seller: {
+                '@type': 'Organization',
+                name: 'Vexa Store Lebanon',
+                url: 'https://vexatoys.com',
+              },
             },
-            ...(p.reviewsCount > 0 && {
+            ...(p.reviewsCount > 0 && p.rating > 0 && {
               aggregateRating: {
                 '@type': 'AggregateRating',
-                ratingValue: p.rating,
+                ratingValue: Number(p.rating.toFixed(1)),
                 reviewCount: p.reviewsCount,
                 bestRating: 5,
                 worstRating: 1,
@@ -108,7 +123,10 @@ export default async function ProductPage({ params }: Props) {
   return (
     <>
       {jsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       )}
       <ShopApp
         initialProducts={initialProducts}
