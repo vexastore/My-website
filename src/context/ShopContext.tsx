@@ -182,46 +182,28 @@ export const ShopProvider: React.FC<{
           setProducts(stored ? JSON.parse(stored) : MOCK_PRODUCTS);
           return;
         }
-        function parseField(field: any): any {
-          if (!field) return null;
-          if ('stringValue' in field) return field.stringValue;
-          if ('integerValue' in field) return Number(field.integerValue);
-          if ('doubleValue' in field) return field.doubleValue;
-          if ('booleanValue' in field) return field.booleanValue;
-          if ('nullValue' in field) return null;
-          if ('arrayValue' in field) return (field.arrayValue.values || []).map(parseField);
-          if ('mapValue' in field) {
-            const obj: any = {};
-            for (const [k, v] of Object.entries(field.mapValue.fields || {})) obj[k] = parseField(v as any);
-            return obj;
-          }
-          return null;
-        }
-        const toBackfill: Array<{ id: string; slug: string; categorySlug: string }> = [];
-        const firestoreProducts = docs.map((document: any) => {
-          const id = String(document.name).split('/').pop();
-          const data: any = {};
-          for (const [k, v] of Object.entries(document.fields || {})) data[k] = parseField(v);
-          const pSlug = data.slug || toSlugLocal(data.nameEn || data.name || id);
-          const catSlug = data.categorySlug || toSlugLocal(data.category || '');
-          if (!data.slug || !data.categorySlug) toBackfill.push({ id, slug: pSlug, categorySlug: catSlug });
-          return { ...data, id, slug: pSlug, categorySlug: catSlug, link: data.link || `https://vexatoys.com/${catSlug}/${pSlug}` };
-        });
-        setProducts(firestoreProducts);
-          // Save fresh products + timestamp to localStorage
+                setProducts(firestoreProducts);
           try {
             localStorage.setItem('adult_store_products', JSON.stringify(firestoreProducts));
             localStorage.setItem('adult_store_products_ts', String(Date.now()));
           } catch (_) {}
+          const toBackfill = docs
+            .filter((d: any) => !d.fields?.slug || !d.fields?.categorySlug)
+            .map((d: any) => {
+              const id = String(d.name).split('/').pop() as string;
+              const p = firestoreProducts.find((x: any) => x.id === id);
+              return p ? { id, slug: p.slug, categorySlug: p.categorySlug } : null;
+            })
+            .filter(Boolean) as Array<{ id: string; slug: string; categorySlug: string }>;
           if (toBackfill.length > 0) {
-          try {
-            const batchUpd = writeBatch(db);
-            toBackfill.forEach(({ id, slug, categorySlug }) => {
-              batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
-            });
-            await batchUpd.commit();
-          } catch (_) { /* silent non-blocking */ }
-        }
+            try {
+              const batchUpd = writeBatch(db);
+              toBackfill.forEach(({ id, slug, categorySlug }) => {
+                batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
+              });
+              await batchUpd.commit();
+            } catch (_) { /* silent non-blocking */ }
+          }
       } catch (error) {
         if (process.env.NODE_ENV === 'development') console.error('Products load error:', error);
         const stored = localStorage.getItem('adult_store_products');
