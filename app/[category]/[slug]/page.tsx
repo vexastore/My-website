@@ -10,10 +10,15 @@ export const revalidate = 3600;
 
 const STORE_LOGO = 'https://vexatoys.com/vexa-logo.jpg';
 
-/** Returns a valid https:// URL, or the store logo if the image is a base64 data URI / empty. */
+/** Returns a valid https:// URL. Falls back to the store logo for base64 data URIs or empty values. */
 function toImageUrl(raw: string | undefined | null): string {
   if (raw && (raw.startsWith('http://') || raw.startsWith('https://'))) return raw;
   return STORE_LOGO;
+}
+
+/** Strips newlines and collapses whitespace — safe for og:description / twitter:description. */
+function cleanText(raw: string): string {
+  return raw.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
 }
 
 export async function generateStaticParams() {
@@ -36,8 +41,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const product = products.find(p => p.slug === slug || p.id === slug);
     if (!product) return { title: meta.titleEn, robots: { index: false, follow: false } };
 
-    const name = product.nameEn || product.name || slug;
-    const desc = (product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`).slice(0, 160);
+    const name = cleanText(product.nameEn || product.name || slug);
+    const rawDesc = product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`;
+    const desc = cleanText(rawDesc).slice(0, 160);
     const imgUrl = toImageUrl(product.image);
     const pageUrl = `https://vexatoys.com/${category}/${slug}`;
 
@@ -85,15 +91,10 @@ export default async function ProductPage({ params }: Props) {
     if (p) {
       initialProducts = [p];
 
-      const productName = p.nameEn || p.name || slug;
-      const productDesc = (p.descriptionEn || p.description || '')
-        .replace(/\n+/g, ' ')
-        .trim()
-        .slice(0, 500);
-      // JSON-LD image must be a real URL — skip base64 data URIs entirely
-      const jsonLdImage = toImageUrl(p.image) !== STORE_LOGO
-        ? [p.image]
-        : [];
+      const productName = cleanText(p.nameEn || p.name || slug);
+      const productDesc = cleanText(p.descriptionEn || p.description || '').slice(0, 500);
+      // JSON-LD image must be a real URL — omit base64 data URIs
+      const hasRealImage = p.image && (p.image.startsWith('http://') || p.image.startsWith('https://'));
 
       jsonLd = {
         '@context': 'https://schema.org',
@@ -111,7 +112,7 @@ export default async function ProductPage({ params }: Props) {
             name: productName,
             url: productUrl,
             description: productDesc,
-            image: jsonLdImage,
+            ...(hasRealImage && { image: [p.image] }),
             sku: p.id,
             brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
             offers: {
