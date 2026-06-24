@@ -224,7 +224,7 @@ export const ShopProvider: React.FC<{
           }
 
           if (allDocs.length === 0) {
-            if (!cachedRaw) setProducts(MOCK_PRODUCTS);
+            if (!cachedRaw) setProducts([]);
             setIsProductsLoading(false);
             return;
           }
@@ -259,7 +259,7 @@ export const ShopProvider: React.FC<{
         } catch (err) {
           if (process.env.NODE_ENV === 'development') console.error('Products load error:', err);
           if (!cachedRaw) {
-            setProducts(MOCK_PRODUCTS);
+            setProducts([]);
             setIsProductsLoading(false);
           }
         }
