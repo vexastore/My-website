@@ -142,7 +142,7 @@ export const ShopProvider: React.FC<{
 
       const CACHE_KEY = 'adult_store_products';
       const CACHE_TS_KEY = 'adult_store_products_ts';
-      const CACHE_TTL = 5 * 60 * 1000;
+      const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 ساعة بدل 5 دقائق
       const cachedRaw = localStorage.getItem(CACHE_KEY);
       const cachedTs = Number(localStorage.getItem(CACHE_TS_KEY) || 0);
 
@@ -238,24 +238,7 @@ export const ShopProvider: React.FC<{
             localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
           } catch (_) {}
 
-          // Backfill missing slugs in Firebase
-          const toBackfill = allDocs
-            .filter((d: any) => !d.fields?.slug?.stringValue || !d.fields?.categorySlug?.stringValue)
-            .map((d: any) => {
-              const id = String(d.name).split('/').pop() as string;
-              const p = firestoreProducts.find((x: any) => x.id === id);
-              return p ? { id, slug: p.slug, categorySlug: p.categorySlug } : null;
-            })
-            .filter(Boolean) as Array<{ id: string; slug: string; categorySlug: string }>;
-          if (toBackfill.length > 0) {
-            try {
-              const batchUpd = writeBatch(db);
-              toBackfill.forEach(({ id, slug, categorySlug }) => {
-                batchUpd.update(doc(db, PRODUCTS_COLLECTION, id), { slug, categorySlug });
-              });
-              await batchUpd.commit();
-            } catch (_) {}
-          }
+          // Backfill removed — was causing excessive Firebase writes on every page load
         } catch (err) {
           if (process.env.NODE_ENV === 'development') console.error('Products load error:', err);
           if (!cachedRaw) {
