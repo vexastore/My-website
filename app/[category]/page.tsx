@@ -8,21 +8,32 @@ const RESERVED = ['about', 'checkout', 'admin', 'orders', 'advice', 'sitemap.xml
 
 interface Props { params: Promise<{ category: string }> }
 
+const DEFAULT_OG_IMAGE = 'https://vexatoys.com/vexa-logo.jpg';
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category: slug } = await params;
   const meta = getCategoryMeta(slug);
+  const pageUrl = `https://vexatoys.com/${slug}`;
+
   return {
     title: meta.titleEn,
     description: meta.descEn,
     openGraph: {
-      title: meta.titleAr,
-      description: meta.descAr,
-      url: `https://vexatoys.com/${slug}`,
-      siteName: 'Vexa Store',
+      title: meta.titleEn,
+      description: meta.descEn,
+      url: pageUrl,
+      siteName: 'Vexa Store Lebanon',
       locale: 'ar_LB',
       type: 'website',
+      images: [{ url: DEFAULT_OG_IMAGE, alt: meta.titleEn, width: 512, height: 512 }],
     },
-    alternates: { canonical: `https://vexatoys.com/${slug}` },
+    twitter: {
+      card: 'summary_large_image',
+      title: meta.titleEn,
+      description: meta.descEn,
+      images: [DEFAULT_OG_IMAGE],
+    },
+    alternates: { canonical: pageUrl },
     robots: { index: true, follow: true },
   };
 }
@@ -46,7 +57,13 @@ export default async function CategoryPage({ params }: Props) {
     jsonLdProducts = all
       .filter(p => p.categorySlug === slug || p.category === categoryId)
       .slice(0, 8)
-      .map(p => ({ name: p.nameEn || p.name, url: `https://vexatoys.com/${slug}/${p.slug}`, image: p.image || '', price: p.price, stock: p.stock }));
+      .map(p => ({
+        name: p.nameEn || p.name,
+        url: `https://vexatoys.com/${slug}/${p.slug}`,
+        image: p.image || '',
+        price: p.price,
+        stock: p.stock,
+      }));
   } catch { /* non-blocking */ }
 
   const jsonLd = {
@@ -70,7 +87,15 @@ export default async function CategoryPage({ params }: Props) {
             name: p.name,
             url: p.url,
             image: p.image,
-            offers: { '@type': 'Offer', price: p.price, priceCurrency: 'USD', availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock', seller: { '@type': 'Organization', name: 'Vexa Store Lebanon' } },
+            offers: {
+              '@type': 'Offer',
+              price: p.price,
+              priceCurrency: 'USD',
+              availability: p.stock > 0
+                ? 'https://schema.org/InStock'
+                : 'https://schema.org/OutOfStock',
+              seller: { '@type': 'Organization', name: 'Vexa Store Lebanon' },
+            },
           })),
         }),
       },
@@ -88,7 +113,6 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      {/* No initialProducts — Firebase fetches client-side (keeps HTML small) */}
       <ShopApp initialCategory={categoryId} initialView="shop" />
     </>
   );
