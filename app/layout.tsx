@@ -25,15 +25,17 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://vexatoys.com' },
 };
 
+const BASE = 'https://vexatoys.com';
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
     {
       '@type': 'Organization',
-      '@id': 'https://vexatoys.com/#organization',
+      '@id': `${BASE}/#organization`,
       name: 'Vexa Store Lebanon',
-      url: 'https://vexatoys.com',
-      logo: { '@type': 'ImageObject', url: 'https://vexatoys.com/vexa-logo.jpg' },
+      url: BASE,
+      logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.jpg` },
       contactPoint: {
         '@type': 'ContactPoint',
         telephone: '+96176730767',
@@ -45,21 +47,21 @@ const jsonLd = {
     },
     {
       '@type': 'WebSite',
-      '@id': 'https://vexatoys.com/#website',
-      url: 'https://vexatoys.com',
+      '@id': `${BASE}/#website`,
+      url: BASE,
       name: 'Vexa Store Lebanon',
-      publisher: { '@id': 'https://vexatoys.com/#organization' },
+      publisher: { '@id': `${BASE}/#organization` },
       potentialAction: {
         '@type': 'SearchAction',
-        target: { '@type': 'EntryPoint', urlTemplate: 'https://vexatoys.com/sex-toys?q={search_term_string}' },
+        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/sex-toys?q={search_term_string}` },
         'query-input': 'required name=search_term_string',
       },
     },
     {
       '@type': 'Store',
-      '@id': 'https://vexatoys.com/#store',
+      '@id': `${BASE}/#store`,
       name: 'Vexa Store Lebanon',
-      url: 'https://vexatoys.com',
+      url: BASE,
       description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
       priceRange: '$$',
       currenciesAccepted: 'USD',
@@ -69,6 +71,23 @@ const jsonLd = {
       telephone: '+96176730767',
       hasMap: 'https://maps.google.com/?q=Beirut,Lebanon',
       areaServed: { '@type': 'Country', name: 'Lebanon' },
+    },
+    {
+      '@type': 'ItemList',
+      '@id': `${BASE}/#category-list`,
+      name: 'Vexa Store Product Categories',
+      description: 'Browse all adult product categories at Vexa Store Lebanon',
+      numberOfItems: 8,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Sex Toys Lebanon',       url: `${BASE}/sex-toys` },
+        { '@type': 'ListItem', position: 2, name: 'Vibrators Lebanon',      url: `${BASE}/vibrators` },
+        { '@type': 'ListItem', position: 3, name: 'Male Toys Lebanon',      url: `${BASE}/male-toys` },
+        { '@type': 'ListItem', position: 4, name: 'Dildos Lebanon',         url: `${BASE}/dildos` },
+        { '@type': 'ListItem', position: 5, name: 'Lingerie Lebanon',       url: `${BASE}/lingerie` },
+        { '@type': 'ListItem', position: 6, name: 'BDSM Toys Lebanon',      url: `${BASE}/bdsm` },
+        { '@type': 'ListItem', position: 7, name: 'New Arrivals',           url: `${BASE}/new-arrivals` },
+        { '@type': 'ListItem', position: 8, name: 'Holiday Collection',     url: `${BASE}/holiday-collection` },
+      ],
     },
   ],
 };
