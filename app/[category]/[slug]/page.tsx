@@ -22,23 +22,36 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug } = await params;
   const meta = getCategoryMeta(category);
+  const fallbackImg = 'https://vexatoys.com/vexa-logo.jpg';
+
   try {
     const products = await fetchProductsServer();
     const product = products.find(p => p.slug === slug || p.id === slug);
     if (!product) return { title: meta.titleEn, robots: { index: false, follow: false } };
+
     const name = product.nameEn || product.name || slug;
     const desc = (product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`).slice(0, 160);
+    const imgUrl = product.image || fallbackImg;
+    const pageUrl = `https://vexatoys.com/${category}/${slug}`;
+
     return {
       title: `${name} | Vexa Store Lebanon`,
       description: desc,
       openGraph: {
         title: `${name} | Vexa Store Lebanon`,
         description: desc,
-        url: `https://vexatoys.com/${category}/${slug}`,
-        images: product.image ? [{ url: product.image, alt: name }] : [],
+        url: pageUrl,
+        siteName: 'Vexa Store Lebanon',
+        images: [{ url: imgUrl, alt: name, width: 800, height: 800 }],
         type: 'website',
       },
-      alternates: { canonical: `https://vexatoys.com/${category}/${slug}` },
+      twitter: {
+        card: 'summary_large_image',
+        title: `${name} | Vexa Store Lebanon`,
+        description: desc,
+        images: [imgUrl],
+      },
+      alternates: { canonical: pageUrl },
       robots: { index: true, follow: true },
     };
   } catch {
