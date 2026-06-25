@@ -202,9 +202,9 @@ export const ShopProvider: React.FC<{
   useEffect(() => {
     if (products.length === 0) return;
 
-    // v2 — يتجاهل أي cache قديم فارغ من النسخ السابقة
-    const IMG_KEY = 'vexa_images_v2';
-    const IMG_TS_KEY = 'vexa_images_v2_ts';
+    // الصور تجي من /api/images (Vercel CDN) — Firebase تُقرأ مرة واحدة كل 24h على السيرفر فقط
+    const IMG_KEY = 'vexa_images_v3';
+    const IMG_TS_KEY = 'vexa_images_v3_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
 
     const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
@@ -217,7 +217,7 @@ export const ShopProvider: React.FC<{
       }));
     };
 
-    // تحقق من الـ cache — لكن فقط إذا فيه بيانات فعلية (مش فارغ)
+    // تحقق من الـ cache المحلي أولاً
     try {
       const cached = localStorage.getItem(IMG_KEY);
       const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
@@ -227,55 +227,28 @@ export const ShopProvider: React.FC<{
           applyMap(parsed);
           return;
         }
-        // cache فارغ — امسحه وأعد الجلب
         localStorage.removeItem(IMG_KEY);
         localStorage.removeItem(IMG_TS_KEY);
       }
     } catch (_) {}
 
-    // جلب الصور من Firebase بـ getDoc لكل منتج (يعمل مع أي Firestore security rules)
+    // جلب الصور من /api/images — Vercel CDN يخزنها 24 ساعة، Firebase لا تُقرأ لكل زبون
     const fetchImages = async () => {
       try {
-        const imageMap: Record<string, { image: string; images: string[] }> = {};
-
-        // نجيب الصور بـ getDoc — يعمل حتى لو الـ rules تمنع list ولا تمنع get
-        const results = await Promise.allSettled(
-          products.map(async p => {
-            const [imgSnap, prodSnap] = await Promise.allSettled([
-              getDoc(doc(db, 'product_images', p.id)),
-              getDoc(doc(db, 'products', p.id)),
-            ]);
-
-            let mainImg = '';
-            let imgs: string[] = [];
-
-            if (imgSnap.status === 'fulfilled' && imgSnap.value.exists()) {
-              const d = imgSnap.value.data();
-              imgs = Array.isArray(d.images) ? (d.images as string[]).filter(Boolean) : [];
-              mainImg = imgs[0] || '';
-            }
-            if (!mainImg && prodSnap.status === 'fulfilled' && prodSnap.value.exists()) {
-              const d = prodSnap.value.data();
-              mainImg = (d.image as string) || '';
-              if (!imgs.length) imgs = Array.isArray(d.images) ? (d.images as string[]).filter(Boolean) : [];
-            }
-            if (mainImg || imgs.length) {
-              imageMap[p.id] = { image: mainImg || imgs[0], images: imgs };
-            }
-          })
-        );
-        void results;
-
-        // حفظ في localStorage فقط إذا فيه صور فعلية — لا نحفظ cache فارغ
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 10000);
+        const resp = await fetch('/api/images', { signal: ctrl });
+        clearTimeout(t);
+        if (!resp.ok) return;
+        const imageMap = await resp.json() as Record<string, { image: string; images: string[] }>;
         if (Object.keys(imageMap).length > 0) {
           try {
             localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
             localStorage.setItem(IMG_TS_KEY, String(Date.now()));
           } catch (_) {}
+          applyMap(imageMap);
         }
-
-        applyMap(imageMap);
-      } catch (_) { /* Firebase غير متاح */ }
+      } catch (_) { /* الشبكة غير متاحة */ }
     };
 
     fetchImages();
