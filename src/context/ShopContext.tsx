@@ -200,8 +200,7 @@ export const ShopProvider: React.FC<{
 
   // ─── تحميل الصور من Firebase — مرة واحدة لكل زبون كل 24 ساعة ────────────
   useEffect(() => {
-    if (isProductsLoading || products.length === 0) return;
-    if (initialProducts && initialProducts.length > 0) return;
+    if (products.length === 0) return;
 
     const IMG_KEY = 'vexa_images_v1';
     const IMG_TS_KEY = 'vexa_images_v1_ts';
@@ -271,7 +270,7 @@ export const ShopProvider: React.FC<{
     };
 
     fetchImages();
-  }, [isProductsLoading]); // eslint-disable-line
+  }, [products.length]); // eslint-disable-line
   // ──────────────────────────────────────────────────────────────────────────
 
   // Resolve initial product page from URL slug after products load
