@@ -173,7 +173,7 @@ export const ShopProvider: React.FC<{
           const products: Product[] = await resp.json();
 
           if (!Array.isArray(products) || products.length === 0) {
-            if (!cachedRaw) setProducts([]);
+            if (!cachedRaw) setProducts(MOCK_PRODUCTS);
             setIsProductsLoading(false);
             return;
           }
@@ -189,7 +189,7 @@ export const ShopProvider: React.FC<{
         } catch (err) {
           if (process.env.NODE_ENV === 'development') console.error('Products load error:', err);
           if (!cachedRaw) {
-            setProducts([]);
+            setProducts(MOCK_PRODUCTS);
             setIsProductsLoading(false);
           }
         }
