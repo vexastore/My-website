@@ -159,11 +159,72 @@ export const ShopProvider: React.FC<{
         }
       }
 
+      // تحميل الصور من Firebase مرة واحدة كل 24 ساعة — بدون ضغط على الـ quota
+      const mergeImages = (prods: Product[], imageMap: Record<string, { image: string; images: string[] }>) =>
+        prods.map(p => {
+          const fb = imageMap[p.id];
+          if (fb && (fb.image || fb.images?.length)) {
+            return { ...p, image: fb.image || p.image, images: fb.images?.length ? fb.images : p.images };
+          }
+          return p;
+        });
+
+      const loadAllImages = async (prods: Product[]) => {
+        const IMG_CACHE_KEY = 'vexa_images_v1';
+        const IMG_CACHE_TS_KEY = 'vexa_images_v1_ts';
+        const IMG_CACHE_TTL = 24 * 60 * 60 * 1000;
+
+        // تحقق من الـ cache أولاً
+        try {
+          const cached = localStorage.getItem(IMG_CACHE_KEY);
+          const ts = Number(localStorage.getItem(IMG_CACHE_TS_KEY) || 0);
+          if (cached && Date.now() - ts < IMG_CACHE_TTL) {
+            const imageMap = JSON.parse(cached) as Record<string, { image: string; images: string[] }>;
+            setProducts(mergeImages(prods, imageMap));
+            return;
+          }
+        } catch (_) {}
+
+        // جلب الصور من Firebase (مرة واحدة كل 24 ساعة فقط)
+        try {
+          const [prodSnap, imgSnap] = await Promise.all([
+            getDocs(collection(db, 'products')),
+            getDocs(collection(db, 'product_images')),
+          ]);
+
+          const imageMap: Record<string, { image: string; images: string[] }> = {};
+
+          prodSnap.forEach(docSnap => {
+            const data = docSnap.data();
+            const img = (data.image as string) || '';
+            const imgs = Array.isArray(data.images) ? (data.images as string[]).filter(Boolean) : [];
+            if (img || imgs.length) imageMap[docSnap.id] = { image: img, images: imgs };
+          });
+
+          imgSnap.forEach(docSnap => {
+            if (imageMap[docSnap.id]) return;
+            const data = docSnap.data();
+            const imgs = Array.isArray(data.images) ? (data.images as string[]).filter(Boolean) : [];
+            if (imgs.length) imageMap[docSnap.id] = { image: imgs[0], images: imgs };
+          });
+
+          // حفظ في localStorage
+          try {
+            localStorage.setItem(IMG_CACHE_KEY, JSON.stringify(imageMap));
+            localStorage.setItem(IMG_CACHE_TS_KEY, String(Date.now()));
+          } catch (_) {}
+
+          setProducts(mergeImages(prods, imageMap));
+        } catch (_) {
+          // Firebase غير متاح — استمر بدون صور
+        }
+      };
+
       const loadProducts = async () => {
         if (!cachedRaw) setIsProductsLoading(true);
 
         try {
-          // يجيب المنتجات من Vercel (محفوظة 24 ساعة) — Firebase تُقرأ مرة واحدة في اليوم فقط
+          // يجيب المنتجات من Vercel CDN (24 ساعة cache) — Firebase لا تُقرأ هنا إطلاقاً
           const ctrl = new AbortController();
           const t = setTimeout(() => ctrl.abort(), 15000);
           const resp = await fetch('/api/products', { signal: ctrl });
@@ -185,6 +246,9 @@ export const ShopProvider: React.FC<{
             localStorage.setItem(CACHE_KEY, JSON.stringify(products));
             localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
           } catch (_) {}
+
+          // تحميل الصور في الخلفية — لا يؤثر على سرعة تحميل المنتجات
+          loadAllImages(products).catch(() => {});
 
         } catch (err) {
           if (process.env.NODE_ENV === 'development') console.error('Products load error:', err);
