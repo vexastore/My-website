@@ -198,13 +198,13 @@ export const ShopProvider: React.FC<{
       loadProducts();
     }, [])
 
-  // ─── تحميل الصور من Firebase — مرة واحدة لكل زبون كل 24 ساعة ────────────
+  // ─── تحميل الصور من Firebase Client SDK (نفس آلية صفحة تفاصيل المنتج) ────
   useEffect(() => {
     if (products.length === 0) return;
 
-    // الصور تجي من /api/images (Vercel CDN) — Firebase تُقرأ مرة واحدة كل 24h على السيرفر فقط
-    const IMG_KEY = 'vexa_images_v3';
-    const IMG_TS_KEY = 'vexa_images_v3_ts';
+    // v4 — cache key جديد، يتجاهل أي cache قديم
+    const IMG_KEY = 'vexa_images_v4';
+    const IMG_TS_KEY = 'vexa_images_v4_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
 
     const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
@@ -217,7 +217,7 @@ export const ShopProvider: React.FC<{
       }));
     };
 
-    // تحقق من الـ cache المحلي أولاً
+    // تحقق من الـ cache أولاً — فقط إذا فيه بيانات حقيقية
     try {
       const cached = localStorage.getItem(IMG_KEY);
       const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
@@ -232,15 +232,35 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // جلب الصور من /api/images — Vercel CDN يخزنها 24 ساعة، Firebase لا تُقرأ لكل زبون
-    const fetchImages = async () => {
+    // نفس منطق fetchProductImages — يعمل لأن Firebase Client SDK مسموح من المتصفح
+    const loadAllImages = async () => {
       try {
-        const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 10000);
-        const resp = await fetch('/api/images', { signal: ctrl });
-        clearTimeout(t);
-        if (!resp.ok) return;
-        const imageMap = await resp.json() as Record<string, { image: string; images: string[] }>;
+        const imageMap: Record<string, { image: string; images: string[] }> = {};
+        const prods = products; // capture current products
+
+        await Promise.allSettled(
+          prods.map(async (p) => {
+            try {
+              const [gallerySnap, productSnap] = await Promise.all([
+                getDoc(doc(db, IMAGES_COLLECTION, p.id)),
+                getDoc(doc(db, PRODUCTS_COLLECTION, p.id)),
+              ]);
+              const galleryImgs: string[] = gallerySnap.exists()
+                ? ((gallerySnap.data().images as string[]) || []).filter(Boolean)
+                : [];
+              const productData = productSnap.exists() ? productSnap.data() : null;
+              const productImgs: string[] = productData
+                ? ((productData.images as string[]) || []).filter(Boolean)
+                : [];
+              const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
+              const mainImg = bestImgs[0] || (productData?.image as string) || '';
+              if (mainImg || bestImgs.length) {
+                imageMap[p.id] = { image: mainImg, images: bestImgs };
+              }
+            } catch (_) {}
+          })
+        );
+
         if (Object.keys(imageMap).length > 0) {
           try {
             localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
@@ -248,10 +268,10 @@ export const ShopProvider: React.FC<{
           } catch (_) {}
           applyMap(imageMap);
         }
-      } catch (_) { /* الشبكة غير متاحة */ }
+      } catch (_) {}
     };
 
-    fetchImages();
+    loadAllImages();
   }, [products.length]); // eslint-disable-line
   // ──────────────────────────────────────────────────────────────────────────
 
