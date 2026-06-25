@@ -202,8 +202,9 @@ export const ShopProvider: React.FC<{
   useEffect(() => {
     if (products.length === 0) return;
 
-    const IMG_KEY = 'vexa_images_v1';
-    const IMG_TS_KEY = 'vexa_images_v1_ts';
+    // v2 — يتجاهل أي cache قديم فارغ من النسخ السابقة
+    const IMG_KEY = 'vexa_images_v2';
+    const IMG_TS_KEY = 'vexa_images_v2_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
 
     const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
@@ -216,13 +217,19 @@ export const ShopProvider: React.FC<{
       }));
     };
 
-    // تحقق من الـ cache أولاً — إذا موجود وحديث، طبّقه مباشرة
+    // تحقق من الـ cache — لكن فقط إذا فيه بيانات فعلية (مش فارغ)
     try {
       const cached = localStorage.getItem(IMG_KEY);
       const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
       if (cached && Date.now() - ts < IMG_TTL) {
-        applyMap(JSON.parse(cached));
-        return;
+        const parsed = JSON.parse(cached) as Record<string, { image: string; images: string[] }>;
+        if (Object.keys(parsed).length > 0) {
+          applyMap(parsed);
+          return;
+        }
+        // cache فارغ — امسحه وأعد الجلب
+        localStorage.removeItem(IMG_KEY);
+        localStorage.removeItem(IMG_TS_KEY);
       }
     } catch (_) {}
 
@@ -259,11 +266,13 @@ export const ShopProvider: React.FC<{
         );
         void results;
 
-        // حفظ في localStorage 24 ساعة
-        try {
-          localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
-          localStorage.setItem(IMG_TS_KEY, String(Date.now()));
-        } catch (_) {}
+        // حفظ في localStorage فقط إذا فيه صور فعلية — لا نحفظ cache فارغ
+        if (Object.keys(imageMap).length > 0) {
+          try {
+            localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
+            localStorage.setItem(IMG_TS_KEY, String(Date.now()));
+          } catch (_) {}
+        }
 
         applyMap(imageMap);
       } catch (_) { /* Firebase غير متاح */ }
