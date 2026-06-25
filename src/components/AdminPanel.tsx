@@ -28,6 +28,8 @@ export const AdminPanel: React.FC = () => {
   const [loginError, setLoginError] = useState('');
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncResult, setSyncResult] = useState<string | null>(null);
+  const [isDeploying, setIsDeploying] = useState(false);
+  const [deployResult, setDeployResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedDay, setSelectedDay] = useState<string>('all');
@@ -106,6 +108,25 @@ export const AdminPanel: React.FC = () => {
       setSyncResult('❌ خطأ: ' + msg);
     } finally {
       setIsSyncing(false);
+    }
+  };
+
+  const handleDeploy = async () => {
+    if (!window.confirm('سيتم نشر الموقع وتحديث المنتجات. يستغرق ~2 دقيقة. متأكد؟')) return;
+    setIsDeploying(true);
+    setDeployResult(null);
+    try {
+      const res = await fetch('/api/deploy', { method: 'POST' });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setDeployResult({ ok: true, msg: '✅ تم إرسال أمر النشر! الموقع سيتحدث خلال ~2 دقيقة.' });
+      } else {
+        setDeployResult({ ok: false, msg: data.error || '❌ خطأ — تأكد من إعداد VERCEL_DEPLOY_HOOK في Vercel.' });
+      }
+    } catch {
+      setDeployResult({ ok: false, msg: '❌ تعذّر الاتصال بالخادم.' });
+    } finally {
+      setIsDeploying(false);
     }
   };
 
@@ -488,7 +509,17 @@ export const AdminPanel: React.FC = () => {
           {syncResult && (
             <p className="text-xs font-bold mt-1 ${syncResult.startsWith('✅') ? 'text-green-400' : 'text-red-400'}">{syncResult}</p>
           )}
+          {deployResult && (
+            <p className={`text-xs font-bold mt-1 ${deployResult.ok ? 'text-green-400' : 'text-red-400'}`}>{deployResult.msg}</p>
+          )}
         </div>
+        <button
+          onClick={handleDeploy}
+          disabled={isDeploying}
+          className="flex items-center gap-2 border border-green-500/40 bg-green-950/30 px-4 py-2 text-xs font-bold text-green-300 hover:text-green-200 rounded-lg transition disabled:opacity-50 ml-2"
+        >
+          {isDeploying ? <><Loader2 size={14} className="animate-spin" /> جاري النشر...</> : <>🚀 نشر الموقع</>}
+        </button>
         <button
           onClick={syncAllToFirebase}
           disabled={isSyncing}
