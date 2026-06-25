@@ -23,8 +23,8 @@ function toSlug(n) {
 }
 
 export default async function handler(req, res) {
-  // Vercel يحفظ النتيجة 24 ساعة — Firebase تُقرأ مرة واحدة فقط في اليوم
-  res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=43200');
+  // Cache for 5 minutes to allow fresh product data
+  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=60');
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   const allDocs = [];
