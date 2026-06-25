@@ -140,8 +140,8 @@ export const ShopProvider: React.FC<{
     useEffect(() => {
       if (initialProducts && initialProducts.length > 0) return;
 
-      const CACHE_KEY = 'adult_store_products';
-      const CACHE_TS_KEY = 'adult_store_products_ts';
+      const CACHE_KEY = 'vexa_products_v2';
+      const CACHE_TS_KEY = 'vexa_products_v2_ts';
       const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 ساعة بدل 5 دقائق
       const cachedRaw = localStorage.getItem(CACHE_KEY);
       const cachedTs = Number(localStorage.getItem(CACHE_TS_KEY) || 0);
