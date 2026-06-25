@@ -50,21 +50,19 @@ export default async function CategoryPage({ params }: Props) {
 
   const meta = getCategoryMeta(slug);
 
-  // Fetch only for JSON-LD (thin data — no images array, no descriptions)
-  let jsonLdProducts: { name: string; url: string; image: string; price: number; stock: number }[] = [];
-  try {
-    const all = await fetchProductsServer();
-    jsonLdProducts = all
-      .filter(p => p.categorySlug === slug || p.category === categoryId)
-      .slice(0, 8)
-      .map(p => ({
-        name: p.nameEn || p.name,
-        url: `https://vexatoys.com/${slug}/${p.slug}`,
-        image: p.image || '',
-        price: p.price,
-        stock: p.stock,
-      }));
-  } catch { /* non-blocking */ }
+  // Load all products from static file (zero Firebase reads)
+  const allProducts = await fetchProductsServer();
+
+  const jsonLdProducts = allProducts
+    .filter(p => p.categorySlug === slug || p.category === categoryId)
+    .slice(0, 8)
+    .map(p => ({
+      name: p.nameEn || p.name,
+      url: `https://vexatoys.com/${slug}/${p.slug}`,
+      image: p.image || '',
+      price: p.price,
+      stock: p.stock,
+    }));
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -113,7 +111,7 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ShopApp initialCategory={categoryId} initialView="shop" />
+      <ShopApp initialProducts={allProducts} initialCategory={categoryId} initialView="shop" />
     </>
   );
 }
