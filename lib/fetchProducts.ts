@@ -20,17 +20,20 @@ function parseField(field: any): any {
 }
 
 function toSlug(n: string): string {
-  return (n || '').toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-    .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60) || 'product';
+  return (n || '').toLowerCase().replace(/[^a-z0-9s-]/g, '').replace(/s+/g, '-')
+    .replace(/-+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'product';
 }
 
+// Reads from Firebase ONCE at build time. Zero reads in production.
+// To refresh products: redeploy on Vercel (Deployments → Redeploy).
 export async function fetchProductsServer(): Promise<Product[]> {
   const docs: any[] = [];
   let pageToken = '';
   try {
     do {
       const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/products?pageSize=300&key=${FIREBASE_API_KEY}${pageToken ? `&pageToken=${encodeURIComponent(pageToken)}` : ''}`;
-      const resp = await fetch(url, { next: { revalidate: 3600 } });
+      // force-cache = cached forever at build time, never re-fetched in production
+      const resp = await fetch(url, { cache: 'force-cache' });
       if (!resp.ok) break;
       const data = await resp.json();
       if (data.documents) docs.push(...data.documents);
