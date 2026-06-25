@@ -159,67 +159,6 @@ export const ShopProvider: React.FC<{
         }
       }
 
-      // تحميل الصور من Firebase مرة واحدة كل 24 ساعة — بدون ضغط على الـ quota
-      const mergeImages = (prods: Product[], imageMap: Record<string, { image: string; images: string[] }>) =>
-        prods.map(p => {
-          const fb = imageMap[p.id];
-          if (fb && (fb.image || fb.images?.length)) {
-            return { ...p, image: fb.image || p.image, images: fb.images?.length ? fb.images : p.images };
-          }
-          return p;
-        });
-
-      const loadAllImages = async (prods: Product[]) => {
-        const IMG_CACHE_KEY = 'vexa_images_v1';
-        const IMG_CACHE_TS_KEY = 'vexa_images_v1_ts';
-        const IMG_CACHE_TTL = 24 * 60 * 60 * 1000;
-
-        // تحقق من الـ cache أولاً
-        try {
-          const cached = localStorage.getItem(IMG_CACHE_KEY);
-          const ts = Number(localStorage.getItem(IMG_CACHE_TS_KEY) || 0);
-          if (cached && Date.now() - ts < IMG_CACHE_TTL) {
-            const imageMap = JSON.parse(cached) as Record<string, { image: string; images: string[] }>;
-            setProducts(mergeImages(prods, imageMap));
-            return;
-          }
-        } catch (_) {}
-
-        // جلب الصور من Firebase (مرة واحدة كل 24 ساعة فقط)
-        try {
-          const [prodSnap, imgSnap] = await Promise.all([
-            getDocs(collection(db, 'products')),
-            getDocs(collection(db, 'product_images')),
-          ]);
-
-          const imageMap: Record<string, { image: string; images: string[] }> = {};
-
-          prodSnap.forEach(docSnap => {
-            const data = docSnap.data();
-            const img = (data.image as string) || '';
-            const imgs = Array.isArray(data.images) ? (data.images as string[]).filter(Boolean) : [];
-            if (img || imgs.length) imageMap[docSnap.id] = { image: img, images: imgs };
-          });
-
-          imgSnap.forEach(docSnap => {
-            if (imageMap[docSnap.id]) return;
-            const data = docSnap.data();
-            const imgs = Array.isArray(data.images) ? (data.images as string[]).filter(Boolean) : [];
-            if (imgs.length) imageMap[docSnap.id] = { image: imgs[0], images: imgs };
-          });
-
-          // حفظ في localStorage
-          try {
-            localStorage.setItem(IMG_CACHE_KEY, JSON.stringify(imageMap));
-            localStorage.setItem(IMG_CACHE_TS_KEY, String(Date.now()));
-          } catch (_) {}
-
-          setProducts(mergeImages(prods, imageMap));
-        } catch (_) {
-          // Firebase غير متاح — استمر بدون صور
-        }
-      };
-
       const loadProducts = async () => {
         if (!cachedRaw) setIsProductsLoading(true);
 
@@ -247,9 +186,6 @@ export const ShopProvider: React.FC<{
             localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
           } catch (_) {}
 
-          // تحميل الصور في الخلفية — لا يؤثر على سرعة تحميل المنتجات
-          loadAllImages(products).catch(() => {});
-
         } catch (err) {
           if (process.env.NODE_ENV === 'development') console.error('Products load error:', err);
           if (!cachedRaw) {
@@ -261,6 +197,83 @@ export const ShopProvider: React.FC<{
 
       loadProducts();
     }, [])
+
+  // ─── تحميل الصور من Firebase — مرة واحدة لكل زبون كل 24 ساعة ────────────
+  useEffect(() => {
+    if (isProductsLoading || products.length === 0) return;
+    if (initialProducts && initialProducts.length > 0) return;
+
+    const IMG_KEY = 'vexa_images_v1';
+    const IMG_TS_KEY = 'vexa_images_v1_ts';
+    const IMG_TTL = 24 * 60 * 60 * 1000;
+
+    const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
+      setProducts(prev => prev.map(p => {
+        const fb = imageMap[p.id];
+        if (fb && (fb.image || fb.images?.length)) {
+          return { ...p, image: fb.image || p.image, images: fb.images?.length ? fb.images : p.images };
+        }
+        return p;
+      }));
+    };
+
+    // تحقق من الـ cache أولاً — إذا موجود وحديث، طبّقه مباشرة
+    try {
+      const cached = localStorage.getItem(IMG_KEY);
+      const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
+      if (cached && Date.now() - ts < IMG_TTL) {
+        applyMap(JSON.parse(cached));
+        return;
+      }
+    } catch (_) {}
+
+    // جلب الصور من Firebase بـ getDoc لكل منتج (يعمل مع أي Firestore security rules)
+    const fetchImages = async () => {
+      try {
+        const imageMap: Record<string, { image: string; images: string[] }> = {};
+
+        // نجيب الصور بـ getDoc — يعمل حتى لو الـ rules تمنع list ولا تمنع get
+        const results = await Promise.allSettled(
+          products.map(async p => {
+            const [imgSnap, prodSnap] = await Promise.allSettled([
+              getDoc(doc(db, 'product_images', p.id)),
+              getDoc(doc(db, 'products', p.id)),
+            ]);
+
+            let mainImg = '';
+            let imgs: string[] = [];
+
+            if (imgSnap.status === 'fulfilled' && imgSnap.value.exists()) {
+              const d = imgSnap.value.data();
+              imgs = Array.isArray(d.images) ? (d.images as string[]).filter(Boolean) : [];
+              mainImg = imgs[0] || '';
+            }
+            if (!mainImg && prodSnap.status === 'fulfilled' && prodSnap.value.exists()) {
+              const d = prodSnap.value.data();
+              mainImg = (d.image as string) || '';
+              if (!imgs.length) imgs = Array.isArray(d.images) ? (d.images as string[]).filter(Boolean) : [];
+            }
+            if (mainImg || imgs.length) {
+              imageMap[p.id] = { image: mainImg || imgs[0], images: imgs };
+            }
+          })
+        );
+        void results;
+
+        // حفظ في localStorage 24 ساعة
+        try {
+          localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
+          localStorage.setItem(IMG_TS_KEY, String(Date.now()));
+        } catch (_) {}
+
+        applyMap(imageMap);
+      } catch (_) { /* Firebase غير متاح */ }
+    };
+
+    fetchImages();
+  }, [isProductsLoading]); // eslint-disable-line
+  // ──────────────────────────────────────────────────────────────────────────
+
   // Resolve initial product page from URL slug after products load
     useEffect(() => {
       if (isProductsLoading || products.length === 0) return;
