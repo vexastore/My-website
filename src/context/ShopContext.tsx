@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockData';
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import {
   collection,
   doc,
@@ -12,7 +12,6 @@ import {
   writeBatch,
   getDoc
 } from 'firebase/firestore';
-import { signInAnonymously } from 'firebase/auth';
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
@@ -233,36 +232,12 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // جلب الصور: anonymous auth أولاً ثم getDoc لكل منتج
+    // request واحدة للسيرفر — Vercel CDN يحفظ الصور 24 ساعة لكل الزوار
     const loadAllImages = async () => {
       try {
-        if (!auth.currentUser) {
-          await signInAnonymously(auth).catch(() => {});
-        }
-        const imageMap: Record<string, { image: string; images: string[] }> = {};
-        const prods = products;
-        await Promise.allSettled(
-          prods.map(async (p) => {
-            try {
-              const [gallerySnap, productSnap] = await Promise.all([
-                getDoc(doc(db, IMAGES_COLLECTION, p.id)),
-                getDoc(doc(db, PRODUCTS_COLLECTION, p.id)),
-              ]);
-              const galleryImgs: string[] = gallerySnap.exists()
-                ? ((gallerySnap.data().images as string[]) || []).filter(Boolean)
-                : [];
-              const productData = productSnap.exists() ? productSnap.data() : null;
-              const productImgs: string[] = productData
-                ? ((productData.images as string[]) || []).filter(Boolean)
-                : [];
-              const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
-              const mainImg = bestImgs[0] || (productData?.image as string) || '';
-              if (mainImg || bestImgs.length) {
-                imageMap[p.id] = { image: mainImg, images: bestImgs };
-              }
-            } catch (_) {}
-          })
-        );
+        const res = await fetch('/api/images');
+        if (!res.ok) return;
+        const imageMap = await res.json() as Record<string, { image: string; images: string[] }>;
         if (Object.keys(imageMap).length > 0) {
           try {
             localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
