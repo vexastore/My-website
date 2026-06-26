@@ -11,6 +11,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart, cart, language } = useShop();
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const [imgFailed, setImgFailed] = useState(false);
   const isArabic = language === 'ar';
   const productImages = product.images && product.images.length > 0 ? product.images : [product.image];
   const selectedImage = productImages[selectedImageIndex] || product.image;
@@ -22,7 +24,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       ? 'from-[#351018] via-[#9a1f55] to-[#bf2f65]'
       : 'from-[#1b1547] via-[#5a35bc] to-[#9d6cff]';
 
-  // Find if item is already in cart to see current quantity selected
   const cartItem = cart.find((item) => item.product.id === product.id);
   const cartQty = cartItem ? cartItem.quantity : 0;
   const remainingStock = product.stock - cartQty;
@@ -34,6 +35,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     }
   };
 
+  const showPlaceholder = !imgLoaded || imgFailed;
+
   return (
     <>
     <div onClick={() => setIsDetailsOpen(true)} className="group cursor-pointer bg-[#050505] text-white">
@@ -43,30 +46,45 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </span>
 
         <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.6),transparent_18%),radial-gradient(circle_at_72%_34%,rgba(255,255,255,0.28),transparent_10%)] opacity-50" />
-          <div className="absolute left-1/2 top-1/2 h-[58%] w-[35%] -translate-x-1/2 -translate-y-1/2 rounded-[999px] border-[18px] border-white/18 bg-white/8 shadow-2xl shadow-white/20" />
-          <div className="absolute left-1/2 top-[58%] h-[16%] w-[36%] -translate-x-1/2 rounded-full bg-black/25 blur-[1px]" />
-          <div className="absolute left-[22%] top-[69%] h-10 w-10 rotate-45 bg-white/16" />
-          <div className="absolute right-[21%] top-[22%] h-8 w-8 rotate-45 bg-white/16" />
-          <div className="absolute left-[18%] top-[25%] h-8 w-8 rounded-full bg-white/25" />
-          <div className="absolute right-[15%] top-[25%] h-5 w-5 rounded-full bg-white/25" />
+          {/* Placeholder decorative elements — shown only when image hasn't loaded */}
+          {showPlaceholder && (
+            <>
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.6),transparent_18%),radial-gradient(circle_at_72%_34%,rgba(255,255,255,0.28),transparent_10%)] opacity-50" />
+              <div className="absolute left-1/2 top-1/2 h-[58%] w-[35%] -translate-x-1/2 -translate-y-1/2 rounded-[999px] border-[18px] border-white/18 bg-white/8 shadow-2xl shadow-white/20" />
+              <div className="absolute left-1/2 top-[58%] h-[16%] w-[36%] -translate-x-1/2 rounded-full bg-black/25 blur-[1px]" />
+              <div className="absolute left-[22%] top-[69%] h-10 w-10 rotate-45 bg-white/16" />
+              <div className="absolute right-[21%] top-[22%] h-8 w-8 rotate-45 bg-white/16" />
+              <div className="absolute left-[18%] top-[25%] h-8 w-8 rounded-full bg-white/25" />
+              <div className="absolute right-[15%] top-[25%] h-5 w-5 rounded-full bg-white/25" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
+                <span className="text-2xl font-black tracking-[0.18em] sm:text-3xl">VEXA</span>
+                <span className="mt-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/90 sm:text-xs">
+                  {product.category === 'Dildos'
+                    ? 'Medical Silicone'
+                    : product.category === 'Lingerie'
+                    ? 'Soft Fit'
+                    : product.category === 'Male Toys'
+                    ? 'Discreet'
+                    : product.category === 'BDSM'
+                    ? 'Starter Kit'
+                    : 'Premium'}
+                </span>
+              </div>
+            </>
+          )}
 
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-            <span className="text-2xl font-black tracking-[0.18em] sm:text-3xl">VEXA</span>
-            <span className="mt-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/90 sm:text-xs">
-              {product.category === 'Dildos'
-                ? 'Medical Silicone'
-                : product.category === 'Lingerie'
-                ? 'Soft Fit'
-                : product.category === 'Male Toys'
-                ? 'Discreet'
-                : product.category === 'BDSM'
-                ? 'Starter Kit'
-                : 'Premium'}
-            </span>
-          </div>
+          {/* Real product image */}
+          {product.image && !imgFailed && (
+            <img
+              src={product.image}
+              alt={isArabic ? product.name : product.nameEn}
+              className={`absolute inset-0 z-[1] h-full w-full object-cover transition-opacity duration-500 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+              onLoad={() => setImgLoaded(true)}
+              onError={() => setImgFailed(true)}
+            />
+          )}
 
-          <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs">
+          <div className="absolute bottom-5 left-5 right-5 z-[2] flex items-center justify-between text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs" style={{ textShadow: imgLoaded ? '0 1px 4px rgba(0,0,0,0.7)' : 'none' }}>
             <span>{categoryShort}</span>
             <span>{Math.max(remainingStock, 0)} LEFT</span>
           </div>
