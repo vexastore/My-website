@@ -46,31 +46,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </span>
 
         <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
-          {/* Placeholder decorative elements — shown only when image hasn't loaded */}
+          {/* Skeleton بسيط أثناء تحميل الصورة */}
           {showPlaceholder && (
-            <>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_35%_28%,rgba(255,255,255,0.6),transparent_18%),radial-gradient(circle_at_72%_34%,rgba(255,255,255,0.28),transparent_10%)] opacity-50" />
-              <div className="absolute left-1/2 top-1/2 h-[58%] w-[35%] -translate-x-1/2 -translate-y-1/2 rounded-[999px] border-[18px] border-white/18 bg-white/8 shadow-2xl shadow-white/20" />
-              <div className="absolute left-1/2 top-[58%] h-[16%] w-[36%] -translate-x-1/2 rounded-full bg-black/25 blur-[1px]" />
-              <div className="absolute left-[22%] top-[69%] h-10 w-10 rotate-45 bg-white/16" />
-              <div className="absolute right-[21%] top-[22%] h-8 w-8 rotate-45 bg-white/16" />
-              <div className="absolute left-[18%] top-[25%] h-8 w-8 rounded-full bg-white/25" />
-              <div className="absolute right-[15%] top-[25%] h-5 w-5 rounded-full bg-white/25" />
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-                <span className="text-2xl font-black tracking-[0.18em] sm:text-3xl">VEXA</span>
-                <span className="mt-2 text-[10px] font-black uppercase tracking-[0.24em] text-white/90 sm:text-xs">
-                  {product.category === 'Dildos'
-                    ? 'Medical Silicone'
-                    : product.category === 'Lingerie'
-                    ? 'Soft Fit'
-                    : product.category === 'Male Toys'
-                    ? 'Discreet'
-                    : product.category === 'BDSM'
-                    ? 'Starter Kit'
-                    : 'Premium'}
-                </span>
-              </div>
-            </>
+            <div className="absolute inset-0 animate-pulse bg-[#1a1a2e]" />
           )}
 
           {/* Real product image */}
