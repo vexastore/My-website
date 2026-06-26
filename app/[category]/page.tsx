@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
+import { fetchImages } from '@/lib/fetchImages';
 import { CATEGORY_META, getCategoryMeta, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
 import { ShopApp } from '@/src/ShopApp';
 import { notFound } from 'next/navigation';
@@ -50,10 +51,19 @@ export default async function CategoryPage({ params }: Props) {
 
   const meta = getCategoryMeta(slug);
 
-  // Load all products from static file (zero Firebase reads)
-  const allProducts = await fetchProductsServer();
+  // جلب المنتجات والصور بالتوازي — server-side، مخزّن 24 ساعة
+  const [allProducts, imageMap] = await Promise.all([
+    fetchProductsServer(),
+    fetchImages(),
+  ]);
 
-  const jsonLdProducts = allProducts
+  // دمج الصور مع المنتجات قبل إرسالها للـ client
+  const productsWithImages = allProducts.map(p => ({
+    ...p,
+    ...(imageMap[p.id] ?? {}),
+  }));
+
+  const jsonLdProducts = productsWithImages
     .filter(p => p.categorySlug === slug || p.category === categoryId)
     .slice(0, 8)
     .map(p => ({
@@ -111,7 +121,7 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ShopApp initialProducts={allProducts} initialCategory={categoryId} initialView="shop" />
+      <ShopApp initialProducts={productsWithImages} initialCategory={categoryId} initialView="shop" />
     </>
   );
 }
