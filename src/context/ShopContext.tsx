@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { MOCK_PRODUCTS } from '../data/mockData';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import {
   collection,
   doc,
@@ -12,6 +12,7 @@ import {
   writeBatch,
   getDoc
 } from 'firebase/firestore';
+import { signInAnonymously } from 'firebase/auth';
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
@@ -203,8 +204,8 @@ export const ShopProvider: React.FC<{
     if (products.length === 0) return;
 
     // v4 — cache key جديد، يتجاهل أي cache قديم
-    const IMG_KEY = 'vexa_images_v5';
-    const IMG_TS_KEY = 'vexa_images_v5_ts';
+    const IMG_KEY = 'vexa_images_v6';
+    const IMG_TS_KEY = 'vexa_images_v6_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
 
     const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
@@ -232,12 +233,36 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // جلب الصور من /api/images (يستخدم anonymous auth تلقائياً)
+    // جلب الصور: anonymous auth أولاً ثم getDoc لكل منتج
     const loadAllImages = async () => {
       try {
-        const res = await fetch('/api/images');
-        if (!res.ok) return;
-        const imageMap = await res.json() as Record<string, { image: string; images: string[] }>;
+        if (!auth.currentUser) {
+          await signInAnonymously(auth).catch(() => {});
+        }
+        const imageMap: Record<string, { image: string; images: string[] }> = {};
+        const prods = products;
+        await Promise.allSettled(
+          prods.map(async (p) => {
+            try {
+              const [gallerySnap, productSnap] = await Promise.all([
+                getDoc(doc(db, IMAGES_COLLECTION, p.id)),
+                getDoc(doc(db, PRODUCTS_COLLECTION, p.id)),
+              ]);
+              const galleryImgs: string[] = gallerySnap.exists()
+                ? ((gallerySnap.data().images as string[]) || []).filter(Boolean)
+                : [];
+              const productData = productSnap.exists() ? productSnap.data() : null;
+              const productImgs: string[] = productData
+                ? ((productData.images as string[]) || []).filter(Boolean)
+                : [];
+              const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
+              const mainImg = bestImgs[0] || (productData?.image as string) || '';
+              if (mainImg || bestImgs.length) {
+                imageMap[p.id] = { image: mainImg, images: bestImgs };
+              }
+            } catch (_) {}
+          })
+        );
         if (Object.keys(imageMap).length > 0) {
           try {
             localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
