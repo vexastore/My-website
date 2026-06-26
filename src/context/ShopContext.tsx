@@ -232,6 +232,10 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
+    // إذا السيرفر حمّل الصور مسبقاً، تجاوز الطلب
+    const alreadyLoaded = products.filter(p => p.image).length;
+    if (alreadyLoaded >= products.length * 0.8) return;
+
     // request واحدة للسيرفر — Vercel CDN يحفظ الصور 24 ساعة لكل الزوار
     const loadAllImages = async () => {
       try {
