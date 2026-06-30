@@ -58,7 +58,7 @@ interface ShopContextType {
 }
 
 
-// ── URL slug → category mapping (for synchronous URL-based initialization) ──
+// ââ URL slug â category mapping (for synchronous URL-based initialization) ââ
 const URL_SLUG_TO_CATEGORY: Record<string, string> = {
   'sex-toys': 'Sex Toys', 'vibrators': 'Vibrators', 'male-toys': 'Male Toys',
   'dildos': 'Dildos', 'lingerie': 'Lingerie', 'bdsm': 'BDSM',
@@ -142,7 +142,7 @@ export const ShopProvider: React.FC<{
 
       const CACHE_KEY = 'vexa_products_v2';
       const CACHE_TS_KEY = 'vexa_products_v2_ts';
-      const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 ساعة بدل 5 دقائق
+      const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 Ø³Ø§Ø¹Ø© Ø¨Ø¯Ù 5 Ø¯ÙØ§Ø¦Ù
       const cachedRaw = localStorage.getItem(CACHE_KEY);
       const cachedTs = Number(localStorage.getItem(CACHE_TS_KEY) || 0);
 
@@ -163,7 +163,7 @@ export const ShopProvider: React.FC<{
         if (!cachedRaw) setIsProductsLoading(true);
 
         try {
-          // يجيب المنتجات من Vercel CDN (24 ساعة cache) — Firebase لا تُقرأ هنا إطلاقاً
+          // ÙØ¬ÙØ¨ Ø§ÙÙÙØªØ¬Ø§Øª ÙÙ Vercel CDN (24 Ø³Ø§Ø¹Ø© cache) â Firebase ÙØ§ ØªÙÙØ±Ø£ ÙÙØ§ Ø¥Ø·ÙØ§ÙØ§Ù
           const ctrl = new AbortController();
           const t = setTimeout(() => ctrl.abort(), 15000);
           const resp = await fetch('/api/products', { signal: ctrl });
@@ -198,11 +198,11 @@ export const ShopProvider: React.FC<{
       loadProducts();
     }, [])
 
-  // ─── تحميل الصور من Firebase Client SDK (نفس آلية صفحة تفاصيل المنتج) ────
+  // âââ ØªØ­ÙÙÙ Ø§ÙØµÙØ± ÙÙ Firebase Client SDK (ÙÙØ³ Ø¢ÙÙØ© ØµÙØ­Ø© ØªÙØ§ØµÙÙ Ø§ÙÙÙØªØ¬) ââââ
   useEffect(() => {
     if (products.length === 0) return;
 
-    // v4 — cache key جديد، يتجاهل أي cache قديم
+    // v4 â cache key Ø¬Ø¯ÙØ¯Ø ÙØªØ¬Ø§ÙÙ Ø£Ù cache ÙØ¯ÙÙ
     const IMG_KEY = 'vexa_images_v6';
     const IMG_TS_KEY = 'vexa_images_v6_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
@@ -217,7 +217,7 @@ export const ShopProvider: React.FC<{
       }));
     };
 
-    // تحقق من الـ cache أولاً — فقط إذا فيه بيانات حقيقية
+    // ØªØ­ÙÙ ÙÙ Ø§ÙÙ cache Ø£ÙÙØ§Ù â ÙÙØ· Ø¥Ø°Ø§ ÙÙÙ Ø¨ÙØ§ÙØ§Øª Ø­ÙÙÙÙØ©
     try {
       const cached = localStorage.getItem(IMG_KEY);
       const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
@@ -232,11 +232,11 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // إذا السيرفر حمّل الصور مسبقاً، تجاوز الطلب
+    // Ø¥Ø°Ø§ Ø§ÙØ³ÙØ±ÙØ± Ø­ÙÙÙ Ø§ÙØµÙØ± ÙØ³Ø¨ÙØ§ÙØ ØªØ¬Ø§ÙØ² Ø§ÙØ·ÙØ¨
     const alreadyLoaded = products.filter(p => p.image).length;
     if (alreadyLoaded >= products.length * 0.8) return;
 
-    // request واحدة للسيرفر — Vercel CDN يحفظ الصور 24 ساعة لكل الزوار
+    // request ÙØ§Ø­Ø¯Ø© ÙÙØ³ÙØ±ÙØ± â Vercel CDN ÙØ­ÙØ¸ Ø§ÙØµÙØ± 24 Ø³Ø§Ø¹Ø© ÙÙÙ Ø§ÙØ²ÙØ§Ø±
     const loadAllImages = async () => {
       try {
         const res = await fetch('/api/images');
@@ -254,7 +254,7 @@ export const ShopProvider: React.FC<{
 
     loadAllImages();
   }, [products.length]); // eslint-disable-line
-  // ──────────────────────────────────────────────────────────────────────────
+  // ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
   // Resolve initial product page from URL slug after products load
     useEffect(() => {
@@ -421,7 +421,7 @@ export const ShopProvider: React.FC<{
     localStorage.setItem('adult_store_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // ─── Firestore product operations ─────────────────────────────────────────
+  // âââ Firestore product operations âââââââââââââââââââââââââââââââââââââââââ
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -487,7 +487,7 @@ export const ShopProvider: React.FC<{
     }
   };
 
-  // ──────────────────────────────────────────────────────────────────────────
+  // ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 
   const toSlugLocal = (n: string) => (n || '').toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
@@ -539,7 +539,7 @@ export const ShopProvider: React.FC<{
       const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
       const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
       if (currentCartQty + quantity > product.stock) {
-        alert(`عذراً، الكمية المطلوبة غير متوفرة حالياً. الكمية المتبقية: ${product.stock}`);
+        alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØ·ÙÙØ¨Ø© ØºÙØ± ÙØªÙÙØ±Ø© Ø­Ø§ÙÙØ§Ù. Ø§ÙÙÙÙØ© Ø§ÙÙØªØ¨ÙÙØ©: ${product.stock}`);
         return prevCart;
       }
       if (existingItemIndex > -1) {
@@ -567,7 +567,7 @@ export const ShopProvider: React.FC<{
       prevCart.map(item => {
         if (item.product.id === productId) {
           if (quantity > item.product.stock) {
-            alert(`عذراً، الكمية المتوفرة هي ${item.product.stock} فقط.`);
+            alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØªÙÙØ±Ø© ÙÙ ${item.product.stock} ÙÙØ·.`);
             return item;
           }
           return { ...item, quantity };
@@ -578,7 +578,7 @@ export const ShopProvider: React.FC<{
   };
 
   const clearCart = () => setCart([]);
-  const getCartTotal = () => cart.reduce((t, i) => t + i.product.price * i.quantity, 0) + DELIVERY_FEE;
+  const getCartTotal = () => cart.reduce((t, i) => t + i.product.price * i.quantity, 0);
   const getCartItemsCount = () => cart.reduce((c, i) => c + i.quantity, 0);
 
   const placeOrder = (customer: CustomerInfo): Order | null => {
@@ -617,7 +617,7 @@ export const ShopProvider: React.FC<{
   };
 
   const deleteOrder = (orderId: string) => {
-    if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟')) {
+    if (window.confirm('ÙÙ Ø£ÙØª ÙØªØ£ÙØ¯ ÙÙ Ø±ØºØ¨ØªÙ ÙÙ Ø­Ø°Ù ÙØ°Ø§ Ø§ÙØ·ÙØ¨ ÙÙØ§Ø¦ÙØ§ÙØ')) {
       deleteOrderLocally(orderId);
     }
   };
