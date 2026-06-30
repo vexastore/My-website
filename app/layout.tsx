@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
   import './globals.css';
-  import MetaPixel from '@/components/MetaPixel';
+  import MetaPixel from '@/src/components/MetaPixel';
 
   export const metadata: Metadata = {
     metadataBase: new URL('https://vexatoys.com'),
