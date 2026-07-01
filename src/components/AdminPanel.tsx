@@ -37,7 +37,7 @@ export const AdminPanel: React.FC = () => {
   const [calNavYear, setCalNavYear] = useState(() => new Date().getFullYear());
   const [calNavMonth, setCalNavMonth] = useState(() => new Date().getMonth() + 1);
 
-  // Firebase-sourced orders (all customers) Ã¢ÂÂ loaded when admin unlocks
+  // Firebase-sourced orders (all customers) — loaded when admin unlocks
   const [firebaseOrders, setFirebaseOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
 
@@ -59,9 +59,9 @@ export const AdminPanel: React.FC = () => {
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  // Track whether the user actually changed images Ã¢ÂÂ prevents overwriting Firebase images on info-only edits
+  // Track whether the user actually changed images — prevents overwriting Firebase images on info-only edits
   const [imagesModifiedByUser, setImagesModifiedByUser] = useState(false);
-  // Backup of Firebase images Ã¢ÂÂ protects against accidental deletion
+  // Backup of Firebase images — protects against accidental deletion
   const loadedFirebaseImagesRef = useRef<string[]>([]);
 
   const [prodForm, setProdForm] = useState<{
@@ -87,8 +87,8 @@ export const AdminPanel: React.FC = () => {
 
   const ADMIN_HASH = 'ea6a140ff34999b68233c4d393701f8b0ec1516571fe9a66d994e9c094aeb065';
   const syncAllToFirebase = async () => {
-    if (!products.length) { alert('ÃÂÃÂ§ ÃÂªÃÂÃÂ¬ÃÂ¯ ÃÂÃÂÃÂªÃÂ¬ÃÂ§ÃÂª ÃÂÃÂ±ÃÂÃÂ¹ÃÂÃÂ§.'); return; }
-    if (!window.confirm('ÃÂ³ÃÂÃÂªÃÂ ÃÂ±ÃÂÃÂ¹ ' + products.length + ' ÃÂÃÂÃÂªÃÂ¬ ÃÂÃÂ Firebase. ÃÂÃÂªÃÂ£ÃÂÃÂ¯ÃÂ')) return;
+    if (!products.length) { alert('لا توجد منتجات لرفعها.'); return; }
+    if (!window.confirm('سيتم رفع ' + products.length + ' منتج لـ Firebase. متأكد؟')) return;
     setIsSyncing(true);
     setSyncResult(null);
     try {
@@ -102,29 +102,29 @@ export const AdminPanel: React.FC = () => {
         await batch.commit();
         saved += Math.min(CHUNK, products.length - i);
       }
-      setSyncResult('Ã¢ÂÂ ÃÂªÃÂ ÃÂ±ÃÂÃÂ¹ ' + saved + ' ÃÂÃÂÃÂªÃÂ¬ ÃÂÃÂ Firebase ÃÂ¨ÃÂÃÂ¬ÃÂ§ÃÂ­!');
+      setSyncResult('✅ تم رفع ' + saved + ' منتج لـ Firebase بنجاح!');
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      setSyncResult('Ã¢ÂÂ ÃÂ®ÃÂ·ÃÂ£: ' + msg);
+      setSyncResult('❌ خطأ: ' + msg);
     } finally {
       setIsSyncing(false);
     }
   };
 
   const handleDeploy = async () => {
-    if (!window.confirm('ÃÂ³ÃÂÃÂªÃÂ ÃÂÃÂ´ÃÂ± ÃÂ§ÃÂÃÂÃÂÃÂÃÂ¹ ÃÂÃÂªÃÂ­ÃÂ¯ÃÂÃÂ« ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ÃÂ§ÃÂª. ÃÂÃÂ³ÃÂªÃÂºÃÂ±ÃÂ ~2 ÃÂ¯ÃÂÃÂÃÂÃÂ©. ÃÂÃÂªÃÂ£ÃÂÃÂ¯ÃÂ')) return;
+    if (!window.confirm('سيتم نشر الموقع وتحديث المنتجات. يستغرق ~2 دقيقة. متأكد؟')) return;
     setIsDeploying(true);
     setDeployResult(null);
     try {
       const res = await fetch('/api/deploy', { method: 'POST' });
       const data = await res.json().catch(() => ({}));
       if (res.ok) {
-        setDeployResult({ ok: true, msg: 'Ã¢ÂÂ ÃÂªÃÂ ÃÂ¥ÃÂ±ÃÂ³ÃÂ§ÃÂ ÃÂ£ÃÂÃÂ± ÃÂ§ÃÂÃÂÃÂ´ÃÂ±! ÃÂ§ÃÂÃÂÃÂÃÂÃÂ¹ ÃÂ³ÃÂÃÂªÃÂ­ÃÂ¯ÃÂ« ÃÂ®ÃÂÃÂ§ÃÂ ~2 ÃÂ¯ÃÂÃÂÃÂÃÂ©.' });
+        setDeployResult({ ok: true, msg: '✅ تم إرسال أمر النشر! الموقع سيتحدث خلال ~2 دقيقة.' });
       } else {
-        setDeployResult({ ok: false, msg: data.error || 'Ã¢ÂÂ ÃÂ®ÃÂ·ÃÂ£ Ã¢ÂÂ ÃÂªÃÂ£ÃÂÃÂ¯ ÃÂÃÂ ÃÂ¥ÃÂ¹ÃÂ¯ÃÂ§ÃÂ¯ VERCEL_DEPLOY_HOOK ÃÂÃÂ Vercel.' });
+        setDeployResult({ ok: false, msg: data.error || '❌ خطأ — تأكد من إعداد VERCEL_DEPLOY_HOOK في Vercel.' });
       }
     } catch {
-      setDeployResult({ ok: false, msg: 'Ã¢ÂÂ ÃÂªÃÂ¹ÃÂ°ÃÂÃÂ± ÃÂ§ÃÂÃÂ§ÃÂªÃÂµÃÂ§ÃÂ ÃÂ¨ÃÂ§ÃÂÃÂ®ÃÂ§ÃÂ¯ÃÂ.' });
+      setDeployResult({ ok: false, msg: '❌ تعذّر الاتصال بالخادم.' });
     } finally {
       setIsDeploying(false);
     }
@@ -143,7 +143,7 @@ export const AdminPanel: React.FC = () => {
         const { until } = JSON.parse(lockData);
         if (Date.now() < until) {
           const mins = Math.ceil((until - Date.now()) / 60000);
-          setLoginError('ÃÂ­ÃÂ³ÃÂ§ÃÂ¨ ÃÂÃÂÃÂÃÂ. ÃÂ­ÃÂ§ÃÂÃÂ ÃÂ¨ÃÂ¹ÃÂ¯ ' + mins + ' ÃÂ¯ÃÂÃÂÃÂÃÂ©.');
+          setLoginError('حساب مقفل. حاول بعد ' + mins + ' دقيقة.');
           return;
         }
       }
@@ -161,14 +161,14 @@ export const AdminPanel: React.FC = () => {
           if (newAttempts >= 3) {
             const until = Date.now() + 30 * 60 * 1000;
             sessionStorage.setItem('vexa_admin_lockout', JSON.stringify({ until, attempts: newAttempts }));
-            setLoginError('3 ÃÂÃÂ­ÃÂ§ÃÂÃÂÃÂ§ÃÂª ÃÂ®ÃÂ§ÃÂ·ÃÂ¦ÃÂ©. ÃÂ§ÃÂÃÂ­ÃÂ³ÃÂ§ÃÂ¨ ÃÂÃÂÃÂÃÂ ÃÂÃÂÃÂ¯ÃÂ© 30 ÃÂ¯ÃÂÃÂÃÂÃÂ©.');
+            setLoginError('3 محاولات خاطئة. الحساب مقفل لمدة 30 دقيقة.');
           } else {
             sessionStorage.setItem('vexa_admin_lockout', JSON.stringify({ until: 0, attempts: newAttempts }));
-            setLoginError('ÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂ±ÃÂÃÂ± ÃÂºÃÂÃÂ± ÃÂµÃÂ­ÃÂÃÂ­ÃÂ©. ÃÂÃÂ­ÃÂ§ÃÂÃÂÃÂ© ' + newAttempts + '/3');
+            setLoginError('كلمة المرور غير صحيحة. محاولة ' + newAttempts + '/3');
           }
         }
       } catch {
-        setLoginError('ÃÂ­ÃÂ¯ÃÂ« ÃÂ®ÃÂ·ÃÂ£ÃÂ ÃÂ­ÃÂ§ÃÂÃÂ ÃÂÃÂ±ÃÂ© ÃÂ£ÃÂ®ÃÂ±ÃÂ.');
+        setLoginError('حدث خطأ، حاول مرة أخرى.');
       }
     };
 
@@ -184,7 +184,7 @@ export const AdminPanel: React.FC = () => {
     return !Number.isNaN(parsed.getTime()) ? parsed.toISOString().slice(0, 10) : 'unknown';
   };
 
-  const MONTH_AR = ['','ÃÂÃÂÃÂ§ÃÂÃÂ±','ÃÂÃÂ¨ÃÂ±ÃÂ§ÃÂÃÂ±','ÃÂÃÂ§ÃÂ±ÃÂ³','ÃÂ£ÃÂ¨ÃÂ±ÃÂÃÂ','ÃÂÃÂ§ÃÂÃÂ','ÃÂÃÂÃÂÃÂÃÂ','ÃÂÃÂÃÂÃÂÃÂ','ÃÂ£ÃÂºÃÂ³ÃÂ·ÃÂ³','ÃÂ³ÃÂ¨ÃÂªÃÂÃÂ¨ÃÂ±','ÃÂ£ÃÂÃÂªÃÂÃÂ¨ÃÂ±','ÃÂÃÂÃÂÃÂÃÂ¨ÃÂ±','ÃÂ¯ÃÂÃÂ³ÃÂÃÂ¨ÃÂ±'];
+  const MONTH_AR = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
   const availableYears = Array.from(new Set(firebaseOrders.map(o => getOrderDateKey(o).slice(0,4)).filter(y => y.length === 4))).sort((a,b) => b.localeCompare(a));
   const availableMonths = selectedYear === 'all' ? [] : Array.from(new Set(firebaseOrders.filter(o => getOrderDateKey(o).startsWith(selectedYear)).map(o => getOrderDateKey(o).slice(5,7)).filter(Boolean))).sort();
   const availableDays = (selectedYear === 'all' || selectedMonth === 'all') ? [] : Array.from(new Set(firebaseOrders.filter(o => getOrderDateKey(o).startsWith(selectedYear + '-' + selectedMonth)).map(o => getOrderDateKey(o).slice(8,10)).filter(Boolean))).sort();
@@ -209,10 +209,10 @@ export const AdminPanel: React.FC = () => {
   const goCalNext = () => { if (calNavMonth === 12) { setCalNavMonth(1); setCalNavYear(y => y+1); } else setCalNavMonth(m => m+1); };
 
   const getStatusBadge = (status: Order['status']) => ({
-    pending:   <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-2 rounded-full text-[10px] font-bold"><Package size={12} className="animate-pulse" /> ÃÂÃÂ±ÃÂ§ÃÂ¬ÃÂ¹ÃÂ©</span>,
-    shipping:  <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-2 rounded-full text-[10px] font-bold"><Truck size={12} /> ÃÂ´ÃÂ­ÃÂ</span>,
-    delivered: <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 rounded-full text-[10px] font-bold"><CheckCircle2 size={12} /> ÃÂ§ÃÂ³ÃÂªÃÂÃÂ</span>,
-    cancelled: <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 border border-red-200 px-2 rounded-full text-[10px] font-bold"><XCircle size={12} /> ÃÂÃÂÃÂºÃÂ</span>,
+    pending:   <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 px-2 rounded-full text-[10px] font-bold"><Package size={12} className="animate-pulse" /> مراجعة</span>,
+    shipping:  <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 border border-blue-200 px-2 rounded-full text-[10px] font-bold"><Truck size={12} /> شحن</span>,
+    delivered: <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 rounded-full text-[10px] font-bold"><CheckCircle2 size={12} /> استلم</span>,
+    cancelled: <span className="inline-flex items-center gap-1 bg-red-50 text-red-600 border border-red-200 px-2 rounded-full text-[10px] font-bold"><XCircle size={12} /> ملغي</span>,
   }[status]);
 
   const toggleCategory = (catId: CategoryId) => {
@@ -348,7 +348,7 @@ export const AdminPanel: React.FC = () => {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
-    if (files.some(f => !f.type.startsWith('image/'))) { alert('ÃÂÃÂ±ÃÂ¬ÃÂ ÃÂ§ÃÂ®ÃÂªÃÂÃÂ§ÃÂ± ÃÂÃÂÃÂÃÂ§ÃÂª ÃÂµÃÂÃÂ± ÃÂÃÂÃÂ·.'); return; }
+    if (files.some(f => !f.type.startsWith('image/'))) { alert('يرجى اختيار ملفات صور فقط.'); return; }
     setIsUploadingImages(true);
     try {
       const compressed = await Promise.all(files.map(compressImageFile));
@@ -358,7 +358,7 @@ export const AdminPanel: React.FC = () => {
       });
       setImagesModifiedByUser(true);
     } catch {
-      alert('ÃÂ­ÃÂ¯ÃÂ« ÃÂ®ÃÂ·ÃÂ£ ÃÂÃÂ ÃÂÃÂ¹ÃÂ§ÃÂÃÂ¬ÃÂ© ÃÂ§ÃÂÃÂµÃÂÃÂ±. ÃÂÃÂ±ÃÂ¬ÃÂ ÃÂ§ÃÂÃÂÃÂ­ÃÂ§ÃÂÃÂÃÂ© ÃÂÃÂ±ÃÂ© ÃÂ£ÃÂ®ÃÂ±ÃÂ.');
+      alert('حدث خطأ في معالجة الصور. يرجى المحاولة مرة أخرى.');
     } finally {
       setIsUploadingImages(false);
       e.target.value = '';
@@ -366,7 +366,7 @@ export const AdminPanel: React.FC = () => {
   };
 
   const handleRemoveImage = (image: string) => {
-    if (!window.confirm('ÃÂÃÂ ÃÂ£ÃÂÃÂª ÃÂÃÂªÃÂ£ÃÂÃÂ¯ ÃÂÃÂ ÃÂ­ÃÂ°ÃÂ ÃÂÃÂ°ÃÂ ÃÂ§ÃÂÃÂµÃÂÃÂ±ÃÂ©ÃÂ ÃÂÃÂ§ ÃÂÃÂÃÂÃÂ ÃÂ§ÃÂÃÂªÃÂ±ÃÂ§ÃÂ¬ÃÂ¹ ÃÂ¹ÃÂ ÃÂÃÂ°ÃÂ§ ÃÂ§ÃÂÃÂ¥ÃÂ¬ÃÂ±ÃÂ§ÃÂ¡.')) return;
+    if (!window.confirm('هل أنت متأكد من حذف هذه الصورة؟ لا يمكن التراجع عن هذا الإجراء.')) return;
     setProdForm(prev => {
       const next = (prev.images || []).filter(i => i !== image);
       return { ...prev, images: next, image: prev.image === image ? (next[0] || '') : prev.image };
@@ -398,12 +398,12 @@ export const AdminPanel: React.FC = () => {
     e.preventDefault();
 
     if (isLoadingImages) {
-      alert('ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ ÃÂªÃÂÃÂªÃÂÃÂ ÃÂÃÂ ÃÂ§ÃÂÃÂªÃÂ­ÃÂÃÂÃÂ ÃÂ¨ÃÂ¹ÃÂ¯. ÃÂÃÂ±ÃÂ¬ÃÂ ÃÂ§ÃÂÃÂ§ÃÂÃÂªÃÂ¸ÃÂ§ÃÂ± ÃÂÃÂÃÂÃÂÃÂ§ÃÂ ÃÂ«ÃÂ ÃÂ§ÃÂÃÂ­ÃÂÃÂ¸.');
+      alert('الصور لم تنتهِ من التحميل بعد. يرجى الانتظار قليلاً ثم الحفظ.');
       return;
     }
 
     if (!prodForm.name || !prodForm.price || !prodForm.image) {
-      alert('ÃÂÃÂ±ÃÂ¬ÃÂ ÃÂÃÂÃÂ¡: ÃÂ§ÃÂÃÂ§ÃÂ³ÃÂÃÂ ÃÂ§ÃÂÃÂ³ÃÂ¹ÃÂ±ÃÂ ÃÂÃÂ§ÃÂÃÂµÃÂÃÂ±ÃÂ©.');
+      alert('يرجى ملء: الاسم، السعر، والصورة.');
       return;
     }
 
@@ -412,7 +412,7 @@ export const AdminPanel: React.FC = () => {
       const originalCount = loadedFirebaseImagesRef.current.length;
       if (originalCount > currentCount) {
         const confirmed = window.confirm(
-          `ÃÂªÃÂ­ÃÂ°ÃÂÃÂ±: ÃÂ¹ÃÂ¯ÃÂ¯ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂ³ÃÂÃÂÃÂ®ÃÂÃÂ¶ ÃÂÃÂ ${originalCount} ÃÂ¥ÃÂÃÂ ${currentCount}.\n\nÃÂÃÂ ÃÂ£ÃÂÃÂª ÃÂÃÂªÃÂ£ÃÂÃÂ¯ ÃÂ£ÃÂÃÂ ÃÂªÃÂ±ÃÂÃÂ¯ ÃÂ§ÃÂÃÂ­ÃÂÃÂ¸ ÃÂ¨ÃÂµÃÂÃÂ± ÃÂ£ÃÂÃÂÃÂ`
+          `تحذير: عدد الصور سينخفض من ${originalCount} إلى ${currentCount}.\n\nهل أنت متأكد أنك تريد الحفظ بصور أقل؟`
         );
         if (!confirmed) return;
       }
@@ -445,22 +445,22 @@ export const AdminPanel: React.FC = () => {
       if (editingProduct) {
         // Pass imagesModifiedByUser so we NEVER overwrite Firebase images unless user changed them
         await updateProduct(editingProduct.id, productData, imagesModifiedByUser);
-        alert('ÃÂªÃÂ ÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ ÃÂ¨ÃÂÃÂ¬ÃÂ§ÃÂ­! Ã¢ÂÂ');
+        alert('تم تعديل المنتج بنجاح! ✅');
       } else {
         await addProduct(productData);
-        alert('ÃÂªÃÂ ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬! Ã°ÂÂÂ');
+        alert('تم إضافة المنتج! 🎉');
       }
       setIsModalOpen(false);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('400') || msg.toLowerCase().includes('too large') || msg.toLowerCase().includes('maximum')) {
-        alert('ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ¨ÃÂÃÂ±ÃÂ© ÃÂ¬ÃÂ¯ÃÂ§ÃÂ ÃÂÃÂ­ÃÂÃÂ¸ÃÂÃÂ§ ÃÂÃÂ Firebase.\n\nÃÂ§ÃÂÃÂ­ÃÂ: ÃÂ§ÃÂ­ÃÂ°ÃÂ ÃÂ¨ÃÂ¹ÃÂ¶ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂ© ÃÂ£ÃÂ ÃÂ§ÃÂ³ÃÂªÃÂ®ÃÂ¯ÃÂ ÃÂ±ÃÂ§ÃÂ¨ÃÂ· URL ÃÂ¨ÃÂ¯ÃÂÃÂ§ÃÂ ÃÂÃÂ ÃÂ±ÃÂÃÂ¹ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ¨ÃÂ§ÃÂ´ÃÂ±ÃÂ©.');
+        alert('الصور كبيرة جداً لحفظها في Firebase.\n\nالحل: احذف بعض الصور من القائمة أو استخدم رابط URL بدلاً من رفع الصور مباشرة.');
       } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('unauthorized')) {
-        alert('ÃÂ®ÃÂ·ÃÂ£ ÃÂÃÂ ÃÂ§ÃÂÃÂµÃÂÃÂ§ÃÂ­ÃÂÃÂ§ÃÂª. ÃÂªÃÂ£ÃÂÃÂ¯ ÃÂÃÂ ÃÂ¥ÃÂ¹ÃÂ¯ÃÂ§ÃÂ¯ÃÂ§ÃÂª Firebase Security Rules.');
+        alert('خطأ في الصلاحيات. تأكد من إعدادات Firebase Security Rules.');
       } else if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('offline') || msg.toLowerCase().includes('unavailable')) {
-        alert('ÃÂÃÂ§ ÃÂÃÂÃÂ¬ÃÂ¯ ÃÂ§ÃÂªÃÂµÃÂ§ÃÂ ÃÂ¨ÃÂ§ÃÂÃÂ¥ÃÂÃÂªÃÂ±ÃÂÃÂª. ÃÂªÃÂ­ÃÂÃÂ ÃÂÃÂ ÃÂ§ÃÂÃÂ§ÃÂªÃÂµÃÂ§ÃÂ ÃÂÃÂ­ÃÂ§ÃÂÃÂ ÃÂÃÂ¬ÃÂ¯ÃÂ¯ÃÂ§ÃÂ.');
+        alert('لا يوجد اتصال بالإنترنت. تحقق من الاتصال وحاول مجدداً.');
       } else {
-        alert(`ÃÂ­ÃÂ¯ÃÂ« ÃÂ®ÃÂ·ÃÂ£ ÃÂ£ÃÂ«ÃÂÃÂ§ÃÂ¡ ÃÂ§ÃÂÃÂ­ÃÂÃÂ¸:\n${msg}\n\nÃÂ¬ÃÂ±ÃÂ¨ ÃÂªÃÂÃÂÃÂÃÂ ÃÂ¹ÃÂ¯ÃÂ¯ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂ¥ÃÂ°ÃÂ§ ÃÂ§ÃÂ³ÃÂªÃÂÃÂ± ÃÂ§ÃÂÃÂ®ÃÂ·ÃÂ£.`);
+        alert(`حدث خطأ أثناء الحفظ:\n${msg}\n\nجرب تقليل عدد الصور إذا استمر الخطأ.`);
       }
     } finally {
       setIsSaving(false);
@@ -468,10 +468,10 @@ export const AdminPanel: React.FC = () => {
   };
 
   const handleDeleteProduct = async (productId: string, productName: string) => {
-    if (!window.confirm(`ÃÂÃÂ ÃÂ£ÃÂÃÂª ÃÂÃÂªÃÂ£ÃÂÃÂ¯ ÃÂÃÂ ÃÂ­ÃÂ°ÃÂ "${productName}"ÃÂ`)) return;
+    if (!window.confirm(`هل أنت متأكد من حذف "${productName}"؟`)) return;
     setIsDeleting(productId);
     try { await deleteProduct(productId); }
-    catch { alert('ÃÂ­ÃÂ¯ÃÂ« ÃÂ®ÃÂ·ÃÂ£ ÃÂ£ÃÂ«ÃÂÃÂ§ÃÂ¡ ÃÂ§ÃÂÃÂ­ÃÂ°ÃÂ.'); }
+    catch { alert('حدث خطأ أثناء الحذف.'); }
     finally { setIsDeleting(null); }
   };
 
@@ -483,17 +483,17 @@ export const AdminPanel: React.FC = () => {
           <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full border border-red-500/30 bg-red-950/30 text-red-300">
             <LockKeyhole size={26} />
           </div>
-          <h1 className="text-center text-2xl font-black tracking-wide">ÃÂÃÂÃÂ­ÃÂ© ÃÂ§ÃÂÃÂªÃÂ­ÃÂÃÂ</h1>
-          <p className="mx-auto mt-2 max-w-sm text-center text-xs text-white/45">ÃÂ£ÃÂ¯ÃÂ®ÃÂ ÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂ±ÃÂÃÂ± ÃÂÃÂÃÂÃÂµÃÂÃÂ</p>
+          <h1 className="text-center text-2xl font-black tracking-wide">لوحة التحكم</h1>
+          <p className="mx-auto mt-2 max-w-sm text-center text-xs text-white/45">أدخل كلمة المرور للوصول</p>
           <div className="mt-6 space-y-2">
             <input type="password" value={passwordInput} onChange={e => setPasswordInput(e.target.value)}
-              placeholder="Ã¢ÂÂ¢Ã¢ÂÂ¢Ã¢ÂÂ¢Ã¢ÂÂ¢Ã¢ÂÂ¢Ã¢ÂÂ¢Ã¢ÂÂ¢Ã¢ÂÂ¢" autoFocus
+              placeholder="••••••••" autoFocus
               className="w-full border border-white/15 bg-white/5 px-4 py-3 text-center text-base font-bold tracking-[0.18em] text-white outline-none focus:border-red-400" />
             {loginError && <p className="text-center text-xs font-bold text-red-400">{loginError}</p>}
           </div>
           <button type="submit"
             className="mt-6 w-full bg-white px-5 py-3 text-sm font-black uppercase tracking-[0.25em] text-black hover:bg-red-100 active:scale-[0.98]">
-            ÃÂ¯ÃÂ®ÃÂÃÂ
+            دخول
           </button>
         </form>
       </div>
@@ -504,10 +504,10 @@ export const AdminPanel: React.FC = () => {
     <div className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 font-sans" dir="rtl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-black text-white">ÃÂÃÂÃÂ­ÃÂ© ÃÂ§ÃÂÃÂªÃÂ­ÃÂÃÂ</h1>
-          <p className="text-xs text-white/40 mt-1">ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ÃÂ§ÃÂª ÃÂÃÂ­ÃÂÃÂÃÂ¸ÃÂ© ÃÂ¹ÃÂÃÂ Firebase Ã¢ÂÂ</p>
+          <h1 className="text-2xl font-black text-white">لوحة التحكم</h1>
+          <p className="text-xs text-white/40 mt-1">المنتجات محفوظة على Firebase ✅</p>
           {syncResult && (
-            <p className="text-xs font-bold mt-1 ${syncResult.startsWith('Ã¢ÂÂ') ? 'text-green-400' : 'text-red-400'}">{syncResult}</p>
+            <p className="text-xs font-bold mt-1 ${syncResult.startsWith('✅') ? 'text-green-400' : 'text-red-400'}">{syncResult}</p>
           )}
           {deployResult && (
             <p className={`text-xs font-bold mt-1 ${deployResult.ok ? 'text-green-400' : 'text-red-400'}`}>{deployResult.msg}</p>
@@ -518,18 +518,18 @@ export const AdminPanel: React.FC = () => {
           disabled={isDeploying}
           className="flex items-center gap-2 border border-green-500/40 bg-green-950/30 px-4 py-2 text-xs font-bold text-green-300 hover:text-green-200 rounded-lg transition disabled:opacity-50 ml-2"
         >
-          {isDeploying ? <><Loader2 size={14} className="animate-spin" /> ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂ§ÃÂÃÂÃÂ´ÃÂ±...</> : <>Ã°ÂÂÂ ÃÂÃÂ´ÃÂ± ÃÂ§ÃÂÃÂÃÂÃÂÃÂ¹</>}
+          {isDeploying ? <><Loader2 size={14} className="animate-spin" /> جاري النشر...</> : <>🚀 نشر الموقع</>}
         </button>
         <button
           onClick={syncAllToFirebase}
           disabled={isSyncing}
           className="flex items-center gap-2 border border-amber-500/40 bg-amber-950/30 px-4 py-2 text-xs font-bold text-amber-300 hover:text-amber-200 rounded-lg transition disabled:opacity-50 ml-2"
         >
-          {isSyncing ? <><Loader2 size={14} className="animate-spin" /> ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂ§ÃÂÃÂ±ÃÂÃÂ¹...</> : 'Ã¢Â¬ÂÃ¯Â¸Â ÃÂ±ÃÂÃÂ¹ ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ÃÂ§ÃÂª ÃÂÃÂ Firebase'}
+          {isSyncing ? <><Loader2 size={14} className="animate-spin" /> جاري الرفع...</> : '⬆️ رفع كل المنتجات لـ Firebase'}
         </button>
         <button onClick={handleAdminLogout}
           className="flex items-center gap-2 border border-white/15 px-4 py-2 text-xs font-bold text-white/60 hover:text-white rounded-lg transition">
-          <LogOut size={14} /> ÃÂ®ÃÂ±ÃÂÃÂ¬
+          <LogOut size={14} /> خروج
         </button>
       </div>
 
@@ -537,7 +537,7 @@ export const AdminPanel: React.FC = () => {
         {(['orders', 'products'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-5 py-2.5 text-sm font-black transition border-b-2 -mb-px flex items-center gap-2 ${activeTab === tab ? 'border-white text-white' : 'border-transparent text-white/40 hover:text-white/70'}`}>
-            {tab === 'orders' ? <><ClipboardList size={15} /> ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ÃÂ§ÃÂª</> : <><Package size={15} /> ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ÃÂ§ÃÂª</>}
+            {tab === 'orders' ? <><ClipboardList size={15} /> الطلبات</> : <><Package size={15} /> المنتجات</>}
           </button>
         ))}
       </div>
@@ -546,15 +546,15 @@ export const AdminPanel: React.FC = () => {
         <div className="space-y-6">
           {isLoadingOrders && (
             <div className="flex items-center gap-2 text-white/40 text-xs py-2">
-              <Loader2 size={14} className="animate-spin" /> ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂªÃÂ­ÃÂÃÂÃÂ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ÃÂ§ÃÂª ÃÂÃÂ Firebase...
+              <Loader2 size={14} className="animate-spin" /> جاري تحميل الطلبات من Firebase...
             </div>
           )}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {[
-              { label: 'ÃÂ§ÃÂÃÂÃÂ¨ÃÂÃÂ¹ÃÂ§ÃÂª', value: `$${totalSales.toFixed(0)}`, color: '' },
-              { label: 'ÃÂ¥ÃÂ¬ÃÂÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ÃÂ§ÃÂª', value: filteredOrders.length, color: '' },
-              { label: 'ÃÂÃÂÃÂ¯ ÃÂ§ÃÂÃÂÃÂ±ÃÂ§ÃÂ¬ÃÂ¹ÃÂ©', value: filteredOrders.filter(o => o.status === 'pending').length, color: 'border-amber-500/20 text-amber-400' },
-              { label: 'ÃÂÃÂÃÂ¯ ÃÂ§ÃÂÃÂ´ÃÂ­ÃÂ', value: filteredOrders.filter(o => o.status === 'shipping').length, color: 'border-blue-500/20 text-blue-400' },
+              { label: 'المبيعات', value: `$${totalSales.toFixed(0)}`, color: '' },
+              { label: 'إجمالي الطلبات', value: filteredOrders.length, color: '' },
+              { label: 'قيد المراجعة', value: filteredOrders.filter(o => o.status === 'pending').length, color: 'border-amber-500/20 text-amber-400' },
+              { label: 'قيد الشحن', value: filteredOrders.filter(o => o.status === 'shipping').length, color: 'border-blue-500/20 text-blue-400' },
             ].map(s => (
               <div key={s.label} className={`bg-[#111] border ${s.color || 'border-white/10'} rounded-xl p-4`}>
                 <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${s.color || 'text-white/40'}`}>{s.label}</p>
@@ -568,11 +568,11 @@ export const AdminPanel: React.FC = () => {
             <button onClick={() => setCalOpen(true)}
               className="flex items-center gap-2 bg-[#111] border border-white/15 hover:border-purple-500/50 px-4 py-2.5 rounded-xl text-sm font-black text-white transition">
               <Calendar size={16} className="text-purple-400" />
-              {selectedDay !== "all" ? `${parseInt(selectedDay)} ${MONTH_AR[parseInt(selectedMonth)]} ${selectedYear}` : selectedMonth !== "all" ? `${MONTH_AR[parseInt(selectedMonth)]} ${selectedYear}` : selectedYear !== "all" ? selectedYear : "ÃÂÃÂ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ÃÂ§ÃÂª"}
+              {selectedDay !== "all" ? `${parseInt(selectedDay)} ${MONTH_AR[parseInt(selectedMonth)]} ${selectedYear}` : selectedMonth !== "all" ? `${MONTH_AR[parseInt(selectedMonth)]} ${selectedYear}` : selectedYear !== "all" ? selectedYear : "كل الطلبات"}
             </button>
             {(selectedYear !== "all") && (
               <button onClick={() => { setSelectedYear("all"); setSelectedMonth("all"); setSelectedDay("all"); }}
-                className="text-[11px] text-red-400/70 hover:text-red-400 border border-red-500/20 px-2.5 py-1.5 rounded-lg font-black transition">Ã¢ÂÂ ÃÂÃÂ³ÃÂ­</button>
+                className="text-[11px] text-red-400/70 hover:text-red-400 border border-red-500/20 px-2.5 py-1.5 rounded-lg font-black transition">✕ مسح</button>
             )}
           </div>
           {/* Calendar popup */}
@@ -587,7 +587,7 @@ export const AdminPanel: React.FC = () => {
                 </div>
                 {/* Week day headers */}
                 <div className="grid grid-cols-7 mb-2">
-                  {["ÃÂ­","ÃÂ","ÃÂ«","ÃÂ±","ÃÂ®","ÃÂ¬","ÃÂ³"].map(d => (
+                  {["ح","ن","ث","ر","خ","ج","س"].map(d => (
                     <div key={d} className="text-center text-[11px] text-white/30 font-black py-1">{d}</div>
                   ))}
                 </div>
@@ -611,9 +611,9 @@ export const AdminPanel: React.FC = () => {
                 {/* Actions */}
                 <div className="flex gap-3 mt-5">
                   <button onClick={() => { setSelectedYear("all"); setSelectedMonth("all"); setSelectedDay("all"); setCalOpen(false); }}
-                    className="flex-1 py-3 border border-white/10 text-white/60 hover:text-white rounded-2xl text-sm font-black transition">ÃÂÃÂ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ÃÂ§ÃÂª</button>
+                    className="flex-1 py-3 border border-white/10 text-white/60 hover:text-white rounded-2xl text-sm font-black transition">كل الطلبات</button>
                   <button onClick={() => setCalOpen(false)}
-                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl text-sm font-black transition">ÃÂ¥ÃÂºÃÂÃÂ§ÃÂ</button>
+                    className="flex-1 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl text-sm font-black transition">إغلاق</button>
                 </div>
               </div>
             </div>
@@ -621,7 +621,7 @@ export const AdminPanel: React.FC = () => {
           {filteredOrders.length === 0 ? (
             <div className="text-center py-16 text-white/30 border border-white/10 rounded-xl">
               <ClipboardList size={40} className="mx-auto mb-3 opacity-30" />
-              <p className="font-bold">ÃÂÃÂ§ ÃÂªÃÂÃÂ¬ÃÂ¯ ÃÂ·ÃÂÃÂ¨ÃÂ§ÃÂª</p>
+              <p className="font-bold">لا توجد طلبات</p>
             </div>
           ) : filteredOrders.map(order => (
             <div key={order.id} className="bg-[#0d0d0d] border border-white/10 rounded-xl p-5 space-y-4">
@@ -652,15 +652,15 @@ export const AdminPanel: React.FC = () => {
                     </div>
                     <div>
                       <p className="text-[11px] font-bold text-white line-clamp-1">{item.product.name}</p>
-                      <p className="text-[10px] text-white/40">ÃÂ {item.quantity}</p>
+                      <p className="text-[10px] text-white/40">× {item.quantity}</p>
                     </div>
                   </div>
                 ))}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-white/70">
-                <p className="flex items-center gap-1"><Phone size={12} />{order.customer.name} Ã¢ÂÂ {order.customer.phone}</p>
-                <p className="flex items-center gap-1"><MapPin size={12} />{order.customer.city}ÃÂ {order.customer.address}</p>
+                <p className="flex items-center gap-1"><Phone size={12} />{order.customer.name} — {order.customer.phone}</p>
+                <p className="flex items-center gap-1"><MapPin size={12} />{order.customer.city}، {order.customer.address}</p>
               </div>
 
               <div className="flex gap-2 flex-wrap pt-1 border-t border-white/5">
@@ -671,7 +671,7 @@ export const AdminPanel: React.FC = () => {
                     setFirebaseOrders(prev => prev.map(o => o.id === order.id ? { ...o, status: s } : o));
                   }}
                     className={`px-3 py-1.5 text-[10px] font-black rounded-full transition ${order.status === s ? 'bg-white text-black' : 'border border-white/15 text-white/50 hover:text-white'}`}>
-                    {s === 'pending' ? 'ÃÂÃÂ±ÃÂ§ÃÂ¬ÃÂ¹ÃÂ©' : s === 'shipping' ? 'ÃÂ´ÃÂ­ÃÂ' : s === 'delivered' ? 'ÃÂ§ÃÂ³ÃÂªÃÂÃÂ' : 'ÃÂÃÂÃÂºÃÂ'}
+                    {s === 'pending' ? 'مراجعة' : s === 'shipping' ? 'شحن' : s === 'delivered' ? 'استلم' : 'ملغي'}
                   </button>
                 ))}
               </div>
@@ -683,10 +683,10 @@ export const AdminPanel: React.FC = () => {
       {activeTab === 'products' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-xs text-white/40">{products.length} ÃÂÃÂÃÂªÃÂ¬</p>
+            <p className="text-xs text-white/40">{products.length} منتج</p>
             <button onClick={openAddModal}
               className="flex items-center gap-2 bg-white text-black px-4 py-2.5 text-xs font-black rounded-xl hover:bg-stone-100 transition active:scale-[0.98]">
-              <Plus size={16} /> ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂÃÂÃÂªÃÂ¬
+              <Plus size={16} /> إضافة منتج
             </button>
           </div>
 
@@ -717,12 +717,12 @@ export const AdminPanel: React.FC = () => {
                     <h3 className="text-sm font-black text-white line-clamp-1">{product.name}</h3>
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-black text-emerald-400">${product.price}</span>
-                      <span className={`font-bold ${product.stock <= 3 ? 'text-red-400' : 'text-white/40'}`}>ÃÂÃÂ®ÃÂ²ÃÂÃÂ: {product.stock}</span>
+                      <span className={`font-bold ${product.stock <= 3 ? 'text-red-400' : 'text-white/40'}`}>مخزون: {product.stock}</span>
                     </div>
                     <div className="flex gap-2 pt-1">
                       <button onClick={() => openEditModal(product)}
                         className="flex-1 flex items-center justify-center gap-1 border border-white/15 text-white/60 hover:text-white py-2 rounded-lg text-xs font-bold transition">
-                        <Edit size={13} /> ÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ
+                        <Edit size={13} /> تعديل
                       </button>
                       <button onClick={() => handleDeleteProduct(product.id, product.name)}
                         disabled={isDeleting === product.id}
@@ -746,7 +746,7 @@ export const AdminPanel: React.FC = () => {
 
             <div className="sticky top-0 bg-[#0d0d0d] border-b border-white/10 px-5 py-4 flex items-center justify-between z-10">
               <h2 className="text-base font-black text-white">
-                {editingProduct ? 'ÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬' : 'ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂÃÂÃÂªÃÂ¬ ÃÂ¬ÃÂ¯ÃÂÃÂ¯'}
+                {editingProduct ? 'تعديل المنتج' : 'إضافة منتج جديد'}
               </h2>
               <button onClick={() => !isSaving && !isLoadingImages && setIsModalOpen(false)} className="text-white/40 hover:text-white">
                 <X size={22} />
@@ -757,33 +757,33 @@ export const AdminPanel: React.FC = () => {
             {isLoadingImages && (
               <div className="mx-5 mt-4 flex items-center gap-2 bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs font-bold px-4 py-3 rounded-xl">
                 <Loader2 size={14} className="animate-spin flex-shrink-0" />
-                <span>ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂªÃÂ­ÃÂÃÂÃÂ ÃÂµÃÂÃÂ± ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬... ÃÂ§ÃÂÃÂªÃÂ¸ÃÂ± ÃÂ­ÃÂªÃÂ ÃÂªÃÂÃÂªÃÂÃÂ ÃÂÃÂ¨ÃÂ ÃÂ§ÃÂÃÂ­ÃÂÃÂ¸</span>
+                <span>جاري تحميل صور المنتج... انتظر حتى تكتمل قبل الحفظ</span>
               </div>
             )}
 
             <form onSubmit={handleSaveProduct} className="p-5 space-y-5">
               <div>
-                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">ÃÂ§ÃÂ³ÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ *</label>
+                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">اسم المنتج *</label>
                 <input name="name" value={prodForm.name} onChange={handleFormChange} required
-                  placeholder="ÃÂ§ÃÂÃÂªÃÂ¨ ÃÂ§ÃÂ³ÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬..."
+                  placeholder="اكتب اسم المنتج..."
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
               </div>
 
               <div>
-                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">ÃÂ§ÃÂÃÂÃÂµÃÂ</label>
+                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">الوصف</label>
                 <textarea name="description" value={prodForm.description} onChange={handleFormChange} rows={3}
-                  placeholder="ÃÂÃÂµÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬..."
+                  placeholder="وصف المنتج..."
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition resize-none" />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">ÃÂ§ÃÂÃÂ³ÃÂ¹ÃÂ± (USD) *</label>
+                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">السعر (USD) *</label>
                   <input name="price" type="number" min="0" step="0.01" value={prodForm.price} onChange={handleFormChange} required
                     className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">ÃÂ§ÃÂÃÂÃÂ®ÃÂ²ÃÂÃÂ</label>
+                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">المخزون</label>
                   <input name="stock" type="number" min="0" value={prodForm.stock} onChange={handleFormChange}
                     className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
                 </div>
@@ -791,8 +791,8 @@ export const AdminPanel: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
-                  ÃÂ§ÃÂÃÂÃÂ¦ÃÂ§ÃÂª (ÃÂ§ÃÂ®ÃÂªÃÂ± ÃÂÃÂ§ÃÂ­ÃÂ¯ÃÂ© ÃÂ£ÃÂ ÃÂ£ÃÂÃÂ«ÃÂ±) *
-                  <span className="text-white/30 font-normal mr-2">Ã¢ÂÂ ÃÂ§ÃÂÃÂÃÂ¦ÃÂ© ÃÂ§ÃÂÃÂ£ÃÂÃÂÃÂ ÃÂÃÂ ÃÂ§ÃÂÃÂ±ÃÂ¦ÃÂÃÂ³ÃÂÃÂ©</span>
+                  الفئات (اختر واحدة أو أكثر) *
+                  <span className="text-white/30 font-normal mr-2">— الفئة الأولى هي الرئيسية</span>
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {ALL_CATEGORY_IDS.map(catId => {
@@ -811,11 +811,11 @@ export const AdminPanel: React.FC = () => {
                         }`}
                       >
                         <span className={`w-4 h-4 rounded border flex-shrink-0 flex items-center justify-center transition ${isSelected ? 'bg-white border-white' : 'border-white/20'}`}>
-                          {isSelected && <span className="text-black text-[10px] font-black">Ã¢ÂÂ</span>}
+                          {isSelected && <span className="text-black text-[10px] font-black">✓</span>}
                         </span>
                         <span className="flex-1">{cat?.name.ar || catId}</span>
                         {isFirst && isSelected && (
-                          <span className="text-[8px] font-black bg-white/20 px-1 rounded">ÃÂ±ÃÂ¦ÃÂÃÂ³ÃÂÃÂ©</span>
+                          <span className="text-[8px] font-black bg-white/20 px-1 rounded">رئيسية</span>
                         )}
                       </button>
                     );
@@ -824,10 +824,10 @@ export const AdminPanel: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">ÃÂ±ÃÂ§ÃÂ¨ÃÂ· ÃÂ§ÃÂÃÂµÃÂÃÂ±ÃÂ© ÃÂ§ÃÂÃÂ±ÃÂ¦ÃÂÃÂ³ÃÂÃÂ© *</label>
+                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">رابط الصورة الرئيسية *</label>
                 <input value={prodForm.image} onChange={e => {
                   const val = e.target.value;
-                  // Only update the cover reference Ã¢ÂÂ don't touch the images gallery or mark as modified
+                  // Only update the cover reference — don't touch the images gallery or mark as modified
                   setProdForm(prev => ({ ...prev, image: val }));
                 }} dir="ltr" placeholder="https://..."
                   className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
@@ -835,27 +835,27 @@ export const AdminPanel: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
-                  ÃÂ§ÃÂ±ÃÂÃÂ¹ ÃÂµÃÂÃÂ± ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂÃÂ© (ÃÂ­ÃÂªÃÂ 10 ÃÂµÃÂÃÂ±)
+                  ارفع صور إضافية (حتى 10 صور)
                 </label>
                 <label className={`flex items-center gap-2 border border-dashed px-4 py-3 rounded-xl text-sm font-bold transition ${isUploadingImages ? 'border-amber-500/50 text-amber-400 cursor-not-allowed' : 'border-white/20 hover:border-white/40 text-white/50 hover:text-white/70 cursor-pointer'}`}>
                   {isUploadingImages
-                    ? <><Loader2 size={16} className="animate-spin flex-shrink-0" /> ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂÃÂ¹ÃÂ§ÃÂÃÂ¬ÃÂ© ÃÂ§ÃÂÃÂµÃÂÃÂ±...</>
-                    : <><Upload size={16} /> ÃÂ§ÃÂ®ÃÂªÃÂ± ÃÂµÃÂÃÂ± ÃÂÃÂ ÃÂ§ÃÂÃÂ¬ÃÂÃÂ§ÃÂ²</>}
+                    ? <><Loader2 size={16} className="animate-spin flex-shrink-0" /> جاري معالجة الصور...</>
+                    : <><Upload size={16} /> اختر صور من الجهاز</>}
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} disabled={isUploadingImages} className="hidden" />
                 </label>
               </div>
 
               {isLoadingImages && (
                 <div className="flex items-center gap-2 text-amber-400/70 text-xs font-bold py-1">
-                  <Loader2 size={14} className="animate-spin" /> ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂªÃÂ­ÃÂÃÂÃÂ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ Firebase...
+                  <Loader2 size={14} className="animate-spin" /> جاري تحميل الصور من Firebase...
                 </div>
               )}
 
               {!isLoadingImages && prodForm.images && prodForm.images.length > 0 && (
                 <div>
                   <p className="text-[11px] font-black text-white/50 mb-2 uppercase tracking-wider">
-                    ÃÂªÃÂ±ÃÂªÃÂÃÂ¨ ÃÂ§ÃÂÃÂµÃÂÃÂ± Ã¢ÂÂ ÃÂ§ÃÂÃÂ£ÃÂÃÂÃÂ ÃÂÃÂ ÃÂµÃÂÃÂ±ÃÂ© ÃÂ§ÃÂÃÂÃÂ§ÃÂ¬ÃÂÃÂ©
-                    {imagesModifiedByUser && <span className="text-amber-400 mr-2 normal-case font-bold">Ã¢ÂÂ¢ ÃÂªÃÂ ÃÂ§ÃÂÃÂªÃÂ¹ÃÂ¯ÃÂÃÂ</span>}
+                    ترتيب الصور — الأولى هي صورة الواجهة
+                    {imagesModifiedByUser && <span className="text-amber-400 mr-2 normal-case font-bold">• تم التعديل</span>}
                   </p>
                   <div className="space-y-2">
                     {prodForm.images.map((img, idx) => (
@@ -864,7 +864,7 @@ export const AdminPanel: React.FC = () => {
                           <img src={img} alt="" className="h-full w-full object-cover" loading="lazy" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          {idx === 0 && <span className="text-[10px] font-black text-white bg-white/20 px-2 py-0.5 rounded-full">ÃÂÃÂ§ÃÂ¬ÃÂÃÂ© Ã¢Â­Â</span>}
+                          {idx === 0 && <span className="text-[10px] font-black text-white bg-white/20 px-2 py-0.5 rounded-full">واجهة ⭐</span>}
                           <p className="text-[10px] text-white/40 mt-1">{idx + 1}/{prodForm.images!.length}</p>
                         </div>
                         <div className="flex flex-col gap-0.5">
@@ -890,20 +890,20 @@ export const AdminPanel: React.FC = () => {
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-[11px] font-black text-white/50 uppercase tracking-wider">
-                    ÃÂ®ÃÂÃÂ§ÃÂ±ÃÂ§ÃÂª ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ (ÃÂ­ÃÂ¬ÃÂ / ÃÂÃÂÃÂ / ÃÂºÃÂÃÂ±ÃÂ)
+                    خيارات المنتج (حجم / لون / غيره)
                   </label>
                   <button
                     type="button"
                     onClick={addVariant}
                     className="text-[11px] font-bold text-white/60 hover:text-white border border-white/20 hover:border-white/50 px-2.5 py-1 rounded-lg transition flex items-center gap-1"
                   >
-                    <Plus size={11} /> ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂ®ÃÂÃÂ§ÃÂ±
+                    <Plus size={11} /> إضافة خيار
                   </button>
                 </div>
 
                 {(!prodForm.variants || prodForm.variants.length === 0) && (
                   <p className="text-[11px] text-white/25 italic py-2">
-                    ÃÂÃÂ§ ÃÂªÃÂÃÂ¬ÃÂ¯ ÃÂ®ÃÂÃÂ§ÃÂ±ÃÂ§ÃÂª. ÃÂÃÂ«ÃÂÃÂ§ÃÂ: ÃÂ£ÃÂ¶ÃÂ "ÃÂ§ÃÂÃÂ­ÃÂ¬ÃÂ" ÃÂ¨ÃÂ®ÃÂÃÂ§ÃÂ±ÃÂ§ÃÂª S / M / L ÃÂ£ÃÂ "ÃÂ§ÃÂÃÂÃÂÃÂ" ÃÂ¨ÃÂ®ÃÂÃÂ§ÃÂ±ÃÂ§ÃÂª ÃÂ£ÃÂ³ÃÂÃÂ¯ / ÃÂÃÂ±ÃÂ¯ÃÂ.
+                    لا توجد خيارات. مثلاً: أضف "الحجم" بخيارات S / M / L أو "اللون" بخيارات أسود / وردي.
                   </p>
                 )}
 
@@ -915,7 +915,7 @@ export const AdminPanel: React.FC = () => {
                           type="text"
                           value={variant.name}
                           onChange={e => updateVariantName(vIdx, e.target.value)}
-                          placeholder="ÃÂ§ÃÂ³ÃÂ ÃÂ§ÃÂÃÂ®ÃÂÃÂ§ÃÂ± (ÃÂÃÂ«ÃÂ§ÃÂ: ÃÂ§ÃÂÃÂ­ÃÂ¬ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂ¹)"
+                          placeholder="اسم الخيار (مثال: الحجم، اللون، النوع)"
                           className="flex-1 bg-white/5 border border-white/10 text-white text-xs px-3 py-2 rounded-lg outline-none focus:border-white/30 transition"
                         />
                         <button type="button" onClick={() => removeVariant(vIdx)}
@@ -944,7 +944,7 @@ export const AdminPanel: React.FC = () => {
                           value={newOptionInputs[vIdx] || ''}
                           onChange={e => setNewOptionInputs(prev => ({ ...prev, [vIdx]: e.target.value }))}
                           onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); addOption(vIdx); } }}
-                          placeholder="ÃÂÃÂ«ÃÂ§ÃÂ: 18cm - ÃÂ£ÃÂ³ÃÂÃÂ¯ÃÂ MÃÂ ÃÂÃÂ±ÃÂ¯ÃÂ..."
+                          placeholder="مثال: 18cm - أسود، M، وردي..."
                           className="flex-1 bg-white/5 border border-white/10 text-white text-[11px] px-3 py-2 rounded-lg outline-none focus:border-white/30 transition"
                         />
                         <button
@@ -962,25 +962,25 @@ export const AdminPanel: React.FC = () => {
 
               <label className="flex items-center gap-3 cursor-pointer">
                 <input type="checkbox" name="isNew" checked={prodForm.isNew || false} onChange={handleCheckboxChange} className="w-4 h-4 rounded" />
-                <span className="text-sm font-bold text-white/70">ÃÂÃÂ¶ÃÂ¹ ÃÂ¹ÃÂÃÂ§ÃÂÃÂ© "ÃÂ¬ÃÂ¯ÃÂÃÂ¯" ÃÂ¹ÃÂÃÂ ÃÂÃÂ°ÃÂ§ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬</span>
+                <span className="text-sm font-bold text-white/70">وضع علامة "جديد" على هذا المنتج</span>
               </label>
 
               {isLoadingImages && (
                 <div className="flex items-center gap-2 bg-amber-950/30 border border-amber-500/20 text-amber-400 text-xs font-bold px-4 py-3 rounded-xl">
                   <AlertTriangle size={14} className="flex-shrink-0" />
-                  <span>ÃÂÃÂ¬ÃÂ¨ ÃÂ§ÃÂÃÂ§ÃÂÃÂªÃÂ¸ÃÂ§ÃÂ± ÃÂ­ÃÂªÃÂ ÃÂªÃÂÃÂªÃÂÃÂ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ¨ÃÂ ÃÂ§ÃÂÃÂ­ÃÂÃÂ¸</span>
+                  <span>يجب الانتظار حتى تكتمل الصور قبل الحفظ</span>
                 </div>
               )}
 
               <button type="submit" disabled={isSaving || isLoadingImages || isUploadingImages}
                 className="w-full flex items-center justify-center gap-2 bg-white text-black py-3.5 rounded-xl font-black text-sm hover:bg-stone-100 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition">
                 {isSaving
-                  ? <><Loader2 size={18} className="animate-spin" /> ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂ§ÃÂÃÂ­ÃÂÃÂ¸...</>
+                  ? <><Loader2 size={18} className="animate-spin" /> جاري الحفظ...</>
                   : isUploadingImages
-                  ? <><Loader2 size={18} className="animate-spin" /> ÃÂ§ÃÂÃÂªÃÂ¸ÃÂ± Ã¢ÂÂ ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂ±ÃÂÃÂ¹ ÃÂ§ÃÂÃÂµÃÂÃÂ±...</>
+                  ? <><Loader2 size={18} className="animate-spin" /> انتظر — جاري رفع الصور...</>
                   : isLoadingImages
-                  ? <><Loader2 size={18} className="animate-spin" /> ÃÂ¬ÃÂ§ÃÂ±ÃÂ ÃÂªÃÂ­ÃÂÃÂÃÂ ÃÂ§ÃÂÃÂµÃÂÃÂ±...</>
-                  : <>{editingProduct ? 'ÃÂ­ÃÂÃÂ¸ ÃÂ§ÃÂÃÂªÃÂ¹ÃÂ¯ÃÂÃÂÃÂ§ÃÂª' : 'ÃÂ¥ÃÂ¶ÃÂ§ÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬'}</>}
+                  ? <><Loader2 size={18} className="animate-spin" /> جاري تحميل الصور...</>
+                  : <>{editingProduct ? 'حفظ التعديلات' : 'إضافة المنتج'}</>}
               </button>
             </form>
           </div>
