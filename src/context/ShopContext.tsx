@@ -58,7 +58,7 @@ interface ShopContextType {
 }
 
 
-// ââ URL slug â category mapping (for synchronous URL-based initialization) ââ
+// Ã¢ÂÂÃ¢ÂÂ URL slug Ã¢ÂÂ category mapping (for synchronous URL-based initialization) Ã¢ÂÂÃ¢ÂÂ
 const URL_SLUG_TO_CATEGORY: Record<string, string> = {
   'sex-toys': 'Sex Toys', 'vibrators': 'Vibrators', 'male-toys': 'Male Toys',
   'dildos': 'Dildos', 'lingerie': 'Lingerie', 'bdsm': 'BDSM',
@@ -138,11 +138,23 @@ export const ShopProvider: React.FC<{
 
   // Load products from Firebase Firestore on mount
     useEffect(() => {
-      if (initialProducts && initialProducts.length > 0) return;
+      // If we have static/initial products, still fetch Firebase for any NEW ones added via admin
+      if (initialProducts && initialProducts.length > 0) {
+        const staticIds = new Set(initialProducts.map((p: Product) => p.id));
+        getDocs(collection(db, PRODUCTS_COLLECTION)).then(snap => {
+          const newProds: Product[] = [];
+          snap.forEach(docSnap => {
+            const p = { id: docSnap.id, ...docSnap.data() } as Product;
+            if (!staticIds.has(p.id)) newProds.push(p);
+          });
+          if (newProds.length > 0) setProducts(prev => [...newProds, ...prev]);
+        }).catch(() => {});
+        return;
+      }
 
       const CACHE_KEY = 'vexa_products_v2';
       const CACHE_TS_KEY = 'vexa_products_v2_ts';
-      const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 Ø³Ø§Ø¹Ø© Ø¨Ø¯Ù 5 Ø¯ÙØ§Ø¦Ù
+      const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 ÃÂ³ÃÂ§ÃÂ¹ÃÂ© ÃÂ¨ÃÂ¯ÃÂ 5 ÃÂ¯ÃÂÃÂ§ÃÂ¦ÃÂ
       const cachedRaw = localStorage.getItem(CACHE_KEY);
       const cachedTs = Number(localStorage.getItem(CACHE_TS_KEY) || 0);
 
@@ -163,7 +175,7 @@ export const ShopProvider: React.FC<{
         if (!cachedRaw) setIsProductsLoading(true);
 
         try {
-          // ÙØ¬ÙØ¨ Ø§ÙÙÙØªØ¬Ø§Øª ÙÙ Vercel CDN (24 Ø³Ø§Ø¹Ø© cache) â Firebase ÙØ§ ØªÙÙØ±Ø£ ÙÙØ§ Ø¥Ø·ÙØ§ÙØ§Ù
+          // ÃÂÃÂ¬ÃÂÃÂ¨ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬ÃÂ§ÃÂª ÃÂÃÂ Vercel CDN (24 ÃÂ³ÃÂ§ÃÂ¹ÃÂ© cache) Ã¢ÂÂ Firebase ÃÂÃÂ§ ÃÂªÃÂÃÂÃÂ±ÃÂ£ ÃÂÃÂÃÂ§ ÃÂ¥ÃÂ·ÃÂÃÂ§ÃÂÃÂ§ÃÂ
           const ctrl = new AbortController();
           const t = setTimeout(() => ctrl.abort(), 15000);
           const resp = await fetch('/api/products', { signal: ctrl });
@@ -198,11 +210,11 @@ export const ShopProvider: React.FC<{
       loadProducts();
     }, [])
 
-  // âââ ØªØ­ÙÙÙ Ø§ÙØµÙØ± ÙÙ Firebase Client SDK (ÙÙØ³ Ø¢ÙÙØ© ØµÙØ­Ø© ØªÙØ§ØµÙÙ Ø§ÙÙÙØªØ¬) ââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ ÃÂªÃÂ­ÃÂÃÂÃÂ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ Firebase Client SDK (ÃÂÃÂÃÂ³ ÃÂ¢ÃÂÃÂÃÂ© ÃÂµÃÂÃÂ­ÃÂ© ÃÂªÃÂÃÂ§ÃÂµÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂªÃÂ¬) Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
   useEffect(() => {
     if (products.length === 0) return;
 
-    // v4 â cache key Ø¬Ø¯ÙØ¯Ø ÙØªØ¬Ø§ÙÙ Ø£Ù cache ÙØ¯ÙÙ
+    // v4 Ã¢ÂÂ cache key ÃÂ¬ÃÂ¯ÃÂÃÂ¯ÃÂ ÃÂÃÂªÃÂ¬ÃÂ§ÃÂÃÂ ÃÂ£ÃÂ cache ÃÂÃÂ¯ÃÂÃÂ
     const IMG_KEY = 'vexa_images_v6';
     const IMG_TS_KEY = 'vexa_images_v6_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
@@ -217,7 +229,7 @@ export const ShopProvider: React.FC<{
       }));
     };
 
-    // ØªØ­ÙÙ ÙÙ Ø§ÙÙ cache Ø£ÙÙØ§Ù â ÙÙØ· Ø¥Ø°Ø§ ÙÙÙ Ø¨ÙØ§ÙØ§Øª Ø­ÙÙÙÙØ©
+    // ÃÂªÃÂ­ÃÂÃÂ ÃÂÃÂ ÃÂ§ÃÂÃÂ cache ÃÂ£ÃÂÃÂÃÂ§ÃÂ Ã¢ÂÂ ÃÂÃÂÃÂ· ÃÂ¥ÃÂ°ÃÂ§ ÃÂÃÂÃÂ ÃÂ¨ÃÂÃÂ§ÃÂÃÂ§ÃÂª ÃÂ­ÃÂÃÂÃÂÃÂÃÂ©
     try {
       const cached = localStorage.getItem(IMG_KEY);
       const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
@@ -232,11 +244,11 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // Ø¥Ø°Ø§ Ø§ÙØ³ÙØ±ÙØ± Ø­ÙÙÙ Ø§ÙØµÙØ± ÙØ³Ø¨ÙØ§ÙØ ØªØ¬Ø§ÙØ² Ø§ÙØ·ÙØ¨
+    // ÃÂ¥ÃÂ°ÃÂ§ ÃÂ§ÃÂÃÂ³ÃÂÃÂ±ÃÂÃÂ± ÃÂ­ÃÂÃÂÃÂ ÃÂ§ÃÂÃÂµÃÂÃÂ± ÃÂÃÂ³ÃÂ¨ÃÂÃÂ§ÃÂÃÂ ÃÂªÃÂ¬ÃÂ§ÃÂÃÂ² ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨
     const alreadyLoaded = products.filter(p => p.image).length;
     if (alreadyLoaded >= products.length * 0.8) return;
 
-    // request ÙØ§Ø­Ø¯Ø© ÙÙØ³ÙØ±ÙØ± â Vercel CDN ÙØ­ÙØ¸ Ø§ÙØµÙØ± 24 Ø³Ø§Ø¹Ø© ÙÙÙ Ø§ÙØ²ÙØ§Ø±
+    // request ÃÂÃÂ§ÃÂ­ÃÂ¯ÃÂ© ÃÂÃÂÃÂ³ÃÂÃÂ±ÃÂÃÂ± Ã¢ÂÂ Vercel CDN ÃÂÃÂ­ÃÂÃÂ¸ ÃÂ§ÃÂÃÂµÃÂÃÂ± 24 ÃÂ³ÃÂ§ÃÂ¹ÃÂ© ÃÂÃÂÃÂ ÃÂ§ÃÂÃÂ²ÃÂÃÂ§ÃÂ±
     const loadAllImages = async () => {
       try {
         const res = await fetch('/api/images');
@@ -254,7 +266,7 @@ export const ShopProvider: React.FC<{
 
     loadAllImages();
   }, [products.length]); // eslint-disable-line
-  // ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
   // Resolve initial product page from URL slug after products load
     useEffect(() => {
@@ -421,7 +433,7 @@ export const ShopProvider: React.FC<{
     localStorage.setItem('adult_store_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // âââ Firestore product operations âââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂ Firestore product operations Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
@@ -487,7 +499,7 @@ export const ShopProvider: React.FC<{
     }
   };
 
-  // ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
 
   const toSlugLocal = (n: string) => (n || '').toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
@@ -539,7 +551,7 @@ export const ShopProvider: React.FC<{
       const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
       const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
       if (currentCartQty + quantity > product.stock) {
-        alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØ·ÙÙØ¨Ø© ØºÙØ± ÙØªÙÙØ±Ø© Ø­Ø§ÙÙØ§Ù. Ø§ÙÙÙÙØ© Ø§ÙÙØªØ¨ÙÙØ©: ${product.stock}`);
+        alert(`ÃÂ¹ÃÂ°ÃÂ±ÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂ·ÃÂÃÂÃÂ¨ÃÂ© ÃÂºÃÂÃÂ± ÃÂÃÂªÃÂÃÂÃÂ±ÃÂ© ÃÂ­ÃÂ§ÃÂÃÂÃÂ§ÃÂ. ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂªÃÂ¨ÃÂÃÂÃÂ©: ${product.stock}`);
         return prevCart;
       }
       if (existingItemIndex > -1) {
@@ -567,7 +579,7 @@ export const ShopProvider: React.FC<{
       prevCart.map(item => {
         if (item.product.id === productId) {
           if (quantity > item.product.stock) {
-            alert(`Ø¹Ø°Ø±Ø§ÙØ Ø§ÙÙÙÙØ© Ø§ÙÙØªÙÙØ±Ø© ÙÙ ${item.product.stock} ÙÙØ·.`);
+            alert(`ÃÂ¹ÃÂ°ÃÂ±ÃÂ§ÃÂÃÂ ÃÂ§ÃÂÃÂÃÂÃÂÃÂ© ÃÂ§ÃÂÃÂÃÂªÃÂÃÂÃÂ±ÃÂ© ÃÂÃÂ ${item.product.stock} ÃÂÃÂÃÂ·.`);
             return item;
           }
           return { ...item, quantity };
@@ -617,7 +629,7 @@ export const ShopProvider: React.FC<{
   };
 
   const deleteOrder = (orderId: string) => {
-    if (window.confirm('ÙÙ Ø£ÙØª ÙØªØ£ÙØ¯ ÙÙ Ø±ØºØ¨ØªÙ ÙÙ Ø­Ø°Ù ÙØ°Ø§ Ø§ÙØ·ÙØ¨ ÙÙØ§Ø¦ÙØ§ÙØ')) {
+    if (window.confirm('ÃÂÃÂ ÃÂ£ÃÂÃÂª ÃÂÃÂªÃÂ£ÃÂÃÂ¯ ÃÂÃÂ ÃÂ±ÃÂºÃÂ¨ÃÂªÃÂ ÃÂÃÂ ÃÂ­ÃÂ°ÃÂ ÃÂÃÂ°ÃÂ§ ÃÂ§ÃÂÃÂ·ÃÂÃÂ¨ ÃÂÃÂÃÂ§ÃÂ¦ÃÂÃÂ§ÃÂÃÂ')) {
       deleteOrderLocally(orderId);
     }
   };
