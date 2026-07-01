@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
   import './globals.css';
   import MetaPixel from '@/src/components/MetaPixel';
+import { Analytics } from '@vercel/analytics/next';
 
   export const metadata: Metadata = {
     metadataBase: new URL('https://vexatoys.com'),
     title: {
-      default: 'متجر فيكسا | رقم 1 في لبنان للألعاب الزوجية واللانجري',
-      template: '%s | متجر فيكسا لبنان',
+      default: 'ÙØªØ¬Ø± ÙÙÙØ³Ø§ | Ø±ÙÙ 1 ÙÙ ÙØ¨ÙØ§Ù ÙÙØ£ÙØ¹Ø§Ø¨ Ø§ÙØ²ÙØ¬ÙØ© ÙØ§ÙÙØ§ÙØ¬Ø±Ù',
+      template: '%s | ÙØªØ¬Ø± ÙÙÙØ³Ø§ ÙØ¨ÙØ§Ù',
     },
-    description: 'متجر فيكسا – الأكثر خصوصية وأماناً لشراء ألعاب زوجية، هزازات، لانجري في لبنان. توصيل سري في نفس اليوم في بيروت. دفع عند الاستلام. تغليف سري 100%.',
-    keywords: 'ألعاب زوجية لبنان, هزازات, لانجري, sex toys lebanon, vibrators, lingerie beirut, vexa store',
+    description: 'ÙØªØ¬Ø± ÙÙÙØ³Ø§ â Ø§ÙØ£ÙØ«Ø± Ø®ØµÙØµÙØ© ÙØ£ÙØ§ÙØ§Ù ÙØ´Ø±Ø§Ø¡ Ø£ÙØ¹Ø§Ø¨ Ø²ÙØ¬ÙØ©Ø ÙØ²Ø§Ø²Ø§ØªØ ÙØ§ÙØ¬Ø±Ù ÙÙ ÙØ¨ÙØ§Ù. ØªÙØµÙÙ Ø³Ø±Ù ÙÙ ÙÙØ³ Ø§ÙÙÙÙ ÙÙ Ø¨ÙØ±ÙØª. Ø¯ÙØ¹ Ø¹ÙØ¯ Ø§ÙØ§Ø³ØªÙØ§Ù. ØªØºÙÙÙ Ø³Ø±Ù 100%.',
+    keywords: 'Ø£ÙØ¹Ø§Ø¨ Ø²ÙØ¬ÙØ© ÙØ¨ÙØ§Ù, ÙØ²Ø§Ø²Ø§Øª, ÙØ§ÙØ¬Ø±Ù, sex toys lebanon, vibrators, lingerie beirut, vexa store',
     authors: [{ name: 'Vexa Store Lebanon' }],
     creator: 'Vexa Store',
     openGraph: {
@@ -18,8 +19,8 @@ import type { Metadata } from 'next';
       alternateLocale: 'en_US',
       url: 'https://vexatoys.com',
       siteName: 'Vexa Store Lebanon',
-      title: 'متجر فيكسا | ألعاب زوجية ولانجري في لبنان',
-      description: 'توصيل سري في نفس اليوم. دفع عند الاستلام. تغليف سري 100%.',
+      title: 'ÙØªØ¬Ø± ÙÙÙØ³Ø§ | Ø£ÙØ¹Ø§Ø¨ Ø²ÙØ¬ÙØ© ÙÙØ§ÙØ¬Ø±Ù ÙÙ ÙØ¨ÙØ§Ù',
+      description: 'ØªÙØµÙÙ Ø³Ø±Ù ÙÙ ÙÙØ³ Ø§ÙÙÙÙ. Ø¯ÙØ¹ Ø¹ÙØ¯ Ø§ÙØ§Ø³ØªÙØ§Ù. ØªØºÙÙÙ Ø³Ø±Ù 100%.',
     },
     twitter: { card: 'summary_large_image', site: '@vexastore' },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
@@ -63,7 +64,7 @@ import type { Metadata } from 'next';
         '@id': `${BASE}/#store`,
         name: 'Vexa Store Lebanon',
         url: BASE,
-        description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
+        description: 'ÙØªØ¬Ø± ÙÙÙØ³Ø§ â Ø±ÙÙ 1 ÙÙ ÙØ¨ÙØ§Ù ÙÙØ£ÙØ¹Ø§Ø¨ Ø§ÙØ²ÙØ¬ÙØ© ÙØ§ÙÙØ§ÙØ¬Ø±Ù. ØªÙØµÙÙ Ø³Ø±Ù ÙÙ Ø¨ÙØ±ÙØª.',
         priceRange: '$$',
         currenciesAccepted: 'USD',
         paymentAccepted: 'Cash, Credit Card',
