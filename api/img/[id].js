@@ -4,23 +4,43 @@
   const PROJECT = 'vexa-store';
   const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
+  // Cache the anonymous auth token across warm serverless invocations instead of
+  // signing up a brand-new anonymous account on every single image request.
+  // Repeatedly calling accounts:signUp under real traffic exhausts Firebase's
+  // free-tier quota extremely fast (each visitor loading a 60-product grid used
+  // to trigger 60 fresh anonymous account creations). Reusing one token for its
+  // ~1h lifetime cuts that to near zero.
+  let cachedToken = null;
+  let cachedTokenExpiry = 0;
+
+  async function getIdToken() {
+    if (cachedToken && Date.now() < cachedTokenExpiry) return cachedToken;
+    const authRes = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
+      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
+    );
+    const data = await authRes.json();
+    if (!data.idToken) return null;
+    cachedToken = data.idToken;
+    // Anonymous tokens are valid ~1h; refresh 5 min early to be safe.
+    cachedTokenExpiry = Date.now() + 55 * 60 * 1000;
+    return cachedToken;
+  }
+
   export default async function handler(req, res) {
     const { id } = req.query;
 
-    // CDN caches 24h, stale served while revalidating
-    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=86400');
+    // CDN caches 24h, stale served while revalidating — this is what actually
+    // protects Firebase quota: once ANY request for an id succeeds, no visitor
+    // triggers a new Firebase read for 24h.
+    res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
 
     if (!id || typeof id !== 'string') {
       return res.status(400).json({ error: 'Missing id' });
     }
 
     try {
-      // Anonymous Firebase auth
-      const authRes = await fetch(
-        `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
-      );
-      const { idToken } = await authRes.json();
+      const idToken = await getIdToken();
       if (!idToken) return sendPlaceholder(res);
 
       const headers = { Authorization: `Bearer ${idToken}` };
@@ -67,8 +87,11 @@
     }
   }
 
-  // 1x1 transparent PNG as fallback
+  // 1x1 transparent PNG as fallback — but with a SHORT cache so a temporary
+  // Firebase quota/outage blip doesn't get baked into the CDN for 24h once the
+  // real image becomes available again.
   function sendPlaceholder(res) {
+    res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     const png = Buffer.from(
       'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
       'base64'
