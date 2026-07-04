@@ -108,6 +108,7 @@ const ShopContext = createContext<ShopContextType | undefined>(undefined);
 const PRODUCTS_COLLECTION = 'products';
 const ORDERS_COLLECTION = 'orders';
 const IMAGES_COLLECTION = 'product_images';
+const DELETED_PRODUCTS_COLLECTION = 'deleted_products';
 const DELIVERY_FEE = 5;
 
 export const ShopProvider: React.FC<{
@@ -139,40 +140,50 @@ export const ShopProvider: React.FC<{
     useEffect(() => {
       // Fetch Firebase products once per session to get new/deleted products from admin
         if (initialProducts && initialProducts.length > 0) {
-          const SESSION_KEY = 'vexa_fb_products_v1';
-          const SESSION_TS  = 'vexa_fb_products_v1_ts';
+          const SESSION_KEY = 'vexa_fb_products_v2';
+          const SESSION_TS  = 'vexa_fb_products_v2_ts';
           const TTL = 5 * 60 * 1000; // re-fetch every 5 min max
 
           const cached = sessionStorage.getItem(SESSION_KEY);
           const ts     = Number(sessionStorage.getItem(SESSION_TS) || 0);
 
-          const applyFirebase = (fbProds: Product[]) => {
-            const fbIds = new Set(fbProds.map(p => p.id));
+          // ⚠️ Firebase PRODUCTS_COLLECTION only holds admin-added/edited products —
+          // it is NOT a mirror of the full static catalog. Never use "missing from
+          // Firebase" as a signal that a static product was deleted (that broke
+          // direct product-page links from Google, which pass a single static
+          // product as initialProducts). Deletions are tracked explicitly instead.
+          const applyFirebase = (fbProds: Product[], deletedIds: string[]) => {
             const staticIds = new Set(initialProducts.map((p: Product) => p.id));
+            const deletedSet = new Set(deletedIds);
 
-            // Keep static products only if still in Firebase (handles deletions)
-            // Add new Firebase products not in static list (handles additions)
             const merged = [
-              ...fbProds.filter((p: Product) => !staticIds.has(p.id)),       // new admin products
-              ...initialProducts.filter((p: Product) => fbIds.has(p.id)),    // static products still in Firebase
+              ...initialProducts.filter((p: Product) => !deletedSet.has(p.id)),                         // static products, minus explicitly deleted ones
+              ...fbProds.filter((p: Product) => !staticIds.has(p.id) && !deletedSet.has(p.id)),         // new admin-added products
             ];
-            // If Firebase is empty/errored keep all static products as fallback
             if (merged.length > 0) setProducts(merged);
           };
 
           if (cached && Date.now() - ts < TTL) {
-            try { applyFirebase(JSON.parse(cached)); } catch (_) {}
+            try {
+              const { products: fbProds, deletedIds } = JSON.parse(cached);
+              applyFirebase(fbProds || [], deletedIds || []);
+            } catch (_) {}
             return;
           }
 
-          getDocs(collection(db, PRODUCTS_COLLECTION)).then(snap => {
+          Promise.all([
+            getDocs(collection(db, PRODUCTS_COLLECTION)),
+            getDocs(collection(db, DELETED_PRODUCTS_COLLECTION)),
+          ]).then(([prodSnap, delSnap]) => {
             const fbProds: Product[] = [];
-            snap.forEach(docSnap => fbProds.push({ id: docSnap.id, ...docSnap.data() } as Product));
+            prodSnap.forEach(docSnap => fbProds.push({ id: docSnap.id, ...docSnap.data() } as Product));
+            const deletedIds: string[] = [];
+            delSnap.forEach(docSnap => deletedIds.push(docSnap.id));
             try {
-              sessionStorage.setItem(SESSION_KEY, JSON.stringify(fbProds));
+              sessionStorage.setItem(SESSION_KEY, JSON.stringify({ products: fbProds, deletedIds }));
               sessionStorage.setItem(SESSION_TS, String(Date.now()));
             } catch (_) {}
-            applyFirebase(fbProds);
+            applyFirebase(fbProds, deletedIds);
           }).catch(() => {});
           return;
         }
@@ -482,7 +493,12 @@ export const ShopProvider: React.FC<{
   };
 
   const deleteProduct = async (productId: string) => {
-    await deleteDoc(doc(db, PRODUCTS_COLLECTION, productId));
+    // Write an explicit tombstone so static (non-Firebase) products can be
+    // hidden too — absence from PRODUCTS_COLLECTION is NOT a delete signal.
+    await Promise.all([
+      deleteDoc(doc(db, PRODUCTS_COLLECTION, productId)).catch(() => {}),
+      setDoc(doc(db, DELETED_PRODUCTS_COLLECTION, productId), { deletedAt: Date.now() }),
+    ]);
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
