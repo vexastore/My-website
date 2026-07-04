@@ -1,8 +1,128 @@
 {
   "redirects": [
     {
+      "source": "/about.html",
+      "destination": "/about",
+      "permanent": true
+    },
+    {
+      "source": "/anal-toys.html",
+      "destination": "/anal-toys",
+      "permanent": true
+    },
+    {
+      "source": "/bdsm.html",
+      "destination": "/bdsm",
+      "permanent": true
+    },
+    {
+      "source": "/bondage.html",
+      "destination": "/bondage",
+      "permanent": true
+    },
+    {
+      "source": "/butt-plugs.html",
+      "destination": "/butt-plugs",
+      "permanent": true
+    },
+    {
+      "source": "/chastity.html",
+      "destination": "/chastity",
+      "permanent": true
+    },
+    {
+      "source": "/cock-rings.html",
+      "destination": "/cock-rings",
+      "permanent": true
+    },
+    {
+      "source": "/dildos.html",
+      "destination": "/dildos",
+      "permanent": true
+    },
+    {
+      "source": "/holiday-collection.html",
+      "destination": "/holiday-collection",
+      "permanent": true
+    },
+    {
+      "source": "/kegel-balls.html",
+      "destination": "/kegel-balls",
+      "permanent": true
+    },
+    {
+      "source": "/lingerie.html",
+      "destination": "/lingerie",
+      "permanent": true
+    },
+    {
+      "source": "/lubricants.html",
+      "destination": "/lubricants",
+      "permanent": true
+    },
+    {
+      "source": "/male-toys.html",
+      "destination": "/male-toys",
+      "permanent": true
+    },
+    {
+      "source": "/masturbators.html",
+      "destination": "/masturbators",
+      "permanent": true
+    },
+    {
+      "source": "/new-arrivals.html",
+      "destination": "/new-arrivals",
+      "permanent": true
+    },
+    {
+      "source": "/penis-pumps.html",
+      "destination": "/penis-pumps",
+      "permanent": true
+    },
+    {
+      "source": "/poppers.html",
+      "destination": "/poppers",
+      "permanent": true
+    },
+    {
+      "source": "/sex-dolls.html",
+      "destination": "/sex-dolls",
+      "permanent": true
+    },
+    {
+      "source": "/sex-machines.html",
+      "destination": "/sex-machines",
+      "permanent": true
+    },
+    {
+      "source": "/sex-toys.html",
+      "destination": "/sex-toys",
+      "permanent": true
+    },
+    {
+      "source": "/sexual-enhancers.html",
+      "destination": "/sexual-enhancers",
+      "permanent": true
+    },
+    {
+      "source": "/strap-ons.html",
+      "destination": "/strap-ons",
+      "permanent": true
+    },
+    {
+      "source": "/vibrators.html",
+      "destination": "/vibrators",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
-      "has": [{ "type": "host", "value": "www.vexatoys.com" }],
+      "has": [
+        {
+          "type": "host",
+          "value": "www.vexatoys.com"
+        }
+      ],
       "destination": "https://vexatoys.com/$1",
       "permanent": true
     }
@@ -11,14 +131,38 @@
     {
       "source": "/(.*)",
       "headers": [
-        { "key": "X-Content-Type-Options", "value": "nosniff" },
-        { "key": "X-Frame-Options", "value": "DENY" },
-        { "key": "X-XSS-Protection", "value": "1; mode=block" },
-        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
-        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
-        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" },
-        { "key": "Cross-Origin-Resource-Policy", "value": "cross-origin" }
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Referrer-Policy",
+          "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=63072000; includeSubDomains; preload"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "Cross-Origin-Resource-Policy",
+          "value": "cross-origin"
+        }
       ]
     }
   ]
