@@ -624,28 +624,6 @@ export const STATIC_PRODUCTS: Product[] = [
     "images": []
   },
   {
-    "slug": "denial-official-chastity-cage-metal-design",
-    "categorySlug": "male-toys",
-    "isNew": true,
-    "image": "",
-    "descriptionEn": "Durable metal chastity cage designed for secure and comfortable wear. Includes 3 different ring sizes for a better fit and a ventilated cage design for easy cleaning.\nFeatures\nStrong metal construction\nIncludes 3 ring sizes\nSecure locking design\nOpen-bar cage structure\nComfortable ergonomic fit\nSuitable for BDSM and roleplay\nEasy to clean and maintain\nDesigned for users looking for durability, control, and long-lasting wear.\nChastity cage In lebanon ",
-    "name": "Denial Official Chastity Cage – Metal Design",
-    "id": "prod-E4I00E5DG",
-    "images": [],
-    "nameEn": "Denial Official Chastity Cage – Metal Design",
-    "rating": 5,
-    "description": "Durable metal chastity cage designed for secure and comfortable wear. Includes 3 different ring sizes for a better fit and a ventilated cage design for easy cleaning.\nFeatures\nStrong metal construction\nIncludes 3 ring sizes\nSecure locking design\nOpen-bar cage structure\nComfortable ergonomic fit\nSuitable for BDSM and roleplay\nEasy to clean and maintain\nDesigned for users looking for durability, control, and long-lasting wear.\nChastity cage In lebanon ",
-    "stock": 10,
-    "reviewsCount": 6,
-    "price": 40,
-    "categories": [
-      "Male Toys",
-      "Chastity"
-    ],
-    "category": "Male Toys",
-    "variants": []
-  },
-  {
     "slug": "spiral-cock-ring-sleeve-couples-toy",
     "categorySlug": "sex-toys",
     "isNew": true,
@@ -667,29 +645,6 @@ export const STATIC_PRODUCTS: Product[] = [
     "price": 15,
     "variants": [],
     "category": "Sex Toys",
-    "images": []
-  },
-  {
-    "id": "prod-EF6HC703Y",
-    "link": "https://www.vexatoys.com/male-toys/denial-official-chastity-cage-metal-design",
-    "name": "Denial Official Chastity Cage – Metal Design",
-    "categorySlug": "male-toys",
-    "slug": "denial-official-chastity-cage-metal-design",
-    "descriptionEn": "Durable metal chastity cage designed for secure and comfortable wear. Includes 3 different ring sizes for a better fit and a ventilated cage design for easy cleaning.\nFeatures\nStrong metal construction\nIncludes 3 ring sizes\nSecure locking design\nOpen-bar cage structure\nComfortable ergonomic fit\nSuitable for BDSM and roleplay\nEasy to clean and maintain\nDesigned for users looking for durability, control, and long-lasting wear.",
-    "isNew": true,
-    "image": "",
-    "categories": [
-      "Male Toys",
-      "Chastity"
-    ],
-    "price": 40,
-    "category": "Male Toys",
-    "variants": [],
-    "stock": 10,
-    "rating": 5,
-    "description": "Durable metal chastity cage designed for secure and comfortable wear. Includes 3 different ring sizes for a better fit and a ventilated cage design for easy cleaning.\nFeatures\nStrong metal construction\nIncludes 3 ring sizes\nSecure locking design\nOpen-bar cage structure\nComfortable ergonomic fit\nSuitable for BDSM and roleplay\nEasy to clean and maintain\nDesigned for users looking for durability, control, and long-lasting wear.",
-    "nameEn": "Denial Official Chastity Cage – Metal Design",
-    "reviewsCount": 3,
     "images": []
   },
   {
@@ -1743,29 +1698,5 @@ export const STATIC_PRODUCTS: Product[] = [
     "descriptionEn": "Features\nSmooth medical-grade material\nErgonomic curved design\nDesigned for urethral play use\nLightweight and easy to handle\nEasy to clean and maintain\nSuitable for advanced users only\nCare\nMust be cleaned thoroughly before and after each use and used with appropriate lubrication.\nDesigned for experienced users seeking specialized stimulation and exploration.",
     "isNew": true,
     "reviewsCount": 5
-  },
-  {
-    "reviewsCount": 8,
-    "id": "prod-ZV63I3E7J",
-    "stock": 20,
-    "link": "https://www.vexatoys.com/male-toys/manual-penis-vacuum-pump-compact-hand-pump",
-    "rating": 5,
-    "isNew": true,
-    "variants": [],
-    "descriptionEn": "A simple manual vacuum pump designed for controlled suction using a hand-operated mechanism.\nHow to Use\nPlace the cylinder on the area of use\nPump manually using the hand pump or squeeze mechanism\nControl suction level by pumping slowly or quickly\nUse for short, controlled sessions\nRelease pressure using the quick-release valve\nClean after each use\nBenefits\nImproves blood flow temporarily\nEasy manual control of suction strength\nNo electricity required\nLightweight and portable design\nSimple and beginner-friendly",
-    "description": "A simple manual vacuum pump designed for controlled suction using a hand-operated mechanism.\nHow to Use\nPlace the cylinder on the area of use\nPump manually using the hand pump or squeeze mechanism\nControl suction level by pumping slowly or quickly\nUse for short, controlled sessions\nRelease pressure using the quick-release valve\nClean after each use\nBenefits\nImproves blood flow temporarily\nEasy manual control of suction strength\nNo electricity required\nLightweight and portable design\nSimple and beginner-friendly",
-    "price": 59,
-    "slug": "manual-penis-vacuum-pump-compact-hand-pump",
-    "categories": [
-      "Male Toys",
-      "Sex Toys",
-      "Penis Pumps"
-    ],
-    "nameEn": "Manual Penis Vacuum Pump – Compact Hand Pump",
-    "categorySlug": "male-toys",
-    "name": "Manual Penis Vacuum Pump – Compact Hand Pump",
-    "image": "",
-    "category": "Male Toys",
-    "images": []
   }
 ];
