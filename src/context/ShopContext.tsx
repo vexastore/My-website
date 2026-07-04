@@ -1,7 +1,6 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
-import { MOCK_PRODUCTS } from '../data/mockData';
 import { db } from '../firebase';
 import {
   collection,
@@ -197,43 +196,51 @@ export const ShopProvider: React.FC<{
         }
       }
 
-      const loadProducts = async () => {
-        if (!cachedRaw) setIsProductsLoading(true);
-
-        try {
-          // يجيب المنتجات من Vercel CDN (24 ساعة cache) — Firebase لا تُقرأ هنا إطلاقاً
+      const fetchOnce = async (): Promise<Product[]> => {
           const ctrl = new AbortController();
           const t = setTimeout(() => ctrl.abort(), 15000);
-          const resp = await fetch('/api/products', { signal: ctrl });
-          clearTimeout(t);
-
-          if (!resp.ok) throw new Error(`API error ${resp.status}`);
-          const products: Product[] = await resp.json();
-
-          if (!Array.isArray(products) || products.length === 0) {
-            if (!cachedRaw) setProducts(MOCK_PRODUCTS);
-            setIsProductsLoading(false);
-            return;
+          try {
+            // يجيب المنتجات الحقيقية من Vercel CDN — ممنوع إظهار أي منتج وهمي أبداً
+            const resp = await fetch('/api/products', { signal: ctrl });
+            if (!resp.ok) throw new Error(`API error ${resp.status}`);
+            const products: Product[] = await resp.json();
+            if (!Array.isArray(products) || products.length === 0) {
+              throw new Error('Empty products response');
+            }
+            return products;
+          } finally {
+            clearTimeout(t);
           }
+        };
 
-          setProducts(products);
-          setIsProductsLoading(false);
+        const loadProducts = async (attempt = 1) => {
+          if (!cachedRaw) setIsProductsLoading(true);
 
           try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify(products));
-            localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
-          } catch (_) {}
+            const products = await fetchOnce();
 
-        } catch (err) {
-          if (process.env.NODE_ENV === 'development') console.error('Products load error:', err);
-          if (!cachedRaw) {
-            setProducts(MOCK_PRODUCTS);
+            setProducts(products);
             setIsProductsLoading(false);
-          }
-        }
-      };
 
-      loadProducts();
+            try {
+              localStorage.setItem(CACHE_KEY, JSON.stringify(products));
+              localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
+            } catch (_) {}
+
+          } catch (err) {
+            if (process.env.NODE_ENV === 'development') console.error(`Products load error (attempt ${attempt}):`, err);
+
+            // أعد المحاولة حتى ينجح الطلب — ممنوع إظهار منتجات وهمية تحت أي ظرف
+            if (attempt < 5) {
+              const delay = Math.min(1000 * attempt, 4000);
+              setTimeout(() => loadProducts(attempt + 1), delay);
+            } else if (!cachedRaw) {
+              setTimeout(() => loadProducts(1), 5000);
+            }
+          }
+        };
+
+        loadProducts();
     }, [])
 
   // ─── تحميل الصور من Firebase Client SDK (نفس آلية صفحة تفاصيل المنتج) ────
