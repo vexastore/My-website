@@ -1,8 +1,8 @@
 // صور المنتجات — تُجلب مرة واحدة كل 24 ساعة من Vercel CDN
 // كل زيارة تحصل على الصور من الـ cache دون أي Firebase reads مباشرة
 
-// قائمة جميع IDs (مصدر: lib/staticProducts.ts)
-const ALL_IDS = [
+// قائمة المنتجات الأصلية الـ76 (hardcoded للسرعة)
+const STATIC_IDS = new Set([
   "prod-133R8EJ6D","prod-23B60IR2Q","prod-24NRFZBHI","prod-2IQUAPUC3","prod-2WQ1BU08R",
   "prod-3NRRJJDJU","prod-4EJO4D56E","prod-4N38Z446F","prod-4ZH2D4K4D","prod-61JDNF8LD",
   "prod-62R5H3IMR","prod-7HGO5CIKL","prod-8A6OWLC96","prod-8WODDSHO9","prod-9G7YZIF8S",
@@ -19,29 +19,57 @@ const ALL_IDS = [
   "prod-SW2PO6PDS","prod-T5F7683VZ","prod-U5ILZEOJS","prod-UCQNEBAAE","prod-V823S82N6",
   "prod-VKHE4Z562","prod-VKRX33AMU","prod-XMN0MTS93","prod-YTOC4FAF1","prod-ZCBYKCIEQ",
   "prod-ZV63I3E7J"
-];
+]);
+
+const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
+const PROJECT = 'vexa-store';
+const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
+
+// Token مشترك يُعاد استخدامه لمدة 55 دقيقة — يمنع إنشاء حسابات anonymous بكثرة
+let _cachedToken = null;
+let _tokenExpiry = 0;
+
+async function getToken() {
+  if (_cachedToken && Date.now() < _tokenExpiry) return _cachedToken;
+  const r = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
+  );
+  const { idToken } = await r.json();
+  if (!idToken) return null;
+  _cachedToken = idToken;
+  _tokenExpiry = Date.now() + 55 * 60 * 1000;
+  return idToken;
+}
 
 export default async function handler(req, res) {
-  // Vercel CDN يخزن النتيجة 24 ساعة — كل المستخدمين يجيبون من الـ cache
   res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=86400');
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
-  const PROJECT = 'vexa-store';
-  const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
-
   try {
-    // anonymous auth مرة واحدة
-    const authRes = await fetch(
-      `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
-      { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
-    );
-    const { idToken } = await authRes.json();
+    const idToken = await getToken();
     if (!idToken) return res.status(200).json({});
 
     const headers = { Authorization: `Bearer ${idToken}` };
 
-    // جلب كل منتج بشكل فردي — parallel على السيرفر (سريع جداً)
+    // جلب المنتجات الجديدة من الإدارة (غير موجودة في STATIC_IDS)
+    let adminIds = [];
+    try {
+      const listRes = await fetch(
+        `${BASE}/products?pageSize=200&fields=documents.name`,
+        { headers }
+      );
+      if (listRes.ok) {
+        const listData = await listRes.json();
+        const docs = listData.documents || [];
+        adminIds = docs
+          .map(d => d.name.split('/').pop())
+          .filter(id => id && !STATIC_IDS.has(id));
+      }
+    } catch (_) { /* لا تُوقف الـ cache إذا فشل هذا */ }
+
+    const ALL_IDS = [...STATIC_IDS, ...adminIds];
+
     const results = await Promise.allSettled(
       ALL_IDS.map(async (id) => {
         const [galleryRes, productRes] = await Promise.all([
@@ -68,7 +96,6 @@ export default async function handler(req, res) {
             .filter(Boolean);
         }
 
-        // product_images يتفوق على products
         const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
         const mainImg = bestImgs[0] || productImg;
 
