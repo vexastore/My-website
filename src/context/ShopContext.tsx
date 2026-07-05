@@ -293,18 +293,50 @@ export const ShopProvider: React.FC<{
     const alreadyLoaded = products.filter(p => p.image && p.image.startsWith('data:')).length;
     if (alreadyLoaded >= products.length * 0.8) return;
 
-    // request واحدة للسيرفر — Vercel CDN يحفظ الصور 24 ساعة لكل الزوار
+    // تحميل الصور مباشرةً من Firebase Client SDK بنفس طريقة fetchProductImages
+    // (تثبّت: /api/images كان بينتهي بـ timeout لأنه يطلب 152 REST call في serverless واحد)
     const loadAllImages = async () => {
       try {
-        const res = await fetch('/api/images');
-        if (!res.ok) return;
-        const imageMap = await res.json() as Record<string, { image: string; images: string[] }>;
-        if (Object.keys(imageMap).length > 0) {
+        const BATCH_SIZE = 10;
+        const fullMap: Record<string, { image: string; images: string[] }> = {};
+
+        for (let i = 0; i < products.length; i += BATCH_SIZE) {
+          const batch = products.slice(i, i + BATCH_SIZE);
+          const batchResults = await Promise.allSettled(
+            batch.map(async (p) => {
+              const [gallerySnap, productSnap] = await Promise.all([
+                getDoc(doc(db, IMAGES_COLLECTION, p.id)),
+                getDoc(doc(db, PRODUCTS_COLLECTION, p.id)),
+              ]);
+              const galleryImgs: string[] = gallerySnap.exists()
+                ? (gallerySnap.data().images as string[]) || []
+                : [];
+              const productData = productSnap.exists() ? productSnap.data() : null;
+              const productImgs: string[] = productData
+                ? (productData.images as string[]) || []
+                : [];
+              const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
+              const mainImg = bestImgs[0] || (productData?.image as string) || '';
+              return { id: p.id, mainImg, bestImgs };
+            })
+          );
+          const batchMap: Record<string, { image: string; images: string[] }> = {};
+          for (const r of batchResults) {
+            if (r.status === 'fulfilled' && r.value.mainImg) {
+              batchMap[r.value.id] = { image: r.value.mainImg, images: r.value.bestImgs };
+              fullMap[r.value.id] = batchMap[r.value.id];
+            }
+          }
+          // طبّق الصور بشكل تدريجي — تظهر صور كل batch فور تحميلها
+          if (Object.keys(batchMap).length > 0) applyMap(batchMap);
+        }
+
+        // احفظ في localStorage للزيارات اللاحقة
+        if (Object.keys(fullMap).length > 0) {
           try {
-            localStorage.setItem(IMG_KEY, JSON.stringify(imageMap));
+            localStorage.setItem(IMG_KEY, JSON.stringify(fullMap));
             localStorage.setItem(IMG_TS_KEY, String(Date.now()));
           } catch (_) {}
-          applyMap(imageMap);
         }
       } catch (_) {}
     };
