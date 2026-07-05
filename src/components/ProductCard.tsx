@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
   import { Product } from '../types';
   import { useShop } from '../context/ShopContext';
   import { Star, Link2, Check } from 'lucide-react';
@@ -17,26 +17,28 @@ import React, { useState } from 'react';
       .slice(0, 60);
   }
 
-  // Returns true if the URL is a real product image (not a placeholder/fake URL)
-  function isRealExternalImage(url: string): boolean {
-    if (!url) return false;
-    // Accept base64 data URIs — loaded from Firebase via /api/images batch endpoint
-    if (url.startsWith('data:image/')) return true;
-    if (!url.startsWith('http')) return false;
-    const fakeDomains = ['picsum', 'placeholder.com', 'via.placeholder', 'dummyimage', 'placehold', 'lorempixel', 'unsplash'];
-    return !fakeDomains.some(d => url.includes(d));
-  }
-
   export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) => {
     const { cart, language, navigateToProduct } = useShop();
     const isArabic = language === 'ar';
     const [copied, setCopied] = useState(false);
     const [imgError, setImgError] = useState(false);
+    const [mounted, setMounted] = useState(false);
+    const imgRef = useRef<HTMLImageElement>(null);
 
     const apiImgSrc = `/api/img/${product.id}`;
-    const [imgSrc, setImgSrc] = useState<string>(
-      isRealExternalImage(product.image) ? product.image : apiImgSrc
-    );
+
+    useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    // After mount, check if the image already failed (SSR race condition fix)
+    useEffect(() => {
+      if (!mounted) return;
+      const img = imgRef.current;
+      if (img && img.complete && img.naturalWidth === 0) {
+        setImgError(true);
+      }
+    }, [mounted]);
 
     const categoryShort = product.category === 'Holiday Collection' ? 'Holiday' : product.category;
     const oldPrice = Math.round(product.price * 1.23);
@@ -53,14 +55,6 @@ import React, { useState } from 'react';
     const catSlug = product.categorySlug || toSlug(product.category || 'sex-toys');
     const productUrl = `/${catSlug}/${pSlug}`;
     const productFullUrl = `https://vexatoys.com${productUrl}`;
-
-    const handleImgError = () => {
-      if (imgSrc !== apiImgSrc) {
-        setImgSrc(apiImgSrc);
-      } else {
-        setImgError(true);
-      }
-    };
 
     const handleProductClick = (e: React.MouseEvent) => {
       e.preventDefault();
@@ -104,13 +98,15 @@ import React, { useState } from 'react';
           </button>
 
           <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
-            {!imgError && (
+            {/* Only render the img client-side to avoid SSR race condition with onError */}
+            {mounted && !imgError && (
               <img
-                src={imgSrc}
-                alt={isArabic ? product.name : (product.nameEn || product.name)}
+                ref={imgRef}
+                src={apiImgSrc}
+                alt=""
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading={priority ? 'eager' : 'lazy'}
-                onError={handleImgError}
+                onError={() => setImgError(true)}
               />
             )}
             <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs" style={{textShadow:'0 1px 4px rgba(0,0,0,0.9)'}}>
@@ -149,4 +145,3 @@ import React, { useState } from 'react';
       </a>
     );
   };
-  
