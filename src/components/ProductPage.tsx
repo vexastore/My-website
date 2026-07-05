@@ -20,7 +20,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   } = useShop();
   const isArabic = language === 'ar';
 
-  const [images, setImages]             = useState<string[]>(['/api/img/' + product.id]);
+  const [images, setImages]             = useState<string[]>(product.image && (product.image.startsWith('data:image/') || product.image.startsWith('http')) ? [product.image] : []);
   const [imgIdx, setImgIdx]             = useState(0);
   const [imgsLoading, setImgsLoading]   = useState(true);
   const [variants, setVariants]         = useState<Record<string, string>>({});
