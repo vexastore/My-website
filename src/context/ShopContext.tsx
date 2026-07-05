@@ -481,13 +481,43 @@ export const ShopProvider: React.FC<{
 
   const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    const newProduct: Product = { ...productData, id: newId };
+    const toSlg = (s: string) => (s || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60) || newId;
+    const CAT_SLUG: Record<string, string> = {
+      'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
+      'Dildos': 'dildos', 'Lingerie': 'lingerie', 'BDSM': 'bdsm',
+      'Holiday Collection': 'holiday-collection', 'New Arrivals': 'new-arrivals',
+      'Butt Plugs': 'butt-plugs', 'Anal Toys': 'anal-toys', 'Bondage': 'bondage',
+      'Sex Dolls': 'sex-dolls', 'Strap Ons': 'strap-ons', 'Kegel Balls': 'kegel-balls',
+      'Sexual Enhancers': 'sexual-enhancers', 'Penis Pumps': 'penis-pumps',
+      'Cock Rings': 'cock-rings', 'Masturbators': 'masturbators', 'Chastity': 'chastity',
+      'Sex Machines': 'sex-machines', 'Lubricants': 'lubricants', 'Poppers': 'poppers',
+    };
+    const slug = productData.slug || toSlg(productData.nameEn || productData.name || newId);
+    const categorySlug = productData.categorySlug || CAT_SLUG[productData.category] || toSlg(productData.category || 'sex-toys');
+    const newProduct: Product = { ...productData, id: newId, slug, categorySlug };
     await setDoc(doc(db, PRODUCTS_COLLECTION, newId), newProduct);
     setProducts(prev => [newProduct, ...prev]);
   };
 
   const updateProduct = async (id: string, productData: Omit<Product, 'id'>) => {
-    const updated: Product = { ...productData, id };
+    const toSlg = (s: string) => (s || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60) || id;
+    const CAT_SLUG_U: Record<string, string> = {
+      'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
+      'Dildos': 'dildos', 'Lingerie': 'lingerie', 'BDSM': 'bdsm',
+      'Holiday Collection': 'holiday-collection', 'New Arrivals': 'new-arrivals',
+      'Butt Plugs': 'butt-plugs', 'Anal Toys': 'anal-toys', 'Bondage': 'bondage',
+      'Sex Dolls': 'sex-dolls', 'Strap Ons': 'strap-ons', 'Kegel Balls': 'kegel-balls',
+      'Sexual Enhancers': 'sexual-enhancers', 'Penis Pumps': 'penis-pumps',
+      'Cock Rings': 'cock-rings', 'Masturbators': 'masturbators', 'Chastity': 'chastity',
+      'Sex Machines': 'sex-machines', 'Lubricants': 'lubricants', 'Poppers': 'poppers',
+    };
+    const slug = productData.slug || toSlg(productData.nameEn || productData.name || id);
+    const categorySlug = productData.categorySlug || CAT_SLUG_U[productData.category] || toSlg(productData.category || 'sex-toys');
+    const updated: Product = { ...productData, id, slug, categorySlug };
     await setDoc(doc(db, PRODUCTS_COLLECTION, id), updated);
     setProducts(prev => prev.map(p => p.id === id ? updated : p));
   };
