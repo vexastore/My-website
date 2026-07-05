@@ -20,6 +20,8 @@ import React, { useState } from 'react';
   // Returns true if the URL is a real product image (not a placeholder/fake URL)
   function isRealExternalImage(url: string): boolean {
     if (!url) return false;
+    // Accept base64 data URIs — loaded from Firebase via /api/images batch endpoint
+    if (url.startsWith('data:image/')) return true;
     if (!url.startsWith('http')) return false;
     const fakeDomains = ['picsum', 'placeholder.com', 'via.placeholder', 'dummyimage', 'placehold', 'lorempixel', 'unsplash'];
     return !fakeDomains.some(d => url.includes(d));
