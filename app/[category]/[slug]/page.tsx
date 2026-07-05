@@ -87,7 +87,18 @@ export default async function ProductPage({ params }: Props) {
     serverProducts = await fetchProductsServer();
   } catch { /* non-blocking — fall back to empty */ }
 
-  const p = serverProducts.find(pr => pr.slug === slug || pr.id === slug);
+  // Some Firebase-edited products may have slug/categorySlug wiped by the admin panel.
+  // Fall back to matching by computed name slug so those pages don't break.
+  function toSl(n: string) {
+    return (n || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+  }
+  const p = serverProducts.find(pr =>
+    pr.slug === slug ||
+    pr.id === slug ||
+    toSl(pr.nameEn || pr.name || '') === slug
+  );
 
   // Product was deleted or never existed — return proper 404 so Google de-indexes it
   if (!p) notFound();

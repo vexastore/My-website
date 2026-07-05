@@ -98,10 +98,20 @@ async function _fetchProductsLive(): Promise<Product[]> {
     const staticIds = new Set((STATIC_PRODUCTS as Product[]).map(p => p.id));
 
     const merged: Product[] = [
-      // Static products — use Firebase version if admin edited them, skip if deleted
+      // Static products — use Firebase version if admin edited them, skip if deleted.
+      // Always preserve slug & categorySlug from static when Firebase version lacks them
+      // (admin panel may save a product without these routing fields).
       ...(STATIC_PRODUCTS as Product[])
         .filter(p => !deletedIds.has(p.id))
-        .map(p => fbMap.get(p.id) || p),
+        .map(p => {
+          const fb = fbMap.get(p.id);
+          if (!fb) return p;
+          return {
+            ...fb,
+            slug: fb.slug || p.slug,
+            categorySlug: fb.categorySlug || p.categorySlug,
+          };
+        }),
       // New products added by admin (not in static list)
       ...fbProducts.filter(p => !staticIds.has(p.id) && !deletedIds.has(p.id)),
     ];
