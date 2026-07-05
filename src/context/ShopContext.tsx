@@ -748,6 +748,9 @@ export const ShopProvider: React.FC<{
     setProducts(updatedProducts);
     updateStockInFirestore(updatedProducts);
     setOrders(prev => [newOrder, ...prev]);
+    setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder).catch(error => {
+      if (process.env.NODE_ENV === 'development') console.error('Firestore save order error:', error);
+    });
     clearCart();
     setView('shop');
     return newOrder;
@@ -755,10 +758,16 @@ export const ShopProvider: React.FC<{
 
   const updateOrderStatus = (orderId: string, status: Order['status']) => {
     setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
+    setDoc(doc(db, ORDERS_COLLECTION, orderId), { status }, { merge: true }).catch(error => {
+      if (process.env.NODE_ENV === 'development') console.error('Firestore update order status error:', error);
+    });
   };
 
   const deleteOrderLocally = (orderId: string) => {
     setOrders(prev => prev.filter(o => o.id !== orderId));
+    deleteDoc(doc(db, ORDERS_COLLECTION, orderId)).catch(error => {
+      if (process.env.NODE_ENV === 'development') console.error('Firestore delete order error:', error);
+    });
   };
 
   const deleteOrder = (orderId: string) => {
