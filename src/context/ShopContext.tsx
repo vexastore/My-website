@@ -259,8 +259,8 @@ export const ShopProvider: React.FC<{
     if (products.length === 0) return;
 
     // v4 — cache key جديد، يتجاهل أي cache قديم
-    const IMG_KEY = 'vexa_images_v6';
-    const IMG_TS_KEY = 'vexa_images_v6_ts';
+    const IMG_KEY = 'vexa_images_v7';
+    const IMG_TS_KEY = 'vexa_images_v7_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
 
     const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
@@ -288,8 +288,9 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // إذا السيرفر حمّل الصور مسبقاً، تجاوز الطلب
-    const alreadyLoaded = products.filter(p => p.image).length;
+    // إذا السيرفر حمّل الصور الحقيقية (base64) مسبقاً، تجاوز الطلب
+    // نتجاهل الروابط الخارجية لأنها قد تكون مكسورة
+    const alreadyLoaded = products.filter(p => p.image && p.image.startsWith('data:')).length;
     if (alreadyLoaded >= products.length * 0.8) return;
 
     // request واحدة للسيرفر — Vercel CDN يحفظ الصور 24 ساعة لكل الزوار
