@@ -306,9 +306,12 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // إذا السيرفر حمّل الصور الحقيقية (base64) مسبقاً، تجاوز الطلب
-    // نتجاهل الروابط الخارجية لأنها قد تكون مكسورة
-    const alreadyLoaded = products.filter(p => p.image && p.image.startsWith('data:')).length;
+    // إذا السيرفر حمّل الصور الحقيقية مسبقاً (base64 أو رابط https حقيقي)، تجاوز الطلب.
+    // هيدا بيمنع قراءة مضاعفة من Firestore لكل زائر عندما الصور موجودة أصلاً
+    // (المنتجات جايي من fetchProductsServer عبر /api/products وفيها صورها الحقيقية).
+    const alreadyLoaded = products.filter(p =>
+      p.image && (p.image.startsWith('data:') || p.image.startsWith('http'))
+    ).length;
     if (alreadyLoaded >= products.length * 0.8) return;
 
     // تحميل الصور مباشرةً من Firebase Client SDK بنفس طريقة fetchProductImages
