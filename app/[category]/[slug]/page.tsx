@@ -82,14 +82,21 @@ export default async function ProductPage({ params }: Props) {
   const productUrl = `https://vexatoys.com/${category}/${slug}`;
 
   let jsonLd = null;
-  let initialProducts = undefined;
+  let serverProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
+  try {
+    serverProducts = await fetchProductsServer();
+  } catch { /* non-blocking — fall back to empty */ }
+
+  const p = serverProducts.find(pr => pr.slug === slug || pr.id === slug);
+
+  // Product was deleted or never existed — return proper 404 so Google de-indexes it
+  if (!p) notFound();
+
+  const initialProducts = [p!];
 
   try {
-    const products = await fetchProductsServer();
-    const p = products.find(pr => pr.slug === slug || pr.id === slug);
-
-    if (p) {
-      initialProducts = [p];
+    {
+      const p = initialProducts[0];
 
       const productName = cleanText(p.nameEn || p.name || slug);
       const productDesc = cleanText(p.descriptionEn || p.description || '').slice(0, 500);

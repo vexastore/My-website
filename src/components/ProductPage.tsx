@@ -443,14 +443,31 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 };
 
 export const ProductPage: React.FC = () => {
-  const { selectedProduct, isProductsLoading } = useShop();
+  const { selectedProduct, isProductsLoading, setView } = useShop();
 
-  if (isProductsLoading || !selectedProduct) {
+  if (isProductsLoading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/10 border-t-white/60 mx-auto mb-4" />
           <p className="text-stone-500 text-sm">Loading product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedProduct) {
+    return (
+      <div className="min-h-[60vh] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-stone-300 text-lg font-bold">Product not found</p>
+          <p className="text-stone-500 text-sm">This product may no longer be available.</p>
+          <button
+            onClick={() => setView('shop')}
+            className="text-white bg-white/10 hover:bg-white/20 px-5 py-2.5 rounded-xl text-sm font-bold transition"
+          >
+            ← Back to Store
+          </button>
         </div>
       </div>
     );

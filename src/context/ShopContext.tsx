@@ -85,7 +85,9 @@ function getInitialCategory(override?: string): string {
   } catch { return 'Sex Toys'; }
 }
 
-function getInitialView(): ViewType {
+function getInitialView(override?: string): ViewType {
+    const VALID_VIEWS: ViewType[] = ["shop","checkout","admin","orders","about","product","advice"];
+    if (override && VALID_VIEWS.includes(override as ViewType)) return override as ViewType;
     try {
       const w = window as typeof window & { __INITIAL_VIEW__?: string; __INITIAL_PRODUCT_SLUG__?: string };
       if (w.__INITIAL_VIEW__ === 'about') return 'about';
@@ -134,7 +136,23 @@ export const ShopProvider: React.FC<{
   const [language, setLanguageState] = useState<'en' | 'ar'>('en');
   const [isProductsLoading, setIsProductsLoading] = useState(!initialProducts || initialProducts.length === 0);
   const [arTranslations, setArTranslations] = useState<Record<string, ArTranslation>>(() => loadArCache());
-  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // ── Resolve selectedProduct synchronously on first render ─────────────────
+  // When the server passes initialProducts + initialProductSlug (product page SSR),
+  // set the product immediately so ProductPage never shows a loading flash.
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(() => {
+    if (initialProducts && initialProducts.length > 0 && initialProductSlug) {
+      const toSl = (n: string) => (n || '').toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+        .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+      return initialProducts.find(p =>
+        p.slug === initialProductSlug ||
+        p.id === initialProductSlug ||
+        toSl(p.nameEn || p.name || '') === initialProductSlug
+      ) || null;
+    }
+    return null;
+  });
 
   // Load products from Firebase Firestore on mount
     useEffect(() => {
