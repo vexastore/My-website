@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 
 interface Props { params: Promise<{ category: string; slug: string }> }
 
-export const revalidate = 3600;
+export const revalidate = 300; // 5 min — was 1 hr, shorter so stale ISR pages refresh faster
 
 const STORE_LOGO = 'https://vexatoys.com/vexa-logo.jpg';
 
