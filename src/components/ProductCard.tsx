@@ -33,6 +33,11 @@ import React, { useState } from 'react';
     const [copied, setCopied] = useState(false);
     const [imgError, setImgError] = useState(false);
 
+    const apiImgSrc = `/api/img/${product.id}`;
+    const [imgSrc, setImgSrc] = useState<string>(
+      isRealExternalImage(product.image) ? product.image : apiImgSrc
+    );
+
     const categoryShort = product.category === 'Holiday Collection' ? 'Holiday' : product.category;
     const oldPrice = Math.round(product.price * 1.23);
     const gradientClass =
@@ -49,9 +54,13 @@ import React, { useState } from 'react';
     const productUrl = `/${catSlug}/${pSlug}`;
     const productFullUrl = `https://vexatoys.com${productUrl}`;
 
-    // Always use the dedicated image endpoint — served as JPEG, cached 24h on Vercel CDN
-    // Only fall back to stored URL if it's a real external https:// image (not placeholder)
-    const imgSrc = isRealExternalImage(product.image) ? product.image : `/api/img/${product.id}`;
+    const handleImgError = () => {
+      if (imgSrc !== apiImgSrc) {
+        setImgSrc(apiImgSrc);
+      } else {
+        setImgError(true);
+      }
+    };
 
     const handleProductClick = (e: React.MouseEvent) => {
       e.preventDefault();
@@ -101,7 +110,7 @@ import React, { useState } from 'react';
                 alt={isArabic ? product.name : (product.nameEn || product.name)}
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading={priority ? 'eager' : 'lazy'}
-                onError={() => setImgError(true)}
+                onError={handleImgError}
               />
             )}
             <div className="absolute bottom-5 left-5 right-5 flex items-center justify-between text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs" style={{textShadow:'0 1px 4px rgba(0,0,0,0.9)'}}>
