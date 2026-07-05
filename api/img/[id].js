@@ -87,17 +87,10 @@
     }
   }
 
-  // 1x1 transparent PNG as fallback — but with a SHORT cache so a temporary
-  // Firebase quota/outage blip doesn't get baked into the CDN for 24h once the
-  // real image becomes available again.
+  // Return 404 when no image exists so the browser fires onerror and the
+  // frontend can show the gradient background correctly instead of a green PNG.
   function sendPlaceholder(res) {
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
-    const png = Buffer.from(
-      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
-      'base64'
-    );
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Content-Length', png.length);
-    return res.send(png);
+    return res.status(404).end();
   }
   
