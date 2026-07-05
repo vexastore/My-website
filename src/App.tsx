@@ -7,6 +7,13 @@ import { OpenInBrowserBanner } from './components/OpenInBrowserBanner';
 import { ProductList } from './components/ProductList';
 import { ShieldCheck, Lock, Heart, Mail, Info } from 'lucide-react';
 import { getCategorySeoTab } from './data/categories';
+// ProductPage is imported eagerly (not React.lazy) because it renders the
+// primary SEO/indexable content for product URLs. Lazy-loading it caused
+// Googlebot (and any client whose JS chunk load was slow/blocked) to get
+// stuck on the generic <PageLoader/> spinner forever on indexed product
+// pages, since the SSR HTML only contained the Suspense fallback until the
+// lazy chunk resolved client-side.
+import { ProductPage } from './components/ProductPage';
 
 const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default: m.Checkout })));
 const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
@@ -14,7 +21,6 @@ const MyOrders = lazy(() => import('./components/MyOrders').then(m => ({ default
 const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then(m => ({ default: m.FloatingWhatsApp })));
 const VexaToast = lazy(() => import('./components/VexaToast').then(m => ({ default: m.VexaToast })));
 const About = lazy(() => import('./components/About').then(m => ({ default: m.About })));
-const ProductPage = lazy(() => import('./components/ProductPage').then(m => ({ default: m.ProductPage })));
 
 const CATEGORY_SLUGS: Record<string, string> = {
   'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
@@ -163,7 +169,7 @@ export const AppContent: React.FC = () => {
       case 'admin':    return <Suspense fallback={<PageLoader />}><AdminPanel /></Suspense>;
       case 'orders':   return <Suspense fallback={<PageLoader />}><MyOrders /></Suspense>;
       case 'about':    return <Suspense fallback={<PageLoader />}><About /></Suspense>;
-      case 'product':  return <Suspense fallback={<PageLoader />}><ProductPage /></Suspense>;
+      case 'product':  return <ProductPage />;
       default:         return <ProductList />;
     }
   };
