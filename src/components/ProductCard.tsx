@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
   import { Product } from '../types';
   import { useShop } from '../context/ShopContext';
   import { Star, Link2, Check } from 'lucide-react';
@@ -22,23 +22,12 @@ import React, { useState, useEffect, useRef } from 'react';
     const isArabic = language === 'ar';
     const [copied, setCopied] = useState(false);
     const [imgError, setImgError] = useState(false);
-    const [mounted, setMounted] = useState(false);
-    const imgRef = useRef<HTMLImageElement>(null);
 
-    const apiImgSrc = `/api/img/${product.id}`;
-
+    // product.image gets populated by ShopContext after the /api/images batch fetch.
+    // Reset imgError whenever a new image becomes available so the card picks it up.
     useEffect(() => {
-      setMounted(true);
-    }, []);
-
-    // After mount, check if the image already failed (SSR race condition fix)
-    useEffect(() => {
-      if (!mounted) return;
-      const img = imgRef.current;
-      if (img && img.complete && img.naturalWidth === 0) {
-        setImgError(true);
-      }
-    }, [mounted]);
+      if (product.image) setImgError(false);
+    }, [product.image]);
 
     const categoryShort = product.category === 'Holiday Collection' ? 'Holiday' : product.category;
     const oldPrice = Math.round(product.price * 1.23);
@@ -55,6 +44,11 @@ import React, { useState, useEffect, useRef } from 'react';
     const catSlug = product.categorySlug || toSlug(product.category || 'sex-toys');
     const productUrl = `/${catSlug}/${pSlug}`;
     const productFullUrl = `https://vexatoys.com${productUrl}`;
+
+    // Only show an image if product.image is non-empty (populated by ShopContext).
+    // No network call — base64 loads from memory, http URLs load from the source.
+    // If the image fails for any reason, imgError hides it and the gradient shows.
+    const hasImage = !!(product.image && product.image.length > 5 && !imgError);
 
     const handleProductClick = (e: React.MouseEvent) => {
       e.preventDefault();
@@ -98,11 +92,9 @@ import React, { useState, useEffect, useRef } from 'react';
           </button>
 
           <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
-            {/* Only render the img client-side to avoid SSR race condition with onError */}
-            {mounted && !imgError && (
+            {hasImage && (
               <img
-                ref={imgRef}
-                src={apiImgSrc}
+                src={product.image}
                 alt=""
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 loading={priority ? 'eager' : 'lazy'}
