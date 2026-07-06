@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { ShopApp } from '@/src/ShopApp';
+import { fetchProductsServer } from '@/lib/fetchProducts';
 
 export const metadata: Metadata = {
   title: 'عن متجر فيكسا | ألعاب زوجية ولانجري في لبنان | About Vexa Store',
@@ -12,6 +13,9 @@ export const metadata: Metadata = {
   },
 };
 
-export default function AboutPage() {
-  return <ShopApp initialCategory="Sex Toys" initialView="about" />;
+export default async function AboutPage() {
+  // Pre-load products so clicking "SHOP NOW" navigates instantly
+  // without showing a loading screen (same pattern as category pages).
+  const allProducts = await fetchProductsServer();
+  return <ShopApp initialProducts={allProducts} initialCategory="Sex Toys" initialView="about" />;
 }
