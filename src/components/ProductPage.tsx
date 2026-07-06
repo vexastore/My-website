@@ -20,9 +20,12 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   } = useShop();
   const isArabic = language === 'ar';
 
-  const [images, setImages]             = useState<string[]>(product.image && (product.image.startsWith('data:image/') || product.image.startsWith('http')) ? [product.image] : []);
+  const hasInitialImage = !!(product.image && (product.image.startsWith('data:image/') || product.image.startsWith('http')));
+  const [images, setImages]             = useState<string[]>(hasInitialImage ? [product.image!] : []);
   const [imgIdx, setImgIdx]             = useState(0);
-  const [imgsLoading, setImgsLoading]   = useState(true);
+  // Start loading=false if we already have an image — avoids spinner flash on initial render.
+  // Firebase may still update the images list in the background.
+  const [imgsLoading, setImgsLoading]   = useState(!hasInitialImage);
   const [variants, setVariants]         = useState<Record<string, string>>({});
   const [variantError, setVariantError] = useState(false);
   const [qty, setQty]                   = useState(1);
@@ -120,11 +123,23 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   }, [product]);
 
   useEffect(() => {
-    setImgsLoading(true);
+    // Only show the spinner while fetching if we don't already have an image to display.
+    const alreadyHasImage = images.length > 0;
+    if (!alreadyHasImage) setImgsLoading(true);
+
+    // Safety timeout: always clear spinner within 6 s even if Firebase hangs.
+    const timeout = setTimeout(() => setImgsLoading(false), 6000);
+
     fetchProductImages(product.id).then(imgs => {
-      setImages(imgs.length ? imgs : (product.image ? [product.image] : []));
-    }).catch(() => {}).finally(() => setImgsLoading(false));
-  }, [product.id]);
+      if (imgs.length > 0) setImages(imgs);
+      else if (product.image) setImages([product.image]);
+    }).catch(() => {}).finally(() => {
+      clearTimeout(timeout);
+      setImgsLoading(false);
+    });
+
+    return () => clearTimeout(timeout);
+  }, [product.id]); // eslint-disable-line
 
   const handleAddToCart = () => {
     if (!allVariantsSelected) { setVariantError(true); return; }
