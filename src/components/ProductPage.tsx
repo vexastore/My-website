@@ -123,22 +123,30 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   }, [product]);
 
   useEffect(() => {
-    // Only show the spinner while fetching if we don't already have an image to display.
-    const alreadyHasImage = images.length > 0;
-    if (!alreadyHasImage) setImgsLoading(true);
+    let cancelled = false;
 
-    // Safety timeout: always clear spinner within 6 s even if Firebase hangs.
-    const timeout = setTimeout(() => setImgsLoading(false), 6000);
+    // ① Base loading decision on the *current* product's image, not stale state.
+    //    This also resets images/index immediately on product switch so the
+    //    previous product's image never flashes while the new one loads.
+    const currentHasImage = !!(product.image &&
+      (product.image.startsWith('data:image/') || product.image.startsWith('http')));
+    setImages(currentHasImage ? [product.image!] : []);
+    setImgIdx(0);
+    setImgsLoading(!currentHasImage);
 
+    // ② Safety timeout — always clear spinner within 6 s even if Firebase hangs.
+    const timeout = setTimeout(() => { if (!cancelled) setImgsLoading(false); }, 6000);
+
+    // ③ Request guard: ignore responses that arrive after the product changed.
     fetchProductImages(product.id).then(imgs => {
+      if (cancelled) return;
       if (imgs.length > 0) setImages(imgs);
       else if (product.image) setImages([product.image]);
     }).catch(() => {}).finally(() => {
-      clearTimeout(timeout);
-      setImgsLoading(false);
+      if (!cancelled) { clearTimeout(timeout); setImgsLoading(false); }
     });
 
-    return () => clearTimeout(timeout);
+    return () => { cancelled = true; clearTimeout(timeout); };
   }, [product.id]); // eslint-disable-line
 
   const handleAddToCart = () => {
