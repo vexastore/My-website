@@ -1,3 +1,4 @@
+'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { Order, Product, CategoryId, ProductVariant } from '../types';
@@ -23,7 +24,7 @@ export const AdminPanel: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder, fetchProductImages, fetchAllOrdersFromFirebase } = useShop();
 
   const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
-  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => sessionStorage.getItem('vexa_admin_session') === 'true');
+  const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => typeof window !== 'undefined' && sessionStorage.getItem('vexa_admin_session') === 'true');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isDeploying, setIsDeploying] = useState(false);
