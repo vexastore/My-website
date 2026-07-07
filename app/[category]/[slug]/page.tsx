@@ -6,7 +6,7 @@ import { notFound } from 'next/navigation';
 
 interface Props { params: Promise<{ category: string; slug: string }> }
 
-export const revalidate = 300; // 5 min — was 1 hr, shorter so stale ISR pages refresh faster
+export const revalidate = 300; // 5 min ISR
 
 const STORE_LOGO = 'https://vexatoys.com/vexa-logo.jpg';
 
@@ -45,7 +45,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const rawDesc = product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`;
     const desc = cleanText(rawDesc).slice(0, 160);
     const imgUrl = toImageUrl(product.image);
-    const pageUrl = `https://vexatoys.com/${category}/${slug}`;
+
+    // Canonical always uses the product's own categorySlug to avoid duplicate-canonical
+    // issues when Google crawls the same product under a different category URL.
+    const canonicalCat = (product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug])
+      ? product.categorySlug
+      : category;
+    const pageUrl = `https://vexatoys.com/${canonicalCat}/${slug}`;
 
     return {
       title: `${name} | Vexa Store Lebanon`,
@@ -79,7 +85,6 @@ export default async function ProductPage({ params }: Props) {
 
   const meta = getCategoryMeta(category);
   const categoryLabel = meta.titleEn.split('|')[0].trim();
-  const productUrl = `https://vexatoys.com/${category}/${slug}`;
 
   let jsonLd = null;
   let serverProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
@@ -105,62 +110,109 @@ export default async function ProductPage({ params }: Props) {
 
   const initialProducts = [p!];
 
+  // Canonical always uses the product's own categorySlug (matches the sitemap URL)
+  // so every path that leads here agrees on one canonical.
+  const canonicalCat = (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
+    ? p.categorySlug
+    : category;
+  const productUrl = `https://vexatoys.com/${canonicalCat}/${slug}`;
+
   try {
-    {
-      const p = initialProducts[0];
+    const productName = cleanText(p.nameEn || p.name || slug);
+    // Always provide a description — Google requires it for Merchant Listings.
+    const productDesc = cleanText(
+      p.descriptionEn || p.description ||
+      `Buy ${productName} online in Lebanon. Discreet delivery in Beirut and all regions. Cash on delivery.`
+    ).slice(0, 500);
 
-      const productName = cleanText(p.nameEn || p.name || slug);
-      const productDesc = cleanText(p.descriptionEn || p.description || '').slice(0, 500);
-      // JSON-LD image must be a real URL — omit base64 data URIs
-      const hasRealImage = p.image && (p.image.startsWith('http://') || p.image.startsWith('https://'));
+    // image: always present — fall back to store logo so Google never sees "missing image".
+    // 31 products had no real-URL image and were failing the Product rich-result validation.
+    const productImage = toImageUrl(p.image);
 
-      jsonLd = {
-        '@context': 'https://schema.org',
-        '@graph': [
-          {
-            '@type': 'BreadcrumbList',
-            itemListElement: [
-              { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
-              { '@type': 'ListItem', position: 2, name: categoryLabel, item: `https://vexatoys.com/${category}` },
-              { '@type': 'ListItem', position: 3, name: productName, item: productUrl },
-            ],
-          },
-          {
-            '@type': 'Product',
-            name: productName,
+    jsonLd = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
+            { '@type': 'ListItem', position: 2, name: categoryLabel, item: `https://vexatoys.com/${canonicalCat}` },
+            { '@type': 'ListItem', position: 3, name: productName, item: productUrl },
+          ],
+        },
+        {
+          '@type': 'Product',
+          name: productName,
+          url: productUrl,
+          description: productDesc,
+          // image is always a real https:// URL — required for Rich Results & Merchant Listings
+          image: [productImage],
+          sku: p.id,
+          brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
+          offers: {
+            '@type': 'Offer',
             url: productUrl,
-            description: productDesc,
-            ...(hasRealImage && { image: [p.image] }),
-            sku: p.id,
-            brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
-            offers: {
-              '@type': 'Offer',
-              url: productUrl,
-              price: p.price,
-              priceCurrency: 'USD',
-              availability: p.stock > 0
-                ? 'https://schema.org/InStock'
-                : 'https://schema.org/OutOfStock',
-              itemCondition: 'https://schema.org/NewCondition',
-              seller: {
-                '@type': 'Organization',
-                name: 'Vexa Store Lebanon',
-                url: 'https://vexatoys.com',
+            price: p.price,
+            priceCurrency: 'USD',
+            availability: p.stock > 0
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/OutOfStock',
+            itemCondition: 'https://schema.org/NewCondition',
+            seller: {
+              '@type': 'Organization',
+              name: 'Vexa Store Lebanon',
+              url: 'https://vexatoys.com',
+            },
+            // ── shippingDetails — required for Merchant Listings ──────────────
+            shippingDetails: {
+              '@type': 'OfferShippingDetails',
+              shippingRate: {
+                '@type': 'MonetaryAmount',
+                value: '3.00',
+                currency: 'USD',
+              },
+              shippingDestination: {
+                '@type': 'DefinedRegion',
+                addressCountry: 'LB',
+              },
+              deliveryTime: {
+                '@type': 'ShippingDeliveryTime',
+                handlingTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 0,
+                  maxValue: 1,
+                  unitCode: 'DAY',
+                },
+                transitTime: {
+                  '@type': 'QuantitativeValue',
+                  minValue: 1,
+                  maxValue: 2,
+                  unitCode: 'DAY',
+                },
               },
             },
-            ...(p.reviewsCount > 0 && p.rating > 0 && {
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: Number(p.rating.toFixed(1)),
-                reviewCount: p.reviewsCount,
-                bestRating: 5,
-                worstRating: 1,
-              },
-            }),
+            // ── hasMerchantReturnPolicy — required for Merchant Listings ─────
+            hasMerchantReturnPolicy: {
+              '@type': 'MerchantReturnPolicy',
+              applicableCountry: 'LB',
+              returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+              merchantReturnDays: 7,
+              returnMethod: 'https://schema.org/ReturnByMail',
+              returnFees: 'https://schema.org/FreeReturn',
+            },
           },
-        ],
-      };
-    }
+          ...(p.reviewsCount > 0 && p.rating > 0 && {
+            aggregateRating: {
+              '@type': 'AggregateRating',
+              ratingValue: Number(p.rating.toFixed(1)),
+              reviewCount: p.reviewsCount,
+              bestRating: 5,
+              worstRating: 1,
+            },
+          }),
+        },
+      ],
+    };
   } catch { /* non-blocking */ }
 
   return (

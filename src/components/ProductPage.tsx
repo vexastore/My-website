@@ -20,12 +20,16 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   } = useShop();
   const isArabic = language === 'ar';
 
-  const hasInitialImage = !!(product.image && (product.image.startsWith('data:image/') || product.image.startsWith('http')));
-  const [images, setImages]             = useState<string[]>(hasInitialImage ? [product.image!] : []);
+  // Always start with a displayable image — store logo is the fallback for products
+  // that have no real URL yet. This means imgsLoading is NEVER true on first render,
+  // so users (and Googlebot) never see a spinner instead of product content.
+  const PRODUCT_FALLBACK_IMG = 'https://vexatoys.com/vexa-logo.jpg';
+  const getInitialImg = (img: string | undefined | null): string =>
+    img && (img.startsWith('data:image/') || img.startsWith('http')) ? img : PRODUCT_FALLBACK_IMG;
+
+  const [images, setImages]             = useState<string[]>([getInitialImg(product.image)]);
   const [imgIdx, setImgIdx]             = useState(0);
-  // Start loading=false if we already have an image — avoids spinner flash on initial render.
-  // Firebase may still update the images list in the background.
-  const [imgsLoading, setImgsLoading]   = useState(!hasInitialImage);
+  const [imgsLoading, setImgsLoading]   = useState(false); // never block on initial render
   const [variants, setVariants]         = useState<Record<string, string>>({});
   const [variantError, setVariantError] = useState(false);
   const [qty, setQty]                   = useState(1);
@@ -78,8 +82,10 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
       '@type': 'Product',
       name: product.nameEn || product.name,
       alternateName: product.name || product.nameEn,
-      description: product.descriptionEn || product.description,
-      image: (product.image && !product.image.startsWith('data:')) ? [product.image] : [],
+      description: product.descriptionEn || product.description ||
+        `Buy ${product.nameEn || product.name} in Lebanon. Discreet delivery in Beirut. Cash on delivery.`,
+      // image always present — store logo fallback so Google never sees a missing image
+      image: [getInitialImg(product.image)],
       sku: product.id,
       brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
       offers: {
@@ -92,6 +98,24 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
         url: canonical,
         seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
         priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        shippingDetails: {
+          '@type': 'OfferShippingDetails',
+          shippingRate: { '@type': 'MonetaryAmount', value: '3.00', currency: 'USD' },
+          shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'LB' },
+          deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+            transitTime:  { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
+          },
+        },
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'LB',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+          merchantReturnDays: 7,
+          returnMethod: 'https://schema.org/ReturnByMail',
+          returnFees: 'https://schema.org/FreeReturn',
+        },
       },
       breadcrumb: {
         '@type': 'BreadcrumbList',
@@ -125,16 +149,13 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   useEffect(() => {
     let cancelled = false;
 
-    // ① Base loading decision on the *current* product's image, not stale state.
-    //    This also resets images/index immediately on product switch so the
-    //    previous product's image never flashes while the new one loads.
-    const currentHasImage = !!(product.image &&
-      (product.image.startsWith('data:image/') || product.image.startsWith('http')));
-    setImages(currentHasImage ? [product.image!] : []);
+    // ① Reset to the best available image for this product immediately.
+    //    Use store logo as placeholder so there is never an empty/spinner state.
+    setImages([getInitialImg(product.image)]);
     setImgIdx(0);
-    setImgsLoading(!currentHasImage);
+    setImgsLoading(false); // no spinner — we always have something to show
 
-    // ② Safety timeout — always clear spinner within 6 s even if Firebase hangs.
+    // ② Safety timeout — belt-and-suspenders in case Firebase hangs.
     const timeout = setTimeout(() => { if (!cancelled) setImgsLoading(false); }, 6000);
 
     // ③ Request guard: ignore responses that arrive after the product changed.
