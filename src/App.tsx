@@ -291,6 +291,12 @@ export const AppContent: React.FC = () => {
           <p>© {new Date().getFullYear()} Vexa Store Lebanon — <a href="/sitemap.xml" className="hover:text-stone-300 transition" rel="nofollow">Sitemap</a></p>
           <div className="flex items-center gap-4">
             <a
+              href="/blog"
+              className="flex items-center gap-1 hover:text-stone-300 transition"
+            >
+              {isArabic ? 'المدونة' : 'Blog'}
+            </a>
+            <a
               href="/about"
               onClick={(e) => { e.preventDefault(); setView('about'); window.scrollTo({ top: 0 }); }}
               className="flex items-center gap-1 hover:text-stone-300 transition"

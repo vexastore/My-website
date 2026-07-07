@@ -7,6 +7,7 @@ import { notFound, redirect } from 'next/navigation';
 interface Props { params: Promise<{ category: string; slug: string }> }
 
 export const revalidate = 300; // 5 min ISR
+export const dynamicParams = true; // serve admin-added products not in generateStaticParams
 
 const STORE_LOGO = 'https://vexatoys.com/vexa-logo.jpg';
 
@@ -21,14 +22,23 @@ function cleanText(raw: string): string {
   return raw.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
 }
 
+// Generates static paths for all known products (including admin-added ones without a slug).
+// Also includes a fallback for each category so ISR can serve dynamic products on first visit.
 export async function generateStaticParams() {
   try {
     const products = await fetchProductsServer();
+    const toSl = (n: string) => (n || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+
     return products
-      .filter(p => p.slug && p.categorySlug)
-      .map(p => ({ category: p.categorySlug, slug: p.slug }));
+      .filter(p => p.categorySlug && (p.slug || p.nameEn || p.name))
+      .map(p => ({
+        category: p.categorySlug,
+        slug: p.slug || toSl(p.nameEn || p.name || p.id),
+      }));
   } catch {
-    return CATEGORY_META.map(c => ({ category: c.slug, slug: 'index' }));
+    return CATEGORY_META.map(c => ({ category: c.slug, slug: 'placeholder' }));
   }
 }
 
@@ -112,13 +122,12 @@ export default async function ProductPage({ params }: Props) {
 
   // If the URL category doesn't match the product's canonical category, redirect
   // to the canonical URL (301) so Google consolidates ranking on one URL.
-  // Example: Google hits /sex-toys/vibrator-slug but product.categorySlug = "vibrators"
-  //          → redirect to /vibrators/vibrator-slug
+  // Use a relative path (not absolute) to avoid issues on staging/preview domains.
   const canonicalCat = (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
     ? p.categorySlug
     : category;
   if (canonicalCat !== category) {
-    redirect(`https://vexatoys.com/${canonicalCat}/${slug}`);
+    redirect(`/${canonicalCat}/${slug}`);
   }
 
   const initialProducts = [p!];
