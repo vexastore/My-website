@@ -646,7 +646,10 @@ export const ShopProvider: React.FC<{
 
     const navigateToProduct = (product: Product) => {
       const pSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
-      const catSlug = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');
+      // Normalize categorySlug before building URL — raw Firestore value may have
+      // spaces or uppercase (e.g. "Male Toys") which would produce a broken URL.
+      const rawCat = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');
+      const catSlug = rawCat.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim() || 'sex-toys';
       const productPath = `/${catSlug}/${pSlug}`;
       window.history.pushState(null, '', productPath);
       setSelectedProduct(product);

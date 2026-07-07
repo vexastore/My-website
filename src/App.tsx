@@ -103,7 +103,9 @@ export const AppContent: React.FC = () => {
       const toSl = (s: string) => (s || '').toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
       const pSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug || toSl(selectedProduct.nameEn || selectedProduct.name || '');
-      const cSlug = (selectedProduct as typeof selectedProduct & { categorySlug?: string }).categorySlug || toSl(selectedProduct.category || 'sex-toys');
+      // Normalize categorySlug (Firestore may store "Male Toys" not "male-toys")
+      const rawCSlug = (selectedProduct as typeof selectedProduct & { categorySlug?: string }).categorySlug || toSl(selectedProduct.category || 'sex-toys');
+      const cSlug = rawCSlug.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim() || 'sex-toys';
       const productPath = `/${cSlug}/${pSlug}`;
       if (location.pathname !== productPath) {
         if (typeof window !== 'undefined') window.history.replaceState(null, '', productPath);

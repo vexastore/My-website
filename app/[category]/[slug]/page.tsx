@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { getCategoryMeta, SLUG_TO_CATEGORY, CATEGORY_META } from '@/lib/categoryMeta';
 import { ShopApp } from '@/src/ShopApp';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 
 interface Props { params: Promise<{ category: string; slug: string }> }
 
@@ -79,7 +79,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const { category, slug } = await params;
+  const { category: rawCategory, slug } = await params;
+  // Normalize URL category segment — handles URL-decoded "Male Toys" vs "male-toys"
+  const category = rawCategory.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
   const categoryId = SLUG_TO_CATEGORY[category];
   if (!categoryId) notFound();
 
@@ -105,16 +107,24 @@ export default async function ProductPage({ params }: Props) {
     toSl(pr.nameEn || pr.name || '') === slug
   );
 
-  // Product was deleted or never existed — return proper 404 so Google de-indexes it
+  // Product not found under any slug variation → genuine 404
   if (!p) notFound();
+
+  // If the URL category doesn't match the product's canonical category, redirect
+  // to the canonical URL (301) so Google consolidates ranking on one URL.
+  // Example: Google hits /sex-toys/vibrator-slug but product.categorySlug = "vibrators"
+  //          → redirect to /vibrators/vibrator-slug
+  const canonicalCat = (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
+    ? p.categorySlug
+    : category;
+  if (canonicalCat !== category) {
+    redirect(`https://vexatoys.com/${canonicalCat}/${slug}`);
+  }
 
   const initialProducts = [p!];
 
   // Canonical always uses the product's own categorySlug (matches the sitemap URL)
   // so every path that leads here agrees on one canonical.
-  const canonicalCat = (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
-    ? p.categorySlug
-    : category;
   const productUrl = `https://vexatoys.com/${canonicalCat}/${slug}`;
 
   try {

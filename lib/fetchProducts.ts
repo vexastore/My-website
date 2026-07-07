@@ -46,7 +46,9 @@ function docToProduct(doc: FsDoc): Product {
     stock:         num(f.stock),
     isNew:         bool(f.isNew),
     slug:          str(f.slug),
-    categorySlug:  str(f.categorySlug),
+    // Normalize categorySlug: Firestore might store "Male Toys" instead of "male-toys".
+    // A non-normalized value produces a broken URL that the server returns 404 for.
+    categorySlug:  str(f.categorySlug).toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim(),
     link:          str(f.link),
     variants: (f.variants?.arrayValue?.values || []).map(v => ({
       name:    v.mapValue?.fields?.name?.stringValue    || '',
