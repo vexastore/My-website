@@ -54,37 +54,60 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     product.variants.every((v: ProductVariant) => variants[v.name]);
 
   useEffect(() => {
-    const slug = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-    const canonical = `https://vexatoys.com${productUrl}`;
+    // ── Canonical: always derive from the product's own categorySlug + slug
+    // so client canonical matches the server canonical and the sitemap URL.
+    // Using catSlug/primaryCatId (UI-derived) would diverge from the server
+    // canonical and reintroduce duplicate-canonical GSC errors after hydration.
+    const pSlug    = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
+    const pCatSlug = (product as Product & { categorySlug?: string }).categorySlug
+      || catSlug; // catSlug as last resort only
+    const canonical = `https://vexatoys.com/${pCatSlug}/${pSlug}`;
+    const productName = product.nameEn || product.name || '';
 
     // ── Meta tags ──
-    const title = `${product.nameEn || product.name} | Vexa Store Lebanon`;
+    const title = `${productName} | Vexa Store Lebanon`;
     document.title = title;
-    const desc = `${product.nameEn || product.name} — $${product.price.toFixed(2)} USD — ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
+    const desc = `${productName} — ${product.price.toFixed(2)} USD — ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
     document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical);
     document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonical);
-    if (product.image && !product.image.startsWith('data:')) {
-      document.querySelector('meta[property="og:image"]')?.setAttribute('content', product.image);
-    }
+    const ogImg = getInitialImg(product.image);
+    document.querySelector('meta[property="og:image"]')?.setAttribute('content', ogImg);
 
     // Twitter Card meta tags
     document.querySelector('meta[name="twitter:site"]')?.setAttribute('content', '@vexastore');
     document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
     document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
-    document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', product.image || 'https://vexatoys.com/opengraph.jpg');
+    document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', ogImg);
 
-    // ── JSON-LD Product schema ──
-    const jsonLd: Record<string, unknown> = {
-      '@context': 'https://schema.org',
+    // ── JSON-LD: use @graph so BreadcrumbList is a separate top-level entity
+    // (nesting breadcrumb inside Product is non-standard and ignored by parsers).
+    const offerShipping = {
+      '@type': 'OfferShippingDetails',
+      shippingRate: { '@type': 'MonetaryAmount', value: '3.00', currency: 'USD' },
+      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'LB' },
+      deliveryTime: {
+        '@type': 'ShippingDeliveryTime',
+        handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+        transitTime:  { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
+      },
+    };
+    const returnPolicy = {
+      '@type': 'MerchantReturnPolicy',
+      applicableCountry: 'LB',
+      returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
+      merchantReturnDays: 7,
+      returnMethod: 'https://schema.org/ReturnByMail',
+      returnFees: 'https://schema.org/FreeReturn',
+    };
+    const productNode: Record<string, unknown> = {
       '@type': 'Product',
-      name: product.nameEn || product.name,
+      name: productName,
       alternateName: product.name || product.nameEn,
       description: product.descriptionEn || product.description ||
-        `Buy ${product.nameEn || product.name} in Lebanon. Discreet delivery in Beirut. Cash on delivery.`,
-      // image always present — store logo fallback so Google never sees a missing image
+        `Buy ${productName} in Lebanon. Discreet delivery in Beirut. Cash on delivery.`,
       image: [getInitialImg(product.image)],
       sku: product.id,
       brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
@@ -98,35 +121,12 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
         url: canonical,
         seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
         priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-        shippingDetails: {
-          '@type': 'OfferShippingDetails',
-          shippingRate: { '@type': 'MonetaryAmount', value: '3.00', currency: 'USD' },
-          shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'LB' },
-          deliveryTime: {
-            '@type': 'ShippingDeliveryTime',
-            handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-            transitTime:  { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
-          },
-        },
-        hasMerchantReturnPolicy: {
-          '@type': 'MerchantReturnPolicy',
-          applicableCountry: 'LB',
-          returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-          merchantReturnDays: 7,
-          returnMethod: 'https://schema.org/ReturnByMail',
-          returnFees: 'https://schema.org/FreeReturn',
-        },
-      },
-      breadcrumb: {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Vexa Store Lebanon', item: 'https://vexatoys.com/' },
-          { '@type': 'ListItem', position: 2, name: product.nameEn || product.name, item: canonical },
-        ],
+        shippingDetails: offerShipping,
+        hasMerchantReturnPolicy: returnPolicy,
       },
     };
     if (product.reviewsCount > 0) {
-      jsonLd.aggregateRating = {
+      productNode.aggregateRating = {
         '@type': 'AggregateRating',
         ratingValue: product.rating,
         reviewCount: product.reviewsCount,
@@ -134,6 +134,19 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
         worstRating: 1,
       };
     }
+    const jsonLd = {
+      '@context': 'https://schema.org',
+      '@graph': [
+        {
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { '@type': 'ListItem', position: 1, name: 'Vexa Store Lebanon', item: 'https://vexatoys.com/' },
+            { '@type': 'ListItem', position: 2, name: productName, item: canonical },
+          ],
+        },
+        productNode,
+      ],
+    };
 
     const existing = document.getElementById('vexa-product-jsonld');
     if (existing) existing.remove();
@@ -162,7 +175,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     fetchProductImages(product.id).then(imgs => {
       if (cancelled) return;
       if (imgs.length > 0) setImages(imgs);
-      else if (product.image) setImages([product.image]);
+      else setImages([getInitialImg(product.image)]); // always normalized through helper
     }).catch(() => {}).finally(() => {
       if (!cancelled) { clearTimeout(timeout); setImgsLoading(false); }
     });
