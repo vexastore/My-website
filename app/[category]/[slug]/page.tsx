@@ -175,12 +175,15 @@ export default async function ProductPage({ params }: Props) {
           // image is always a real https:// URL — required for Rich Results & Merchant Listings
           image: [productImage],
           sku: p.id,
+          mpn: p.id,
           brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
           offers: {
             '@type': 'Offer',
             url: productUrl,
             price: p.price,
             priceCurrency: 'USD',
+            // validFrom tells Google when this price became valid — required for Merchant Listings
+            validFrom: '2024-01-01',
             availability: p.stock > 0
               ? 'https://schema.org/InStock'
               : 'https://schema.org/OutOfStock',

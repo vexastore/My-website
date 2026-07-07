@@ -58,13 +58,22 @@ import { Metadata } from 'next';
           { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
           { '@type': 'ListItem', position: 2, name: meta.titleEn.split('|')[0].trim(), item: `https://vexatoys.com/${slug}` },
         ]},
-        { '@type': 'CollectionPage', name: meta.titleEn, description: meta.descEn, url: `https://vexatoys.com/${slug}`,
-          ...(jsonLdProducts.length > 0 && { hasPart: jsonLdProducts.map(p => ({
-            '@type': 'Product', name: p.name, url: p.url, image: p.image,
-            offers: { '@type': 'Offer', price: p.price, priceCurrency: 'USD',
-              availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-              seller: { '@type': 'Organization', name: 'Vexa Store Lebanon' } },
-          }))})},
+        { '@type': 'CollectionPage', name: meta.titleEn, description: meta.descEn, url: `https://vexatoys.com/${slug}` },
+        // Use ItemList (not Product) so Google doesn't flag missing merchant fields
+        // (hasMerchantReturnPolicy, shippingDetails, validFrom) on the category page.
+        // Full Product schema with all required fields lives on each individual product page.
+        ...(jsonLdProducts.length > 0 ? [{
+          '@type': 'ItemList',
+          name: meta.titleEn,
+          url: `https://vexatoys.com/${slug}`,
+          numberOfItems: jsonLdProducts.length,
+          itemListElement: jsonLdProducts.map((p, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            url: p.url,
+            name: p.name,
+          })),
+        }] : []),
         { '@type': 'FAQPage', mainEntity: [
           { '@type': 'Question', name: 'Do you deliver discreetly in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Plain sealed box, no logo, same-day delivery in Beirut.' } },
           { '@type': 'Question', name: 'Can I pay cash on delivery?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Cash on delivery (COD) is available. No online payment required.' } },

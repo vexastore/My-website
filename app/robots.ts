@@ -5,8 +5,15 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/blog/', '/blog/*'],
-        disallow: ['/admin', '/checkout', '/orders', '/*?*'],
+        allow: ['/'],
+        disallow: [
+          '/admin',
+          '/checkout',
+          '/orders',
+          // Block query-string variants — prevents duplicate indexing.
+          // Pattern: any path that contains a literal "?" character.
+          '/*?*',
+        ],
       },
     ],
     sitemap: 'https://vexatoys.com/sitemap.xml',
