@@ -228,6 +228,13 @@ export const Navbar: React.FC = () => {
                   </a>
                 ))}
                 <a
+                  href="/blog"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex w-full items-center justify-between text-left font-light tracking-wide text-white transition hover:text-white/70"
+                >
+                  <span className="text-[24px] sm:text-3xl md:text-4xl">{isArabic ? 'المدونة' : 'Blog'}</span>
+                </a>
+                <a
                   href="/about"
                   onClick={(e) => { e.preventDefault(); setView('about'); setIsMenuOpen(false); setActiveSubmenu(null); }}
                   className="flex w-full items-center justify-between text-left font-light tracking-wide text-white transition hover:text-white/70"
