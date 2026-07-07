@@ -22,15 +22,32 @@ function cleanText(raw: string): string {
   return raw.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
 }
 
+/**
+ * Single shared slug normalizer — used identically by generateStaticParams,
+ * generateMetadata, and the page render so all three resolve the same product.
+ */
+function toSl(n: string): string {
+  return (n || '').toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+    .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+}
+
+/**
+ * Finds a product by URL slug using the same three-way match used everywhere:
+ * stored slug → product ID → name-derived slug.
+ */
+function findProductBySlug(products: Awaited<ReturnType<typeof import('@/lib/fetchProducts').fetchProductsServer>>, slug: string) {
+  return products.find(p =>
+    p.slug === slug ||
+    p.id === slug ||
+    toSl(p.nameEn || p.name || '') === slug
+  );
+}
+
 // Generates static paths for all known products (including admin-added ones without a slug).
-// Also includes a fallback for each category so ISR can serve dynamic products on first visit.
 export async function generateStaticParams() {
   try {
     const products = await fetchProductsServer();
-    const toSl = (n: string) => (n || '').toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-
     return products
       .filter(p => p.categorySlug && (p.slug || p.nameEn || p.name))
       .map(p => ({
@@ -48,7 +65,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   try {
     const products = await fetchProductsServer();
-    const product = products.find(p => p.slug === slug || p.id === slug);
+    // Use same three-way match as page render — slug / id / nameEn-derived slug
+    const product = findProductBySlug(products, slug);
     if (!product) return { title: meta.titleEn, robots: { index: false, follow: false } };
 
     const name = cleanText(product.nameEn || product.name || slug);
@@ -104,18 +122,8 @@ export default async function ProductPage({ params }: Props) {
     serverProducts = await fetchProductsServer();
   } catch { /* non-blocking — fall back to empty */ }
 
-  // Some Firebase-edited products may have slug/categorySlug wiped by the admin panel.
-  // Fall back to matching by computed name slug so those pages don't break.
-  function toSl(n: string) {
-    return (n || '').toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-  }
-  const p = serverProducts.find(pr =>
-    pr.slug === slug ||
-    pr.id === slug ||
-    toSl(pr.nameEn || pr.name || '') === slug
-  );
+  // Uses the shared findProductBySlug helper (same logic as generateMetadata & generateStaticParams).
+  const p = findProductBySlug(serverProducts, slug);
 
   // Product not found under any slug variation → genuine 404
   if (!p) notFound();

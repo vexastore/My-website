@@ -185,6 +185,7 @@ export default async function BlogArticlePage({ params }: Props) {
   if (!post || post.categorySlug !== blogCategory) notFound();
 
   const cat = getBlogCategory(blogCategory);
+  if (!cat) notFound(); // guard against stale static param with no matching category
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}/${slug}`;
 
   // Related posts from same category
@@ -200,7 +201,7 @@ export default async function BlogArticlePage({ params }: Props) {
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
           { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://vexatoys.com/blog' },
-          { '@type': 'ListItem', position: 3, name: cat?.name, item: `https://vexatoys.com/blog/${blogCategory}` },
+          { '@type': 'ListItem', position: 3, name: cat.name, item: `https://vexatoys.com/blog/${blogCategory}` },
           { '@type': 'ListItem', position: 4, name: post.title, item: pageUrl },
         ],
       },
