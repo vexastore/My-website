@@ -37,7 +37,7 @@ import { Analytics } from '@vercel/analytics/next';
         '@id': `${BASE}/#organization`,
         name: 'Vexa Store Lebanon',
         url: BASE,
-        logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.jpg` },
+        logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.png` },
         contactPoint: {
           '@type': 'ContactPoint',
           telephone: '+96176730767',

@@ -9,7 +9,7 @@ interface Props { params: Promise<{ category: string; slug: string }> }
 export const revalidate = 300; // 5 min ISR
 export const dynamicParams = true; // serve admin-added products not in generateStaticParams
 
-const STORE_LOGO = 'https://vexatoys.com/vexa-logo.jpg';
+const STORE_LOGO = 'https://vexatoys.com/vexa-logo.png';
 
 /** Returns a valid https:// URL. Falls back to the store logo for base64 data URIs or empty values. */
 function toImageUrl(raw: string | undefined | null): string {

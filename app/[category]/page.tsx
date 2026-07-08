@@ -8,7 +8,7 @@ import { Metadata } from 'next';
 
   interface Props { params: Promise<{ category: string }> }
 
-  const DEFAULT_OG_IMAGE = 'https://vexatoys.com/vexa-logo.jpg';
+  const DEFAULT_OG_IMAGE = 'https://vexatoys.com/vexa-logo.png';
 
   export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { category: slug } = await params;

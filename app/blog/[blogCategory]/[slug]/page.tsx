@@ -217,7 +217,7 @@ export default async function BlogArticlePage({ params }: Props) {
           '@type': 'Organization',
           name: 'Vexa Store Lebanon',
           url: 'https://vexatoys.com',
-          logo: { '@type': 'ImageObject', url: 'https://vexatoys.com/vexa-logo.jpg' },
+          logo: { '@type': 'ImageObject', url: 'https://vexatoys.com/vexa-logo.png' },
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
         keywords: post.keywords?.join(', '),
