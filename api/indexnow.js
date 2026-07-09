@@ -6,9 +6,9 @@ const INDEXNOW_KEY    = 'a1b2c3d4e5f6789012345678901234ab';
 const FIREBASE_PROJECT = 'vexa-store';
 const FIREBASE_API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
 
+// NOTE: Root "/" is NOT included — it permanently redirects to /sex-toys.
+// Always submit the final destination URL, not redirect sources.
 const CATEGORY_URLS = [
-  'https://vexatoys.com/',
-  'https://vexatoys.com/about',
   'https://vexatoys.com/sex-toys',
   'https://vexatoys.com/vibrators',
   'https://vexatoys.com/lingerie',
@@ -31,6 +31,7 @@ const CATEGORY_URLS = [
   'https://vexatoys.com/sex-machines',
   'https://vexatoys.com/lubricants',
   'https://vexatoys.com/poppers',
+  'https://vexatoys.com/about',
   'https://vexatoys.com/blog',
 ];
 
@@ -44,8 +45,8 @@ function toCategorySlug(raw) {
   return (raw || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
 }
 
-// FIXED: was generating /product/${slug} (wrong — 404s).
-// Now generates /${categorySlug}/${productSlug} matching the actual Next.js route.
+// FIXED: was generating /product/{slug} (404 — route does not exist).
+// Now generates /{categorySlug}/{slug} matching the actual Next.js App Router route.
 async function fetchProductUrls() {
   try {
     const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/products?key=${FIREBASE_API_KEY}&pageSize=300`;
@@ -61,14 +62,14 @@ async function fetchProductUrls() {
         const nameEn       = fields.nameEn?.stringValue || fields.name?.stringValue || '';
         const slug         = fields.slug?.stringValue || toSlug(nameEn);
         const categorySlug = toCategorySlug(fields.categorySlug?.stringValue || '');
-        // Skip products missing either slug or category — they would 404
+        // Skip products missing either part — they would 404
         if (!slug || !categorySlug) return null;
         return `https://vexatoys.com/${categorySlug}/${slug}`;
       })
       .filter(Boolean);
   } catch (e) {
     console.error('fetchProductUrls error:', e.message);
-    // Return empty on error — better to submit no product URLs than wrong ones
+    // Return empty on error — better to submit no product URLs than wrong 404 URLs
     return [];
   }
 }
