@@ -31,28 +31,7 @@ const CATEGORY_URLS = [
   'https://vexatoys.com/sex-machines',
   'https://vexatoys.com/lubricants',
   'https://vexatoys.com/poppers',
-];
-
-const FALLBACK_SLUGS = [
-  'luxury-couple-massage-set','dual-pulse-stimulation-device',
-  'ultra-smooth-water-based-lubricant-200ml','upgraded-smart-rose-vibrator',
-  'wand-massager-for-muscle-and-intimate-use','mini-wireless-bullet-vibrator',
-  'smart-male-masturbator-stimulator','flexible-silicone-men-rings-set-of-3',
-  'ribbed-automatic-stimulation-sleeve','realistic-silicone-dildo-with-suction-cup',
-  'luxury-glass-dildo-for-temperature-play','flexible-curved-g-spot-dildo',
-  'luxury-black-lace-babydoll','crimson-red-satin-bodysuit','soft-silk-kimono-robe',
-  'soft-leather-restraints-starter-kit','luxury-silk-blindfold-with-tickler-feather',
-  'short-leather-flogger-crop','24-days-of-romance-advent-calendar',
-  'sexy-santa-cosplay-lingerie-set','luxury-massage-candle-vanilla-oud',
-  'smart-interactive-audio-massager','luxury-gold-lace-lingerie-2-piece-set',
-  'organic-essential-oils-set-arousal-deep-sleep',
-  'premium-water-based-lubricant-100ml','silicone-based-long-lasting-lubricant-50ml',
-  'rush-original-poppers-10ml','vibrating-cock-ring-with-remote-control',
-  'pocket-stroker-masturbator-tight-texture','beginner-penis-pump-with-gauge',
-  'tapered-silicone-butt-plug-small','anal-beads-with-loop-5-beads',
-  'velvet-wrist-restraints-adjustable','kegel-ball-set-3-weights',
-  'delay-spray-for-men-10ml','premium-silicone-torso-realistic-feel',
-  'adjustable-strap-on-harness-with-silicone-dildo',
+  'https://vexatoys.com/blog',
 ];
 
 function toSlug(name) {
@@ -61,6 +40,12 @@ function toSlug(name) {
     .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
 }
 
+function toCategorySlug(raw) {
+  return (raw || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
+}
+
+// FIXED: was generating /product/${slug} (wrong — 404s).
+// Now generates /${categorySlug}/${productSlug} matching the actual Next.js route.
 async function fetchProductUrls() {
   try {
     const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/products?key=${FIREBASE_API_KEY}&pageSize=300`;
@@ -69,14 +54,22 @@ async function fetchProductUrls() {
     const data = await res.json();
     const docs = data.documents || [];
     if (docs.length === 0) throw new Error('Empty Firestore response');
-    return docs.map(doc => {
-      const fields = doc.fields || {};
-      const nameEn  = fields.nameEn?.stringValue || fields.name?.stringValue || '';
-      const slug    = fields.slug?.stringValue || toSlug(nameEn);
-      return slug ? `https://vexatoys.com/product/${slug}` : null;
-    }).filter(Boolean);
-  } catch {
-    return FALLBACK_SLUGS.map(s => `https://vexatoys.com/product/${s}`);
+
+    return docs
+      .map(doc => {
+        const fields = doc.fields || {};
+        const nameEn       = fields.nameEn?.stringValue || fields.name?.stringValue || '';
+        const slug         = fields.slug?.stringValue || toSlug(nameEn);
+        const categorySlug = toCategorySlug(fields.categorySlug?.stringValue || '');
+        // Skip products missing either slug or category — they would 404
+        if (!slug || !categorySlug) return null;
+        return `https://vexatoys.com/${categorySlug}/${slug}`;
+      })
+      .filter(Boolean);
+  } catch (e) {
+    console.error('fetchProductUrls error:', e.message);
+    // Return empty on error — better to submit no product URLs than wrong ones
+    return [];
   }
 }
 

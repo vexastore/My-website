@@ -24,7 +24,9 @@ import { Analytics } from '@vercel/analytics/next';
     },
     twitter: { card: 'summary_large_image', site: '@vexastore' },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
-    alternates: { canonical: 'https://vexatoys.com' },
+    // NOTE: No global canonical here — each page sets its own canonical via alternates.
+    // A global canonical pointing to "/" was causing canonical conflicts because
+    // the root page redirects to /sex-toys.
   };
 
   const BASE = 'https://vexatoys.com';
@@ -114,4 +116,3 @@ import { Analytics } from '@vercel/analytics/next';
       </html>
     );
   }
-  
