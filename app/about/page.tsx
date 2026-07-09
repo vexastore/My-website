@@ -3,19 +3,17 @@ import { ShopApp } from '@/src/ShopApp';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 
 export const metadata: Metadata = {
-  title: 'عن متجر فيكسا | ألعاب زوجية ولانجري في لبنان | About Vexa Store',
-  description: 'تعرف على متجر فيكسا — المتجر الأكثر أماناً وخصوصية للمنتجات الزوجية واللانجري في لبنان. توصيل سري في بيروت. دفع عند الاستلام.',
+  title: 'About Vexa Store | #1 Sex Toys Lebanon',
+  description: 'About Vexa Store — The #1 Sex Toys store in Lebanon. Discreet packaging, same-day delivery in Beirut, cash on delivery. Shop sex toys, vibrators, dildos, lingerie & more.',
   alternates: { canonical: 'https://vexatoys.com/about' },
   openGraph: {
-    title: 'عن متجر فيكسا | About Vexa Store Lebanon',
-    description: 'الأكثر خصوصية وأماناً للمنتجات الزوجية في لبنان.',
+    title: 'About Vexa Store | #1 Sex Toys Lebanon',
+    description: 'The #1 Sex Toys store in Lebanon. Discreet packaging, same-day delivery in Beirut, cash on delivery.',
     url: 'https://vexatoys.com/about',
   },
 };
 
 export default async function AboutPage() {
-  // Pre-load products so clicking "SHOP NOW" navigates instantly
-  // without showing a loading screen (same pattern as category pages).
   const allProducts = await fetchProductsServer();
   return <ShopApp initialProducts={allProducts} initialCategory="Sex Toys" initialView="about" />;
 }
