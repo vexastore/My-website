@@ -6,11 +6,11 @@ import {
   Package, Truck, CheckCircle2, XCircle, Trash2, Phone, MapPin,
   Calendar, DollarSign, ClipboardList, Edit, Plus, X, Upload,
   LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle, ChevronLeft, ChevronRight,
-  BookOpen, FileText, Image as ImageIcon
+  BookOpen
 } from 'lucide-react';
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
 import { db } from '../firebase';
-import { doc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, collection, getDocs, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
 
 const ALL_CATEGORY_IDS: CategoryId[] = [
   'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie',
