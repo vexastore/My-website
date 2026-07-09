@@ -1,15 +1,16 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
-import { Order, Product, CategoryId, ProductVariant } from '../types';
+import { Order, Product, CategoryId, ProductVariant, AdviceArticle } from '../types';
 import {
   Package, Truck, CheckCircle2, XCircle, Trash2, Phone, MapPin,
   Calendar, DollarSign, ClipboardList, Edit, Plus, X, Upload,
-  LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle, ChevronLeft, ChevronRight
+  LockKeyhole, LogOut, Loader2, ChevronUp, ChevronDown, AlertTriangle, ChevronLeft, ChevronRight,
+  BookOpen, FileText, Image as ImageIcon
 } from 'lucide-react';
 import { CATEGORIES, getCategoryName, getProductCategories } from '../data/categories';
 import { db } from '../firebase';
-import { doc } from 'firebase/firestore';
+import { doc, collection, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
 const ALL_CATEGORY_IDS: CategoryId[] = [
   'Sex Toys', 'Vibrators', 'Male Toys', 'Dildos', 'Lingerie',
@@ -23,10 +24,26 @@ const ALL_CATEGORY_IDS: CategoryId[] = [
 export const AdminPanel: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder, fetchProductImages, fetchAllOrdersFromFirebase } = useShop();
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'products'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'blog'>('orders');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => typeof window !== 'undefined' && sessionStorage.getItem('vexa_admin_session') === 'true');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
+
+  // Blog state
+  const [blogArticles, setBlogArticles] = useState<AdviceArticle[]>([]);
+  const [isLoadingBlog, setIsLoadingBlog] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<AdviceArticle | null>(null);
+  const [isBlogModalOpen, setIsBlogModalOpen] = useState(false);
+  const [isSavingArticle, setIsSavingArticle] = useState(false);
+  const [isDeletingArticle, setIsDeletingArticle] = useState<string | null>(null);
+  const [blogForm, setBlogForm] = useState({
+    title: '', titleEn: '',
+    content: '', contentEn: '',
+    category: 'نصائح للمبتدئين',
+    readTime: '5 دقائق',
+    image: '',
+    date: new Date().toISOString().split('T')[0],
+  });
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployResult, setDeployResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>('all');
@@ -47,6 +64,57 @@ export const AdminPanel: React.FC = () => {
       setFirebaseOrders(all);
     } catch { /* ignore */ }
     finally { setIsLoadingOrders(false); }
+  };
+
+  // Blog functions
+  const loadBlogArticles = async () => {
+    setIsLoadingBlog(true);
+    try {
+      const snap = await getDocs(collection(db, 'blogPosts'));
+      const arts: AdviceArticle[] = snap.docs.map(d => ({ id: d.id, ...d.data() } as AdviceArticle));
+      arts.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+      setBlogArticles(arts);
+    } catch { /* ignore */ }
+    finally { setIsLoadingBlog(false); }
+  };
+
+  const openAddArticleModal = () => {
+    setEditingArticle(null);
+    setBlogForm({ title: '', titleEn: '', content: '', contentEn: '', category: 'نصائح للمبتدئين', readTime: '5 دقائق', image: '', date: new Date().toISOString().split('T')[0] });
+    setIsBlogModalOpen(true);
+  };
+
+  const openEditArticleModal = (art: AdviceArticle) => {
+    setEditingArticle(art);
+    setBlogForm({ title: art.title, titleEn: art.titleEn || '', content: art.content, contentEn: art.contentEn || '', category: art.category, readTime: art.readTime, image: art.image || '', date: art.date });
+    setIsBlogModalOpen(true);
+  };
+
+  const handleSaveArticle = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!blogForm.title.trim() || !blogForm.content.trim()) return;
+    setIsSavingArticle(true);
+    try {
+      const data = { ...blogForm, updatedAt: new Date().toISOString() };
+      if (editingArticle) {
+        await updateDoc(doc(db, 'blogPosts', editingArticle.id), data);
+      } else {
+        await addDoc(collection(db, 'blogPosts'), { ...data, date: blogForm.date });
+      }
+      await loadBlogArticles();
+      setIsBlogModalOpen(false);
+    } catch { alert('حدث خطأ أثناء الحفظ'); }
+    finally { setIsSavingArticle(false); }
+  };
+
+  const handleDeleteArticle = async (id: string, title: string) => {
+    if (!window.confirm(`حذف المقال: ${title}؟`)) return;
+    setIsDeletingArticle(id);
+    try {
+      await deleteDoc(doc(db, 'blogPosts', id));
+      await loadBlogArticles();
+    } catch { alert('حدث خطأ أثناء الحذف'); }
+    finally { setIsDeletingArticle(null); }
   };
 
   // Load orders when admin is already unlocked on mount, or after unlock
@@ -499,10 +567,10 @@ export const AdminPanel: React.FC = () => {
       </div>
 
       <div className="flex gap-1 mb-6 border-b border-white/10">
-        {(['orders', 'products'] as const).map(tab => (
+        {(['orders', 'products', 'blog'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`px-5 py-2.5 text-sm font-black transition border-b-2 -mb-px flex items-center gap-2 ${activeTab === tab ? 'border-white text-white' : 'border-transparent text-white/40 hover:text-white/70'}`}>
-            {tab === 'orders' ? <><ClipboardList size={15} /> الطلبات</> : <><Package size={15} /> المنتجات</>}
+            {tab === 'orders' ? <><ClipboardList size={15} /> الطلبات</> : tab === 'products' ? <><Package size={15} /> المنتجات</> : <><BookOpen size={15} /> المقالات</>}
           </button>
         ))}
       </div>
@@ -946,6 +1014,161 @@ export const AdminPanel: React.FC = () => {
                   : isLoadingImages
                   ? <><Loader2 size={18} className="animate-spin" /> جاري تحميل الصور...</>
                   : <>{editingProduct ? 'حفظ التعديلات' : 'إضافة المنتج'}</>}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'blog' && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-white/40">{blogArticles.length} مقال</p>
+            <button onClick={openAddArticleModal}
+              className="flex items-center gap-2 bg-white text-black px-4 py-2.5 text-xs font-black rounded-xl hover:bg-stone-100 transition active:scale-[0.98]">
+              <Plus size={16} /> إضافة مقال
+            </button>
+          </div>
+
+          {isLoadingBlog && (
+            <div className="flex items-center gap-2 text-white/40 text-xs py-4">
+              <Loader2 size={14} className="animate-spin" /> جاري تحميل المقالات...
+            </div>
+          )}
+
+          {!isLoadingBlog && blogArticles.length === 0 && (
+            <div className="text-center py-16 text-white/30">
+              <BookOpen size={40} className="mx-auto mb-3 opacity-30" />
+              <p className="text-sm font-bold">لا يوجد مقالات بعد</p>
+              <p className="text-xs mt-1">اضغط "إضافة مقال" لكتابة أول مقال</p>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {blogArticles.map(article => (
+              <div key={article.id} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+                {article.image && (
+                  <div className="aspect-video overflow-hidden">
+                    <img src={article.image} alt={article.title} className="w-full h-full object-cover" />
+                  </div>
+                )}
+                <div className="p-4 space-y-2">
+                  <span className="text-[10px] font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-full">{article.category}</span>
+                  <h3 className="text-sm font-black text-white line-clamp-2">{article.title}</h3>
+                  <div className="flex items-center gap-3 text-[10px] text-white/40 font-bold">
+                    <span>{article.date}</span>
+                    <span>{article.readTime}</span>
+                  </div>
+                  <p className="text-xs text-white/40 line-clamp-2">{article.content.substring(0, 100)}...</p>
+                  <div className="flex gap-2 pt-1">
+                    <button onClick={() => openEditArticleModal(article)}
+                      className="flex-1 flex items-center justify-center gap-1 border border-white/15 text-white/60 hover:text-white py-2 rounded-lg text-xs font-bold transition">
+                      <Edit size={13} /> تعديل
+                    </button>
+                    <button onClick={() => handleDeleteArticle(article.id, article.title)}
+                      disabled={isDeletingArticle === article.id}
+                      className="flex items-center justify-center gap-1 border border-red-500/20 text-red-500/60 hover:text-red-400 py-2 px-3 rounded-lg text-xs font-bold transition disabled:opacity-50">
+                      {isDeletingArticle === article.id ? <Loader2 size={13} className="animate-spin" /> : <Trash2 size={13} />}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {isBlogModalOpen && (
+        <div className="fixed inset-0 z-[10001] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4"
+          onClick={() => !isSavingArticle && setIsBlogModalOpen(false)}>
+          <div className="bg-[#0d0d0d] border border-white/15 w-full max-w-2xl max-h-[92vh] overflow-y-auto sm:rounded-2xl"
+            onClick={e => e.stopPropagation()}>
+
+            <div className="sticky top-0 bg-[#0d0d0d] border-b border-white/10 px-5 py-4 flex items-center justify-between z-10">
+              <h2 className="text-base font-black text-white flex items-center gap-2">
+                <BookOpen size={18} /> {editingArticle ? 'تعديل المقال' : 'إضافة مقال جديد'}
+              </h2>
+              <button onClick={() => !isSavingArticle && setIsBlogModalOpen(false)} className="text-white/40 hover:text-white">
+                <X size={22} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveArticle} className="p-5 space-y-4">
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">عنوان المقال (عربي) *</label>
+                  <input type="text" value={blogForm.title} onChange={e => setBlogForm(f => ({ ...f, title: e.target.value }))}
+                    placeholder="اكتب عنوان المقال بالعربي..."
+                    className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" required />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">العنوان (إنجليزي)</label>
+                  <input type="text" value={blogForm.titleEn} onChange={e => setBlogForm(f => ({ ...f, titleEn: e.target.value }))}
+                    placeholder="Article title in English..."
+                    className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">التصنيف</label>
+                  <select value={blogForm.category} onChange={e => setBlogForm(f => ({ ...f, category: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition">
+                    <option value="نصائح للمبتدئين">نصائح للمبتدئين</option>
+                    <option value="صحة وعناية">صحة وعناية</option>
+                    <option value="للأزواج">للأزواج</option>
+                    <option value="دليل المنتجات">دليل المنتجات</option>
+                    <option value="علاقات وحميمية">علاقات وحميمية</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">وقت القراءة</label>
+                  <select value={blogForm.readTime} onChange={e => setBlogForm(f => ({ ...f, readTime: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition">
+                    <option value="3 دقائق">3 دقائق</option>
+                    <option value="5 دقائق">5 دقائق</option>
+                    <option value="7 دقائق">7 دقائق</option>
+                    <option value="10 دقائق">10 دقائق</option>
+                    <option value="15 دقائق">15 دقائق</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">تاريخ النشر</label>
+                  <input type="date" value={blogForm.date} onChange={e => setBlogForm(f => ({ ...f, date: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">رابط صورة المقال</label>
+                <input type="url" value={blogForm.image} onChange={e => setBlogForm(f => ({ ...f, image: e.target.value }))}
+                  placeholder="https://images.unsplash.com/..."
+                  className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition" />
+                <p className="text-[10px] text-white/30 mt-1">يمكنك استخدام صور من unsplash.com أو أي رابط مباشر للصورة</p>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">محتوى المقال (عربي) *</label>
+                <textarea value={blogForm.content} onChange={e => setBlogForm(f => ({ ...f, content: e.target.value }))}
+                  placeholder="اكتب محتوى المقال بالعربي هنا... يمكنك استخدام ## للعناوين و- للقوائم"
+                  rows={8}
+                  className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition resize-none font-mono" required />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-black text-white/50 mb-1.5 uppercase tracking-wider">المحتوى (إنجليزي)</label>
+                <textarea value={blogForm.contentEn} onChange={e => setBlogForm(f => ({ ...f, contentEn: e.target.value }))}
+                  placeholder="Article content in English (optional)..."
+                  rows={4}
+                  className="w-full bg-white/5 border border-white/10 text-white text-sm px-3 py-2.5 rounded-xl outline-none focus:border-white/30 transition resize-none font-mono" />
+              </div>
+
+              <button type="submit" disabled={isSavingArticle}
+                className="w-full flex items-center justify-center gap-2 bg-white text-black py-3.5 rounded-xl font-black text-sm hover:bg-stone-100 active:scale-[0.98] disabled:opacity-60 transition">
+                {isSavingArticle
+                  ? <><Loader2 size={18} className="animate-spin" /> جاري الحفظ...</>
+                  : <>{editingArticle ? 'حفظ التعديلات' : 'نشر المقال'}</>}
               </button>
             </form>
           </div>
