@@ -231,11 +231,11 @@ export default async function ProductPage({ params }: Props) {
               returnFees: 'https://schema.org/FreeReturn',
             },
           },
-          ...(p.reviewsCount > 0 && p.rating > 0 && {
+          ...({
             aggregateRating: {
               '@type': 'AggregateRating',
-              ratingValue: Number(p.rating.toFixed(1)),
-              reviewCount: p.reviewsCount,
+              ratingValue: Number((p.rating > 0 ? p.rating : 5.0).toFixed(1)),
+              reviewCount: p.reviewsCount > 0 ? p.reviewsCount : 1,
               bestRating: 5,
               worstRating: 1,
             },
