@@ -5,19 +5,15 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          // Allow legacy ?category= links so bots follow the 301 redirect
-          // to the correct category page instead of being blocked before redirect.
-          '/*?category=*',
-        ],
+        allow: ['/'],
+        // Block only admin/checkout/API — remove the broad /*?* rule that was
+        // causing 28 "redirect error" and 8 "blocked by robots.txt" issues in GSC.
+        // Broad query-string blocking prevented Google from following ?category= redirects
+        // and caused legitimate product pages reached via query-string links to be blocked.
         disallow: [
           '/admin',
           '/checkout',
-          '/orders',
-          // Block all other query-string variants — prevents duplicate indexing.
-          // Must come AFTER the allow rule for ?category= above.
-          '/*?*',
+          '/api/',
         ],
       },
     ],
