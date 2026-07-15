@@ -44,16 +44,55 @@ function findProductBySlug(products: Awaited<ReturnType<typeof import('@/lib/fet
   );
 }
 
-// Generates static paths for all known products (including admin-added ones without a slug).
+// The set of valid routed category slugs.
+const VALID_SLUGS = new Set(CATEGORY_META.map(c => c.slug));
+
+/**
+ * Resolve the best valid categorySlug for a product.
+ * 1. Use p.categorySlug if it maps to a real routed page.
+ * 2. Otherwise, scan p.categories[] and pick the first valid one.
+ * 3. Return undefined if no valid slug is found.
+ *
+ * Must stay in sync with the identical function in app/sitemap.ts so that
+ * generateStaticParams pre-renders exactly the URLs the sitemap advertises.
+ */
+function resolveValidCategorySlug(p: {
+  categorySlug?: string;
+  categories?: string[];
+}): string | undefined {
+  const norm = (s: string) => (s || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
+  const primary = norm(p.categorySlug || '');
+  if (primary && VALID_SLUGS.has(primary)) return primary;
+  for (const cat of p.categories || []) {
+    const slug = norm(cat);
+    if (slug && VALID_SLUGS.has(slug)) return slug;
+  }
+  return undefined;
+}
+
+/**
+ * Pre-render static paths for ALL known products — including admin-added products
+ * that lack a valid categorySlug (resolved via their categories[] array, same
+ * logic as the sitemap). This ensures every URL in the sitemap is pre-rendered
+ * at build time instead of relying on on-demand ISR for first-hit pages.
+ */
 export async function generateStaticParams() {
   try {
     const products = await fetchProductsServer();
-    return products
-      .filter(p => p.categorySlug && (p.slug || p.nameEn || p.name))
-      .map(p => ({
-        category: p.categorySlug,
-        slug: p.slug || toSl(p.nameEn || p.name || p.id),
-      }));
+    const params: { category: string; slug: string }[] = [];
+    const seen = new Set<string>();
+
+    for (const p of products) {
+      const productSlug = p.slug || toSl(p.nameEn || p.name || '');
+      const categorySlug = resolveValidCategorySlug(p);
+      if (!productSlug || !categorySlug) continue;
+      const key = `${categorySlug}/${productSlug}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      params.push({ category: categorySlug, slug: productSlug });
+    }
+
+    return params;
   } catch {
     return CATEGORY_META.map(c => ({ category: c.slug, slug: 'placeholder' }));
   }
@@ -67,7 +106,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const products = await fetchProductsServer();
     // Use same three-way match as page render — slug / id / nameEn-derived slug
     const product = findProductBySlug(products, slug);
-    if (!product) return { title: meta.titleEn, robots: { index: false, follow: false } };
+
+    // Product not found — return a neutral fallback title only.
+    // Do NOT set robots: { index: false } here: if the page throws notFound(),
+    // Next.js returns a 404 response with the not-found page's own metadata,
+    // so any noindex we set here would never reach Google.
+    // If we set noindex AND the page somehow renders (edge-case cache divergence),
+    // that causes "Indexing request rejected" in GSC — worse than a plain 404.
+    if (!product) return { title: meta.titleEn };
 
     const name = cleanText(product.nameEn || product.name || slug);
     const rawDesc = product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`;
