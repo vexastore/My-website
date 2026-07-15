@@ -45,28 +45,53 @@ function toCategorySlug(raw) {
   return (raw || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
 }
 
-// FIXED: was generating /product/{slug} (404 — route does not exist).
-// Now generates /{categorySlug}/{slug} matching the actual Next.js App Router route.
-async function fetchProductUrls() {
-  try {
-    const url = `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/products?key=${FIREBASE_API_KEY}&pageSize=300`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+// Fetch ALL documents from a Firestore collection, following nextPageToken pages.
+// Firestore REST API caps each response at pageSize=300; without pagination
+// any collection with more than 300 documents is silently truncated.
+async function fetchAllFirestoreDocs(collection, pageSize = 300) {
+  const docs = [];
+  let pageToken;
+  do {
+    const url = new URL(
+      `https://firestore.googleapis.com/v1/projects/${FIREBASE_PROJECT}/databases/(default)/documents/${collection}`
+    );
+    url.searchParams.set('key', FIREBASE_API_KEY);
+    url.searchParams.set('pageSize', String(pageSize));
+    if (pageToken) url.searchParams.set('pageToken', pageToken);
+
+    const res = await fetch(url.toString(), { signal: AbortSignal.timeout(10000) });
     if (!res.ok) throw new Error(`Firestore ${res.status}`);
     const data = await res.json();
-    const docs = data.documents || [];
+    docs.push(...(data.documents || []));
+    pageToken = data.nextPageToken;
+  } while (pageToken);
+  return docs;
+}
+
+// Generates /{categorySlug}/{slug} matching the actual Next.js App Router route.
+async function fetchProductUrls() {
+  try {
+    const docs = await fetchAllFirestoreDocs('products', 300);
     if (docs.length === 0) throw new Error('Empty Firestore response');
 
-    return docs
-      .map(doc => {
-        const fields = doc.fields || {};
-        const nameEn       = fields.nameEn?.stringValue || fields.name?.stringValue || '';
-        const slug         = fields.slug?.stringValue || toSlug(nameEn);
-        const categorySlug = toCategorySlug(fields.categorySlug?.stringValue || '');
-        // Skip products missing either part — they would 404
-        if (!slug || !categorySlug) return null;
-        return `https://vexatoys.com/${categorySlug}/${slug}`;
-      })
-      .filter(Boolean);
+    const seen = new Set();
+    const urls = [];
+
+    for (const doc of docs) {
+      const fields = doc.fields || {};
+      const nameEn       = fields.nameEn?.stringValue || fields.name?.stringValue || '';
+      const slug         = fields.slug?.stringValue || toSlug(nameEn);
+      const categorySlug = toCategorySlug(fields.categorySlug?.stringValue || '');
+      // Skip products missing either part — they would 404
+      if (!slug || !categorySlug) continue;
+      const url = `https://vexatoys.com/${categorySlug}/${slug}`;
+      if (!seen.has(url)) {
+        seen.add(url);
+        urls.push(url);
+      }
+    }
+
+    return urls;
   } catch (e) {
     console.error('fetchProductUrls error:', e.message);
     // Return empty on error — better to submit no product URLs than wrong 404 URLs

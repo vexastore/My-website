@@ -71,6 +71,33 @@ async function getIdToken(): Promise<string | null> {
   } catch { return null; }
 }
 
+// Fetch ALL documents from a Firestore collection, paginating automatically.
+// Firestore REST API caps each response at pageSize=300; products beyond that
+// are silently dropped unless we follow the nextPageToken chain.
+async function fetchAllDocs(
+  collection: string,
+  headers: Record<string, string>,
+  pageSize = 300,
+): Promise<FsDoc[]> {
+  const docs: FsDoc[] = [];
+  let pageToken: string | undefined;
+
+  do {
+    const url = new URL(`${BASE}/${collection}`);
+    url.searchParams.set('pageSize', String(pageSize));
+    if (pageToken) url.searchParams.set('pageToken', pageToken);
+
+    const res = await fetch(url.toString(), { headers });
+    if (!res.ok) break;
+
+    const data = await res.json() as { documents?: FsDoc[]; nextPageToken?: string };
+    docs.push(...(data.documents || []));
+    pageToken = data.nextPageToken;
+  } while (pageToken);
+
+  return docs;
+}
+
 async function _fetchProductsLive(): Promise<Product[]> {
   try {
     const idToken = await getIdToken();
@@ -78,21 +105,17 @@ async function _fetchProductsLive(): Promise<Product[]> {
 
     const headers = { Authorization: `Bearer ${idToken}` };
 
-    const [prodRes, delRes] = await Promise.all([
-      fetch(`${BASE}/products?pageSize=300`, { headers }),
-      fetch(`${BASE}/deleted_products?pageSize=500`, { headers }),
-    ]);
-
-    const [prodData, delData] = await Promise.all([
-      prodRes.ok ? prodRes.json() as Promise<{ documents?: FsDoc[] }> : Promise.resolve({ documents: [] as FsDoc[] }),
-      delRes.ok  ? delRes.json()  as Promise<{ documents?: FsDoc[] }> : Promise.resolve({ documents: [] as FsDoc[] }),
+    // Fetch ALL products and deleted products — paginating past the 300-doc limit.
+    const [prodDocs, delDocs] = await Promise.all([
+      fetchAllDocs('products', headers, 300),
+      fetchAllDocs('deleted_products', headers, 300),
     ]);
 
     const deletedIds = new Set(
-      (delData.documents || []).map(d => d.name.split('/').pop()!)
+      delDocs.map(d => d.name.split('/').pop()!)
     );
 
-    const fbProducts: Product[] = (prodData.documents || [])
+    const fbProducts: Product[] = prodDocs
       .map(docToProduct)
       .filter(p => p.name || p.nameEn);
 
@@ -129,6 +152,6 @@ async function _fetchProductsLive(): Promise<Product[]> {
 // Falls back to static list if Firebase is unreachable.
 export const fetchProductsServer = unstable_cache(
   _fetchProductsLive,
-  ['vexa-products-live-v3'],
+  ['vexa-products-live-v4'],
   { revalidate: 300 }
 );

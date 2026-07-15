@@ -10,6 +10,28 @@ const TODAY = new Date().toISOString().slice(0, 10);
 // Products with unknown/empty categorySlug would produce broken or redirecting URLs.
 const VALID_SLUGS = new Set(CATEGORY_META.map(c => c.slug));
 
+function toCategorySlug(raw: string): string {
+  return (raw || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
+}
+
+// Resolve the best valid categorySlug for a product.
+// 1. Use p.categorySlug if it maps to a real page.
+// 2. Otherwise, scan p.categories[] and pick the first one that maps to a real page.
+// 3. Return undefined if no valid slug is found (product will be excluded).
+function resolveValidCategorySlug(p: {
+  categorySlug?: string;
+  categories?: string[];
+}): string | undefined {
+  const primary = toCategorySlug(p.categorySlug || '');
+  if (primary && VALID_SLUGS.has(primary)) return primary;
+
+  for (const cat of p.categories || []) {
+    const slug = toCategorySlug(cat);
+    if (slug && VALID_SLUGS.has(slug)) return slug;
+  }
+  return undefined;
+}
+
 export const revalidate = 3600; // regenerate hourly
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -55,27 +77,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // which was causing "Duplicate, Google chose different canonical" in GSC.
     const seenUrls = new Set<string>();
 
-    productPages = products
-      .filter(p => {
-        const slug = p.slug || toSl(p.nameEn || p.name || p.id);
-        // Must have a non-empty slug AND a categorySlug that maps to a real page.
-        // Invalid categorySlug → URL would 404 or unexpectedly redirect → GSC error.
-        return slug && p.categorySlug && VALID_SLUGS.has(p.categorySlug);
-      })
-      .reduce<MetadataRoute.Sitemap>((acc, p) => {
-        const slug = p.slug || toSl(p.nameEn || p.name || p.id);
-        const url = `${BASE}/${p.categorySlug}/${slug}`;
-        if (!seenUrls.has(url)) {
-          seenUrls.add(url);
-          acc.push({
-            url,
-            lastModified: TODAY,
-            changeFrequency: 'weekly' as const,
-            priority: 0.8,
-          });
-        }
-        return acc;
-      }, []);
+    for (const p of products) {
+      const slug = p.slug || toSl(p.nameEn || p.name || p.id);
+      if (!slug) continue;
+
+      // Resolve a valid categorySlug — falls back to p.categories[] if
+      // p.categorySlug itself is not a routed page (e.g. "New Arrivals" stored
+      // as categorySlug but that resolves correctly via the categories array).
+      const categorySlug = resolveValidCategorySlug(p);
+      if (!categorySlug) continue;
+
+      const url = `${BASE}/${categorySlug}/${slug}`;
+      if (seenUrls.has(url)) continue;
+      seenUrls.add(url);
+
+      productPages.push({
+        url,
+        lastModified: TODAY,
+        changeFrequency: 'weekly' as const,
+        priority: 0.8,
+      });
+    }
   } catch {
     // sitemap still works without products
   }
