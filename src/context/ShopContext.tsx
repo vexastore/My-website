@@ -272,11 +272,31 @@ export const ShopProvider: React.FC<{
         loadProducts();
     }, [])
 
-  // ─── تحميل الصور من Firebase Client SDK (نفس آلية صفحة تفاصيل المنتج) ────
+  // ─── تحميل الصور من Firebase Client SDK ─────────────────────────────────
+  //
+  // Root-cause fix for "placeholder on listing page, correct image on product page":
+  //
+  // BEFORE: Images were fetched sequentially in batches of 10. With 70+ products
+  // this meant 7+ sequential async rounds — products at index 40-70 waited up to
+  // 7 seconds for their images. The dependency [products.length] also allowed
+  // stale closures to re-run the effect with an out-of-date products list.
+  //
+  // NOW:
+  //  1. Skip any product that already has a valid image (from SSR or cache).
+  //  2. Fetch ALL missing images in parallel (Promise.allSettled) — Firebase
+  //     client SDK multiplexes concurrent getDoc calls efficiently over one
+  //     WebSocket connection; there is no per-product TCP overhead.
+  //  3. Apply results in two passes: a fast "all-at-once" apply, then save to
+  //     localStorage so the next visit is instant from cache.
+  //  4. A ref guard prevents a second run if products updates (e.g. after the
+  //     Firebase PRODUCTS_COLLECTION sync adds admin products).
+  //
+  const imageLoadDoneRef = React.useRef(false);
+
   useEffect(() => {
     if (products.length === 0) return;
+    if (imageLoadDoneRef.current) return;
 
-    // v4 — cache key جديد، يتجاهل أي cache قديم
     const IMG_KEY = 'vexa_images_v10';
     const IMG_TS_KEY = 'vexa_images_v10_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
@@ -291,7 +311,8 @@ export const ShopProvider: React.FC<{
       }));
     };
 
-    // تحقق من الـ cache أولاً — فقط إذا فيه بيانات حقيقية
+    // Apply localStorage cache immediately — covers the common case where the
+    // user has visited before and images are already on-device.
     try {
       const cached = localStorage.getItem(IMG_KEY);
       const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
@@ -299,6 +320,7 @@ export const ShopProvider: React.FC<{
         const parsed = JSON.parse(cached) as Record<string, { image: string; images: string[] }>;
         if (Object.keys(parsed).length > 0) {
           applyMap(parsed);
+          imageLoadDoneRef.current = true;
           return;
         }
         localStorage.removeItem(IMG_KEY);
@@ -306,46 +328,51 @@ export const ShopProvider: React.FC<{
       }
     } catch (_) {}
 
-    // تحميل الصور مباشرةً من Firebase Client SDK بنفس طريقة fetchProductImages
-    // (تثبّت: /api/images كان بينتهي بـ timeout لأنه يطلب 152 REST call في serverless واحد)
+    // Fetch images only for products that don't already have one.
+    // Products whose image was embedded in SSR (server-side gallery fetch
+    // succeeded) are skipped entirely — no redundant Firebase reads.
+    const needsImage = products.filter(p => !p.image || p.image.length <= 5);
+    if (needsImage.length === 0) {
+      imageLoadDoneRef.current = true;
+      return;
+    }
+
+    imageLoadDoneRef.current = true; // prevent any future re-runs
+
     const loadAllImages = async () => {
       try {
-        const BATCH_SIZE = 10;
-        const fullMap: Record<string, { image: string; images: string[] }> = {};
+        // Fetch ALL missing products in parallel — no sequential batching.
+        // Firebase client SDK handles concurrent getDoc calls over a single
+        // multiplexed connection; the old sequential batching was the direct
+        // cause of the 5-7 second delay on the listing page.
+        const results = await Promise.allSettled(
+          needsImage.map(async (p) => {
+            const [gallerySnap, productSnap] = await Promise.all([
+              getDoc(doc(db, IMAGES_COLLECTION, p.id)),
+              getDoc(doc(db, PRODUCTS_COLLECTION, p.id)),
+            ]);
+            const galleryImgs: string[] = gallerySnap.exists()
+              ? (gallerySnap.data().images as string[]) || []
+              : [];
+            const productData = productSnap.exists() ? productSnap.data() : null;
+            const productImgs: string[] = productData
+              ? (productData.images as string[]) || []
+              : [];
+            const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
+            const mainImg = bestImgs[0] || (productData?.image as string) || '';
+            return { id: p.id, mainImg, bestImgs };
+          })
+        );
 
-        for (let i = 0; i < products.length; i += BATCH_SIZE) {
-          const batch = products.slice(i, i + BATCH_SIZE);
-          const batchResults = await Promise.allSettled(
-            batch.map(async (p) => {
-              const [gallerySnap, productSnap] = await Promise.all([
-                getDoc(doc(db, IMAGES_COLLECTION, p.id)),
-                getDoc(doc(db, PRODUCTS_COLLECTION, p.id)),
-              ]);
-              const galleryImgs: string[] = gallerySnap.exists()
-                ? (gallerySnap.data().images as string[]) || []
-                : [];
-              const productData = productSnap.exists() ? productSnap.data() : null;
-              const productImgs: string[] = productData
-                ? (productData.images as string[]) || []
-                : [];
-              const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
-              const mainImg = bestImgs[0] || (productData?.image as string) || '';
-              return { id: p.id, mainImg, bestImgs };
-            })
-          );
-          const batchMap: Record<string, { image: string; images: string[] }> = {};
-          for (const r of batchResults) {
-            if (r.status === 'fulfilled' && r.value.mainImg) {
-              batchMap[r.value.id] = { image: r.value.mainImg, images: r.value.bestImgs };
-              fullMap[r.value.id] = batchMap[r.value.id];
-            }
+        const fullMap: Record<string, { image: string; images: string[] }> = {};
+        for (const r of results) {
+          if (r.status === 'fulfilled' && r.value.mainImg) {
+            fullMap[r.value.id] = { image: r.value.mainImg, images: r.value.bestImgs };
           }
-          // طبّق الصور بشكل تدريجي — تظهر صور كل batch فور تحميلها
-          if (Object.keys(batchMap).length > 0) applyMap(batchMap);
         }
 
-        // احفظ في localStorage للزيارات اللاحقة
         if (Object.keys(fullMap).length > 0) {
+          applyMap(fullMap);
           try {
             localStorage.setItem(IMG_KEY, JSON.stringify(fullMap));
             localStorage.setItem(IMG_TS_KEY, String(Date.now()));

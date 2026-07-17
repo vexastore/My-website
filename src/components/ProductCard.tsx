@@ -24,15 +24,23 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   const [imgError, setImgError] = useState(false);
   const imgRef = useRef<HTMLImageElement>(null);
 
-  // src priority:
-  //   1. product.image — base64 loaded by ShopContext (instant, no network call)
-  //   2. /api/img/{id}  — served by Vercel, browser loads in parallel like any normal site
-  const imgSrc = (product.image && product.image.length > 5)
-    ? product.image
-    : `/api/img/${product.id}`;
+  // Image source priority:
+  //   1. product.image  — primary image (base64 or https URL), available from SSR
+  //                       when the server-side gallery fetch succeeded, or from
+  //                       the client-side image loader after hydration.
+  //   2. product.images[0] — first entry in the images array, same source, used
+  //                          as a fallback if image is empty but images[] is populated.
+  //   3. /api/img/{id}  — Vercel serverless proxy, fetches from Firebase and serves
+  //                       JPEG bytes. CDN-cached 24h after first hit. Used only when
+  //                       both image fields are absent (should now be rare after the
+  //                       fetchProducts timeout-race fix in lib/fetchProducts.ts).
+  const primaryImage = (product.image && product.image.length > 5) ? product.image
+    : (product.images && product.images.length > 0 && product.images[0].length > 5) ? product.images[0]
+    : '';
+  const imgSrc = primaryImage || `/api/img/${product.id}`;
 
-  // When ShopContext updates product.image (base64 arrives), clear any previous error
-  // so the card can switch from the API URL to the in-memory base64.
+  // When ShopContext updates product.image (image arrives after hydration),
+  // clear any previous error so the card re-renders with the real image.
   useEffect(() => {
     if (product.image && product.image.length > 5) {
       setImgError(false);
@@ -41,12 +49,13 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
 
   // After the img element mounts, check if the browser already failed to load it
   // before React attached the onError handler (covers fast-failure race condition).
+  // The empty dep array ensures this runs only once on mount, not on every render.
   useEffect(() => {
     const img = imgRef.current;
     if (img && img.complete && img.naturalWidth === 0) {
       setImgError(true);
     }
-  });
+  }, []); // eslint-disable-line
 
   const categoryShort = product.category === 'Holiday Collection' ? 'Holiday' : product.category;
   const oldPrice = Math.round(product.price * 1.23);

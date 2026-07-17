@@ -113,17 +113,17 @@ async function _fetchProductsLive(): Promise<Product[]> {
 
     const headers = { Authorization: `Bearer ${idToken}` };
 
-    // Fetch products and deleted products in parallel.
-    // product_images (gallery) is fetched with a 6s timeout so it never
-    // blocks the response if Firebase is slow — gracefully falls back to
-    // an empty map and products render without gallery images that round.
+    // Fetch products, deleted products, and gallery images in parallel.
+    // product_images is the authoritative image source — no timeout race.
+    // This function is wrapped in unstable_cache (5 min TTL), so Firebase
+    // is only called once per cache window, not on every request. The old
+    // 6-second race timeout was silently discarding all gallery images
+    // whenever Firebase was slow, causing every product to render without
+    // an image and fall back to /api/img/{id} on the CDN cold path.
     const [prodDocs, delDocs, galleryDocs] = await Promise.all([
       fetchAllDocs('products', headers, 300),
       fetchAllDocs('deleted_products', headers, 300),
-      Promise.race([
-        fetchAllDocs('product_images', headers, 300),
-        new Promise<FsDoc[]>(resolve => setTimeout(() => resolve([]), 6000)),
-      ]),
+      fetchAllDocs('product_images', headers, 300),
     ]);
 
     const deletedIds = new Set(delDocs.map(d => d.name.split('/').pop()!));
