@@ -46,6 +46,8 @@ function docToProduct(doc: FsDoc): Product {
     stock:         num(f.stock),
     isNew:         bool(f.isNew),
     slug:          str(f.slug),
+    // Normalize categorySlug: Firestore might store "Male Toys" instead of "male-toys".
+    // A non-normalized value produces a broken URL that the server returns 404 for.
     categorySlug:  str(f.categorySlug).toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim(),
     link:          str(f.link),
     variants: (f.variants?.arrayValue?.values || []).map(v => ({
@@ -69,6 +71,9 @@ async function getIdToken(): Promise<string | null> {
   } catch { return null; }
 }
 
+// Fetch ALL documents from a Firestore collection, paginating automatically.
+// Firestore REST API caps each response at pageSize=300; products beyond that
+// are silently dropped unless we follow the nextPageToken chain.
 async function fetchAllDocs(
   collection: string,
   headers: Record<string, string>,
@@ -93,19 +98,6 @@ async function fetchAllDocs(
   return docs;
 }
 
-// Build a map of productId → { image, images[] } from the product_images gallery.
-// product_images is the authoritative source: admin-uploaded photos go here first.
-function buildGalleryMap(galleryDocs: FsDoc[]): Record<string, { image: string; images: string[] }> {
-  const map: Record<string, { image: string; images: string[] }> = {};
-  for (const d of galleryDocs) {
-    const id = d.name.split('/').pop()!;
-    const imgs = (d.fields?.images?.arrayValue?.values || [])
-      .map((v: FsValue) => v.stringValue || '').filter(Boolean);
-    if (imgs.length > 0) map[id] = { image: imgs[0], images: imgs };
-  }
-  return map;
-}
-
 async function _fetchProductsLive(): Promise<Product[]> {
   try {
     const idToken = await getIdToken();
@@ -113,21 +105,15 @@ async function _fetchProductsLive(): Promise<Product[]> {
 
     const headers = { Authorization: `Bearer ${idToken}` };
 
-    // Fetch products and deleted products in parallel.
-    // product_images (gallery) is fetched with a 6s timeout so it never
-    // blocks the response if Firebase is slow — gracefully falls back to
-    // an empty map and products render without gallery images that round.
-    const [prodDocs, delDocs, galleryDocs] = await Promise.all([
+    // Fetch ALL products and deleted products — paginating past the 300-doc limit.
+    const [prodDocs, delDocs] = await Promise.all([
       fetchAllDocs('products', headers, 300),
       fetchAllDocs('deleted_products', headers, 300),
-      Promise.race([
-        fetchAllDocs('product_images', headers, 300),
-        new Promise<FsDoc[]>(resolve => setTimeout(() => resolve([]), 6000)),
-      ]),
     ]);
 
-    const deletedIds = new Set(delDocs.map(d => d.name.split('/').pop()!));
-    const galleryMap = buildGalleryMap(galleryDocs);
+    const deletedIds = new Set(
+      delDocs.map(d => d.name.split('/').pop()!)
+    );
 
     const fbProducts: Product[] = prodDocs
       .map(docToProduct)
@@ -137,23 +123,22 @@ async function _fetchProductsLive(): Promise<Product[]> {
     const staticIds = new Set((STATIC_PRODUCTS as Product[]).map(p => p.id));
 
     const merged: Product[] = [
+      // Static products — use Firebase version if admin edited them, skip if deleted.
+      // Always preserve slug & categorySlug from static when Firebase version lacks them
+      // (admin panel may save a product without these routing fields).
       ...(STATIC_PRODUCTS as Product[])
         .filter(p => !deletedIds.has(p.id))
         .map(p => {
           const fb = fbMap.get(p.id);
-          const base = fb
-            ? { ...fb, slug: fb.slug || p.slug, categorySlug: fb.categorySlug || p.categorySlug }
-            : { ...p };
-          // Gallery image takes priority over products/{id}.image which may be stale/empty
-          const gallery = galleryMap[p.id];
-          return gallery ? { ...base, image: gallery.image, images: gallery.images } : base;
+          if (!fb) return p;
+          return {
+            ...fb,
+            slug: fb.slug || p.slug,
+            categorySlug: fb.categorySlug || p.categorySlug,
+          };
         }),
-      ...fbProducts
-        .filter(p => !staticIds.has(p.id) && !deletedIds.has(p.id))
-        .map(p => {
-          const gallery = galleryMap[p.id];
-          return gallery ? { ...p, image: gallery.image, images: gallery.images } : p;
-        }),
+      // New products added by admin (not in static list)
+      ...fbProducts.filter(p => !staticIds.has(p.id) && !deletedIds.has(p.id)),
     ];
 
     return merged.length > 0 ? merged : (STATIC_PRODUCTS as Product[]);
@@ -167,6 +152,6 @@ async function _fetchProductsLive(): Promise<Product[]> {
 // Falls back to static list if Firebase is unreachable.
 export const fetchProductsServer = unstable_cache(
   _fetchProductsLive,
-  ['vexa-products-live-v5'],
+  ['vexa-products-live-v4'],
   { revalidate: 300 }
 );
