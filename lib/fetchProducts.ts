@@ -98,6 +98,26 @@ async function fetchAllDocs(
   return docs;
 }
 
+// Build an image map from the product_images gallery collection.
+// product_images/{id}.images[] is where admin-uploaded gallery photos live —
+// it is the authoritative source for product images, taking priority over
+// the products/{id}.image field which may be empty or stale.
+function buildGalleryMap(
+  galleryDocs: FsDoc[],
+): Record<string, { image: string; images: string[] }> {
+  const map: Record<string, { image: string; images: string[] }> = {};
+  for (const doc of galleryDocs) {
+    const id = doc.name.split('/').pop()!;
+    const imgs: string[] = (doc.fields?.images?.arrayValue?.values || [])
+      .map((v: FsValue) => v.stringValue || '')
+      .filter(Boolean);
+    if (imgs.length > 0) {
+      map[id] = { image: imgs[0], images: imgs };
+    }
+  }
+  return map;
+}
+
 async function _fetchProductsLive(): Promise<Product[]> {
   try {
     const idToken = await getIdToken();
@@ -105,15 +125,23 @@ async function _fetchProductsLive(): Promise<Product[]> {
 
     const headers = { Authorization: `Bearer ${idToken}` };
 
-    // Fetch ALL products and deleted products — paginating past the 300-doc limit.
-    const [prodDocs, delDocs] = await Promise.all([
+    // Fetch products, deleted products, AND the product_images gallery in parallel.
+    // product_images is the authoritative image source: admin uploads go there first.
+    // Without reading it here, the server response carries stale/empty image fields
+    // and the listing page shows the purple placeholder while the product page (which
+    // always fetches product_images) shows the correct photo.
+    const [prodDocs, delDocs, galleryDocs] = await Promise.all([
       fetchAllDocs('products', headers, 300),
       fetchAllDocs('deleted_products', headers, 300),
+      fetchAllDocs('product_images', headers, 300),
     ]);
 
     const deletedIds = new Set(
       delDocs.map(d => d.name.split('/').pop()!)
     );
+
+    // Gallery map: product_images/{id} → { image, images[] }
+    const galleryMap = buildGalleryMap(galleryDocs);
 
     const fbProducts: Product[] = prodDocs
       .map(docToProduct)
@@ -121,6 +149,15 @@ async function _fetchProductsLive(): Promise<Product[]> {
 
     const fbMap = new Map(fbProducts.map(p => [p.id, p]));
     const staticIds = new Set((STATIC_PRODUCTS as Product[]).map(p => p.id));
+
+    // Merge images: gallery → firebase product field → static product field (priority order)
+    function mergeImages(p: Product): Product {
+      const gallery = galleryMap[p.id];
+      if (gallery) {
+        return { ...p, image: gallery.image, images: gallery.images };
+      }
+      return p;
+    }
 
     const merged: Product[] = [
       // Static products — use Firebase version if admin edited them, skip if deleted.
@@ -130,15 +167,15 @@ async function _fetchProductsLive(): Promise<Product[]> {
         .filter(p => !deletedIds.has(p.id))
         .map(p => {
           const fb = fbMap.get(p.id);
-          if (!fb) return p;
-          return {
-            ...fb,
-            slug: fb.slug || p.slug,
-            categorySlug: fb.categorySlug || p.categorySlug,
-          };
+          const base: Product = fb
+            ? { ...fb, slug: fb.slug || p.slug, categorySlug: fb.categorySlug || p.categorySlug }
+            : p;
+          return mergeImages(base);
         }),
       // New products added by admin (not in static list)
-      ...fbProducts.filter(p => !staticIds.has(p.id) && !deletedIds.has(p.id)),
+      ...fbProducts
+        .filter(p => !staticIds.has(p.id) && !deletedIds.has(p.id))
+        .map(mergeImages),
     ];
 
     return merged.length > 0 ? merged : (STATIC_PRODUCTS as Product[]);
@@ -150,8 +187,10 @@ async function _fetchProductsLive(): Promise<Product[]> {
 // Cached for 5 minutes — new/edited/deleted products from admin panel
 // appear on the site within 5 minutes, no redeploy needed.
 // Falls back to static list if Firebase is unreachable.
+// Cache key bumped (v5) to invalidate any server-side cache that was built
+// without the product_images gallery data.
 export const fetchProductsServer = unstable_cache(
   _fetchProductsLive,
-  ['vexa-products-live-v4'],
+  ['vexa-products-live-v5'],
   { revalidate: 300 }
 );
