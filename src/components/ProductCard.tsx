@@ -21,41 +21,47 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   const { cart, language, navigateToProduct } = useShop();
   const isArabic = language === 'ar';
   const [copied, setCopied] = useState(false);
+  // imgKey increments to force React to remount the <img> on retry.
+  const [imgKey, setImgKey] = useState(0);
   const [imgError, setImgError] = useState(false);
+  const retryCountRef = useRef(0);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
   // Image source priority:
-  //   1. product.image  — primary image (base64 or https URL), available from SSR
-  //                       when the server-side gallery fetch succeeded, or from
-  //                       the client-side image loader after hydration.
-  //   2. product.images[0] — first entry in the images array, same source, used
-  //                          as a fallback if image is empty but images[] is populated.
-  //   3. /api/img/{id}  — Vercel serverless proxy, fetches from Firebase and serves
-  //                       JPEG bytes. CDN-cached 24h after first hit. Used only when
-  //                       both image fields are absent (should now be rare after the
-  //                       fetchProducts timeout-race fix in lib/fetchProducts.ts).
+  //   1. product.image   — base64 or https URL embedded in SSR (from fetchProductsServer
+  //                        gallery fetch) or applied by client-side loadAllImages after auth.
+  //   2. product.images[0] — fallback if image is empty but images[] is populated.
+  //   3. /api/img/{id}  — Vercel proxy: authenticates anonymously, reads base64 from
+  //                       Firestore, serves as JPEG, CDN-cached 24h after first hit.
   const primaryImage = (product.image && product.image.length > 5) ? product.image
     : (product.images && product.images.length > 0 && product.images[0].length > 5) ? product.images[0]
     : '';
   const imgSrc = primaryImage || `/api/img/${product.id}`;
 
-  // When ShopContext updates product.image (image arrives after hydration),
-  // clear any previous error so the card re-renders with the real image.
+  // When ShopContext loads the real image after hydration, clear any error
+  // so the card switches from gradient → real image.
   useEffect(() => {
     if (product.image && product.image.length > 5) {
+      retryCountRef.current = 0;
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
       setImgError(false);
     }
   }, [product.image]);
 
-  // After the img element mounts, check if the browser already failed to load it
-  // before React attached the onError handler (covers fast-failure race condition).
-  // The empty dep array ensures this runs only once on mount, not on every render.
+  // Cleanup retry timers on unmount.
+  useEffect(() => {
+    return () => { if (retryTimerRef.current) clearTimeout(retryTimerRef.current); };
+  }, []);
+
+  // After the img element mounts, check if the browser failed to load it before
+  // React attached the onError handler (covers the fast-failure race condition).
   useEffect(() => {
     const img = imgRef.current;
     if (img && img.complete && img.naturalWidth === 0) {
       setImgError(true);
     }
-  }, []); // eslint-disable-line
+  }, [imgKey]); // re-check after each retry remount
 
   const categoryShort = product.category === 'Holiday Collection' ? 'Holiday' : product.category;
   const oldPrice = Math.round(product.price * 1.23);
@@ -117,13 +123,37 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
         <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
           {!imgError && (
             <img
+              key={imgKey}
               ref={imgRef}
               src={imgSrc}
               alt=""
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading={priority ? 'eager' : 'lazy'}
               decoding="async"
-              onError={() => setImgError(true)}
+              onError={() => {
+                // /api/img/{id} CDN caches 404 for only 60 s (stale-while-revalidate=300).
+                // Don't permanently hide the image — retry up to 2 times so a cold CDN
+                // miss doesn't lock the gradient in place forever.
+                //
+                // Retry schedule:
+                //   1st error  → wait 65 s (clears the 60 s CDN failure cache), then retry
+                //   2nd error  → wait 65 s, retry once more
+                //   3rd error  → give up; setImgError(true) hides the img permanently
+                //
+                // If product.image arrives from loadAllImages before the retry fires,
+                // the useEffect above clears retryCountRef and cancels the timer so
+                // the retry is a no-op and the real image is used instead.
+                const count = retryCountRef.current;
+                if (count < 2) {
+                  retryCountRef.current = count + 1;
+                  retryTimerRef.current = setTimeout(() => {
+                    // Increment imgKey to remount the <img> with a fresh src.
+                    setImgKey(k => k + 1);
+                  }, 65_000);
+                } else {
+                  setImgError(true);
+                }
+              }}
             />
           )}
           <div

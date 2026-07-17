@@ -1,7 +1,7 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
 import {
   collection,
   doc,
@@ -11,6 +11,7 @@ import {
   writeBatch,
   getDoc
 } from 'firebase/firestore';
+import { signInAnonymously } from 'firebase/auth';
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
@@ -361,10 +362,25 @@ export const ShopProvider: React.FC<{
 
     const loadAllImages = async () => {
       try {
+        // ── Auth ──────────────────────────────────────────────────────────────
+        // The Firestore security rules require at least anonymous auth. Every
+        // server-side path (lib/fetchProducts.ts, api/img/[id].js) explicitly
+        // calls accounts:signUp before any Firestore read. The Firebase client
+        // SDK exports `auth` but ShopContext never called signInAnonymously —
+        // so all 70 getDoc calls ran unauthenticated and failed silently via
+        // Promise.allSettled, leaving every product with image:"".
+        if (!auth.currentUser) {
+          try {
+            await signInAnonymously(auth);
+            console.warn('[VEXA_IMG] Signed in anonymously for Firestore reads');
+          } catch (authErr) {
+            console.error('[VEXA_IMG] signInAnonymously failed:', authErr);
+          }
+        }
+
+        console.warn(`[VEXA_IMG] loadAllImages: fetching ${needsImage.length} products`);
+
         // Fetch ALL missing products in parallel — no sequential batching.
-        // Firebase client SDK handles concurrent getDoc calls over a single
-        // multiplexed connection; the old sequential batching was the direct
-        // cause of the 5-7 second delay on the listing page.
         const results = await Promise.allSettled(
           needsImage.map(async (p) => {
             const [gallerySnap, productSnap] = await Promise.all([
@@ -384,6 +400,13 @@ export const ShopProvider: React.FC<{
           })
         );
 
+        // Diagnostic: surface any Firebase errors so they're visible in DevTools
+        const rejected = results.filter(r => r.status === 'rejected');
+        if (rejected.length > 0) {
+          console.error(`[VEXA_IMG] ${rejected.length} getDoc calls failed:`,
+            rejected.map(r => (r as PromiseRejectedResult).reason?.code || (r as PromiseRejectedResult).reason));
+        }
+
         const fullMap: Record<string, { image: string; images: string[] }> = {};
         for (const r of results) {
           if (r.status === 'fulfilled' && r.value.mainImg) {
@@ -391,14 +414,20 @@ export const ShopProvider: React.FC<{
           }
         }
 
-        if (Object.keys(fullMap).length > 0) {
+        const hits = Object.keys(fullMap).length;
+        const missing = needsImage.filter(p => !fullMap[p.id]).map(p => p.id);
+        console.warn(`[VEXA_IMG] loadAllImages: ${hits} loaded, ${missing.length} still missing`, missing);
+
+        if (hits > 0) {
           applyMap(fullMap);
           try {
             localStorage.setItem(IMG_KEY, JSON.stringify(fullMap));
             localStorage.setItem(IMG_TS_KEY, String(Date.now()));
           } catch (_) {}
         }
-      } catch (_) {}
+      } catch (err) {
+        console.error('[VEXA_IMG] loadAllImages error:', err);
+      }
     };
 
     loadAllImages();

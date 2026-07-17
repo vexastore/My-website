@@ -29,6 +29,13 @@ import { Metadata } from 'next';
     };
   }
 
+  // ISR: regenerate every 5 minutes, same cadence as the product page.
+  // Without this the listing page is a static page built once at deploy time —
+  // images uploaded after the last deploy never appear because fetchProductsServer()
+  // is never called again. The product page has revalidate=300 and shows new
+  // images within 5 min; the listing page must do the same.
+  export const revalidate = 300;
+
   export function generateStaticParams() {
     return CATEGORY_META.map(c => ({ category: c.slug }));
   }

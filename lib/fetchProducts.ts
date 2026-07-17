@@ -140,6 +140,11 @@ async function _fetchProductsLive(): Promise<Product[]> {
     const deletedIds = new Set(delDocs.map(d => d.name.split('/').pop()!));
     const galleryMap = buildGalleryMap(galleryDocs);
 
+    // Diagnostic: shows in Vercel function logs so we can see if the gallery
+    // fetch is producing images or timing out.
+    const galleryHits = Object.keys(galleryMap).length;
+    console.warn(`[VEXA_IMG] fetchProductsServer: gallery_docs=${galleryDocs.length} gallery_with_images=${galleryHits} timed_out=${galleryDocs.length === 0}`);
+
     const fbProducts: Product[] = prodDocs
       .map(docToProduct)
       .filter(p => p.name || p.nameEn);
