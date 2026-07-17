@@ -1,34 +1,33 @@
 #!/usr/bin/env node
 // =============================================================================
-// migrate-images.js
+// migrate-images.js  (Vercel Blob edition)
 //
-// Migrates all existing Base64 product images from Firestore to Firebase Storage.
+// Migrates all existing Base64 product images from Firestore to Vercel Blob.
+//
+// PREREQUISITES
+//   1. Create a Blob store:  Vercel Dashboard → Storage → Create Store (Blob)
+//   2. Connect it to your project.  Vercel adds BLOB_READ_WRITE_TOKEN automatically
+//      to your project's environment variables.
+//   3. Copy that token into a local .env.local file so this script can read it:
+//        BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxxxxxxxxxxx
+//   4. Run:  node -r dotenv/config scripts/migrate-images.js --dry-run
+//      Or:   export BLOB_READ_WRITE_TOKEN=... && node scripts/migrate-images.js
 //
 // USAGE
 //   node scripts/migrate-images.js              # full migration
 //   node scripts/migrate-images.js --dry-run    # read-only preview, no writes
 //
 // PHASES
-//   0  Authenticate  — anonymous sign-in, refresh token every 55 min
-//   1  Backup        — dump every document to backup-{timestamp}.json  ← NO writes yet
-//   2  Migrate       — upload Base64 → Storage, write URLs into STAGING FIELDS only
-//                        _pending_image   (the new Storage URL for `image`)
-//                        _pending_images  (the new Storage URLs for `images`)
-//                      The original `image` and `images` fields are UNTOUCHED.
-//   3  Verify        — HTTP GET every _pending_image / _pending_images URL
-//   4  Report        — write migration-report-{timestamp}.json + print summary
+//   0  Check       — verify BLOB_READ_WRITE_TOKEN is set
+//   1  Backup      — dump every Firestore document to backup-{ts}.json  ← NO writes
+//   2  Migrate     — upload Base64 → Vercel Blob CDN URL
+//                    write URL into STAGING FIELDS (_pending_image, _pending_images)
+//                    original `image` / `images` fields are NEVER touched here
+//   3  Verify      — HTTP HEAD every staged URL, confirm 200 + image/* content-type
+//   4  Report      — write migration-report-{ts}.json + print summary
 //
-// The original Base64 fields are NOT touched until you run cleanup-base64.js.
-// cleanup-base64.js reads this report, confirms every image is verified, then
-// atomically swaps _pending_* into image/images and removes the Base64.
-//
-// SAFE BY DESIGN
-//   • Backup JSON is written before any Firestore write.
-//   • `image` and `images` fields are never touched by this script.
-//   • A failed upload leaves the document completely unchanged.
-//   • Already-migrated products (image already a Storage URL) are skipped.
-//   • Any single failure is logged and skipped; the script continues.
-//   • --dry-run exits after Phase 1 with zero writes.
+// After reviewing the report, run cleanup-base64.js to swap the staged URLs
+// into the live fields and remove the old Base64 data.
 // =============================================================================
 
 'use strict';
@@ -36,55 +35,29 @@
 const fs = require('fs');
 
 // ── Config ────────────────────────────────────────────────────────────────────
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
+const BLOB_API   = 'https://blob.vercel-storage.com';
+
 const API_KEY  = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
 const PROJECT  = 'vexa-store';
-const BUCKET   = 'vexa-store.firebasestorage.app';
 const BASE_FS  = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
-const BASE_ST  = `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o`;
 
 const DRY_RUN   = process.argv.includes('--dry-run');
-const DELAY_MS  = 300;    // ms between Firestore writes (avoid rate-limit)
+const DELAY_MS  = 300;
 const PAGE_SIZE = 300;
-
-// ── Auth ──────────────────────────────────────────────────────────────────────
-let _token = null, _expiry = 0;
-
-async function getIdToken() {
-  if (_token && Date.now() < _expiry) return _token;
-  const r = await fetch(
-    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
-    { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ returnSecureToken: true }) }
-  );
-  if (!r.ok) throw new Error(`Auth failed: ${r.status} ${await r.text()}`);
-  const { idToken } = await r.json();
-  if (!idToken) throw new Error('Auth returned no idToken');
-  _token = idToken;
-  _expiry = Date.now() + 55 * 60 * 1000;
-  log('info', 'Authenticated with Firebase (token valid ~55 min)');
-  return _token;
-}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function log(level, msg) {
   console.log(`[${new Date().toISOString()}] [${level.toUpperCase()}] ${msg}`);
 }
-
-function sleep(ms) {
-  return new Promise(r => setTimeout(r, ms));
-}
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function isBase64Image(str) {
   return typeof str === 'string' && str.startsWith('data:image/');
 }
-
-function isStorageUrl(str) {
-  return typeof str === 'string' && (
-    str.startsWith('https://firebasestorage.googleapis.com/') ||
-    str.startsWith('https://storage.googleapis.com/')
-  );
+function isCdnUrl(str) {
+  return typeof str === 'string' && str.startsWith('https://') && !str.startsWith('data:');
 }
-
 function parseMimeAndBuffer(dataUri) {
   const m = dataUri.match(/^data:(image\/[a-zA-Z+]+);base64,(.+)$/s);
   if (!m) throw new Error('Not a valid image data URI');
@@ -93,46 +66,55 @@ function parseMimeAndBuffer(dataUri) {
   return { mime, ext, buffer: Buffer.from(m[2], 'base64') };
 }
 
-// ── Firestore helpers ─────────────────────────────────────────────────────────
-async function fetchCollection(collectionName) {
-  const idToken = await getIdToken();
-  const headers = { Authorization: `Bearer ${idToken}` };
-  const docs = [];
-  let pageToken;
+// ── Firebase Auth (anonymous, for Firestore REST reads/writes only) ───────────
+let _fsToken = null, _fsExpiry = 0;
+async function getFsToken() {
+  if (_fsToken && Date.now() < _fsExpiry) return _fsToken;
+  const r = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
+    { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ returnSecureToken: true }) }
+  );
+  if (!r.ok) throw new Error(`Firebase auth failed: ${r.status} ${await r.text()}`);
+  const { idToken } = await r.json();
+  if (!idToken) throw new Error('Firebase auth returned no idToken');
+  _fsToken = idToken; _fsExpiry = Date.now() + 55 * 60 * 1000;
+  log('info', 'Firebase auth OK (token ~55 min)');
+  return _fsToken;
+}
 
+// ── Firestore helpers ─────────────────────────────────────────────────────────
+async function fetchCollection(name) {
+  const token   = await getFsToken();
+  const headers = { Authorization: `Bearer ${token}` };
+  const docs    = [];
+  let pageToken;
   do {
-    const url = new URL(`${BASE_FS}/${collectionName}`);
+    const url = new URL(`${BASE_FS}/${name}`);
     url.searchParams.set('pageSize', String(PAGE_SIZE));
     if (pageToken) url.searchParams.set('pageToken', pageToken);
-
     const r = await fetch(url.toString(), { headers });
-    if (!r.ok) throw new Error(`Firestore GET ${collectionName} failed: ${r.status} ${await r.text()}`);
+    if (!r.ok) throw new Error(`Firestore GET ${name}: ${r.status} ${await r.text()}`);
     const data = await r.json();
     docs.push(...(data.documents || []));
     pageToken = data.nextPageToken;
   } while (pageToken);
-
   return docs;
 }
 
-// Patch a single Firestore document with new fields (surgical PATCH, not overwrite).
-// Only the fields listed in `fields` are updated; all other fields are untouched.
 async function patchDocument(docPath, fields) {
-  const idToken = await getIdToken();
+  const token      = await getFsToken();
   const updateMask = Object.keys(fields)
     .map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`).join('&');
-  const url = `${BASE_FS}/${docPath}?${updateMask}`;
-
-  const r = await fetch(url, {
-    method: 'PATCH',
-    headers: { Authorization: `Bearer ${idToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ fields }),
+  const r = await fetch(`${BASE_FS}/${docPath}?${updateMask}`, {
+    method:  'PATCH',
+    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ fields }),
   });
-  if (!r.ok) throw new Error(`Firestore PATCH ${docPath} failed: ${r.status} ${await r.text()}`);
+  if (!r.ok) throw new Error(`Firestore PATCH ${docPath}: ${r.status} ${await r.text()}`);
   return r.json();
 }
 
-// Convert raw Firestore field value → plain JS value (used for backup JSON).
 function fsValToJs(v) {
   if (!v) return null;
   if ('stringValue'  in v) return v.stringValue;
@@ -148,49 +130,56 @@ function fsValToJs(v) {
   }
   return v;
 }
-
 function docToPlain(doc) {
   const out = { _docPath: doc.name };
   for (const [k, v] of Object.entries(doc.fields || {})) out[k] = fsValToJs(v);
   return out;
 }
 
-// ── Firebase Storage upload ───────────────────────────────────────────────────
-async function uploadToStorage(productId, imageIndex, dataUri) {
+// ── Vercel Blob upload ────────────────────────────────────────────────────────
+async function uploadToBlob(productId, imageIndex, dataUri) {
   const { mime, ext, buffer } = parseMimeAndBuffer(dataUri);
-  const idToken = await getIdToken();
+  // Unique path per image — timestamp prevents collisions
+  const pathname = `images/migrated/${productId}/${Date.now()}-${imageIndex}.${ext}`;
 
-  const fileName    = `images/migrated/${productId}/${Date.now()}-${imageIndex}.${ext}`;
-  const encodedName = encodeURIComponent(fileName);
-
-  const r = await fetch(`${BASE_ST}?uploadType=media&name=${encodedName}`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${idToken}`, 'Content-Type': mime },
+  // Vercel Blob REST API: PUT https://blob.vercel-storage.com/{pathname}
+  // The token goes in the Authorization header.
+  // x-content-type tells Blob the MIME type of the stored file.
+  const r = await fetch(`${BLOB_API}/${pathname}`, {
+    method:  'PUT',
+    headers: {
+      'Authorization':  `Bearer ${BLOB_TOKEN}`,
+      'x-content-type': mime,
+      'Content-Type':   'application/octet-stream',
+    },
     body: buffer,
   });
 
   if (!r.ok) {
     const errText = await r.text();
-    if (r.status === 403) {
+    if (r.status === 401 || r.status === 403) {
       throw new Error(
-        `Firebase Storage PERMISSION DENIED (403). ` +
-        `Update Storage Rules: allow write: if request.auth != null;\n${errText}`
+        `Vercel Blob auth failed (${r.status}). ` +
+        `Check BLOB_READ_WRITE_TOKEN in your .env.local or environment.\n${errText}`
       );
     }
-    throw new Error(`Storage upload failed ${r.status}: ${errText}`);
+    throw new Error(`Vercel Blob upload failed (${r.status}): ${errText}`);
   }
 
-  const { downloadTokens } = await r.json();
-  return `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedName}?alt=media&token=${downloadTokens}`;
+  const data = await r.json();
+  // SDK returns { url } for the public CDN URL
+  const url = data.url || data.downloadUrl;
+  if (!url) throw new Error(`Vercel Blob response missing url: ${JSON.stringify(data)}`);
+  return url;
 }
 
-// ── Verify a Storage URL ──────────────────────────────────────────────────────
+// ── Verify a URL ──────────────────────────────────────────────────────────────
 async function verifyUrl(url) {
   try {
-    const r = await fetch(url, { method: 'HEAD' });
+    const r  = await fetch(url, { method: 'HEAD' });
     if (!r.ok) return { ok: false, reason: `HTTP ${r.status}` };
     const ct = r.headers.get('content-type') || '';
-    if (!ct.startsWith('image/')) return { ok: false, reason: `Unexpected content-type: ${ct}` };
+    if (!ct.startsWith('image/')) return { ok: false, reason: `Wrong content-type: ${ct}` };
     return { ok: true };
   } catch (e) {
     return { ok: false, reason: e.message };
@@ -198,20 +187,16 @@ async function verifyUrl(url) {
 }
 
 // ── Migrate one image array ───────────────────────────────────────────────────
-// Returns { newUrls, imageEntries, anyFailed }
-// newUrls contains Storage URLs for uploaded images, original URL for already-URL images.
-// On upload failure, anyFailed = true and no Firestore write should happen.
 async function migrateImageArray(productId, rawImages, label) {
-  const newUrls     = [];
+  const newUrls      = [];
   const imageEntries = [];
-  let anyFailed     = false;
+  let   anyFailed    = false;
 
   for (let i = 0; i < rawImages.length; i++) {
     const raw      = rawImages[i];
     const imgEntry = { index: i, original: raw.slice(0, 80), newUrl: null, verified: null, error: null };
 
     if (!isBase64Image(raw)) {
-      // Already a URL — keep as-is, mark pre-verified
       imgEntry.newUrl   = raw;
       imgEntry.status   = 'kept_url';
       imgEntry.verified = true;
@@ -221,12 +206,13 @@ async function migrateImageArray(productId, rawImages, label) {
     }
 
     try {
-      log('info', `  UPLOAD [${label}] image[${i}] (${(raw.length / 1024).toFixed(0)} KB base64)...`);
-      const storageUrl   = await uploadToStorage(productId, i, raw);
-      imgEntry.newUrl    = storageUrl;
-      imgEntry.status    = 'uploaded';
-      newUrls.push(storageUrl);
-      log('info', `         → ${storageUrl.slice(0, 100)}`);
+      const sizeKb = (raw.length / 1024).toFixed(0);
+      log('info', `  UPLOAD [${label}] image[${i}] (${sizeKb} KB base64) → Vercel Blob...`);
+      const blobUrl       = await uploadToBlob(productId, i, raw);
+      imgEntry.newUrl     = blobUrl;
+      imgEntry.status     = 'uploaded';
+      newUrls.push(blobUrl);
+      log('info', `         ✓ ${blobUrl.slice(0, 100)}`);
     } catch (err) {
       imgEntry.status = 'upload_failed';
       imgEntry.error  = err.message;
@@ -247,30 +233,37 @@ async function main() {
   const backupFile = `migration-backup-${timestamp}.json`;
   const reportFile = `migration-report-${timestamp}.json`;
 
-  log('info', `=== Vexa Store Image Migration${DRY_RUN ? ' [DRY RUN]' : ''} ===`);
-  log('info', `Backup → ${backupFile}`);
-  log('info', `Report → ${reportFile}`);
-  if (DRY_RUN) log('info', 'DRY RUN: no Firestore writes, no Storage uploads will be performed');
+  log('info', `=== Vexa Store Image Migration → Vercel Blob${DRY_RUN ? ' [DRY RUN]' : ''} ===`);
 
-  // ── PHASE 0: Authenticate ─────────────────────────────────────────────────
-  log('info', '--- PHASE 0: Authentication ---');
-  await getIdToken();
+  // ── PHASE 0: Check token ──────────────────────────────────────────────────
+  log('info', '--- PHASE 0: Checking BLOB_READ_WRITE_TOKEN ---');
+  if (!BLOB_TOKEN) {
+    log('error', 'BLOB_READ_WRITE_TOKEN is not set.');
+    log('error', 'Steps to fix:');
+    log('error', '  1. Vercel Dashboard → Storage → Create a Blob Store');
+    log('error', '  2. Connect the store to your project');
+    log('error', '  3. Copy the token from the store settings into .env.local:');
+    log('error', '       BLOB_READ_WRITE_TOKEN=vercel_blob_rw_xxxx');
+    log('error', '  4. Re-run: node scripts/migrate-images.js --dry-run');
+    process.exit(1);
+  }
+  log('info', `Token found: ${BLOB_TOKEN.slice(0, 20)}... (${BLOB_TOKEN.length} chars)`);
 
-  // ── PHASE 1: Backup ───────────────────────────────────────────────────────
-  // Read ALL data first. Write the backup JSON. Only then proceed to writes.
-  log('info', '--- PHASE 1: Backup (read-only) ---');
+  // ── PHASE 1: Backup (read-only) ───────────────────────────────────────────
+  log('info', '--- PHASE 1: Backup ---');
+  await getFsToken();
 
-  log('info', 'Fetching products...');
+  log('info', 'Reading products...');
   const productDocs = await fetchCollection('products');
-  log('info', `  products:         ${productDocs.length} documents`);
+  log('info', `  products:         ${productDocs.length}`);
 
-  log('info', 'Fetching product_images...');
+  log('info', 'Reading product_images...');
   const galleryDocs = await fetchCollection('product_images');
-  log('info', `  product_images:   ${galleryDocs.length} documents`);
+  log('info', `  product_images:   ${galleryDocs.length}`);
 
-  log('info', 'Fetching deleted_products...');
+  log('info', 'Reading deleted_products...');
   const deletedDocs = await fetchCollection('deleted_products');
-  log('info', `  deleted_products: ${deletedDocs.length} documents`);
+  log('info', `  deleted_products: ${deletedDocs.length}`);
 
   const backup = {
     createdAt:        new Date().toISOString(),
@@ -280,60 +273,67 @@ async function main() {
     deleted_products: deletedDocs.map(docToPlain),
   };
 
-  // Write backup BEFORE any Firestore writes happen.
+  // Write backup BEFORE any write operation
   fs.writeFileSync(backupFile, JSON.stringify(backup, null, 2));
-  const backupSizeMb = (fs.statSync(backupFile).size / 1024 / 1024).toFixed(2);
-  log('info', `Backup written: ${backupFile} (${backupSizeMb} MB) — this file contains the full original data`);
+  const mbSize = (fs.statSync(backupFile).size / 1024 / 1024).toFixed(2);
+  log('info', `Backup written: ${backupFile} (${mbSize} MB) — full original data preserved here`);
 
   if (DRY_RUN) {
     log('info', '--- DRY RUN: Analysis ---');
-    let b64Products = 0, b64Images = 0, alreadyMigrated = 0, noImage = 0, hasPending = 0;
+    let b64Products = 0, b64Images = 0, alreadyUrl = 0, noImage = 0, hasPending = 0;
 
     for (const doc of productDocs) {
       const f    = doc.fields || {};
-      const img  = f.image?.stringValue  || '';
+      const img  = f.image?.stringValue || '';
       const imgs = (f.images?.arrayValue?.values || []).map(v => v.stringValue || '');
       const all  = [...new Set([img, ...imgs].filter(Boolean))];
-      if (f._pending_image?.stringValue)      { hasPending++;       continue; }
-      if (all.length === 0)                   { noImage++;          continue; }
-      if (all.every(isStorageUrl))            { alreadyMigrated++;  continue; }
-      if (all.some(isBase64Image))            { b64Products++; b64Images += all.filter(isBase64Image).length; }
+      if (f._pending_image?.stringValue)   { hasPending++; continue; }
+      if (all.length === 0)                { noImage++;    continue; }
+      if (all.every(isCdnUrl))             { alreadyUrl++; continue; }
+      if (all.some(isBase64Image))         { b64Products++; b64Images += all.filter(isBase64Image).length; }
     }
     for (const doc of galleryDocs) {
       const f    = doc.fields || {};
       const imgs = (f.images?.arrayValue?.values || []).map(v => v.stringValue || '');
-      if (f._pending_images?.arrayValue)      { hasPending++;       continue; }
-      if (imgs.some(isBase64Image))           { b64Products++; b64Images += imgs.filter(isBase64Image).length; }
+      if (f._pending_images?.arrayValue)   { hasPending++; continue; }
+      if (imgs.some(isBase64Image))        { b64Products++; b64Images += imgs.filter(isBase64Image).length; }
     }
 
-    log('info', `Products scanned:             ${productDocs.length}`);
-    log('info', `Products with Base64 to migrate: ${b64Products}`);
-    log('info', `Base64 images to upload:      ${b64Images}`);
-    log('info', `Already Storage URLs (skip):  ${alreadyMigrated}`);
-    log('info', `Already have _pending_* (resumable from prior run): ${hasPending}`);
-    log('info', `No image at all (skip):       ${noImage}`);
+    const avgKb    = 150;
+    const estMb    = Math.round(b64Images * avgKb / 1024);
+    console.log('');
+    console.log('════════════════════════════════════════════');
+    console.log('          DRY RUN ANALYSIS                  ');
+    console.log('════════════════════════════════════════════');
+    console.log(`  Products scanned:              ${productDocs.length}`);
+    console.log(`  Products needing migration:    ${b64Products}`);
+    console.log(`  Base64 images to upload:       ${b64Images}`);
+    console.log(`  Already CDN URLs (skip):       ${alreadyUrl}`);
+    console.log(`  No image (skip):               ${noImage}`);
+    console.log(`  Has _pending_* (prior run):    ${hasPending}`);
+    console.log(`  Estimated storage needed:      ~${estMb} MB`);
+    console.log(`  Vercel Blob Hobby limit:        500 MB storage, 1 GB/month bandwidth`);
+    console.log(`  Storage headroom:              ~${500 - estMb} MB remaining after migration`);
+    console.log('════════════════════════════════════════════');
     log('info', 'DRY RUN complete. No data was modified. Backup written for reference.');
     return;
   }
 
-  // ── PHASE 2: Migrate ──────────────────────────────────────────────────────
-  // Upload Base64 images to Firebase Storage.
-  // Write Storage URLs into STAGING FIELDS ONLY (_pending_image, _pending_images).
-  // The original `image` and `images` fields are NEVER touched by this script.
-  log('info', '--- PHASE 2: Migration (staging fields only — original fields untouched) ---');
+  // ── PHASE 2: Migrate (staging fields only) ────────────────────────────────
+  log('info', '--- PHASE 2: Migration (staging fields — original fields untouched) ---');
 
   const report = {
-    createdAt:      new Date().toISOString(),
+    createdAt:     new Date().toISOString(),
     backupFile,
-    totalScanned:   0,
-    totalMigrated:  0,   // images uploaded to Storage
-    totalSkipped:   0,   // products with no Base64 (nothing to do)
-    totalFailed:    0,   // upload or Firestore write failures
-    verifyFailed:   0,   // set in Phase 3
-    products:       [],
+    totalScanned:  0,
+    totalMigrated: 0,
+    totalSkipped:  0,
+    totalFailed:   0,
+    verifyFailed:  0,
+    products:      [],
   };
 
-  // Build gallery map
+  // Gallery map
   const galleryMap = {};
   for (const doc of galleryDocs) {
     const id   = doc.name.split('/').pop();
@@ -342,26 +342,23 @@ async function main() {
     galleryMap[id] = { docName: doc.name, images: imgs };
   }
 
-  // ── products collection ────────────────────────────────────────────────────
+  // products collection
   for (const doc of productDocs) {
     const productId = doc.name.split('/').pop();
     const f         = doc.fields || {};
-    const img       = f.image?.stringValue  || '';
+    const img       = f.image?.stringValue || '';
     const imgs      = (f.images?.arrayValue?.values || []).map(v => v.stringValue || '');
 
     report.totalScanned++;
-
     const entry = { productId, collection: 'products', images: [], status: null };
 
-    // Idempotency: if _pending_image already exists this product was uploaded in
-    // a prior run that crashed before writing the report. Skip so we don't
-    // double-upload. (cleanup-base64.js will pick up these pending fields.)
+    // Idempotency: skip if _pending fields already exist from a prior run
     if (f._pending_image?.stringValue || f._pending_images?.arrayValue) {
       entry.status = 'already_pending';
-      entry.note   = 'Has _pending_* fields from a prior run — will be verified in Phase 3';
+      entry.note   = 'Has _pending_* from a prior run — will be verified in Phase 3';
       report.products.push(entry);
       report.totalSkipped++;
-      log('info', `  SKIP [${productId}] already_pending (prior run)`);
+      log('info', `  SKIP [${productId}] already_pending`);
       continue;
     }
 
@@ -380,29 +377,25 @@ async function main() {
     entry.images = imageEntries;
 
     if (anyFailed) {
-      // Any upload failure → no Firestore write at all → document is unchanged.
-      entry.status = 'upload_failed';
+      entry.status   = 'upload_failed';
       report.totalFailed += imageEntries.filter(i => i.status === 'upload_failed').length;
-      log('info', `  SKIP WRITE [${productId}] upload had failures — document untouched`);
+      log('info', `  SKIP WRITE [${productId}] upload failure — document untouched`);
     } else {
-      // All uploads succeeded. Write to STAGING FIELDS only.
-      // `image` and `images` fields are NOT included here — they still contain Base64.
-      const patchFields = {
-        '_pending_image':  { stringValue: newUrls[0] || '' },
-        '_pending_images': { arrayValue: { values: newUrls.map(u => ({ stringValue: u })) } },
-      };
-
+      // Write ONLY to staging fields — original image/images stay untouched
       try {
         const docPath = doc.name.split('/documents/')[1];
-        await patchDocument(docPath, patchFields);
-        entry.status = 'pending_verify'; // not yet committed; verify in Phase 3
+        await patchDocument(docPath, {
+          '_pending_image':  { stringValue: newUrls[0] || '' },
+          '_pending_images': { arrayValue: { values: newUrls.map(u => ({ stringValue: u })) } },
+        });
+        entry.status = 'pending_verify';
         report.totalMigrated += imageEntries.filter(i => i.status === 'uploaded').length;
-        log('info', `  STAGED [${productId}] _pending_image + _pending_images written (original fields untouched)`);
+        log('info', `  STAGED [${productId}] _pending_image/_pending_images written`);
       } catch (err) {
         entry.status = 'firestore_write_failed';
         entry.error  = err.message;
         report.totalFailed++;
-        log('info', `  FAIL WRITE [${productId}] Firestore: ${err.message}`);
+        log('info', `  FAIL WRITE [${productId}]: ${err.message}`);
       }
     }
 
@@ -410,16 +403,13 @@ async function main() {
     await sleep(DELAY_MS);
   }
 
-  // ── product_images (gallery) collection ───────────────────────────────────
+  // product_images (gallery) collection
   for (const [productId, gallery] of Object.entries(galleryMap)) {
-    const imgs = gallery.images;
-
-    // Idempotency: check if prior run left _pending_images in this doc
+    const imgs     = gallery.images;
     const galleryDoc = galleryDocs.find(d => d.name.split('/').pop() === productId);
+
     if (galleryDoc?.fields?._pending_images?.arrayValue) {
-      const entry = { productId, collection: 'product_images', images: [], status: 'already_pending',
-        note: 'Has _pending_images from a prior run' };
-      report.products.push(entry);
+      report.products.push({ productId, collection: 'product_images', images: [], status: 'already_pending', note: 'Prior run' });
       report.totalSkipped++;
       log('info', `  SKIP [${productId}/gallery] already_pending`);
       continue;
@@ -429,14 +419,13 @@ async function main() {
 
     report.totalScanned++;
     const entry = { productId, collection: 'product_images', images: [], status: null };
-
     const { newUrls, imageEntries, anyFailed } = await migrateImageArray(productId, imgs, `${productId}/gallery`);
     entry.images = imageEntries;
 
     if (anyFailed) {
-      entry.status = 'upload_failed';
+      entry.status   = 'upload_failed';
       report.totalFailed += imageEntries.filter(i => i.status === 'upload_failed').length;
-      log('info', `  SKIP WRITE [${productId}/gallery] upload had failures — document untouched`);
+      log('info', `  SKIP WRITE [${productId}/gallery] — untouched`);
     } else {
       try {
         const docPath = gallery.docName.split('/documents/')[1];
@@ -445,7 +434,7 @@ async function main() {
         });
         entry.status = 'pending_verify';
         report.totalMigrated += imageEntries.filter(i => i.status === 'uploaded').length;
-        log('info', `  STAGED [${productId}/gallery] _pending_images written`);
+        log('info', `  STAGED [${productId}/gallery]`);
       } catch (err) {
         entry.status = 'firestore_write_failed';
         entry.error  = err.message;
@@ -458,17 +447,15 @@ async function main() {
     await sleep(DELAY_MS);
   }
 
-  // ── PHASE 3: Verify ───────────────────────────────────────────────────────
-  // Check every staged Storage URL returns HTTP 200 with an image content-type.
-  // This runs BEFORE the original Base64 fields are ever touched.
-  log('info', '--- PHASE 3: Verification (original fields still untouched) ---');
+  // ── PHASE 3: Verify (original fields still untouched) ────────────────────
+  log('info', '--- PHASE 3: Verification ---');
 
   for (const entry of report.products) {
     if (entry.status !== 'pending_verify' && entry.status !== 'already_pending') continue;
 
-    for (const imgEntry of entry.images) {
-      if (!imgEntry.newUrl || !isStorageUrl(imgEntry.newUrl)) continue;
-      if (imgEntry.verified === true) continue; // kept_url already marked verified
+    for (const imgEntry of (entry.images || [])) {
+      if (!imgEntry.newUrl || !isCdnUrl(imgEntry.newUrl)) continue;
+      if (imgEntry.verified === true) continue;
 
       const { ok, reason } = await verifyUrl(imgEntry.newUrl);
       imgEntry.verified = ok;
@@ -482,62 +469,47 @@ async function main() {
       await sleep(100);
     }
 
-    // Mark fully verified only if every image in this entry verified correctly.
-    // already_pending entries have no imageEntries array populated (from prior run),
-    // so we re-fetch their _pending_* values for verification via the report entries.
-    const allVerified = entry.images.every(i => i.verified === true);
-    const anyVerifyFail = entry.images.some(i => i.verified === false);
+    const images     = entry.images || [];
+    const allVerified = images.length > 0 && images.every(i => i.verified === true);
+    const anyFail     = images.some(i => i.verified === false);
 
-    if (entry.images.length === 0) {
-      // already_pending with no images array — mark as needs_manual_check
-      entry.status = 'pending_verify_manual';
-    } else if (allVerified) {
-      entry.status = 'verified';
-    } else if (anyVerifyFail) {
-      entry.status = 'verify_failed';
-    }
+    if      (images.length === 0)  entry.status = 'pending_verify_manual';
+    else if (allVerified)          entry.status = 'verified';
+    else if (anyFail)              entry.status = 'verify_failed';
   }
 
   // ── PHASE 4: Report ───────────────────────────────────────────────────────
   log('info', '--- PHASE 4: Report ---');
-
   report.completedAt = new Date().toISOString();
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
 
   const verifiedCount = report.products.filter(p => p.status === 'verified').length;
-  const pendingManual = report.products.filter(p => p.status === 'pending_verify_manual').length;
 
   console.log('\n');
   console.log('════════════════════════════════════════════════');
   console.log('              MIGRATION REPORT                  ');
   console.log('════════════════════════════════════════════════');
-  console.log(`  Total products scanned   : ${report.totalScanned}`);
-  console.log(`  Total images uploaded    : ${report.totalMigrated}`);
-  console.log(`  Products skipped (no-op) : ${report.totalSkipped}`);
-  console.log(`  Upload/write failures    : ${report.totalFailed}`);
-  console.log(`  Verification failures    : ${report.verifyFailed}`);
-  console.log(`  Products fully verified  : ${verifiedCount}`);
-  if (pendingManual > 0)
-    console.log(`  Needs manual check       : ${pendingManual} (prior run's _pending_* fields)`);
-  console.log(`  Backup file              : ${backupFile}`);
-  console.log(`  Report file              : ${reportFile}`);
+  console.log(`  Products scanned          : ${report.totalScanned}`);
+  console.log(`  Images uploaded to Blob   : ${report.totalMigrated}`);
+  console.log(`  Products skipped (no-op)  : ${report.totalSkipped}`);
+  console.log(`  Upload/write failures     : ${report.totalFailed}`);
+  console.log(`  Verification failures     : ${report.verifyFailed}`);
+  console.log(`  Products fully verified   : ${verifiedCount}`);
+  console.log(`  Backup file               : ${backupFile}`);
+  console.log(`  Report file               : ${reportFile}`);
   console.log('════════════════════════════════════════════════');
-  console.log('');
-  console.log('STATUS OF ORIGINAL FIELDS:');
-  console.log('  `image` and `images` fields in Firestore are UNCHANGED.');
-  console.log('  Storage URLs are staged in `_pending_image` / `_pending_images`.');
-  console.log('  Run cleanup-base64.js to swap and remove the old Base64 data.');
+  console.log('  NOTE: original image/images fields are UNCHANGED in Firestore.');
+  console.log('  Storage URLs are staged in _pending_image/_pending_images.');
   console.log('════════════════════════════════════════════════');
 
   if (report.totalFailed > 0 || report.verifyFailed > 0) {
     console.log('\n⚠️  Failures detected. DO NOT run cleanup-base64.js until fixed.');
-    console.log('    Review the report:');
-    console.log(`      node -e "const r=require('./${reportFile}');r.products.filter(p=>!['verified','already_url','no_image','already_pending'].includes(p.status)).forEach(p=>console.log(p.productId,p.status,p.error||''))"`);
+    console.log(`   Review: node -e "const r=require('./${reportFile}');r.products.filter(p=>!['verified','already_url','no_image'].includes(p.status)).forEach(p=>console.log(p.productId,p.status,p.error||''))"`);
   } else {
-    console.log('\n✅  All uploads verified. Original Base64 fields are still untouched.');
-    console.log(`    When ready to swap and clean up, run:`);
-    console.log(`      node scripts/cleanup-base64.js ${reportFile} --dry-run`);
-    console.log(`      node scripts/cleanup-base64.js ${reportFile}`);
+    console.log('\n✅  All images uploaded and verified. Original Firestore fields still intact.');
+    console.log(`   Next step:`);
+    console.log(`     node scripts/cleanup-base64.js ${reportFile} --dry-run`);
+    console.log(`     node scripts/cleanup-base64.js ${reportFile}`);
   }
 }
 
