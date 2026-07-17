@@ -464,7 +464,7 @@ export const AdminPanel: React.FC = () => {
     const primaryCat = prodForm.categories[0] || 'Sex Toys';
     const cleanVariants = (prodForm.variants || [])
       .filter(v => v.name.trim() && v.options.length > 0);
-    const productData: Omit<Product, 'id'> = {
+    let productData: Omit<Product, 'id'> = {
       name: prodForm.name,
       nameEn: prodForm.name,
       description: prodForm.description,
@@ -485,6 +485,26 @@ export const AdminPanel: React.FC = () => {
     };
     setIsSaving(true);
     try {
+      // Upload Base64 images to Firebase Storage before saving (keeps Firestore small, saves quota)
+      const uploadBase64ToStorage = async (imgData, productId, idx) => {
+        if (!imgData.startsWith('data:')) return imgData;
+        try {
+          const r = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ imageData: imgData, productId }),
+          });
+          if (!r.ok) return imgData;
+          const { url } = await r.json();
+          return url || imgData;
+        } catch (_) { return imgData; }
+      };
+      const targetId = editingProduct?.id || ('prod-' + Math.random().toString(36).substr(2, 9).toUpperCase());
+      const rawImgs = productData.images?.length ? productData.images : (productData.image ? [productData.image] : []);
+      if (rawImgs.some(img => img.startsWith('data:'))) {
+        const uploaded = await Promise.all(rawImgs.map((img, idx) => uploadBase64ToStorage(img, targetId, idx)));
+        productData = { ...productData, images: uploaded, image: uploaded[0] || '' };
+      }
       if (editingProduct) {
         // Pass imagesModifiedByUser so we NEVER overwrite Firebase images unless user changed them
         await updateProduct(editingProduct.id, productData, imagesModifiedByUser);
