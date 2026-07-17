@@ -175,10 +175,30 @@ export const ShopProvider: React.FC<{
             const deletedSet = new Set(deletedIds);
 
             const merged = [
-              ...initialProducts.filter((p: Product) => !deletedSet.has(p.id)),                         // static products, minus explicitly deleted ones
-              ...fbProds.filter((p: Product) => !staticIds.has(p.id) && !deletedSet.has(p.id)),         // new admin-added products
+              ...initialProducts.filter((p: Product) => !deletedSet.has(p.id)),
+              ...fbProds.filter((p: Product) => !staticIds.has(p.id) && !deletedSet.has(p.id)),
             ];
-            if (merged.length > 0) setProducts(merged);
+            if (merged.length === 0) return;
+
+            // Use a functional update so we can read the CURRENT products state
+            // and preserve any images that were already loaded by the client-side
+            // image effect (loadAllImages) or embedded from SSR (fetchImages).
+            // The direct setProducts(merged) that was here before wiped images
+            // because `merged` is built from initialProducts (all image:""),
+            // clobbering whatever the parallel image fetch had applied.
+            setProducts(prev => {
+              const prevImages = new Map(
+                prev.map(p => [p.id, { image: p.image, images: p.images }])
+              );
+              return merged.map(p => {
+                const existing = prevImages.get(p.id);
+                if (existing && existing.image && existing.image.length > 5) {
+                  // Preserve the already-loaded image; use other fields from merged
+                  return { ...p, image: existing.image, images: existing.images };
+                }
+                return p;
+              });
+            });
           };
 
           if (cached && Date.now() - ts < TTL) {
