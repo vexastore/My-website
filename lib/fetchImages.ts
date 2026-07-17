@@ -1,88 +1,92 @@
 import { unstable_cache } from 'next/cache';
 
-const ALL_IDS = [
-  "prod-133R8EJ6D","prod-23B60IR2Q","prod-24NRFZBHI","prod-2IQUAPUC3","prod-2WQ1BU08R",
-  "prod-3NRRJJDJU","prod-4EJO4D56E","prod-4N38Z446F","prod-4ZH2D4K4D","prod-61JDNF8LD",
-  "prod-62R5H3IMR","prod-7HGO5CIKL","prod-8A6OWLC96","prod-8WODDSHO9","prod-9G7YZIF8S",
-  "prod-A0FZFRQ2D","prod-APFMTW0SN","prod-APJTWQMPI","prod-BCX9XD5GJ","prod-BH16ZQ3ZK",
-  "prod-BH98BPG4G","prod-BLH4DN5B8","prod-CBBZ9KYHW","prod-CNN9M6ZA5","prod-D056P0QP3",
-  "prod-D150KLY9Y","prod-DGS5SBC1M","prod-E4I00E5DG","prod-E9VLPCTAS","prod-EF6HC703Y",
-  "prod-EL0BFSA8U","prod-EQ95C68JB","prod-FJWQKRDK6","prod-FOHZGLNB9","prod-HZ1QJF5VS",
-  "prod-I2U6S3BOA","prod-I4QXGQDDG","prod-IP8KO2EJF","prod-J2ALOTTRK","prod-JAZOIE9DM",
-  "prod-KM70C3LN7","prod-KN9JAXQ0J","prod-KWTYRWVZP","prod-LBWH0XSEQ","prod-LC39XD9SO",
-  "prod-LWWERQI45","prod-MPVIBW2PO","prod-MTBLD2HU9","prod-NGWJSQZMA","prod-NVXBU7AFS",
-  "prod-O3KFSOEF3","prod-OI0IXDZ1O","prod-OJ1U56Q7F","prod-P1DIVLKTJ","prod-PPG89CXR3",
-  "prod-PWRHZHZBZ","prod-Q8FSEH79P","prod-QBBE9RWQ3","prod-R0YWVUY2L","prod-R1PTIUH7T",
-  "prod-RD1M21W5J","prod-ROXX46DP4","prod-S9LY52P9R","prod-SH91F3YTX","prod-SI9RIQEF8",
-  "prod-SW2PO6PDS","prod-T5F7683VZ","prod-U5ILZEOJS","prod-UCQNEBAAE","prod-V823S82N6",
-  "prod-VKHE4Z562","prod-VKRX33AMU","prod-XMN0MTS93","prod-YTOC4FAF1","prod-ZCBYKCIEQ",
-  "prod-ZV63I3E7J"
-];
+const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
+const PROJECT = 'vexa-store';
+const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
-type FirestoreStringValue = { stringValue?: string };
+type FsStringValue = { stringValue?: string };
+type FsDoc = { name: string; fields?: Record<string, { stringValue?: string; arrayValue?: { values?: FsStringValue[] } }> };
 type ImageMap = Record<string, { image: string; images: string[] }>;
 
-async function _fetchImages(): Promise<ImageMap> {
-  const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
-  const PROJECT = 'vexa-store';
-  const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
-
+async function getIdToken(): Promise<string | null> {
   try {
     const authRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
     );
     const { idToken } = await authRes.json() as { idToken?: string };
+    return idToken || null;
+  } catch { return null; }
+}
+
+async function fetchCollection(name: string, headers: Record<string, string>, pageSize = 300): Promise<FsDoc[]> {
+  const docs: FsDoc[] = [];
+  let pageToken: string | undefined;
+  do {
+    const url = new URL(`${BASE}/${name}`);
+    url.searchParams.set('pageSize', String(pageSize));
+    if (pageToken) url.searchParams.set('pageToken', pageToken);
+    const res = await fetch(url.toString(), { headers, signal: AbortSignal.timeout(15000) });
+    if (!res.ok) break;
+    const data = await res.json() as { documents?: FsDoc[]; nextPageToken?: string };
+    docs.push(...(data.documents || []));
+    pageToken = data.nextPageToken;
+  } while (pageToken);
+  return docs;
+}
+
+async function _fetchImages(): Promise<ImageMap> {
+  try {
+    const idToken = await getIdToken();
     if (!idToken) return {};
 
     const headers = { Authorization: `Bearer ${idToken}` };
 
-    const results = await Promise.allSettled(
-      ALL_IDS.map(async (id) => {
-        const [galleryRes, productRes] = await Promise.all([
-          fetch(`${BASE}/product_images/${id}`, { headers }),
-          fetch(`${BASE}/products/${id}`, { headers }),
-        ]);
-
-        let galleryImgs: string[] = [];
-        let productImg = '';
-        let productImgs: string[] = [];
-
-        if (galleryRes.ok) {
-          const g = await galleryRes.json() as { fields?: { images?: { arrayValue?: { values?: FirestoreStringValue[] } } } };
-          galleryImgs = (g.fields?.images?.arrayValue?.values || [])
-            .map(v => v.stringValue || '').filter(Boolean);
-        }
-
-        if (productRes.ok) {
-          const p = await productRes.json() as { fields?: { image?: { stringValue?: string }; images?: { arrayValue?: { values?: FirestoreStringValue[] } } } };
-          productImg = p.fields?.image?.stringValue || '';
-          productImgs = (p.fields?.images?.arrayValue?.values || [])
-            .map(v => v.stringValue || '').filter(Boolean);
-        }
-
-        const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
-        const mainImg = bestImgs[0] || productImg;
-        return { id, mainImg, bestImgs };
-      })
-    );
+    // Fetch both collections in parallel — fully dynamic, no hardcoded IDs
+    // New products appear automatically without any code changes
+    const [productDocs, galleryDocs] = await Promise.all([
+      fetchCollection('products', headers, 300),
+      fetchCollection('product_images', headers, 300),
+    ]);
 
     const imageMap: ImageMap = {};
-    for (const r of results) {
-      if (r.status === 'fulfilled' && r.value.mainImg) {
-        const { id, mainImg, bestImgs } = r.value;
-        imageMap[id] = { image: mainImg, images: bestImgs };
+
+    // Gallery (product_images) — authoritative source for admin-uploaded images
+    for (const d of galleryDocs) {
+      const id = d.name.split('/').pop()!;
+      const imgs = (d.fields?.images?.arrayValue?.values || [])
+        .map((v: FsStringValue) => v.stringValue || '').filter(Boolean);
+      if (imgs.length > 0) {
+        imageMap[id] = { image: imgs[0], images: imgs };
       }
     }
+
+    // Products collection — fill images for products not in gallery
+    for (const d of productDocs) {
+      const id = d.name.split('/').pop()!;
+      if (imageMap[id]) continue; // already has gallery image
+      const img = d.fields?.image?.stringValue || '';
+      const imgs = (d.fields?.images?.arrayValue?.values || [])
+        .map((v: FsStringValue) => v.stringValue || '').filter(Boolean);
+      const mainImg = imgs[0] || img;
+      if (mainImg) {
+        imageMap[id] = { image: mainImg, images: imgs.length ? imgs : (img ? [img] : []) };
+      }
+    }
+
+    console.warn(
+      `[VEXA_IMG] fetchImages: products=${productDocs.length} gallery=${galleryDocs.length} withImages=${Object.keys(imageMap).length}`
+    );
     return imageMap;
-  } catch {
+  } catch (err) {
+    console.error('[VEXA_IMG] fetchImages error:', err);
     return {};
   }
 }
 
-// محفوظ في Next.js cache لمدة 24 ساعة — Firebase reads مرة واحدة بس
+// Cached 24h. Invalidated instantly via revalidateTag('vexa-images') after any admin change.
 export const fetchImages = unstable_cache(
   _fetchImages,
-  ['vexa-product-images'],
-  { revalidate: 86400 }
+  ['vexa-product-images-v3'],
+  { revalidate: 86400, tags: ['vexa-images'] }
 );
