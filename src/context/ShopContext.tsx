@@ -1,7 +1,8 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
+import { signInAnonymously } from 'firebase/auth';
 import {
   collection,
   doc,
@@ -318,6 +319,8 @@ export const ShopProvider: React.FC<{
     // (تثبّت: /api/images كان بينتهي بـ timeout لأنه يطلب 152 REST call في serverless واحد)
     const loadAllImages = async () => {
       try {
+        // تسجيل الدخول anonymous — مطلوب لقراءة Firestore
+        try { await signInAnonymously(auth); } catch (_) {}
         const BATCH_SIZE = 10;
         const fullMap: Record<string, { image: string; images: string[] }> = {};
 
