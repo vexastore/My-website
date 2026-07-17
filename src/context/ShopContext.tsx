@@ -277,8 +277,8 @@ export const ShopProvider: React.FC<{
     if (products.length === 0) return;
 
     // v4 — cache key جديد، يتجاهل أي cache قديم
-    const IMG_KEY = 'vexa_images_v7';
-    const IMG_TS_KEY = 'vexa_images_v7_ts';
+    const IMG_KEY = 'vexa_images_v8';
+    const IMG_TS_KEY = 'vexa_images_v8_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
 
     const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
