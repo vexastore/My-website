@@ -106,6 +106,15 @@ function buildGalleryMap(galleryDocs: FsDoc[]): Record<string, { image: string; 
   return map;
 }
 
+// Wrap a promise with a hard timeout. Resolves to `fallback` if it fires.
+// Used to keep _fetchProductsLive within Vercel's function execution budget.
+function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>(resolve => setTimeout(() => resolve(fallback), ms)),
+  ]);
+}
+
 async function _fetchProductsLive(): Promise<Product[]> {
   try {
     const idToken = await getIdToken();
@@ -113,17 +122,19 @@ async function _fetchProductsLive(): Promise<Product[]> {
 
     const headers = { Authorization: `Bearer ${idToken}` };
 
-    // Fetch products, deleted products, and gallery images in parallel.
-    // product_images is the authoritative image source — no timeout race.
-    // This function is wrapped in unstable_cache (5 min TTL), so Firebase
-    // is only called once per cache window, not on every request. The old
-    // 6-second race timeout was silently discarding all gallery images
-    // whenever Firebase was slow, causing every product to render without
-    // an image and fall back to /api/img/{id} on the CDN cold path.
+    // products + deleted_products are fetched without a timeout — they are
+    // critical (no products = blank store) and are always fast (<1 s).
+    //
+    // product_images (gallery) has a 20-second timeout. This is much more
+    // generous than the old 6-second race, giving Firebase time to respond
+    // on cold starts, while still keeping us inside Vercel's 30-second
+    // function limit. The old 6-second race was firing too often, causing
+    // every product to land with image:"" and triggering the CDN cold-path
+    // on /api/img/{id}. 20 s keeps the function safe without burning images.
     const [prodDocs, delDocs, galleryDocs] = await Promise.all([
       fetchAllDocs('products', headers, 300),
       fetchAllDocs('deleted_products', headers, 300),
-      fetchAllDocs('product_images', headers, 300),
+      withTimeout(fetchAllDocs('product_images', headers, 300), 20_000, []),
     ]);
 
     const deletedIds = new Set(delDocs.map(d => d.name.split('/').pop()!));
