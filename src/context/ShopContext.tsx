@@ -277,9 +277,8 @@ export const ShopProvider: React.FC<{
   useEffect(() => {
     if (products.length === 0) return;
 
-    // v4 — cache key جديد، يتجاهل أي cache قديم
-    const IMG_KEY = 'vexa_images_v8';
-    const IMG_TS_KEY = 'vexa_images_v8_ts';
+    const IMG_KEY = 'vexa_images_v9';
+    const IMG_TS_KEY = 'vexa_images_v9_ts';
     const IMG_TTL = 24 * 60 * 60 * 1000;
 
     const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
@@ -306,14 +305,6 @@ export const ShopProvider: React.FC<{
         localStorage.removeItem(IMG_TS_KEY);
       }
     } catch (_) {}
-
-    // إذا السيرفر حمّل الصور الحقيقية مسبقاً (base64 أو رابط https حقيقي)، تجاوز الطلب.
-    // هيدا بيمنع قراءة مضاعفة من Firestore لكل زائر عندما الصور موجودة أصلاً
-    // (المنتجات جايي من fetchProductsServer عبر /api/products وفيها صورها الحقيقية).
-    const alreadyLoaded = products.filter(p =>
-      p.image && (p.image.startsWith('data:') || p.image.startsWith('http'))
-    ).length;
-    if (alreadyLoaded >= products.length * 0.8) return;
 
     // تحميل الصور مباشرةً من Firebase Client SDK بنفس طريقة fetchProductImages
     // (تثبّت: /api/images كان بينتهي بـ timeout لأنه يطلب 152 REST call في serverless واحد)
