@@ -24,7 +24,7 @@ const ALL_CATEGORY_IDS: CategoryId[] = [
 export const AdminPanel: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct, updateOrderStatus, deleteOrder, fetchProductImages, fetchAllOrdersFromFirebase } = useShop();
 
-  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'blog'>('orders');
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'blog' | 'migration'>('orders');
   const [isAdminUnlocked, setIsAdminUnlocked] = useState(() => typeof window !== 'undefined' && sessionStorage.getItem('vexa_admin_session') === 'true');
   const [passwordInput, setPasswordInput] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -46,6 +46,12 @@ export const AdminPanel: React.FC = () => {
   });
   const [isDeploying, setIsDeploying] = useState(false);
   const [deployResult, setDeployResult] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  // ── Migration state ────────────────────────────────────────────────────────
+  const [migScanResult, setMigScanResult] = useState<any>(null);
+  const [migStatus, setMigStatus]   = useState<'idle'|'scanning'|'migrating'|'activating'|'done'>('idle');
+  const [migProgress, setMigProgress] = useState({ done: 0, total: 0, current: '' });
+  const [migLog, setMigLog] = useState<{id:string; status:string; note:string}[]>([]);
   const [selectedYear, setSelectedYear] = useState<string>('all');
   const [selectedMonth, setSelectedMonth] = useState<string>('all');
   const [selectedDay, setSelectedDay] = useState<string>('all');
@@ -586,11 +592,14 @@ export const AdminPanel: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex gap-1 mb-6 border-b border-white/10">
-        {(['orders', 'products', 'blog'] as const).map(tab => (
+      <div className="flex gap-1 mb-6 border-b border-white/10 overflow-x-auto">
+        {(['orders', 'products', 'blog', 'migration'] as const).map(tab => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2.5 text-sm font-black transition border-b-2 -mb-px flex items-center gap-2 ${activeTab === tab ? 'border-white text-white' : 'border-transparent text-white/40 hover:text-white/70'}`}>
-            {tab === 'orders' ? <><ClipboardList size={15} /> الطلبات</> : tab === 'products' ? <><Package size={15} /> المنتجات</> : <><BookOpen size={15} /> المقالات</>}
+            className={`px-4 py-2.5 text-sm font-black transition border-b-2 -mb-px flex items-center gap-2 whitespace-nowrap ${activeTab === tab ? 'border-white text-white' : 'border-transparent text-white/40 hover:text-white/70'}`}>
+            {tab === 'orders' ? <><ClipboardList size={15} /> الطلبات</>
+             : tab === 'products' ? <><Package size={15} /> المنتجات</>
+             : tab === 'blog' ? <><BookOpen size={15} /> المقالات</>
+             : <><Upload size={15} className="text-purple-400" /> ترحيل الصور</>}
           </button>
         ))}
       </div>
@@ -1194,6 +1203,214 @@ export const AdminPanel: React.FC = () => {
           </div>
         </div>
       )}
+
+      {activeTab === 'migration' && (
+        <MigrationPanel />
+      )}
     </div>
   );
 };
+
+// ── Migration Panel Component ─────────────────────────────────────────────
+function MigrationPanel() {
+  const [scanResult, setScanResult]   = React.useState<any>(null);
+  const [status, setStatus]           = React.useState<'idle'|'scanning'|'migrating'|'activating'|'done'>('idle');
+  const [progress, setProgress]       = React.useState({ done: 0, total: 0, current: '' });
+  const [log, setLog]                 = React.useState<{id:string; icon:string; note:string}[]>([]);
+
+  const addLog = (id:string, icon:string, note:string) =>
+    setLog(prev => [{ id, icon, note }, ...prev].slice(0, 200));
+
+  const handleScan = async () => {
+    setStatus('scanning'); setScanResult(null); setLog([]);
+    try {
+      const r = await fetch('/api/admin/migrate?action=scan');
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error || 'Scan failed');
+      setScanResult(d);
+      addLog('scan', '🔍', `فحص مكتمل: ${d.needMigration} منتج يحتاج ترحيل، ~${d.estimatedMb} MB`);
+    } catch (e: any) {
+      addLog('error', '❌', e.message);
+    } finally { setStatus('idle'); }
+  };
+
+  const handleMigrateAll = async () => {
+    if (!scanResult) return;
+    const targets = (scanResult.items || []).filter((p:any) => p.status === 'needs_migration');
+    if (!targets.length) { addLog('done','✅','لا توجد صور تحتاج ترحيل'); return; }
+    setStatus('migrating');
+    setProgress({ done: 0, total: targets.length, current: '' });
+    for (let i = 0; i < targets.length; i++) {
+      const p = targets[i];
+      setProgress({ done: i, total: targets.length, current: p.name });
+      try {
+        const r = await fetch('/api/admin/migrate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'migrate', productId: p.id }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'failed');
+        const icon = d.status === 'migrated' ? '✅' : d.status === 'already_url' ? '⏭️' : d.status === 'already_pending' ? '🔄' : '⚠️';
+        addLog(p.id, icon, `${p.name}: ${d.status}${d.uploaded ? ` (${d.uploaded} صورة)` : ''}`);
+      } catch (e: any) {
+        addLog(p.id, '❌', `${p.name}: ${e.message}`);
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+    setProgress(prev => ({ ...prev, done: targets.length, current: '' }));
+    addLog('done', '✅', 'انتهى الترحيل — راجعي السجل ثم اضغطي "تفعيل الصور"');
+    setStatus('idle');
+    // Refresh scan
+    const r2 = await fetch('/api/admin/migrate?action=scan');
+    if (r2.ok) setScanResult(await r2.json());
+  };
+
+  const handleActivateAll = async () => {
+    if (!scanResult) return;
+    const targets = (scanResult.items || []).filter((p:any) => p.hasPending || p.status === 'pending');
+    if (!targets.length) { addLog('done','✅','لا توجد صور في الانتظار'); return; }
+    setStatus('activating');
+    setProgress({ done: 0, total: targets.length, current: '' });
+    let activated = 0;
+    for (let i = 0; i < targets.length; i++) {
+      const p = targets[i];
+      setProgress({ done: i, total: targets.length, current: p.name });
+      try {
+        const r = await fetch('/api/admin/migrate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'activate', productId: p.id }),
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || 'failed');
+        const icon = d.status === 'activated' ? '🟢' : d.status === 'verify_failed' ? '❌' : '⚠️';
+        addLog(p.id, icon, `${p.name}: ${d.status}`);
+        if (d.status === 'activated') activated++;
+      } catch (e: any) {
+        addLog(p.id, '❌', `${p.name}: ${e.message}`);
+      }
+      await new Promise(r => setTimeout(r, 150));
+    }
+    setProgress(prev => ({ ...prev, done: targets.length, current: '' }));
+    addLog('done', '🎉', `تم تفعيل ${activated} منتج — الصور الآن من Vercel Blob CDN`);
+    setStatus('idle');
+    const r2 = await fetch('/api/admin/migrate?action=scan');
+    if (r2.ok) setScanResult(await r2.json());
+  };
+
+  const isBusy = status !== 'idle';
+  const pendingCount  = scanResult?.items?.filter((p:any) => p.hasPending || p.status === 'pending').length ?? 0;
+  const needCount     = scanResult?.needMigration ?? 0;
+  const pct = progress.total > 0 ? Math.round(progress.done / progress.total * 100) : 0;
+
+  return (
+    <div className="space-y-5">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-black text-white flex items-center gap-2">
+            <Upload size={15} className="text-purple-400" /> ترحيل الصور إلى Vercel Blob
+          </h2>
+          <p className="text-xs text-white/40 mt-1">ينقل صور Base64 من Firestore إلى CDN — أسرع وأوفر</p>
+        </div>
+        <button onClick={handleScan} disabled={isBusy}
+          className="flex items-center gap-2 bg-white/10 hover:bg-white/15 border border-white/15 px-4 py-2 rounded-xl text-xs font-black text-white transition disabled:opacity-40">
+          {status === 'scanning' ? <><Loader2 size={13} className="animate-spin" /> جاري الفحص...</> : <><Package size={13} /> فحص المنتجات</>}
+        </button>
+      </div>
+
+      {/* Scan Report */}
+      {scanResult && (
+        <div className="bg-[#0d0d0d] border border-white/10 rounded-xl p-5 space-y-4">
+          <p className="text-xs font-black text-white/60 uppercase tracking-wider">تقرير الفحص</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {[
+              { label: 'يحتاج ترحيل',  value: scanResult.needMigration,   color: needCount > 0 ? 'text-amber-400 border-amber-500/20' : '' },
+              { label: 'في الانتظار',   value: scanResult.alreadyPending,  color: pendingCount > 0 ? 'text-blue-400 border-blue-500/20' : '' },
+              { label: 'جاهز (CDN)',    value: scanResult.alreadyUrl,      color: 'text-emerald-400 border-emerald-500/20' },
+              { label: 'حجم متوقع',    value: scanResult.estimatedMb + ' MB', color: '' },
+            ].map(s => (
+              <div key={s.label} className={`bg-[#111] border ${s.color || 'border-white/10'} rounded-xl p-4`}>
+                <p className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${s.color || 'text-white/40'}`}>{s.label}</p>
+                <p className={`text-lg font-black ${s.color || 'text-white'}`}>{s.value}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Storage bar */}
+          <div className="space-y-1">
+            <div className="flex justify-between text-[10px] text-white/40">
+              <span>استخدام Vercel Blob (حد Hobby: 500 MB)</span>
+              <span>{scanResult.estimatedMb} / 500 MB</span>
+            </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-purple-500 rounded-full transition-all"
+                style={{ width: Math.min(100, scanResult.estimatedMb / 5) + '%' }} />
+            </div>
+          </div>
+
+          {/* Action buttons */}
+          <div className="flex flex-wrap gap-3 pt-1">
+            {needCount > 0 && (
+              <button onClick={handleMigrateAll} disabled={isBusy}
+                className="flex items-center gap-2 bg-purple-600 hover:bg-purple-500 px-5 py-2.5 rounded-xl text-xs font-black text-white transition disabled:opacity-40">
+                {status === 'migrating'
+                  ? <><Loader2 size={13} className="animate-spin" /> جاري الترحيل... ({progress.done}/{progress.total})</>
+                  : <><Upload size={13} /> ترحيل {needCount} منتج إلى Blob</>}
+              </button>
+            )}
+            {pendingCount > 0 && (
+              <button onClick={handleActivateAll} disabled={isBusy}
+                className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 px-5 py-2.5 rounded-xl text-xs font-black text-white transition disabled:opacity-40">
+                {status === 'activating'
+                  ? <><Loader2 size={13} className="animate-spin" /> جاري التفعيل... ({progress.done}/{progress.total})</>
+                  : <><CheckCircle2 size={13} /> تفعيل {pendingCount} منتج</>}
+              </button>
+            )}
+            {needCount === 0 && pendingCount === 0 && (
+              <div className="flex items-center gap-2 text-emerald-400 text-xs font-black">
+                <CheckCircle2 size={14} /> جميع المنتجات على Vercel Blob ✅
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Progress bar */}
+      {isBusy && progress.total > 0 && (
+        <div className="bg-[#0d0d0d] border border-white/10 rounded-xl p-4 space-y-2">
+          <div className="flex justify-between text-xs font-black text-white/60">
+            <span>{progress.current || 'جاري المعالجة...'}</span>
+            <span>{pct}%</span>
+          </div>
+          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="h-full bg-purple-500 rounded-full transition-all duration-300"
+              style={{ width: pct + '%' }} />
+          </div>
+        </div>
+      )}
+
+      {/* Log */}
+      {log.length > 0 && (
+        <div className="bg-[#080808] border border-white/10 rounded-xl p-4 space-y-1 max-h-80 overflow-y-auto font-mono">
+          <p className="text-[10px] text-white/30 font-black mb-2">السجل</p>
+          {log.map((entry, i) => (
+            <div key={i} className="flex items-start gap-2 text-[11px] text-white/60">
+              <span className="flex-shrink-0">{entry.icon}</span>
+              <span className="line-clamp-2">{entry.note}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Info box */}
+      <div className="bg-blue-950/20 border border-blue-500/20 rounded-xl p-4 text-xs text-blue-300/70 space-y-1">
+        <p className="font-black text-blue-300">ملاحظات مهمة:</p>
+        <p>• الترحيل لا يمسّ الصور الأصلية — يكتب فقط في حقول مؤقتة (_pending)</p>
+        <p>• التفعيل يأتي بعد الترحيل — راجعي السجل قبل الضغط على تفعيل</p>
+        <p>• الصور الجديدة ستُرفع تلقائياً إلى Blob عند الإضافة من الآن</p>
+      </div>
+    </div>
+  );
+}
