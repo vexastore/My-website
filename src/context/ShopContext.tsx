@@ -479,7 +479,16 @@ export const ShopProvider: React.FC<{
 
   // ─── Firestore product operations ─────────────────────────────────────────
 
-  const addProduct = async (productData: Omit<Product, 'id'>) => {
+  // ─── Cache invalidation after any product change ─────────────────────────
+  const revalidateAfterProductChange = (opts = {}) => {
+    try { localStorage.removeItem('vexa_products_v2'); localStorage.removeItem('vexa_products_v2_ts'); } catch (_) {}
+    fetch('/api/revalidate?secret=vexa-reval-2026', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(opts),
+    }).catch(() => {});
+    fetch('/api/indexnow').catch(() => {});
+  };
+
+    const addProduct = async (productData: Omit<Product, 'id'>) => {
     const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
     const toSlg = (s: string) => (s || '').toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
@@ -499,6 +508,7 @@ export const ShopProvider: React.FC<{
     const newProduct: Product = { ...productData, id: newId, slug, categorySlug };
     await setDoc(doc(db, PRODUCTS_COLLECTION, newId), newProduct);
     setProducts(prev => [newProduct, ...prev]);
+    revalidateAfterProductChange({ categorySlug, slug });
   };
 
   const updateProduct = async (id: string, productData: Omit<Product, 'id'>) => {
@@ -520,6 +530,7 @@ export const ShopProvider: React.FC<{
     const updated: Product = { ...productData, id, slug, categorySlug };
     await setDoc(doc(db, PRODUCTS_COLLECTION, id), updated);
     setProducts(prev => prev.map(p => p.id === id ? updated : p));
+    revalidateAfterProductChange({ categorySlug, slug });
   };
 
   const deleteProduct = async (productId: string) => {
@@ -530,6 +541,7 @@ export const ShopProvider: React.FC<{
       setDoc(doc(db, DELETED_PRODUCTS_COLLECTION, productId), { deletedAt: Date.now() }),
     ]);
     setProducts(prev => prev.filter(p => p.id !== productId));
+    revalidateAfterProductChange();
   };
 
   const fetchProductImages = async (productId: string): Promise<string[]> => {
