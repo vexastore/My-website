@@ -1,17 +1,16 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
-import { db, auth } from '../firebase';
+import { db } from '../firebase';
 import {
   collection,
   doc,
   getDocs,
+  getDoc,
   setDoc,
   deleteDoc,
   writeBatch,
-  getDoc
 } from 'firebase/firestore';
-import { signInAnonymously } from 'firebase/auth';
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
@@ -293,145 +292,24 @@ export const ShopProvider: React.FC<{
         loadProducts();
     }, [])
 
-  // ─── تحميل الصور من Firebase Client SDK ─────────────────────────────────
+  // ─── Client-side image loading removed ───────────────────────────────────
   //
-  // Root-cause fix for "placeholder on listing page, correct image on product page":
+  // All product images in Firestore are stored as base64 data URIs (~50-200 KB
+  // each). Fetching them client-side via the Firebase SDK would cost 70 × 2 =
+  // 140 Firestore reads per visitor. The base64 values also exceed the 5 MB
+  // localStorage quota, so the localStorage cache write always silently fails —
+  // meaning every visitor triggers 140 fresh reads. With ~300 visitors/day this
+  // alone exhausts the Firestore free-tier limit (50,000 reads/day) by morning.
   //
-  // BEFORE: Images were fetched sequentially in batches of 10. With 70+ products
-  // this meant 7+ sequential async rounds — products at index 40-70 waited up to
-  // 7 seconds for their images. The dependency [products.length] also allowed
-  // stale closures to re-run the effect with an out-of-date products list.
+  // Images are now served exclusively through the /api/img/{id} CDN proxy:
+  //   • The proxy authenticates anonymously, fetches the Firestore document
+  //     once, converts base64 → JPEG, and returns the image bytes.
+  //   • Vercel CDN caches the response for 24 hours (s-maxage=86400).
+  //   • After the first visitor triggers the CDN cold-fill, every subsequent
+  //     visitor gets the image from cache with ZERO Firestore reads.
+  //   • ProductCard retries up to 2× after CDN cold misses (65 s delay, which
+  //     clears the 60 s failure cache) so a first-visit 404 is not permanent.
   //
-  // NOW:
-  //  1. Skip any product that already has a valid image (from SSR or cache).
-  //  2. Fetch ALL missing images in parallel (Promise.allSettled) — Firebase
-  //     client SDK multiplexes concurrent getDoc calls efficiently over one
-  //     WebSocket connection; there is no per-product TCP overhead.
-  //  3. Apply results in two passes: a fast "all-at-once" apply, then save to
-  //     localStorage so the next visit is instant from cache.
-  //  4. A ref guard prevents a second run if products updates (e.g. after the
-  //     Firebase PRODUCTS_COLLECTION sync adds admin products).
-  //
-  const imageLoadDoneRef = React.useRef(false);
-
-  useEffect(() => {
-    if (products.length === 0) return;
-    if (imageLoadDoneRef.current) return;
-
-    const IMG_KEY = 'vexa_images_v10';
-    const IMG_TS_KEY = 'vexa_images_v10_ts';
-    const IMG_TTL = 24 * 60 * 60 * 1000;
-
-    const applyMap = (imageMap: Record<string, { image: string; images: string[] }>) => {
-      setProducts(prev => prev.map(p => {
-        const fb = imageMap[p.id];
-        if (fb && (fb.image || fb.images?.length)) {
-          return { ...p, image: fb.image || p.image, images: fb.images?.length ? fb.images : p.images };
-        }
-        return p;
-      }));
-    };
-
-    // Apply localStorage cache immediately — covers the common case where the
-    // user has visited before and images are already on-device.
-    try {
-      const cached = localStorage.getItem(IMG_KEY);
-      const ts = Number(localStorage.getItem(IMG_TS_KEY) || 0);
-      if (cached && Date.now() - ts < IMG_TTL) {
-        const parsed = JSON.parse(cached) as Record<string, { image: string; images: string[] }>;
-        if (Object.keys(parsed).length > 0) {
-          applyMap(parsed);
-          imageLoadDoneRef.current = true;
-          return;
-        }
-        localStorage.removeItem(IMG_KEY);
-        localStorage.removeItem(IMG_TS_KEY);
-      }
-    } catch (_) {}
-
-    // Fetch images only for products that don't already have one.
-    // Products whose image was embedded in SSR (server-side gallery fetch
-    // succeeded) are skipped entirely — no redundant Firebase reads.
-    const needsImage = products.filter(p => !p.image || p.image.length <= 5);
-    if (needsImage.length === 0) {
-      imageLoadDoneRef.current = true;
-      return;
-    }
-
-    imageLoadDoneRef.current = true; // prevent any future re-runs
-
-    const loadAllImages = async () => {
-      try {
-        // ── Auth ──────────────────────────────────────────────────────────────
-        // The Firestore security rules require at least anonymous auth. Every
-        // server-side path (lib/fetchProducts.ts, api/img/[id].js) explicitly
-        // calls accounts:signUp before any Firestore read. The Firebase client
-        // SDK exports `auth` but ShopContext never called signInAnonymously —
-        // so all 70 getDoc calls ran unauthenticated and failed silently via
-        // Promise.allSettled, leaving every product with image:"".
-        if (!auth.currentUser) {
-          try {
-            await signInAnonymously(auth);
-            console.warn('[VEXA_IMG] Signed in anonymously for Firestore reads');
-          } catch (authErr) {
-            console.error('[VEXA_IMG] signInAnonymously failed:', authErr);
-          }
-        }
-
-        console.warn(`[VEXA_IMG] loadAllImages: fetching ${needsImage.length} products`);
-
-        // Fetch ALL missing products in parallel — no sequential batching.
-        const results = await Promise.allSettled(
-          needsImage.map(async (p) => {
-            const [gallerySnap, productSnap] = await Promise.all([
-              getDoc(doc(db, IMAGES_COLLECTION, p.id)),
-              getDoc(doc(db, PRODUCTS_COLLECTION, p.id)),
-            ]);
-            const galleryImgs: string[] = gallerySnap.exists()
-              ? (gallerySnap.data().images as string[]) || []
-              : [];
-            const productData = productSnap.exists() ? productSnap.data() : null;
-            const productImgs: string[] = productData
-              ? (productData.images as string[]) || []
-              : [];
-            const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
-            const mainImg = bestImgs[0] || (productData?.image as string) || '';
-            return { id: p.id, mainImg, bestImgs };
-          })
-        );
-
-        // Diagnostic: surface any Firebase errors so they're visible in DevTools
-        const rejected = results.filter(r => r.status === 'rejected');
-        if (rejected.length > 0) {
-          console.error(`[VEXA_IMG] ${rejected.length} getDoc calls failed:`,
-            rejected.map(r => (r as PromiseRejectedResult).reason?.code || (r as PromiseRejectedResult).reason));
-        }
-
-        const fullMap: Record<string, { image: string; images: string[] }> = {};
-        for (const r of results) {
-          if (r.status === 'fulfilled' && r.value.mainImg) {
-            fullMap[r.value.id] = { image: r.value.mainImg, images: r.value.bestImgs };
-          }
-        }
-
-        const hits = Object.keys(fullMap).length;
-        const missing = needsImage.filter(p => !fullMap[p.id]).map(p => p.id);
-        console.warn(`[VEXA_IMG] loadAllImages: ${hits} loaded, ${missing.length} still missing`, missing);
-
-        if (hits > 0) {
-          applyMap(fullMap);
-          try {
-            localStorage.setItem(IMG_KEY, JSON.stringify(fullMap));
-            localStorage.setItem(IMG_TS_KEY, String(Date.now()));
-          } catch (_) {}
-        }
-      } catch (err) {
-        console.error('[VEXA_IMG] loadAllImages error:', err);
-      }
-    };
-
-    loadAllImages();
-  }, [products.length]); // eslint-disable-line
   // ──────────────────────────────────────────────────────────────────────────
 
   // Resolve initial product page from URL slug after products load

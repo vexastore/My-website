@@ -1,6 +1,5 @@
 import { Metadata } from 'next';
   import { fetchProductsServer } from '@/lib/fetchProducts';
-  import { fetchImages } from '@/lib/fetchImages';
   import { CATEGORY_META, getCategoryMeta, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
   import { ShopApp } from '@/src/ShopApp';
   import { notFound } from 'next/navigation';
@@ -47,40 +46,22 @@ import { Metadata } from 'next';
     if (!categoryId) notFound();
 
     const meta = getCategoryMeta(slug);
-    // Fetch products and images in parallel.
-    // fetchImages() uses per-product individual REST calls (not a bulk fetch),
-    // is cached for 24 hours, and is far more reliable than the bulk
-    // fetchAllDocs('product_images') inside fetchProductsServer — which tries
-    // to download all 70+ product images in one ~22 MB REST response and
-    // consistently times out even at the 20-second threshold.
-    //
-    // We strip base64 data URIs from the SSR props (they would make the HTML
-    // 5–20 MB and overwhelm mobile bandwidth). Products whose image IS a
-    // base64 string keep image:"" in initialProducts and are served via the
-    // /api/img/{id} CDN proxy, which converts base64 → JPEG and caches 24 h.
-    // Products with short HTTPS URLs get them embedded directly.
-    const [allProducts, imageMap] = await Promise.all([
-      fetchProductsServer(),
-      fetchImages(),
-    ]);
+    // All images in Firestore are base64 data URIs — too large to embed in the
+    // SSR HTML (70 images × ~100 KB = 7 MB page). They are served exclusively
+    // via the /api/img/{id} CDN proxy, which caches each image for 24 hours.
+    // fetchImages() was removed: it made 76 extra Firestore reads per cycle and
+    // all its results were stripped to "" anyway because they were base64.
+    // fetchProductsServer() is now cached for 1 hour (down from 5 min) to keep
+    // total server-side reads well under the 50,000/day free-tier limit.
+    const allProducts = await fetchProductsServer();
 
-    const productsWithImages = allProducts.map(p => {
-      // If fetchProductsServer already resolved an image (e.g. an HTTPS URL
-      // from a recent admin edit), keep it. Otherwise try fetchImages.
-      const resolved = (p.image && p.image.length > 5 && !p.image.startsWith('data:'))
-        ? p
-        : (() => {
-            const img = imageMap[p.id];
-            if (!img) return p;
-            // Only embed short HTTPS URLs — never base64. Base64 strings can
-            // be hundreds of KB each; embedding 70 of them makes the HTML huge.
-            const url = img.image && !img.image.startsWith('data:') && img.image.length > 5
-              ? img.image : '';
-            const urls = (img.images || []).filter(s => s && !s.startsWith('data:') && s.length > 5);
-            return (url || urls.length > 0) ? { ...p, image: url || p.image, images: urls.length > 0 ? urls : p.images } : p;
-          })();
-      return resolved;
-    });
+    // Keep HTTPS URLs if present (admin-added products with real URLs);
+    // strip base64 to "" — those images are served by the CDN proxy.
+    const productsWithImages = allProducts.map(p => ({
+      ...p,
+      image:  (p.image  && !p.image.startsWith('data:'))  ? p.image  : '',
+      images: (p.images || []).filter(s => s && !s.startsWith('data:')),
+    }));
 
     const jsonLdProducts = productsWithImages
       .filter(p => p.categorySlug === slug || p.category === categoryId)

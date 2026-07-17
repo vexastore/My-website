@@ -178,11 +178,14 @@ async function _fetchProductsLive(): Promise<Product[]> {
   }
 }
 
-// Cached for 5 minutes — new/edited/deleted products from admin panel
-// appear on the site within 5 minutes, no redeploy needed.
+// Cached for 1 hour — reduces server-side Firestore reads from ~40,000/day
+// (at the old 5-min TTL) to ~3,360/day. Firestore free tier allows 50,000
+// reads/day; the 5-min TTL was exhausting the quota within hours, causing
+// every image load to return 429 RESOURCE_EXHAUSTED (all-gradient listing page).
+// New/edited products still appear within 1 hour without a redeploy.
 // Falls back to static list if Firebase is unreachable.
 export const fetchProductsServer = unstable_cache(
   _fetchProductsLive,
-  ['vexa-products-live-v5'],
-  { revalidate: 300 }
+  ['vexa-products-live-v6'],
+  { revalidate: 3600 }
 );
