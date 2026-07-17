@@ -6,6 +6,10 @@
 
   // Cache the anonymous auth token across warm serverless invocations instead of
   // signing up a brand-new anonymous account on every single image request.
+  // Repeatedly calling accounts:signUp under real traffic exhausts Firebase's
+  // free-tier quota extremely fast (each visitor loading a 60-product grid used
+  // to trigger 60 fresh anonymous account creations). Reusing one token for its
+  // ~1h lifetime cuts that to near zero.
   let cachedToken = null;
   let cachedTokenExpiry = 0;
 
@@ -18,28 +22,9 @@
     const data = await authRes.json();
     if (!data.idToken) return null;
     cachedToken = data.idToken;
+    // Anonymous tokens are valid ~1h; refresh 5 min early to be safe.
     cachedTokenExpiry = Date.now() + 55 * 60 * 1000;
     return cachedToken;
-  }
-
-  // Fetch an external image URL and pipe it through the response.
-  // Upgrades http:// to https:// to avoid mixed-content blocking.
-  async function proxyImageUrl(url, res) {
-    try {
-      const safeUrl = url.replace(/^http:\/\//, 'https://');
-      const imgRes = await fetch(safeUrl);
-      if (!imgRes.ok) return false;
-      const ct = imgRes.headers.get('content-type') || '';
-      if (!ct.startsWith('image/')) return false;
-      const buffer = Buffer.from(await imgRes.arrayBuffer());
-      res.setHeader('Content-Type', ct);
-      res.setHeader('Content-Length', buffer.length);
-      res.setHeader('Cache-Control', 's-maxage=86400, stale-while-revalidate=604800');
-      res.send(buffer);
-      return true;
-    } catch (_) {
-      return false;
-    }
   }
 
   export default async function handler(req, res) {
@@ -67,50 +52,35 @@
       ]);
 
       let base64 = '';
-      let imageUrl = '';
 
-      // ── product_images collection (gallery) ──────────────────────────────
       if (galleryRes.ok) {
         const g = await galleryRes.json();
         const vals = g.fields?.images?.arrayValue?.values || [];
-        const strs = vals.map(v => v.stringValue || '').filter(Boolean);
-        base64    = strs.find(s => s.startsWith('data:'))  || '';
-        imageUrl  = strs.find(s => s.startsWith('http'))   || '';
+        base64 = vals.map(v => v.stringValue || '').find(s => s.startsWith('data:')) || '';
       }
 
-      // ── products collection (main image field + images array) ─────────────
-      if (!base64 && !imageUrl && productRes.ok) {
+      if (!base64 && productRes.ok) {
         const p = await productRes.json();
         const img = p.fields?.image?.stringValue || '';
-        if (img.startsWith('data:'))  base64    = img;
-        else if (img.startsWith('http')) imageUrl = img;
-
-        if (!base64 && !imageUrl) {
+        if (img.startsWith('data:')) base64 = img;
+        if (!base64) {
           const vals = p.fields?.images?.arrayValue?.values || [];
-          const strs = vals.map(v => v.stringValue || '').filter(Boolean);
-          base64   = strs.find(s => s.startsWith('data:'))  || '';
-          imageUrl = strs.find(s => s.startsWith('http'))   || '';
+          base64 = vals.map(v => v.stringValue || '').find(s => s.startsWith('data:')) || '';
         }
       }
 
-      // ── Serve base64 image ───────────────────────────────────────────────
-      if (base64) {
-        const match = base64.match(/^data:(image\/[a-z]+);base64,(.+)$/);
-        if (!match) return sendPlaceholder(res);
-        const mimeType = match[1];
-        const buffer = Buffer.from(match[2], 'base64');
-        res.setHeader('Content-Type', mimeType);
-        res.setHeader('Content-Length', buffer.length);
-        return res.send(buffer);
-      }
+      if (!base64) return sendPlaceholder(res);
 
-      // ── Proxy URL image (Firebase Storage or any https:// URL) ───────────
-      if (imageUrl) {
-        const ok = await proxyImageUrl(imageUrl, res);
-        if (ok) return;
-      }
+      // Strip the data URI prefix and detect mime type
+      const match = base64.match(/^data:(image\/[a-z]+);base64,(.+)$/);
+      if (!match) return sendPlaceholder(res);
 
-      return sendPlaceholder(res);
+      const mimeType = match[1];
+      const buffer = Buffer.from(match[2], 'base64');
+
+      res.setHeader('Content-Type', mimeType);
+      res.setHeader('Content-Length', buffer.length);
+      return res.send(buffer);
 
     } catch (_) {
       return sendPlaceholder(res);
@@ -123,3 +93,4 @@
     res.setHeader('Cache-Control', 's-maxage=60, stale-while-revalidate=300');
     return res.status(404).end();
   }
+  
