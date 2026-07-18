@@ -1,4 +1,10 @@
 {
+  "crons": [
+    {
+      "path": "/api/cron/migrate-all",
+      "schedule": "5 7 * * *"
+    }
+  ],
   "redirects": [
     {
       "source": "/about.html",
