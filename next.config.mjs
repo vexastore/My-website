@@ -5,9 +5,8 @@ const nextConfig = {
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'firebasestorage.googleapis.com' },
       { protocol: 'https', hostname: '**.googleusercontent.com' },
+      { protocol: 'https', hostname: '**.public.blob.vercel-storage.com' },
     ],
-    // unoptimized removed — Next.js image optimization improves Core Web Vitals (LCP)
-    // which positively impacts search rankings.
   },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
