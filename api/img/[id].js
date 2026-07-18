@@ -4,27 +4,40 @@
   const PROJECT = 'vexa-store';
   const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
-  // Cache the anonymous auth token across warm serverless invocations instead of
-  // signing up a brand-new anonymous account on every single image request.
-  // Repeatedly calling accounts:signUp under real traffic exhausts Firebase's
-  // free-tier quota extremely fast (each visitor loading a 60-product grid used
-  // to trigger 60 fresh anonymous account creations). Reusing one token for its
-  // ~1h lifetime cuts that to near zero.
-  let cachedToken = null;
-  let cachedTokenExpiry = 0;
+  // Token مشترك — مستخدم anonymous واحد لكل instance، يُجدَّد بـ refreshToken.
+  const _imgIdAuth = globalThis.__vexa_imgid_auth
+    ?? (globalThis.__vexa_imgid_auth = { token: null, expiry: 0, refresh: null });
 
   async function getIdToken() {
-    if (cachedToken && Date.now() < cachedTokenExpiry) return cachedToken;
+    if (_imgIdAuth.token && Date.now() < _imgIdAuth.expiry) return _imgIdAuth.token;
+
+    if (_imgIdAuth.refresh) {
+      try {
+        const r = await fetch(
+          `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`,
+          { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: _imgIdAuth.refresh }) }
+        );
+        if (r.ok) {
+          const d = await r.json();
+          _imgIdAuth.token   = d.id_token;
+          _imgIdAuth.refresh = d.refresh_token;
+          _imgIdAuth.expiry  = Date.now() + (parseInt(d.expires_in, 10) - 60) * 1000;
+          return _imgIdAuth.token;
+        }
+      } catch (_) { /* تابع */ }
+    }
+
     const authRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
     );
     const data = await authRes.json();
     if (!data.idToken) return null;
-    cachedToken = data.idToken;
-    // Anonymous tokens are valid ~1h; refresh 5 min early to be safe.
-    cachedTokenExpiry = Date.now() + 55 * 60 * 1000;
-    return cachedToken;
+    _imgIdAuth.token   = data.idToken;
+    _imgIdAuth.refresh = data.refreshToken;
+    _imgIdAuth.expiry  = Date.now() + (parseInt(data.expiresIn, 10) - 60) * 1000;
+    return _imgIdAuth.token;
   }
 
   export default async function handler(req, res) {

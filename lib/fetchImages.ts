@@ -8,14 +8,41 @@ type FsStringValue = { stringValue?: string };
 type FsDoc = { name: string; fields?: Record<string, { stringValue?: string; arrayValue?: { values?: FsStringValue[] } }> };
 type ImageMap = Record<string, { image: string; images: string[] }>;
 
+// مستخدم anonymous واحد لكل Next.js process — يُجدَّد بـ refreshToken بدل إنشاء مستخدم جديد
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _imgFetchAuth: { token: string | null; expiry: number; refresh: string | null } =
+  (globalThis as any).__vexa_fetchimages_auth
+  ?? ((globalThis as any).__vexa_fetchimages_auth = { token: null, expiry: 0, refresh: null });
+
 async function getIdToken(): Promise<string | null> {
   try {
+    if (_imgFetchAuth.token && Date.now() < _imgFetchAuth.expiry) return _imgFetchAuth.token;
+
+    if (_imgFetchAuth.refresh) {
+      const r = await fetch(
+        `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: _imgFetchAuth.refresh }) }
+      );
+      if (r.ok) {
+        const d = await r.json() as { id_token: string; refresh_token: string; expires_in: string };
+        _imgFetchAuth.token   = d.id_token;
+        _imgFetchAuth.refresh = d.refresh_token;
+        _imgFetchAuth.expiry  = Date.now() + (parseInt(d.expires_in, 10) - 60) * 1000;
+        return _imgFetchAuth.token;
+      }
+    }
+
     const authRes = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
     );
-    const { idToken } = await authRes.json() as { idToken?: string };
-    return idToken || null;
+    const d = await authRes.json() as { idToken?: string; refreshToken?: string; expiresIn?: string };
+    if (!d.idToken) return null;
+    _imgFetchAuth.token   = d.idToken;
+    _imgFetchAuth.refresh = d.refreshToken ?? null;
+    _imgFetchAuth.expiry  = Date.now() + (parseInt(d.expiresIn ?? '3600', 10) - 60) * 1000;
+    return _imgFetchAuth.token;
   } catch { return null; }
 }
 

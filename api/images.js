@@ -25,21 +25,43 @@ const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
 const PROJECT = 'vexa-store';
 const BASE = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
-// Token مشترك يُعاد استخدامه لمدة 55 دقيقة — يمنع إنشاء حسابات anonymous بكثرة
-let _cachedToken = null;
-let _tokenExpiry = 0;
+// Token مشترك — يُنشئ حساباً anonymous مرة واحدة لكل instance،
+// ثم يجدد الـ token بـ refreshToken دون إنشاء حسابات جديدة.
+const _imgAuth = globalThis.__vexa_images_auth
+  ?? (globalThis.__vexa_images_auth = { token: null, expiry: 0, refresh: null });
 
 async function getToken() {
-  if (_cachedToken && Date.now() < _tokenExpiry) return _cachedToken;
+  if (_imgAuth.token && Date.now() < _imgAuth.expiry) return _imgAuth.token;
+
+  // تجديد بدون إنشاء مستخدم جديد
+  if (_imgAuth.refresh) {
+    try {
+      const r = await fetch(
+        `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: _imgAuth.refresh }) }
+      );
+      if (r.ok) {
+        const d = await r.json();
+        _imgAuth.token   = d.id_token;
+        _imgAuth.refresh = d.refresh_token;
+        _imgAuth.expiry  = Date.now() + (parseInt(d.expires_in, 10) - 60) * 1000;
+        return _imgAuth.token;
+      }
+    } catch (_) { /* تابع للـ signUp */ }
+  }
+
+  // أول مرة فقط: إنشاء حساب anonymous واحد
   const r = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
     { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ returnSecureToken: true }) }
   );
-  const { idToken } = await r.json();
-  if (!idToken) return null;
-  _cachedToken = idToken;
-  _tokenExpiry = Date.now() + 55 * 60 * 1000;
-  return idToken;
+  const d = await r.json();
+  if (!d.idToken) return null;
+  _imgAuth.token   = d.idToken;
+  _imgAuth.refresh = d.refreshToken;
+  _imgAuth.expiry  = Date.now() + (parseInt(d.expiresIn, 10) - 60) * 1000;
+  return _imgAuth.token;
 }
 
 export default async function handler(req, res) {

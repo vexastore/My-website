@@ -57,15 +57,42 @@ function docToProduct(doc: FsDoc): Product {
   } as Product;
 }
 
+// مستخدم anonymous واحد لكل Next.js process — يُجدَّد بـ refreshToken بدل إنشاء مستخدم جديد
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const _prodAuth: { token: string | null; expiry: number; refresh: string | null } =
+  (globalThis as any).__vexa_fetchproducts_auth
+  ?? ((globalThis as any).__vexa_fetchproducts_auth = { token: null, expiry: 0, refresh: null });
+
 async function getIdToken(): Promise<string | null> {
   try {
+    if (_prodAuth.token && Date.now() < _prodAuth.expiry) return _prodAuth.token;
+
+    if (_prodAuth.refresh) {
+      const r = await fetch(
+        `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: _prodAuth.refresh }) }
+      );
+      if (r.ok) {
+        const d = await r.json() as { id_token: string; refresh_token: string; expires_in: string };
+        _prodAuth.token   = d.id_token;
+        _prodAuth.refresh = d.refresh_token;
+        _prodAuth.expiry  = Date.now() + (parseInt(d.expires_in, 10) - 60) * 1000;
+        return _prodAuth.token;
+      }
+    }
+
     const res = await fetch(
       `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
       { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ returnSecureToken: true }) }
     );
-    const data = await res.json() as { idToken?: string };
-    return data.idToken || null;
+    const data = await res.json() as { idToken?: string; refreshToken?: string; expiresIn?: string };
+    if (!data.idToken) return null;
+    _prodAuth.token   = data.idToken;
+    _prodAuth.refresh = data.refreshToken ?? null;
+    _prodAuth.expiry  = Date.now() + (parseInt(data.expiresIn ?? '3600', 10) - 60) * 1000;
+    return _prodAuth.token;
   } catch { return null; }
 }
 

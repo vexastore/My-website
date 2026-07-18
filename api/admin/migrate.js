@@ -16,34 +16,76 @@ const API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
 const PROJECT = 'vexa-store';
 const BASE_FS = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents`;
 
-// ── Firebase anonymous auth ──────────────────────────────────────────────
-let _token = null, _expiry = 0;
+// ── Firebase auth — ONE anonymous user per Vercel instance ───────────────
+// globalThis persists across warm invocations of the same Vercel function.
+// On first cold start: signUp (creates 1 anonymous user).
+// On subsequent calls: use refreshToken → no new anonymous users created.
+const _auth = globalThis.__vexa_migrate_auth
+  ?? (globalThis.__vexa_migrate_auth = { token: null, expiry: 0, refresh: null });
+
 async function getAuthToken() {
-  if (_token && Date.now() < _expiry) return _token;
+  if (_auth.token && Date.now() < _auth.expiry) return _auth.token;
+
+  // Refresh without creating a new anonymous user
+  if (_auth.refresh) {
+    try {
+      const r = await fetch(
+        `https://securetoken.googleapis.com/v1/token?key=${API_KEY}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ grant_type: 'refresh_token', refresh_token: _auth.refresh }) }
+      );
+      if (r.ok) {
+        const d = await r.json();
+        _auth.token   = d.id_token;
+        _auth.refresh = d.refresh_token;
+        _auth.expiry  = Date.now() + (parseInt(d.expires_in, 10) - 60) * 1000;
+        return _auth.token;
+      }
+    } catch (_) { /* fall through to signUp */ }
+  }
+
+  // First call: create ONE anonymous user per instance lifetime
   const r = await fetch(
     `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
     { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ returnSecureToken: true }) }
   );
   if (!r.ok) throw new Error(`Firebase auth failed: ${r.status}`);
-  const { idToken } = await r.json();
-  _token = idToken; _expiry = Date.now() + 55 * 60 * 1000;
-  return _token;
+  const d = await r.json();
+  _auth.token   = d.idToken;
+  _auth.refresh = d.refreshToken;
+  _auth.expiry  = Date.now() + (parseInt(d.expiresIn, 10) - 60) * 1000;
+  return _auth.token;
 }
 
-// ── Firestore helpers ────────────────────────────────────────────────────
+// ── Firestore helpers — with retry on 429 ───────────────────────────────
+async function firestoreFetch(url, options = {}, retries = 4) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const r = await fetch(url, options);
+    if (r.status !== 429) return r;
+    // Exponential backoff: 1s, 2s, 4s, 8s
+    await new Promise(res => setTimeout(res, Math.pow(2, attempt) * 1000));
+  }
+  return fetch(url, options); // final attempt, return whatever we get
+}
+
 async function fetchAllDocs(collection) {
   const token = await getAuthToken();
   const docs = []; let pageToken;
   do {
     const url = new URL(`${BASE_FS}/${collection}`);
-    url.searchParams.set('pageSize', '300');
+    url.searchParams.set('pageSize', '100'); // smaller pages = less 429 risk
     if (pageToken) url.searchParams.set('pageToken', pageToken);
-    const r = await fetch(url.toString(), { headers: { Authorization: `Bearer ${token}` } });
-    if (!r.ok) throw new Error(`Firestore LIST ${collection}: ${r.status} ${await r.text()}`);
+    const r = await firestoreFetch(url.toString(), { headers: { Authorization: `Bearer ${token}` } });
+    if (!r.ok) {
+      const body = await r.text();
+      throw new Error(`Firestore LIST ${collection}: ${r.status} ${body}`);
+    }
     const data = await r.json();
     docs.push(...(data.documents || []));
     pageToken = data.nextPageToken;
+    // Small pause between pages to stay within rate limits
+    if (pageToken) await new Promise(res => setTimeout(res, 200));
   } while (pageToken);
   return docs;
 }
@@ -51,7 +93,7 @@ async function fetchAllDocs(collection) {
 async function patchDoc(collection, id, fields) {
   const token = await getAuthToken();
   const mask = Object.keys(fields).map(k => `updateMask.fieldPaths=${encodeURIComponent(k)}`).join('&');
-  const r = await fetch(`${BASE_FS}/${collection}/${id}?${mask}`, {
+  const r = await firestoreFetch(`${BASE_FS}/${collection}/${id}?${mask}`, {
     method: 'PATCH',
     headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields }),
@@ -120,8 +162,6 @@ async function scan() {
 }
 
 // ── MIGRATE ONE ──────────────────────────────────────────────────────────
-// allProductDocs & allGalleryDocs are pre-fetched in the handler (one LIST each)
-// to avoid individual getDoc calls that hit Firebase 429 on free tier.
 async function migrateOne(productId, allProductDocs, allGalleryDocs) {
   const doc = allProductDocs.find(d => docId(d) === productId);
   if (!doc) return { productId, status: 'not_found' };
