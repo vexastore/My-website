@@ -42,7 +42,8 @@ export async function POST(req: NextRequest) {
 
   // Invalidate server-side data caches
   revalidateTag('vexa-images');
-  revalidateTag('vexa-products-live-v6');
+  revalidateTag('vexa-products');        // cache key v7
+  revalidateTag('vexa-products-live-v6'); // backward compat
 
   // Revalidate global layout + sitemap
   revalidatePath('/', 'layout');
@@ -60,7 +61,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json({
     revalidated: true,
-    tags: ['vexa-images', 'vexa-products-live-v6'],
+    tags: ['vexa-images', 'vexa-products', 'vexa-products-live-v6'],
     paths: ['/', '/sitemap.xml', body.categorySlug, `${body.categorySlug}/${body.slug}`].filter(Boolean),
   });
 }

@@ -205,14 +205,14 @@ async function _fetchProductsLive(): Promise<Product[]> {
   }
 }
 
-// Cached for 1 hour — reduces server-side Firestore reads from ~40,000/day
-// (at the old 5-min TTL) to ~3,360/day. Firestore free tier allows 50,000
-// reads/day; the 5-min TTL was exhausting the quota within hours, causing
-// every image load to return 429 RESOURCE_EXHAUSTED (all-gradient listing page).
-// New/edited products still appear within 1 hour without a redeploy.
+// Cached 24h — keeps Firestore reads well within the free-tier 50K/day limit.
+// With a 1-hour TTL and ~5 Vercel instances, products alone burned ~18K reads/day.
+// At 24h the same load costs ~750 reads/day, leaving ample headroom.
+// Admin changes (add/edit/delete) call revalidateTag('vexa-products') to bust
+// the cache instantly — so merchants see updates immediately, not after 24h.
 // Falls back to static list if Firebase is unreachable.
 export const fetchProductsServer = unstable_cache(
   _fetchProductsLive,
-  ['vexa-products-live-v6'],
-  { revalidate: 3600 }
+  ['vexa-products-live-v7'],
+  { revalidate: 86400, tags: ['vexa-products'] }
 );
