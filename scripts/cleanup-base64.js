@@ -2,7 +2,7 @@
 // =============================================================================
 // cleanup-base64.js
 //
-// STEP 2 — Swap staged Storage URLs into the live fields and remove Base64.
+// STEP 2 — Swap staged Vercel Blob CDN URLs into the live fields and remove Base64.
 //
 // Run this ONLY after:
 //   1. migrate-images.js completed with zero upload failures and zero verify failures
@@ -14,8 +14,8 @@
 //   b. Confirms every staged URL has verified === true in the report.
 //      Refuses to proceed if any image has verified !== true.
 //   c. Writes a single PATCH to Firestore that:
-//        - Sets `image`  = _pending_image   (the new Storage URL)
-//        - Sets `images` = _pending_images  (the new Storage URL array)
+//        - Sets `image`  = _pending_image   (the new Vercel Blob CDN URL)
+//        - Sets `images` = _pending_images  (the new Vercel Blob CDN URL array)
 //        - Removes `_pending_image` and `_pending_images` staging fields
 //      This is the ONLY moment the original Base64 in `image`/`images` is replaced.
 //   d. The JSON backup file always retains the original Base64 data.
@@ -58,11 +58,12 @@ function sleep(ms) {
   return new Promise(r => setTimeout(r, ms));
 }
 
-function isStorageUrl(str) {
-  return typeof str === 'string' && (
-    str.startsWith('https://firebasestorage.googleapis.com/') ||
-    str.startsWith('https://storage.googleapis.com/')
-  );
+// Accepts any HTTPS CDN URL — Vercel Blob (*.public.blob.vercel-storage.com)
+// or any other https:// URL that is NOT a data: URI.
+function isCdnUrl(str) {
+  return typeof str === 'string' &&
+    str.startsWith('https://') &&
+    !str.startsWith('data:');
 }
 
 let _token = null, _expiry = 0;
@@ -186,7 +187,7 @@ async function main() {
   // ── Confirmation prompt ───────────────────────────────────────────────────
   if (process.stdin.isTTY) {
     console.log('');
-    console.log(`About to swap Storage URLs into image/images and remove Base64 for ${toClean.length} documents.`);
+    console.log(`About to swap Vercel Blob CDN URLs into image/images and remove Base64 for ${toClean.length} documents.`);
     console.log('The JSON backup file will still contain the original Base64 data.');
     console.log('');
     console.log('Type YES to continue:');
@@ -204,22 +205,22 @@ async function main() {
     const collection = p.collection === 'products' ? 'products' : 'product_images';
     const docPath    = `${collection}/${p.productId}`;
 
-    // Collect the verified Storage URLs from the report's image entries.
-    const storageUrls = (p.images || [])
-      .filter(i => i.newUrl && isStorageUrl(i.newUrl))
+    // Collect the verified Vercel Blob CDN URLs from the report's image entries.
+    const cdnUrls = (p.images || [])
+      .filter(i => i.newUrl && isCdnUrl(i.newUrl))
       .map(i => i.newUrl);
 
-    if (storageUrls.length === 0) {
-      log('info', `  SKIP [${p.productId}] no Storage URLs to swap in (kept_url only)`);
+    if (cdnUrls.length === 0) {
+      log('info', `  SKIP [${p.productId}] no CDN URLs to swap in (kept_url only)`);
       // Still need to remove _pending_* fields if they exist.
     }
 
-    const newImageUrl  = storageUrls[0] || '';
-    const newImageUrls = storageUrls;
+    const newImageUrl  = cdnUrls[0] || '';
+    const newImageUrls = cdnUrls;
 
     try {
       await swapAndClean(docPath, newImageUrl, newImageUrls);
-      log('info', `  SWAPPED [${p.productId}] image/images now point to Storage; _pending_* removed; Base64 gone`);
+      log('info', `  SWAPPED [${p.productId}] image/images now point to Vercel Blob CDN; _pending_* removed; Base64 gone`);
       swapped++;
     } catch (err) {
       log('info', `  FAIL [${p.productId}]: ${err.message}`);
@@ -243,7 +244,7 @@ async function main() {
     process.exit(1);
   } else {
     log('info', '✅ Cleanup complete.');
-    log('info', '   image/images fields now contain Firebase Storage URLs.');
+    log('info', '   image/images fields now contain Vercel Blob CDN URLs.');
     log('info', '   _pending_* staging fields removed.');
     log('info', `   Original Base64 data is preserved in: ${report.backupFile}`);
   }

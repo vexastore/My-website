@@ -491,7 +491,7 @@ export const AdminPanel: React.FC = () => {
     };
     setIsSaving(true);
     try {
-      // Upload Base64 images to Firebase Storage before saving (keeps Firestore small, saves quota)
+      // Upload Base64 images to Vercel Blob before saving (keeps Firestore small, saves quota)
       const uploadBase64ToStorage = async (imgData, productId, idx) => {
         if (!imgData.startsWith('data:')) return imgData;
         try {

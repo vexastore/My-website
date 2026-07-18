@@ -499,7 +499,7 @@ async function main() {
   console.log(`  Report file               : ${reportFile}`);
   console.log('════════════════════════════════════════════════');
   console.log('  NOTE: original image/images fields are UNCHANGED in Firestore.');
-  console.log('  Storage URLs are staged in _pending_image/_pending_images.');
+  console.log('  Vercel Blob CDN URLs are staged in _pending_image/_pending_images.');
   console.log('════════════════════════════════════════════════');
 
   if (report.totalFailed > 0 || report.verifyFailed > 0) {
