@@ -108,12 +108,22 @@ async function uploadToBlob(productId, idx, dataUri) {
 async function sendTelegram(text) {
   const bot  = process.env.TELEGRAM_BOT_TOKEN;
   const chat = process.env.TELEGRAM_CHAT_ID;
-  if (!bot || !chat) return;
-  await fetch(`https://api.telegram.org/bot${bot}/sendMessage`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ chat_id: chat, text, parse_mode: 'HTML' }),
-  }).catch(() => {});
+  if (!bot || !chat) {
+    console.warn('[CRON] Telegram env vars missing — BOT:', !!bot, 'CHAT:', !!chat);
+    return;
+  }
+  try {
+    const r = await fetch(`https://api.telegram.org/bot${bot}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: chat, text, parse_mode: 'HTML' }),
+    });
+    const d = await r.json();
+    if (!r.ok) console.error('[CRON] Telegram error:', r.status, JSON.stringify(d));
+    else console.log('[CRON] Telegram sent ok, message_id:', d?.result?.message_id);
+  } catch (err) {
+    console.error('[CRON] Telegram fetch failed:', err.message);
+  }
 }
 
 // ── Migration ─────────────────────────────────────────────────────────────
@@ -236,6 +246,9 @@ export default async function handler(req, res) {
   }
 
   console.log('[CRON] بدء الترحيل التلقائي', new Date().toISOString());
+
+  // رسالة فورية — تؤكد أن الكرون اشتغل حتى لو الترحيل فشل لاحقاً
+  await sendTelegram(`⏳ <b>Vexa Cron — بدأ الترحيل</b>\n\n<i>${new Date().toLocaleString('ar-LB', { timeZone: 'Asia/Beirut' })}</i>`);
 
   try {
     const result = await runMigration();
