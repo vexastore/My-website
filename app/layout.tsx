@@ -9,7 +9,7 @@ import { Analytics } from '@vercel/analytics/next';
       default: 'متجر فيكسا | رقم 1 في لبنان للألعاب الزوجية واللانجري',
       template: '%s | متجر فيكسا لبنان',
     },
-    description: 'The #1 Sex Toys store in Lebanon. Dildos, Vibrators, Masturbators, Sex Dolls, Lingerie & More. Sex Toys Lebanon from Vexa Store. Discreet delivery in Beirut. Cash on delivery.',
+    description: '500+ adult products shipped discreetly across Lebanon — plain sealed boxes, no logo. Vibrators, Dildos, Lingerie & more. Same-day Beirut delivery, cash on delivery. Your privacy is guaranteed.',
     keywords: 'sex toys lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, lingerie beirut, adult toys lebanon, vexa store, ألعاب زوجية لبنان, هزازات لبنان',
     authors: [{ name: 'Vexa Store Lebanon' }],
     creator: 'Vexa Store',
@@ -20,7 +20,7 @@ import { Analytics } from '@vercel/analytics/next';
       url: 'https://vexatoys.com',
       siteName: 'Vexa Store Lebanon',
       title: 'متجر فيكسا | ألعاب زوجية ولانجري في لبنان',
-      description: 'The #1 Sex Toys store in Lebanon. Dildos, Vibrators, Sex Dolls, Lingerie & More. Discreet delivery in Beirut. Cash on delivery.',
+      description: '500+ adult products shipped discreetly across Lebanon — plain sealed boxes, no logo. Vibrators, Dildos, Lingerie & more. Same-day Beirut delivery, cash on delivery. Your privacy is guaranteed.',
       images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Sex Toys & Lingerie' }],
     },
     twitter: {
