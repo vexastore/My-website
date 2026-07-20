@@ -8,7 +8,7 @@ import { Metadata } from 'next';
 
   interface Props { params: Promise<{ category: string }> }
 
-  const DEFAULT_OG_IMAGE = 'https://vexatoys.com/vexa-logo.png';
+  const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
 
   export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { category: slug } = await params;
@@ -20,9 +20,9 @@ import { Metadata } from 'next';
       openGraph: {
         title: meta.titleEn, description: meta.descEn, url: pageUrl,
         siteName: 'Vexa Store Lebanon', locale: 'ar_LB', type: 'website',
-        images: [{ url: DEFAULT_OG_IMAGE, alt: meta.titleEn, width: 512, height: 512 }],
+        images: [{ url: DEFAULT_OG_IMAGE, alt: meta.titleEn, width: 1200, height: 630 }],
       },
-      twitter: { card: 'summary_large_image', title: meta.titleEn, description: meta.descEn, images: [DEFAULT_OG_IMAGE] },
+      twitter: { card: 'summary_large_image', site: '@vexastore', title: meta.titleEn, description: meta.descEn, images: [DEFAULT_OG_IMAGE] },
       alternates: { canonical: pageUrl },
       robots: { index: true, follow: true },
     };
@@ -111,4 +111,3 @@ import { Metadata } from 'next';
       </>
     );
   }
-  
