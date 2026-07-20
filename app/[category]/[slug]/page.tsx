@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { getCategoryMeta, SLUG_TO_CATEGORY, CATEGORY_META } from '@/lib/categoryMeta';
 import { ShopApp } from '@/src/ShopApp';
-import { notFound, redirect } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 interface Props { params: Promise<{ category: string; slug: string }> }
 
@@ -175,13 +175,13 @@ export default async function ProductPage({ params }: Props) {
   if (!p) notFound();
 
   // If the URL category doesn't match the product's canonical category, redirect
-  // to the canonical URL (301) so Google consolidates ranking on one URL.
+  // to the canonical URL (308) so Google permanently consolidates ranking on one URL.
   // Use a relative path (not absolute) to avoid issues on staging/preview domains.
   const canonicalCat = (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
     ? p.categorySlug
     : category;
   if (canonicalCat !== category) {
-    redirect(`/${canonicalCat}/${slug}`);
+    permanentRedirect(`/${canonicalCat}/${slug}`);
   }
 
   const initialProducts = [p!];
@@ -308,3 +308,4 @@ export default async function ProductPage({ params }: Props) {
     </>
   );
 }
+
