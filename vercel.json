@@ -122,6 +122,17 @@
       "permanent": true
     },
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.vexatoys.com"
+        }
+      ],
+      "destination": "https://vexatoys.com/sex-toys",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
