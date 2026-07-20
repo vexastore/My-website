@@ -12,6 +12,12 @@ export const metadata: Metadata = {
     url: 'https://vexatoys.com/blog',
     siteName: 'Vexa Store Lebanon',
     type: 'website',
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon Blog' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@vexastore',
+    images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true },
 };
