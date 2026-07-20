@@ -21,8 +21,13 @@ import { Analytics } from '@vercel/analytics/next';
       siteName: 'Vexa Store Lebanon',
       title: 'متجر فيكسا | ألعاب زوجية ولانجري في لبنان',
       description: 'The #1 Sex Toys store in Lebanon. Dildos, Vibrators, Sex Dolls, Lingerie & More. Discreet delivery in Beirut. Cash on delivery.',
+      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Sex Toys & Lingerie' }],
     },
-    twitter: { card: 'summary_large_image', site: '@vexastore' },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@vexastore',
+      images: ['https://vexatoys.com/opengraph.jpg'],
+    },
     robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
     // NOTE: No global canonical here — each page sets its own canonical via alternates.
     // A global canonical pointing to "/" was causing canonical conflicts because
