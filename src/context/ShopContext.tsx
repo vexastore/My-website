@@ -415,6 +415,14 @@ export const ShopProvider: React.FC<{
         setViewState('shop');
         setSelectedProduct(null);
       }
+      // Restore scroll position saved before navigating to a product
+      try {
+        const saved = sessionStorage.getItem('vexa_scroll_' + path);
+        if (saved) {
+          const y = parseInt(saved, 10);
+          requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
+        }
+      } catch (_) {}
     };
 
     window.addEventListener('popstate', handlePop);
@@ -609,6 +617,8 @@ export const ShopProvider: React.FC<{
       const rawCat = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');
       const catSlug = rawCat.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim() || 'sex-toys';
       const productPath = `/${catSlug}/${pSlug}`;
+      // Save current scroll position so we can restore it when the user goes back
+      try { sessionStorage.setItem('vexa_scroll_' + window.location.pathname, String(Math.round(window.scrollY))); } catch (_) {}
       window.history.pushState(null, '', productPath);
       setSelectedProduct(product);
       setViewState('product');

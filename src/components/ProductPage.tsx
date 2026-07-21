@@ -197,8 +197,21 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   };
 
   const goBack = () => {
-    if (primaryCatId) setActiveCategory(primaryCatId);
-    setView('shop');
+    // Use native history.back() so the browser pops the correct history entry
+    // and the popstate listener in ShopContext restores scroll position.
+    // Falls back to manual navigation if no prior history exists (e.g. direct link).
+    let popped = false;
+    const onPop = () => { popped = true; };
+    window.addEventListener('popstate', onPop, { once: true });
+    window.history.back();
+    setTimeout(() => {
+      window.removeEventListener('popstate', onPop);
+      if (!popped) {
+        // No history entry was popped (user arrived via direct link)
+        if (primaryCatId) setActiveCategory(primaryCatId);
+        setView('shop');
+      }
+    }, 150);
   };
 
   const waOrder = () => {
