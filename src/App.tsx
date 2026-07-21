@@ -147,9 +147,9 @@ export const AppContent: React.FC = () => {
       : (catMeta[activeCategory] || defaultDesc);
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
-    document.querySelector('meta[property="og:url"]')?.setAttribute('content', window.location.href);
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', window.location.origin + window.location.pathname);
     const canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) canonical.setAttribute('href', window.location.href);
+    if (canonical) canonical.setAttribute('href', window.location.origin + window.location.pathname);
     // ── Dynamic og:title + twitter tags per category/view ──
       const ogTitle = document.title;
       document.querySelector('meta[property="og:title"]')?.setAttribute('content', ogTitle);

@@ -246,44 +246,70 @@ function generateCategoryPage(cat, catProducts = []) {
     return html;
   }
   
-function generateProductPage(product) {
+function generateProductPage(product, catSlugOverride) {
   const nameEn = product.nameEn || product.nameAr || 'Product';
   const nameAr = product.nameAr || product.nameEn || 'منتج';
   const descEn = product.descriptionEn || '';
   const descAr = product.descriptionAr || '';
   const price  = parseFloat(product.price) || 0;
   const slug   = product.slug || toSlug(nameEn);
-  const canonical = `https://vexatoys.com/product/${slug}`;
-
-  const jsonLd = JSON.stringify({
-    '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: nameEn,
-    alternateName: nameAr,
-    description: descEn || descAr,
-    image: (product.image && !product.image.startsWith('data:')) ? [product.image] : [],
-    sku: product.id,
-    brand: { '@type':'Brand', name:'Vexa Store Lebanon' },
-    offers: {
-      '@type': 'Offer',
-      price: price.toFixed(2),
-      priceCurrency: 'USD',
-      availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-      url: canonical,
-      seller: { '@type':'Organization', name:'Vexa Store Lebanon', url:'https://vexatoys.com' },
-      priceValidUntil: new Date(Date.now() + 30*24*60*60*1000).toISOString().slice(0,10),
-      shippingDetails: { '@type':'OfferShippingDetails', shippingRate:{ '@type':'MonetaryAmount', value:'0', currency:'USD' }, deliveryTime:{ '@type':'ShippingDeliveryTime', handlingTime:{ '@type':'QuantitativeValue', minValue:0, maxValue:1, unitCode:'DAY' } } },
-    },
-    aggregateRating: { '@type':'AggregateRating', ratingValue: product.rating || 4.5, reviewCount: Math.max(1, product.reviewsCount || 1), bestRating:5, worstRating:1 },
-    breadcrumb: { '@type':'BreadcrumbList', itemListElement: [
-      { '@type':'ListItem', position:1, name:'Vexa Store Lebanon', item:'https://vexatoys.com/' },
-      { '@type':'ListItem', position:2, name:nameEn, item:canonical },
-    ]},
-  });
-
-  const categorySlug = (product.categories?.[0] || product.category || 'sex-toys').toLowerCase().replace(/\s+/g,'-');
+  // ─ Canonical must match the SPA navigation URL (/{catSlug}/{pSlug})
+  const categorySlug = catSlugOverride
+    || (product.categorySlug || (product.categories?.[0] || product.category || 'sex-toys'))
+        .toLowerCase().replace(/\s+/g,'-').replace(/_/g,'-').trim() || 'sex-toys';
+  const canonical = `https://vexatoys.com/${categorySlug}/${slug}`;
   const categoryNameAr = SLUG_TO_NAME_AR[categorySlug] || product.category || '';
   const categoryNameEn = SLUG_TO_NAME_EN[categorySlug] || product.category || '';
+
+  // Use @graph so BreadcrumbList is a separate top-level entity (matches client JSON-LD)
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type':'ListItem', position:1, name:'Vexa Store Lebanon', item:'https://vexatoys.com/' },
+          { '@type':'ListItem', position:2, name:categoryNameEn || categorySlug, item:`https://vexatoys.com/${categorySlug}` },
+          { '@type':'ListItem', position:3, name:nameEn, item:canonical },
+        ],
+      },
+      {
+        '@type': 'Product',
+        name: nameEn,
+        alternateName: nameAr,
+        description: descEn || descAr,
+        image: (product.image && !product.image.startsWith('data:')) ? [product.image] : [],
+        sku: product.id,
+        brand: { '@type':'Brand', name:'Vexa Store Lebanon' },
+        offers: {
+          '@type': 'Offer',
+          price: price.toFixed(2),
+          priceCurrency: 'USD',
+          availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          url: canonical,
+          seller: { '@type':'Organization', name:'Vexa Store Lebanon', url:'https://vexatoys.com' },
+          priceValidUntil: new Date(Date.now() + 365*24*60*60*1000).toISOString().slice(0,10),
+          shippingDetails: {
+            '@type':'OfferShippingDetails',
+            shippingRate:{ '@type':'MonetaryAmount', value:'3.00', currency:'USD' },
+            shippingDestination:{ '@type':'DefinedRegion', addressCountry:'LB' },
+            deliveryTime:{ '@type':'ShippingDeliveryTime',
+              handlingTime:{ '@type':'QuantitativeValue', minValue:0, maxValue:1, unitCode:'DAY' },
+              transitTime:{ '@type':'QuantitativeValue', minValue:1, maxValue:2, unitCode:'DAY' } },
+          },
+          hasMerchantReturnPolicy: {
+            '@type':'MerchantReturnPolicy',
+            applicableCountry:'LB',
+            returnPolicyCategory:'https://schema.org/MerchantReturnFiniteReturnWindow',
+            merchantReturnDays:7,
+            returnMethod:'https://schema.org/ReturnByMail',
+            returnFees:'https://schema.org/FreeReturn',
+          },
+        },
+        ...(product.reviewsCount > 0 ? { aggregateRating: { '@type':'AggregateRating', ratingValue: product.rating || 4.5, reviewCount: Math.max(1, product.reviewsCount || 1), bestRating:5, worstRating:1 } } : {}),
+      },
+    ],
+  });
 
   const noscript = `<noscript><div style="font-family:sans-serif;padding:20px;direction:rtl"><h1>${nameAr}</h1><p>${descAr}</p><p>السعر: $${price.toFixed(2)} USD</p><a href="https://vexatoys.com/${categorySlug}">العودة إلى ${categoryNameAr}</a></div></noscript>`;
 
@@ -340,42 +366,55 @@ async function main() {
   console.log(`   Found ${products.length} products`);
 
   const productUrls = [];
-  const productDir = path.join(distDir, 'product');
-  if (!fs.existsSync(productDir)) fs.mkdirSync(productDir, { recursive: true });
+  // catSlug → Set of pSlugs (to avoid same slug in same category)
+  const slugSetByCat = {};
 
-  const slugSet = new Set();
   for (const product of products) {
-    // Build unique slug from English name
+    // ── Derive catSlug (same logic as navigateToProduct in SPA) ──────────────
+    const rawCat = (product.categorySlug || product.categories?.[0] || product.category || 'sex-toys');
+    const catSlug = rawCat.toLowerCase().replace(/\s+/g,'-').replace(/_/g,'-').trim() || 'sex-toys';
+    if (!slugSetByCat[catSlug]) slugSetByCat[catSlug] = new Set();
+
+    // ── Build unique product slug ──────────────────────────────────────────
     const rawSlug = toSlug(product.nameEn || product.nameAr || '');
     let slug = rawSlug;
-    if (!slug || slugSet.has(slug)) {
+    if (!slug || slugSetByCat[catSlug].has(slug)) {
       const base_ = rawSlug || toSlug(product.id) || 'product';
       let i = 2; slug = base_;
-      while (slugSet.has(slug)) { slug = base_ + '-' + i; i++; }
+      while (slugSetByCat[catSlug].has(slug)) { slug = base_ + '-' + i; i++; }
     }
-    slugSet.add(slug);
+    slugSetByCat[catSlug].add(slug);
     product.slug = slug;
 
-    // 1. Slug-based HTML (canonical SEO page)
-    const html = generateProductPage(product);
-    fs.writeFileSync(path.join(distDir, `product-${slug}.html`), html);
+    // ── Write prerendered HTML to dist/{catSlug}/{pSlug}.html ─────────────
+    // This makes Vercel serve the page at /{catSlug}/{pSlug} — matching the
+    // SPA navigation URL and the client-side canonical exactly.
+    const catDir = path.join(distDir, catSlug);
+    if (!fs.existsSync(catDir)) fs.mkdirSync(catDir, { recursive: true });
+    const html = generateProductPage(product, catSlug);
+    fs.writeFileSync(path.join(catDir, `${slug}.html`), html);
 
-    // 2. ID-based redirect page (preserves old indexed URLs with 301-like redirect)
-    if (product.id !== slug) {
-      const rHtml = `<!DOCTYPE html><html lang="en"><head>
+    // ── Backward-compat redirect: /product/{slug} → /{catSlug}/{slug} ────
+    // Preserves any old URLs already indexed by Google.
+    const newUrl = `https://vexatoys.com/${catSlug}/${slug}`;
+    const rHtml = `<!DOCTYPE html><html lang="en"><head>
 <meta charset="UTF-8">
 <title>${product.nameEn || product.nameAr || 'Product'} | Vexa Store Lebanon</title>
-<link rel="canonical" href="https://vexatoys.com/product/${slug}">
-<meta http-equiv="refresh" content="0;url=https://vexatoys.com/product/${slug}">
-<script>window.location.replace('/product/${slug}');</script>
-</head><body><a href="/product/${slug}">View product</a></body></html>`;
-      fs.writeFileSync(path.join(distDir, `product-${product.id}.html`), rHtml);
-    }
+<link rel="canonical" href="${newUrl}">
+<meta http-equiv="refresh" content="0;url=${newUrl}">
+<script>window.location.replace('${newUrl}');</script>
+</head><body><a href="${newUrl}">View product</a></body></html>`;
+    // Write at product-{slug}.html (served at /product-{slug}) for SPA fallback compat
+    fs.writeFileSync(path.join(distDir, `product-${slug}.html`), rHtml);
+    // Also write at product/{slug}.html (served at /product/{slug}) for old GSC indexed URLs
+    const productDir2 = path.join(distDir, 'product');
+    if (!fs.existsSync(productDir2)) fs.mkdirSync(productDir2, { recursive: true });
+    fs.writeFileSync(path.join(productDir2, `${slug}.html`), rHtml);
 
-    productUrls.push(`https://vexatoys.com/product/${slug}`);
+    productUrls.push(newUrl);
     process.stdout.write('.');
   }
-  if (products.length > 0) console.log(`\n✓ ${products.length} product pages generated`);
+  if (products.length > 0) console.log(`\n✓ ${products.length} product pages generated at /{catSlug}/{pSlug}`);
 
   // 4. Sitemap (categories + products — NO ?category= URLs)
   const categoryUrls = [

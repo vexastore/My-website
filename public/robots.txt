@@ -1,0 +1,7 @@
+User-agent: *
+Disallow: /checkout
+Disallow: /orders
+Disallow: /admin
+Allow: /
+
+Sitemap: https://vexatoys.com/sitemap.xml
