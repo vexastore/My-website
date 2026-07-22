@@ -13,7 +13,9 @@ const STORE_LOGO = 'https://vexatoys.com/vexa-logo.png';
 
 /** Returns a valid https:// URL. Falls back to the store logo for base64 data URIs or empty values. */
 function toImageUrl(raw: string | undefined | null): string {
-  if (raw && (raw.startsWith('http://') || raw.startsWith('https://'))) return raw;
+  if (raw && raw.startsWith('https://')) return raw;
+  // Upgrade insecure http:// to https:// — Google Merchant Listings require HTTPS images.
+  if (raw && raw.startsWith('http://')) return raw.replace(/^http:/, 'https:');
   return STORE_LOGO;
 }
 
@@ -235,6 +237,9 @@ export default async function ProductPage({ params }: Props) {
             priceCurrency: 'USD',
             // validFrom tells Google when this price became valid — required for Merchant Listings
             validFrom: '2024-01-01',
+            // priceValidUntil: required by Google Merchant Listings for rich price display.
+            // Set to 1 year rolling — revalidated every 5 min with ISR so it stays fresh.
+            priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
             availability: p.stock > 0
               ? 'https://schema.org/InStock'
               : 'https://schema.org/OutOfStock',
