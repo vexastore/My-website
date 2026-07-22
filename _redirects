@@ -1,5 +1,0 @@
-# Next.js on Vercel handles all routing via vercel.json and the framework itself.
-# The old "/* /index.html 200" SPA catch-all has been removed — it was a Netlify
-# pattern left over from a previous static-site build and was causing routing
-# conflicts in the Next.js deployment.
-/api/* /api/:splat 200
