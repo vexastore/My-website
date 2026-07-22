@@ -125,7 +125,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const canonicalCat = (product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug])
       ? product.categorySlug
       : category;
-    const pageUrl = `https://vexatoys.com/${canonicalCat}/${slug}`;
+    // Use the stored product slug for canonical — URL slug may differ (e.g. toSl(name) vs stored slug)
+    const canonicalSlugMeta = product.slug || slug;
+    const pageUrl = `https://vexatoys.com/${canonicalCat}/${canonicalSlugMeta}`;
 
     return {
       title: `${name} | Vexa Store Lebanon`,
@@ -180,15 +182,18 @@ export default async function ProductPage({ params }: Props) {
   const canonicalCat = (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
     ? p.categorySlug
     : category;
-  if (canonicalCat !== category) {
-    permanentRedirect(`/${canonicalCat}/${slug}`);
+  // Redirect if either the category OR the slug in the URL differs from the product canonical.
+  // This consolidates URLs like /sex-toys/pulsevibe-4-mode-vibrating-dildo → canonical slug.
+  const canonicalSlug = p.slug || slug;
+  if (canonicalCat !== category || canonicalSlug !== slug) {
+    permanentRedirect(`/${canonicalCat}/${canonicalSlug}`);
   }
 
   const initialProducts = [p!];
 
   // Canonical always uses the product's own categorySlug (matches the sitemap URL)
   // so every path that leads here agrees on one canonical.
-  const productUrl = `https://vexatoys.com/${canonicalCat}/${slug}`;
+  const productUrl = `https://vexatoys.com/${canonicalCat}/${canonicalSlug}`;
 
   try {
     const productName = cleanText(p.nameEn || p.name || slug);
