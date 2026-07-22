@@ -5,11 +5,12 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: ['/'],
-        // Block only admin/checkout/API — remove the broad /*?* rule that was
-        // causing 28 "redirect error" and 8 "blocked by robots.txt" issues in GSC.
-        // Broad query-string blocking prevented Google from following ?category= redirects
-        // and caused legitimate product pages reached via query-string links to be blocked.
+        allow: [
+          '/',
+          '/api/img/', // product images via CDN proxy — must be crawlable for Merchant Listings
+        ],
+        // Block only admin / checkout / API internals.
+        // /api/img/ is explicitly allowed above (allow wins over disallow for more-specific paths).
         disallow: [
           '/admin',
           '/checkout',
@@ -21,3 +22,4 @@ export default function robots(): MetadataRoute.Robots {
     host: 'https://vexatoys.com',
   };
 }
+
