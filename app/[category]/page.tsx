@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
   import { fetchProductsServer } from '@/lib/fetchProducts';
   import { CATEGORY_META, getCategoryMeta, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
+  import { CATEGORY_CONTENT } from '@/lib/categoryContent';
   import { ShopApp } from '@/src/ShopApp';
   import { notFound } from 'next/navigation';
 
@@ -28,11 +29,6 @@ import { Metadata } from 'next';
     };
   }
 
-  // ISR: regenerate every 5 minutes, same cadence as the product page.
-  // Without this the listing page is a static page built once at deploy time —
-  // images uploaded after the last deploy never appear because fetchProductsServer()
-  // is never called again. The product page has revalidate=300 and shows new
-  // images within 5 min; the listing page must do the same.
   export const revalidate = 300;
 
   export function generateStaticParams() {
@@ -46,17 +42,8 @@ import { Metadata } from 'next';
     if (!categoryId) notFound();
 
     const meta = getCategoryMeta(slug);
-    // All images in Firestore are base64 data URIs — too large to embed in the
-    // SSR HTML (70 images × ~100 KB = 7 MB page). They are served exclusively
-    // via the /api/img/{id} CDN proxy, which caches each image for 24 hours.
-    // fetchImages() was removed: it made 76 extra Firestore reads per cycle and
-    // all its results were stripped to "" anyway because they were base64.
-    // fetchProductsServer() is now cached for 1 hour (down from 5 min) to keep
-    // total server-side reads well under the 50,000/day free-tier limit.
     const allProducts = await fetchProductsServer();
 
-    // Keep HTTPS URLs if present (admin-added products with real URLs);
-    // strip base64 to "" — those images are served by the CDN proxy.
     const productsWithImages = allProducts.map(p => ({
       ...p,
       image:  (p.image  && !p.image.startsWith('data:'))  ? p.image  : '',
@@ -81,9 +68,6 @@ import { Metadata } from 'next';
           { '@type': 'ListItem', position: 2, name: meta.titleEn.split('|')[0].trim(), item: `https://vexatoys.com/${slug}` },
         ]},
         { '@type': 'CollectionPage', name: meta.titleEn, description: meta.descEn, url: `https://vexatoys.com/${slug}` },
-        // Use ItemList (not Product) so Google doesn't flag missing merchant fields
-        // (hasMerchantReturnPolicy, shippingDetails, validFrom) on the category page.
-        // Full Product schema with all required fields lives on each individual product page.
         ...(jsonLdProducts.length > 0 ? [{
           '@type': 'ItemList',
           name: meta.titleEn,
@@ -104,10 +88,74 @@ import { Metadata } from 'next';
       ],
     };
 
+    // Rich guide content for SEO — server-rendered so Google reads it immediately.
+    const content = CATEGORY_CONTENT[slug];
+
     return (
       <>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <ShopApp initialProducts={productsWithImages} initialCategory={categoryId} initialView="shop" />
+
+        {/* ── SEO Content Block ─────────────────────────────────────────── */}
+        {/* Rendered server-side so Google sees it in the initial HTML.     */}
+        {/* Positioned below the product grid — users can scroll to it.    */}
+        {content && (
+          <section className="bg-[#050101] border-t border-white/10">
+            <div className="mx-auto max-w-5xl px-4 py-14 space-y-10">
+
+              {/* Buying Guide */}
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-4">
+                  Buying Guide
+                </p>
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+                  <p className="text-stone-300 text-sm leading-[1.85] whitespace-pre-line">
+                    {content.guide}
+                  </p>
+                </div>
+              </div>
+
+              {/* FAQs */}
+              {content.faqs.length > 0 && (
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-4">
+                    Frequently Asked Questions
+                  </p>
+                  <div className="space-y-3">
+                    {content.faqs.map((faq, i) => (
+                      <div
+                        key={i}
+                        className="rounded-xl border border-white/10 bg-white/[0.03] p-5"
+                      >
+                        <p className="font-black text-white text-sm mb-2 leading-snug">
+                          {faq.q}
+                        </p>
+                        <p className="text-stone-400 text-sm leading-relaxed">
+                          {faq.a}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CTA */}
+              <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                  <p className="font-black text-white mb-1">Not sure where to start?</p>
+                  <p className="text-stone-400 text-sm">Take our 3-question quiz and get a personalised recommendation.</p>
+                </div>
+                <a
+                  href="/quiz"
+                  className="shrink-0 inline-flex items-center gap-2 bg-white text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-stone-200 transition active:scale-[0.98]"
+                >
+                  Find my product →
+                </a>
+              </div>
+
+            </div>
+          </section>
+        )}
       </>
     );
   }
