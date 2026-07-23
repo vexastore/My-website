@@ -228,6 +228,16 @@ export const Navbar: React.FC = () => {
                   </a>
                 ))}
                 <a
+                  href="/quiz"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="group flex items-center justify-between py-3 sm:py-4 border-b border-white/10 active:opacity-70 transition-opacity"
+                >
+                  <span className="text-[24px] sm:text-3xl md:text-4xl font-black text-white tracking-tight group-hover:text-purple-300 transition-colors">
+                    {isArabic ? 'اختار منتجك' : 'Find My Product'}
+                  </span>
+                  <span className="text-stone-500 text-xl">🎯</span>
+                </a>
+                                <a
                   href="/blog"
                   onClick={() => setIsMenuOpen(false)}
                   className="flex w-full items-center justify-between text-left font-light tracking-wide text-white transition hover:text-white/70"
