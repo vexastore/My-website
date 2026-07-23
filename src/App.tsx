@@ -66,7 +66,7 @@ const PageLoader = () => (
 
   // Reads /:categorySlug/:productSlug URL params, finds product, renders ProductPage
 
-export const AppContent: React.FC = () => {
+export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoContent }) => {
   const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory, selectedProduct } = useShop();
   const isArabic = language === 'ar';
 
@@ -183,6 +183,8 @@ export const AppContent: React.FC = () => {
       <Suspense fallback={null}><FloatingWhatsApp /></Suspense>
       <Suspense fallback={null}><VexaToast /></Suspense>
       <main className="vexa-page-shell flex-grow">{renderView()}</main>
+
+      {seoContent}
 
       <footer className="bg-stone-900 text-stone-300 border-t border-stone-800 mt-auto">
 
@@ -322,3 +324,4 @@ export default function App() {
     </ShopProvider>
   );
 }
+
