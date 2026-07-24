@@ -1,5 +1,13 @@
 import { Metadata } from 'next';
-import { QuizClient } from './QuizClient';
+import dynamic from 'next/dynamic';
+
+// Use dynamic import with ssr:false to isolate this client-only component
+// from the server render. This prevents any module-level code in QuizClient
+// from causing a server-side error that Next.js would surface as a 404.
+const QuizClient = dynamic(
+  () => import('./QuizClient').then((mod) => ({ default: mod.QuizClient })),
+  { ssr: false, loading: () => <div className="min-h-screen bg-[#050101]" /> }
+);
 
 export const metadata: Metadata = {
   title: 'Find Your Perfect Toy | Vexa Store Lebanon',
@@ -12,6 +20,12 @@ export const metadata: Metadata = {
     siteName: 'Vexa Store Lebanon',
     type: 'website',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@vexastore',
+    title: 'Find Your Perfect Toy | Vexa Store Lebanon',
+    images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true },
 };

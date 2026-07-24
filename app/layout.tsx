@@ -32,6 +32,12 @@ import { Analytics } from '@vercel/analytics/next';
     // NOTE: No global canonical here — each page sets its own canonical via alternates.
     // A global canonical pointing to "/" was causing canonical conflicts because
     // the root page redirects to /sex-toys.
+    //
+    // NOTE: No global hreflang here either. hreflang is only meaningful when
+    // you have SEPARATE URLs for each language (e.g. /ar/sex-toys vs /en/sex-toys).
+    // This site serves mixed Arabic+English on the same URLs — adding global
+    // hreflang pointing to vexatoys.com/ (which itself redirects to /sex-toys)
+    // was causing Google Search Console to report redirect errors on every page.
   };
 
   const BASE = 'https://vexatoys.com';
@@ -108,10 +114,11 @@ import { Analytics } from '@vercel/analytics/next';
           <link rel="icon" href="/favicon.png" type="image/png" />
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-          {/* hreflang: tell Google this site serves Arabic (primary) and English */}
-          <link rel="alternate" hrefLang="ar" href="https://vexatoys.com/" />
-          <link rel="alternate" hrefLang="en" href="https://vexatoys.com/" />
-          <link rel="alternate" hrefLang="x-default" href="https://vexatoys.com/" />
+          {/*
+           * No global hreflang — see metadata note above.
+           * lang="ar" on <html> tells Google the primary language is Arabic.
+           * Each page manages its own canonical via alternates in generateMetadata.
+           */}
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

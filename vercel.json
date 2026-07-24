@@ -7,6 +7,357 @@
   ],
   "redirects": [
     {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Sex Toys"
+        }
+      ],
+      "destination": "https://vexatoys.com/sex-toys",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Vibrators"
+        }
+      ],
+      "destination": "https://vexatoys.com/vibrators",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Male Toys"
+        }
+      ],
+      "destination": "https://vexatoys.com/male-toys",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Dildos"
+        }
+      ],
+      "destination": "https://vexatoys.com/dildos",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Lingerie"
+        }
+      ],
+      "destination": "https://vexatoys.com/lingerie",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "BDSM"
+        }
+      ],
+      "destination": "https://vexatoys.com/bdsm",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Anal Toys"
+        }
+      ],
+      "destination": "https://vexatoys.com/anal-toys",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Butt Plugs"
+        }
+      ],
+      "destination": "https://vexatoys.com/butt-plugs",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Bondage"
+        }
+      ],
+      "destination": "https://vexatoys.com/bondage",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Strap-Ons"
+        }
+      ],
+      "destination": "https://vexatoys.com/strap-ons",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Kegel Balls"
+        }
+      ],
+      "destination": "https://vexatoys.com/kegel-balls",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Lubricants"
+        }
+      ],
+      "destination": "https://vexatoys.com/lubricants",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Masturbators"
+        }
+      ],
+      "destination": "https://vexatoys.com/masturbators",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Cock Rings"
+        }
+      ],
+      "destination": "https://vexatoys.com/cock-rings",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Penis Pumps"
+        }
+      ],
+      "destination": "https://vexatoys.com/penis-pumps",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Chastity"
+        }
+      ],
+      "destination": "https://vexatoys.com/chastity",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Sex Machines"
+        }
+      ],
+      "destination": "https://vexatoys.com/sex-machines",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Sexual Enhancers"
+        }
+      ],
+      "destination": "https://vexatoys.com/sexual-enhancers",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "New Arrivals"
+        }
+      ],
+      "destination": "https://vexatoys.com/new-arrivals",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Holiday Collection"
+        }
+      ],
+      "destination": "https://vexatoys.com/holiday-collection",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category",
+          "value": "Poppers"
+        }
+      ],
+      "destination": "https://vexatoys.com/poppers",
+      "permanent": true
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "vexatoys.com"
+        },
+        {
+          "type": "query",
+          "key": "category"
+        }
+      ],
+      "destination": "https://vexatoys.com/sex-toys",
+      "permanent": true
+    },
+    {
       "source": "/about.html",
       "destination": "https://vexatoys.com/about",
       "permanent": true

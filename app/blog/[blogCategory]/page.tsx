@@ -21,10 +21,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     alternates: { canonical: pageUrl },
     openGraph: {
       title: `${cat.name} | Vexa Store Lebanon Blog`,
-      description: cat.description,
+      description: cat.description + ' – Vexa Store Lebanon.',
       url: pageUrl,
       siteName: 'Vexa Store Lebanon',
       type: 'website',
+      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: `${cat.name} – Vexa Store Lebanon Blog` }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@vexastore',
+      title: `${cat.name} | Vexa Store Lebanon Blog`,
+      description: cat.description,
+      images: ['https://vexatoys.com/opengraph.jpg'],
     },
     robots: { index: true, follow: true },
   };
