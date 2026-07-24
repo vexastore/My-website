@@ -108,6 +108,10 @@ import { Analytics } from '@vercel/analytics/next';
           <link rel="icon" href="/favicon.png" type="image/png" />
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+          {/* hreflang: tell Google this site serves Arabic (primary) and English */}
+          <link rel="alternate" hrefLang="ar" href="https://vexatoys.com/" />
+          <link rel="alternate" hrefLang="en" href="https://vexatoys.com/" />
+          <link rel="alternate" hrefLang="x-default" href="https://vexatoys.com/" />
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
