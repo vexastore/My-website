@@ -19,5 +19,7 @@ export default async function HomePage({
   const { category } = await searchParams;
   const normalized = category?.trim().toLowerCase();
   const slug = (normalized && NORMALIZED_CATEGORY_TO_SLUG[normalized]) || 'sex-toys';
-  permanentRedirect(`/${slug}`);
+  // Use absolute URL to prevent Next.js from appending the original
+  // ?category= query param to the redirect destination.
+  permanentRedirect(`https://vexatoys.com/${slug}`);
 }

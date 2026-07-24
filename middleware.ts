@@ -4,47 +4,60 @@ import type { NextRequest } from 'next/server';
 const CANONICAL_HOST = 'vexatoys.com';
 
 /**
- * Domain canonicalization middleware.
+ * Domain canonicalization + query-param cleanup middleware.
  *
- * Problem: The site is accessible at BOTH vexatoys.com AND the Vercel
- * deployment URL (*.vercel.app). Google treats these as two separate sites,
- * causing duplicate-content penalties and splitting link equity.
+ * Handles two jobs:
  *
- * Fix: Any request that arrives on a non-canonical host is permanently
- * redirected to the canonical domain in ONE hop.
+ * 1. Non-canonical host (*.vercel.app, www.vexatoys.com, etc.)
+ *    → 301 to the canonical domain in ONE hop.
+ *    Root path "/" is sent directly to /sex-toys to avoid a 2-hop chain
+ *    (vexatoys.com/ → permanentRedirect → /sex-toys).
  *
- * KEY: When the path is "/" we redirect directly to /sex-toys — NOT to
- * vexatoys.com/ — because vexatoys.com/ itself redirects to /sex-toys,
- * which would create a 2-hop chain that Google Search Console reports as
- * a "Redirect error".
+ * 2. Canonical host with stale ?category= query param on root "/"
+ *    → 301 to /sex-toys (strip query, avoid duplicate-content URLs).
+ *
+ * NOTE: We read req.nextUrl.pathname BEFORE any URL mutation and use the
+ * numeric-status form of NextResponse.redirect(url, 301) to prevent
+ * Vercel Edge Runtime from silently converting the status to 307.
  */
 export function middleware(req: NextRequest) {
   const host = req.headers.get('host') || '';
   const hostname = host.split(':')[0]; // strip port if present
 
-  // Already on the canonical host — nothing to do.
+  // ── Canonical host ───────────────────────────────────────────────────────
   if (hostname === CANONICAL_HOST) {
+    // If root arrives with a stale ?category= param, clean it up.
+    // This prevents /?category=Sex+Toys from being a separate crawlable URL.
+    if (req.nextUrl.pathname === '/' && req.nextUrl.search) {
+      const clean = req.nextUrl.clone();
+      clean.pathname = '/sex-toys';
+      clean.search = '';
+      // Use numeric status — avoids Vercel Edge Runtime 307 coercion.
+      const r = NextResponse.redirect(clean, 301);
+      return r;
+    }
     return NextResponse.next();
   }
+
+  // ── Non-canonical host (www, *.vercel.app, etc.) ─────────────────────────
+  // Read pathname BEFORE URL mutation for reliable root detection.
+  const originalPathname = req.nextUrl.pathname;
+  const isRoot = originalPathname === '/' || originalPathname === '';
 
   const url = req.nextUrl.clone();
   url.protocol = 'https:';
   url.host = CANONICAL_HOST;
 
-  // Root path: redirect directly to /sex-toys to avoid a 2-hop chain.
-  // (vexatoys.com/ itself redirects to /sex-toys, so going via / creates
-  //  non-canonical → vexatoys.com/ → vexatoys.com/sex-toys = 2 hops.)
-  if (url.pathname === '/') {
+  if (isRoot) {
+    // Go directly to /sex-toys — avoids a second hop via page.tsx redirect.
     url.pathname = '/sex-toys';
-    url.search = ''; // strip stale ?category= query params
+    url.search = '';
   }
 
-  return NextResponse.redirect(url, {
-    status: 301,
-    headers: {
-      'X-Robots-Tag': 'noindex',
-    },
-  });
+  // Numeric status form prevents Vercel Edge Runtime from coercing to 307.
+  const response = NextResponse.redirect(url, 301);
+  response.headers.set('X-Robots-Tag', 'noindex');
+  return response;
 }
 
 export const config = {
