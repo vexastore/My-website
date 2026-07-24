@@ -31,11 +31,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: new Date(post.publishedAt).toISOString(),
       modifiedTime: new Date(post.updatedAt || post.publishedAt).toISOString(),
       authors: [post.author],
+      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: post.title }],
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@vexastore',
       title: post.title,
       description: post.excerpt,
+      images: ['https://vexatoys.com/opengraph.jpg'],
     },
     robots: { index: true, follow: true },
   };
