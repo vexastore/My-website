@@ -1,13 +1,5 @@
 import { Metadata } from 'next';
-import dynamic from 'next/dynamic';
-
-// Use dynamic import with ssr:false to isolate this client-only component
-// from the server render. This prevents any module-level code in QuizClient
-// from causing a server-side error that Next.js would surface as a 404.
-const QuizClient = dynamic(
-  () => import('./QuizClient').then((mod) => ({ default: mod.QuizClient })),
-  { ssr: false, loading: () => <div className="min-h-screen bg-[#050101]" /> }
-);
+import QuizShell from './QuizShell';
 
 export const metadata: Metadata = {
   title: 'Find Your Perfect Toy | Vexa Store Lebanon',
@@ -48,8 +40,11 @@ const jsonLd = {
 export default function QuizPage() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <QuizClient />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <QuizShell />
     </>
   );
 }
