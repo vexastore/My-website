@@ -5,7 +5,7 @@ import { Metadata } from 'next';
   import { ShopApp } from '@/src/ShopApp';
   import { notFound } from 'next/navigation';
 
-  const RESERVED = ['about', 'checkout', 'admin', 'orders', 'advice', 'sitemap.xml', 'robots.txt', 'blog'];
+  const RESERVED = ['about', 'checkout', 'admin', 'orders', 'advice', 'sitemap.xml', 'robots.txt', 'blog', 'quiz'];
 
   interface Props { params: Promise<{ category: string }> }
 

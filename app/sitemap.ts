@@ -37,6 +37,7 @@ export const revalidate = 3600; // regenerate hourly
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ──────────────────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
+    { url: `${BASE}/quiz`, lastModified: TODAY, changeFrequency: 'monthly' as const, priority: 0.5 },
     { url: `${BASE}/sex-toys`, lastModified: TODAY, changeFrequency: 'daily', priority: 1.0 },
     { url: `${BASE}/about`,    lastModified: TODAY, changeFrequency: 'monthly', priority: 0.6 },
     ...CATEGORY_META.filter(c => c.slug !== 'sex-toys').map(c => ({
