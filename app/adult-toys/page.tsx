@@ -2,8 +2,10 @@
  * /adult-toys — Standalone static page.
  *
  * Named static route takes ABSOLUTE priority over app/[category]/page.tsx.
- * This guarantees Next.js always resolves /adult-toys to this file,
- * avoiding any risk of the dynamic [category] route failing to match it.
+ * This guarantees Next.js always resolves /adult-toys to this file.
+ *
+ * IMPORTANT: This page shows ALL products across all categories — making it
+ * a true "all adult toys" catalog page, not a duplicate of /sex-toys.
  *
  * Target keywords: "adult toys in Lebanon", "adult toys Lebanon",
  *                  "العاب جنسيه في لبنان", "ألعاب للكبار في لبنان"
@@ -15,12 +17,12 @@ import { ShopApp } from '@/src/ShopApp';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Adult Toys in Lebanon | #1 Discreet Delivery | Vexa Store',
-  description: 'Shop adult toys in Lebanon — 500+ products with 100% discreet delivery. Plain sealed boxes, no logo. Same-day Beirut delivery, cash on delivery. العاب جنسيه في لبنان.',
+  title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
+  description: 'Shop all adult toys in Lebanon — 500+ products across every category with 100% discreet delivery. Plain sealed boxes, no logo. Same-day Beirut delivery, cash on delivery. العاب جنسيه في لبنان.',
   alternates: { canonical: 'https://vexatoys.com/adult-toys' },
   openGraph: {
-    title: 'Adult Toys in Lebanon | Vexa Store',
-    description: 'Shop adult toys in Lebanon — 500+ products with 100% discreet delivery. Same-day Beirut delivery, cash on delivery.',
+    title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
+    description: 'Shop all adult toys in Lebanon — 500+ products with 100% discreet delivery. Same-day Beirut delivery, cash on delivery.',
     url: 'https://vexatoys.com/adult-toys',
     siteName: 'Vexa Store Lebanon',
     locale: 'ar_LB',
@@ -30,8 +32,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     site: '@vexastore',
-    title: 'Adult Toys in Lebanon | Vexa Store',
-    description: 'Shop adult toys in Lebanon — 500+ products with 100% discreet delivery.',
+    title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
+    description: 'Shop all adult toys in Lebanon — 500+ products with 100% discreet delivery.',
     images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true },
@@ -49,8 +51,8 @@ const jsonLd = {
     },
     {
       '@type': 'CollectionPage',
-      name: 'Adult Toys in Lebanon | Vexa Store',
-      description: 'Shop adult toys in Lebanon with 100% discreet delivery. 500+ products. Cash on delivery.',
+      name: 'Adult Toys in Lebanon — All Categories | Vexa Store',
+      description: 'Browse all 500+ adult toys in Lebanon across every category. 100% discreet delivery, cash on delivery.',
       url: 'https://vexatoys.com/adult-toys',
     },
     {
@@ -58,7 +60,7 @@ const jsonLd = {
       mainEntity: [
         { '@type': 'Question', name: 'Do you deliver adult toys discreetly in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Every order ships in a plain sealed box — no logo, no branding. Same-day delivery in Beirut. Cash on delivery available.' } },
         { '@type': 'Question', name: 'هل توصلون ألعاب للكبار بشكل سري في لبنان؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم. كل طلب يُشحن في صندوق مغلق عادي بدون شعار. توصيل في نفس اليوم في بيروت. دفع عند الاستلام.' } },
-        { '@type': 'Question', name: 'What adult toys are available in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Vexa Store carries 500+ adult toys in Lebanon: vibrators, dildos, male masturbators, BDSM kits, lingerie, anal toys, lubricants, and more. All shipped discreetly.' } },
+        { '@type': 'Question', name: 'What adult toys are available in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Vexa Store carries 500+ adult toys in Lebanon across all categories: vibrators, dildos, male masturbators, BDSM kits, lingerie, anal toys, butt plugs, cock rings, lubricants, sex machines, and more. All shipped discreetly.' } },
         { '@type': 'Question', name: 'Is cash on delivery available for adult toys in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Cash on delivery (COD) is available for all adult toy orders across Lebanon. No credit card or online payment required.' } },
       ],
     },
@@ -68,22 +70,22 @@ const jsonLd = {
 export default async function AdultToysPage() {
   const allProducts = await fetchProductsServer();
 
-  const productsWithImages = allProducts
-    .filter(p => p.category === 'Sex Toys' || p.categorySlug === 'sex-toys' || p.categorySlug === 'adult-toys')
-    .map(p => ({
-      ...p,
-      image:  (p.image  && !p.image.startsWith('data:'))  ? p.image  : '',
-      images: (p.images || []).filter((s: string) => s && !s.startsWith('data:')),
-    }));
+  // Show ALL products — this page is the full catalog, not a Sex Toys duplicate.
+  // Filtering to only Sex Toys made this page a duplicate of /sex-toys (duplicate content).
+  const productsWithImages = allProducts.map(p => ({
+    ...p,
+    image:  (p.image  && !p.image.startsWith('data:'))  ? p.image  : '',
+    images: (p.images || []).filter((s: string) => s && !s.startsWith('data:')),
+  }));
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* Interactive shop — client-side */}
+      {/* Interactive shop — all categories, no pre-filter */}
       <ShopApp
         initialProducts={productsWithImages}
-        initialCategory="Sex Toys"
+        initialCategory=""
         initialView="shop"
       />
 
@@ -98,11 +100,11 @@ export default async function AdultToysPage() {
             </h1>
             <p className="text-stone-300 text-sm leading-relaxed max-w-3xl">
               Vexa Store is Lebanon&apos;s #1 destination for <strong>adult toys in Lebanon</strong> —
-              500+ products delivered in plain sealed boxes, no logo, no indication of contents.
+              500+ products across every category, delivered in plain sealed boxes with no logo.
               <strong> Same-day delivery in Beirut</strong>. Cash on delivery everywhere.
             </p>
             <p className="text-stone-400 text-sm leading-relaxed max-w-3xl">
-              متجر فيكسا — الوجهة الأولى للألعاب للكبار في لبنان. <strong>العاب جنسيه في لبنان</strong> بتغليف سري 100%.
+              متجر فيكسا — الوجهة الأولى للألعاب للكبار في لبنان. <strong>العاب جنسيه في لبنان</strong> بتغليف سري 100% بدون شعار.
               توصيل في نفس اليوم في بيروت. دفع عند الاستلام في كل لبنان.
             </p>
           </header>
@@ -115,24 +117,23 @@ export default async function AdultToysPage() {
             <div className="text-stone-300 text-sm leading-[1.85] space-y-4">
               <p>
                 Vexa Store is Lebanon&apos;s #1 shop for <strong>adult toys in Lebanon</strong> — delivering 500+ products
-                with 100% discreet packaging across Beirut and all Lebanese regions. When you order
-                adult toys in Lebanon from Vexa Store, your package arrives in a plain sealed box with
-                no logo, no branding, and zero indication of the contents.
+                with 100% discreet packaging across Beirut and all Lebanese regions. Every order arrives in a plain
+                sealed box with no logo, no branding, and zero indication of the contents.
               </p>
               <p>
-                Our adult toy range covers every category: vibrators (bullet, wand, rabbit, G-spot, suction),
+                Our full adult toy range covers every category: vibrators (bullet, wand, rabbit, G-spot, suction),
                 body-safe silicone dildos, male masturbators and penis pumps, BDSM and bondage kits for couples,
-                luxury lingerie, anal toys, lubricants, and sexual enhancers.
+                luxury lingerie, anal toys and butt plugs, cock rings, lubricants, sex machines, poppers, and more.
                 All products use certified medical-grade body-safe materials.
               </p>
               <p>
                 Buying <strong>adult toys in Lebanon</strong> is now completely private. Browse, add to cart, and pay
-                cash on delivery — no credit card, no online payment. We deliver same-day in Beirut
-                and within 24–72 hours across all Lebanon.
+                cash on delivery — no credit card, no online payment required. We deliver same-day in Beirut
+                and within 24–72 hours across all of Lebanon.
               </p>
               <p className="text-stone-400">
-                <strong>ألعاب للكبار في لبنان</strong> — اشتر ألعابك بسرية تامة من متجر فيكسا.
-                العاب جنسيه في لبنان بتغليف خاص بدون شعار. توصيل سريع، دفع عند الاستلام.
+                <strong>ألعاب للكبار في لبنان</strong> — اشتر من أكبر مجموعة العاب جنسيه في لبنان.
+                تغليف خاص بدون شعار، توصيل سريع في كل لبنان، دفع عند الاستلام بدون بطاقة ائتمان.
               </p>
             </div>
           </section>
@@ -151,7 +152,7 @@ export default async function AdultToysPage() {
                 { en: 'BDSM in Lebanon', slug: 'bdsm' },
                 { en: 'Anal Toys Lebanon', slug: 'anal-toys' },
                 { en: 'Lubricants Lebanon', slug: 'lubricants' },
-                { en: 'Sex Toys Lebanon', slug: 'sex-toys' },
+                { en: 'Sex Machines Lebanon', slug: 'sex-machines' },
               ].map((cat) => (
                 <li key={cat.slug}>
                   <a
@@ -182,7 +183,7 @@ export default async function AdultToysPage() {
                 },
                 {
                   q: 'What adult toys do you have in Lebanon? | ما هي ألعاب الكبار المتوفرة؟',
-                  a: '500+ adult toys: vibrators, dildos, male masturbators, BDSM kits, lingerie, anal toys, lubricants and more. 500+ منتج: هزازات، ديلدو، ألعاب رجالية، BDSM، لانجري وأكثر.',
+                  a: '500+ adult toys across all categories: vibrators, dildos, male masturbators, BDSM kits, lingerie, anal toys, butt plugs, cock rings, lubricants, sex machines and more. 500+ منتج في كل الكاتيغوريات.',
                 },
                 {
                   q: 'How fast is adult toy delivery in Beirut? | كم يستغرق التوصيل؟',
