@@ -1,6 +1,6 @@
 'use client';
 import React, { lazy, Suspense, useEffect } from 'react';
-  import { ShopProvider, useShop } from './context/ShopContext';
+import { ShopProvider, useShop } from './context/ShopContext';
 import { Navbar } from './components/Navbar';
 import { OpenInBrowserBanner } from './components/OpenInBrowserBanner';
 

@@ -1,5 +1,4 @@
 import { Metadata } from 'next';
-import { CATEGORY_META } from '@/lib/categoryMeta';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),

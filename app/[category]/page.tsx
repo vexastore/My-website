@@ -1,9 +1,9 @@
 import { Metadata } from 'next';
-  import { fetchProductsServer } from '@/lib/fetchProducts';
-  import { CATEGORY_META, getCategoryMeta, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
-  import { CATEGORY_CONTENT } from '@/lib/categoryContent';
-  import { ShopApp } from '@/src/ShopApp';
-  import { notFound } from 'next/navigation';
+import { fetchProductsServer } from '@/lib/fetchProducts';
+import { CATEGORY_META, getCategoryMeta, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
+import { CATEGORY_CONTENT } from '@/lib/categoryContent';
+import { ShopApp } from '@/src/ShopApp';
+import { notFound } from 'next/navigation';
 
   const RESERVED = ['about', 'checkout', 'admin', 'orders', 'advice', 'sitemap.xml', 'robots.txt', 'blog', 'quiz'];
 

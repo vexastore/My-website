@@ -167,6 +167,8 @@ export const productMatchesCategory = (
   product: { category?: string; categories?: string[] },
   activeCategory: string
 ): boolean => {
+  // Empty activeCategory means "show all products" (used by /adult-toys full-catalog page)
+  if (!activeCategory) return true;
   const cats = getProductCategories(product);
   return cats.includes(activeCategory);
 };

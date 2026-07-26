@@ -1,44 +1,44 @@
 import type { Metadata } from 'next';
-  import './globals.css';
-  import MetaPixel from '@/src/components/MetaPixel';
+import './globals.css';
+import MetaPixel from '@/src/components/MetaPixel';
 import { Analytics } from '@vercel/analytics/next';
 
-  export const metadata: Metadata = {
-    metadataBase: new URL('https://vexatoys.com'),
-    title: {
-      default: 'متجر فيكسا | رقم 1 في لبنان للألعاب الزوجية واللانجري',
-      template: '%s | متجر فيكسا لبنان',
-    },
+export const metadata: Metadata = {
+  metadataBase: new URL('https://vexatoys.com'),
+  title: {
+    default: 'متجر فيكسا | رقم 1 في لبنان للألعاب الزوجية واللانجري',
+    template: '%s | متجر فيكسا لبنان',
+  },
+  description: '500+ adult products shipped discreetly across Lebanon — plain sealed boxes, no logo. Vibrators, Dildos, Lingerie & more. Same-day Beirut delivery, cash on delivery. Your privacy is guaranteed.',
+  keywords: 'sex toys lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, lingerie beirut, adult toys lebanon, vexa store, ألعاب زوجية لبنان, هزازات لبنان',
+  authors: [{ name: 'Vexa Store Lebanon' }],
+  creator: 'Vexa Store',
+  openGraph: {
+    type: 'website',
+    locale: 'ar_LB',
+    alternateLocale: 'en_US',
+    url: 'https://vexatoys.com',
+    siteName: 'Vexa Store Lebanon',
+    title: 'متجر فيكسا | ألعاب زوجية ولانجري في لبنان',
     description: '500+ adult products shipped discreetly across Lebanon — plain sealed boxes, no logo. Vibrators, Dildos, Lingerie & more. Same-day Beirut delivery, cash on delivery. Your privacy is guaranteed.',
-    keywords: 'sex toys lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, lingerie beirut, adult toys lebanon, vexa store, ألعاب زوجية لبنان, هزازات لبنان',
-    authors: [{ name: 'Vexa Store Lebanon' }],
-    creator: 'Vexa Store',
-    openGraph: {
-      type: 'website',
-      locale: 'ar_LB',
-      alternateLocale: 'en_US',
-      url: 'https://vexatoys.com',
-      siteName: 'Vexa Store Lebanon',
-      title: 'متجر فيكسا | ألعاب زوجية ولانجري في لبنان',
-      description: '500+ adult products shipped discreetly across Lebanon — plain sealed boxes, no logo. Vibrators, Dildos, Lingerie & more. Same-day Beirut delivery, cash on delivery. Your privacy is guaranteed.',
-      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Sex Toys & Lingerie' }],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      site: '@vexastore',
-      images: ['https://vexatoys.com/opengraph.jpg'],
-    },
-    robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
-    // NOTE: No global canonical here — each page sets its own canonical via alternates.
-    // A global canonical pointing to "/" was causing canonical conflicts because
-    // the root page redirects to /sex-toys.
-    //
-    // NOTE: No global hreflang here either. hreflang is only meaningful when
-    // you have SEPARATE URLs for each language (e.g. /ar/sex-toys vs /en/sex-toys).
-    // This site serves mixed Arabic+English on the same URLs — adding global
-    // hreflang pointing to vexatoys.com/ (which itself redirects to /sex-toys)
-    // was causing Google Search Console to report redirect errors on every page.
-  };
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Sex Toys & Lingerie' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@vexastore',
+    images: ['https://vexatoys.com/opengraph.jpg'],
+  },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
+  // NOTE: No global canonical here — each page sets its own canonical via alternates.
+  // A global canonical pointing to "/" was causing canonical conflicts because
+  // the root page redirects to /sex-toys.
+  //
+  // NOTE: No global hreflang here either. hreflang is only meaningful when
+  // you have SEPARATE URLs for each language (e.g. /ar/sex-toys vs /en/sex-toys).
+  // This site serves mixed Arabic+English on the same URLs — adding global
+  // hreflang pointing to vexatoys.com/ (which itself redirects to /sex-toys)
+  // was causing Google Search Console to report redirect errors on every page.
+};
 
   const BASE = 'https://vexatoys.com';
 
