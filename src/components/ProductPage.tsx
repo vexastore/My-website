@@ -120,7 +120,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           : 'https://schema.org/OutOfStock',
         url: canonical,
         seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
-        priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+        priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
         shippingDetails: offerShipping,
         hasMerchantReturnPolicy: returnPolicy,
       },
