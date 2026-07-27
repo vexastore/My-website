@@ -26,15 +26,14 @@ export function middleware(req: NextRequest) {
 
   // ── Canonical host ───────────────────────────────────────────────────────
   if (hostname === CANONICAL_HOST) {
-    // If root arrives with a stale ?category= param, clean it up.
+    // If root arrives with any query param, clean it up.
     // This prevents /?category=Sex+Toys from being a separate crawlable URL.
     if (req.nextUrl.pathname === '/' && req.nextUrl.search) {
       const clean = req.nextUrl.clone();
       clean.pathname = '/sex-toys';
       clean.search = '';
       // Use numeric status — avoids Vercel Edge Runtime 307 coercion.
-      const r = NextResponse.redirect(clean, 301);
-      return r;
+      return NextResponse.redirect(clean, 301);
     }
     return NextResponse.next();
   }
@@ -49,15 +48,16 @@ export function middleware(req: NextRequest) {
   url.host = CANONICAL_HOST;
 
   if (isRoot) {
-    // Go directly to /sex-toys — avoids a second hop via page.tsx redirect.
+    // Go directly to /sex-toys and strip any query params — avoids a second
+    // hop when vercel.json's /?category=X rules would otherwise fire again.
     url.pathname = '/sex-toys';
     url.search = '';
   }
 
   // Numeric status form prevents Vercel Edge Runtime from coercing to 307.
-  const response = NextResponse.redirect(url, 301);
-  response.headers.set('X-Robots-Tag', 'noindex');
-  return response;
+  // NOTE: Do NOT set X-Robots-Tag: noindex here — it is meaningless on a
+  // redirect response and can confuse some crawlers.
+  return NextResponse.redirect(url, 301);
 }
 
 export const config = {

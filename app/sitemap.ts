@@ -1,6 +1,6 @@
 import { MetadataRoute } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
-import { CATEGORY_META } from '@/lib/categoryMeta';
+import { CATEGORY_META, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/blogPosts';
 
 const BASE = 'https://vexatoys.com';
@@ -14,17 +14,30 @@ function toCategorySlug(raw: string): string {
   return (raw || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
 }
 
-// Resolve the best valid categorySlug for a product.
-// 1. Use p.categorySlug if it maps to a real page.
-// 2. Otherwise, scan p.categories[] and pick the first one that maps to a real page.
-// 3. Return undefined if no valid slug is found (product will be excluded).
-function resolveValidCategorySlug(p: {
+/**
+ * Resolve the canonical categorySlug for a product — must stay 100% in sync
+ * with the identical logic in app/[category]/[slug]/page.tsx so the sitemap
+ * only ever generates URLs the product page will NOT redirect away from.
+ *
+ * Priority:
+ * 1. p.categorySlug is directly in SLUG_TO_CATEGORY → use it as-is
+ *    (mirrors product page: SLUG_TO_CATEGORY[p.categorySlug] truthy → p.categorySlug)
+ * 2. p.categorySlug normalises to a VALID_SLUG (e.g. "New Arrivals" → "new-arrivals")
+ * 3. Scan p.categories[] for the first valid slug
+ * 4. Return undefined → product excluded from sitemap
+ */
+function resolveProductCanonicalCategorySlug(p: {
   categorySlug?: string;
   categories?: string[];
 }): string | undefined {
+  // Step 1: direct SLUG_TO_CATEGORY match (same as product page primary check)
+  if (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug]) return p.categorySlug;
+
+  // Step 2: normalise and check VALID_SLUGS
   const primary = toCategorySlug(p.categorySlug || '');
   if (primary && VALID_SLUGS.has(primary)) return primary;
 
+  // Step 3: scan categories[]
   for (const cat of p.categories || []) {
     const slug = toCategorySlug(cat);
     if (slug && VALID_SLUGS.has(slug)) return slug;
@@ -83,10 +96,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const slug = p.slug || toSl(p.nameEn || p.name || p.id);
       if (!slug) continue;
 
-      // Resolve a valid categorySlug — falls back to p.categories[] if
-      // p.categorySlug itself is not a routed page (e.g. "New Arrivals" stored
-      // as categorySlug but that resolves correctly via the categories array).
-      const categorySlug = resolveValidCategorySlug(p);
+      // Resolve canonical categorySlug using the SAME logic as the product page
+      // so the sitemap URL matches exactly what the product page renders at.
+      // This prevents sitemap URLs from redirecting (which GSC flags as errors).
+      const categorySlug = resolveProductCanonicalCategorySlug(p);
       if (!categorySlug) continue;
 
       const url = `${BASE}/${categorySlug}/${slug}`;
