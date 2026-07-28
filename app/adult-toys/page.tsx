@@ -70,9 +70,28 @@ const jsonLd = {
 export default async function AdultToysPage() {
   const allProducts = await fetchProductsServer();
 
-  // Show ALL products — this page is the full catalog, not a Sex Toys duplicate.
-  // Filtering to only Sex Toys made this page a duplicate of /sex-toys (duplicate content).
-  const productsWithImages = allProducts.map(p => ({
+  // /adult-toys shows products from all categories EXCEPT the core 'Sex Toys' category.
+  // This prevents content duplication with /sex-toys which targets the 'Sex Toys' category.
+  // Unique product set = unique page = no 'Duplicate canonical' issues in Google Search Console.
+  const NON_SEX_TOY_CATEGORIES = new Set([
+    'Vibrators', 'Male Toys', 'Dildos', 'Lingerie', 'BDSM', 'Anal Toys',
+    'Butt Plugs', 'New Arrivals', 'Sexual Enhancers', 'Penis Pumps', 'Cock Rings',
+    'Masturbators', 'Chastity', 'Sex Machines', 'Lubricants', 'Poppers',
+    'Holiday Collection',
+  ]);
+
+  const adultToysProducts = allProducts.filter(p => {
+    const cat = (p.category || '').trim();
+    const slug = (p.categorySlug || '').trim();
+    // Exclude products that are ONLY in the 'Sex Toys' category
+    if (cat === 'Sex Toys' && slug === 'sex-toys') return false;
+    // Include everything else — cross-category and non-sex-toys products
+    const extraCats = (p.categories || []);
+    if (extraCats.length > 0 && extraCats.some((c: string) => NON_SEX_TOY_CATEGORIES.has(c))) return true;
+    return cat !== 'Sex Toys';
+  });
+
+  const productsWithImages = adultToysProducts.map(p => ({
     ...p,
     image:  (p.image  && !p.image.startsWith('data:'))  ? p.image  : '',
     images: (p.images || []).filter((s: string) => s && !s.startsWith('data:')),

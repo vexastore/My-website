@@ -114,6 +114,13 @@ export const metadata: Metadata = {
           <link rel="icon" href="/favicon.png" type="image/png" />
           <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
           <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+          {/* Preconnect — reduces TCP latency for critical external origins (LCP improvement) */}
+          <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+          <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+          <link rel="preconnect" href="https://firestore.googleapis.com" />
+          <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+          <link rel="preconnect" href="https://www.googletagmanager.com" />
+          <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
           {/*
            * No global hreflang — see metadata note above.
            * lang="ar" on <html> tells Google the primary language is Arabic.

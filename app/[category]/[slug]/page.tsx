@@ -11,11 +11,19 @@ export const dynamicParams = true; // serve admin-added products not in generate
 
 const STORE_LOGO = 'https://vexatoys.com/vexa-logo.png';
 
-/** Returns a valid https:// URL. Falls back to the store logo for base64 data URIs or empty values. */
-function toImageUrl(raw: string | undefined | null): string {
+/**
+ * Returns a valid https:// URL for product images.
+ * Priority: real https → upgraded http → /api/img proxy (actual Firebase photo) → logo.
+ * The proxy fallback fixes 'Invalid URL in field image' in Google Merchant Center
+ * for products whose stored image is a data: URI or empty string.
+ */
+function toImageUrl(raw: string | undefined | null, productId?: string): string {
   if (raw && raw.startsWith('https://')) return raw;
   // Upgrade insecure http:// to https:// — Google Merchant Listings require HTTPS images.
   if (raw && raw.startsWith('http://')) return raw.replace(/^http:/, 'https:');
+  // Use the image proxy — serves the real product photo from Firebase CDN.
+  // A real product image is required by Google Merchant Center (logo is rejected).
+  if (productId) return `https://vexatoys.com/api/img/${productId}`;
   return STORE_LOGO;
 }
 
@@ -120,7 +128,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const name = cleanText(product.nameEn || product.name || slug);
     const rawDesc = product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`;
     const desc = cleanText(rawDesc).slice(0, 160);
-    const imgUrl = toImageUrl(product.image);
+    const imgUrl = toImageUrl(product.image, product.id);
 
     // Canonical always uses the product's own categorySlug to avoid duplicate-canonical
     // issues when Google crawls the same product under a different category URL.
@@ -205,9 +213,15 @@ export default async function ProductPage({ params }: Props) {
       `Buy ${productName} online in Lebanon. Discreet delivery in Beirut and all regions. Cash on delivery.`
     ).slice(0, 500);
 
-    // image: always present — fall back to store logo so Google never sees "missing image".
-    // 31 products had no real-URL image and were failing the Product rich-result validation.
-    const productImage = toImageUrl(p.image);
+    // image: use /api/img proxy as fallback — serves the actual Firebase product photo.
+    // This fixes 'Invalid URL in field image' in Google Merchant Center.
+    const productImage = toImageUrl(p.image, p.id);
+    // Collect all extra product images — Merchant Center rewards multi-image listings.
+    const extraImages = (p.images || [])
+      .filter((img: string) => img && img.startsWith('http'))
+      .map((img: string) => img.replace(/^http:/, 'https:'))
+      .filter((img: string) => img !== productImage);
+    const allProductImages = [productImage, ...extraImages].slice(0, 6);
 
     jsonLd = {
       '@context': 'https://schema.org',
@@ -225,8 +239,9 @@ export default async function ProductPage({ params }: Props) {
           name: productName,
           url: productUrl,
           description: productDesc,
-          // image is always a real https:// URL — required for Rich Results & Merchant Listings
-          image: [productImage],
+          // All available product images — required for Rich Results & Merchant Listings.
+          // Multiple images improve Merchant Center click-through rates.
+          image: allProductImages,
           sku: p.id,
           mpn: p.id,
           brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
