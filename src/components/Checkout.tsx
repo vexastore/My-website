@@ -88,25 +88,30 @@ export const Checkout: React.FC = () => {
       `📦 <b>المنتجات:</b>\n${itemsString}`,
       '',
       `💵 <b>المنتجات:</b> $${subtotal.toFixed(2)} USD`,
-      `🚚 <b>التوصيل:</b> $5.00 USD`,
+      `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
       `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
     ].join('\n');
 
-    // Send to secure backend → Telegram (token never exposed to browser)
+    // Send to secure backend → Telegram (token never exposed to browser).
+    // AbortController gives a hard 12-second timeout — prevents the spinner
+    // from freezing forever if Telegram or the Vercel function is slow.
     try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
       const tgRes = await fetch('/api/notify-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ msgText }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       if (!tgRes.ok) {
         const err = await tgRes.json().catch(() => ({}));
         console.error('[Checkout] notify-order error:', err);
-      } else {
-        console.log('[Checkout] Telegram notification sent successfully');
       }
     } catch (err) {
-      console.error('[Checkout] Failed to reach notify-order API:', err);
+      // Non-blocking — order still completes even if Telegram notification fails
+      console.error('[Checkout] notify-order failed (non-fatal):', err);
     }
 
     const customerInfo: CustomerInfo = {

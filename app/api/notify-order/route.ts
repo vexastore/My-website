@@ -21,15 +21,29 @@ export async function POST(req: NextRequest) {
     }
 
     const tgUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
-    const tgRes = await fetch(tgUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        chat_id: chatId,
-        text: msgText,
-        parse_mode: 'HTML',
-      }),
-    });
+
+    // Hard 10-second timeout on the Telegram API call.
+    // Without this, a slow/unreachable Telegram would hold the Vercel function
+    // open until its 30-second platform timeout — causing the browser's
+    // "Place Order" button to spin indefinitely on the client.
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+    let tgRes: Response;
+    try {
+      tgRes = await fetch(tgUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text: msgText,
+          parse_mode: 'HTML',
+        }),
+        signal: controller.signal,
+      });
+    } finally {
+      clearTimeout(timeoutId);
+    }
 
     if (!tgRes.ok) {
       const errBody = await tgRes.text().catch(() => '');
@@ -38,6 +52,10 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ ok: true });
   } catch (error) {
-    return NextResponse.json({ error: 'Server error sending Telegram notification' }, { status: 500 });
+    const isTimeout = error instanceof Error && error.name === 'AbortError';
+    return NextResponse.json(
+      { error: isTimeout ? 'Telegram request timed out' : 'Server error sending Telegram notification' },
+      { status: isTimeout ? 504 : 500 }
+    );
   }
 }
