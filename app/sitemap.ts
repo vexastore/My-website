@@ -6,8 +6,9 @@ import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/blogPosts';
 const BASE = 'https://vexatoys.com';
 const TODAY = new Date().toISOString().slice(0, 10);
 
-// Only include products whose categorySlug is a real routed page.
-// Products with unknown/empty categorySlug would produce broken or redirecting URLs.
+// Valid routed category slugs — only slugs in CATEGORY_META have real product pages.
+// /adult-toys is a STANDALONE page (app/adult-toys/page.tsx) — not in CATEGORY_META
+// to avoid duplicate id='Sex Toys' corruption. It IS added manually to staticPages below.
 const VALID_SLUGS = new Set(CATEGORY_META.map(c => c.slug));
 
 function toCategorySlug(raw: string): string {
@@ -21,10 +22,13 @@ function toCategorySlug(raw: string): string {
  *
  * Priority:
  * 1. p.categorySlug is directly in SLUG_TO_CATEGORY → use it as-is
- *    (mirrors product page: SLUG_TO_CATEGORY[p.categorySlug] truthy → p.categorySlug)
  * 2. p.categorySlug normalises to a VALID_SLUG (e.g. "New Arrivals" → "new-arrivals")
  * 3. Scan p.categories[] for the first valid slug
  * 4. Return undefined → product excluded from sitemap
+ *
+ * NOTE: 'adult-toys' is intentionally NOT in SLUG_TO_CATEGORY (not in CATEGORY_META).
+ * Products stored with categorySlug='adult-toys' in Firestore will fall through to
+ * categories[] resolution — this is correct behaviour and prevents redirect errors.
  */
 function resolveProductCanonicalCategorySlug(p: {
   categorySlug?: string;
@@ -50,10 +54,13 @@ export const revalidate = 3600; // regenerate hourly
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ──────────────────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE,               lastModified: TODAY, changeFrequency: 'weekly'  as const, priority: 1.0 },
-    { url: `${BASE}/sex-toys`, lastModified: TODAY, changeFrequency: 'daily'   as const, priority: 1.0 },
-    { url: `${BASE}/about`,    lastModified: TODAY, changeFrequency: 'monthly' as const, priority: 0.6 },
-    { url: `${BASE}/quiz`,     lastModified: TODAY, changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: BASE,                       lastModified: TODAY, changeFrequency: 'weekly'  as const, priority: 1.0 },
+    { url: `${BASE}/sex-toys`,         lastModified: TODAY, changeFrequency: 'daily'   as const, priority: 1.0 },
+    // /adult-toys is a standalone page (NOT in CATEGORY_META to avoid duplicate-id corruption).
+    // Adding it here manually so it still appears in the sitemap.
+    { url: `${BASE}/adult-toys`,       lastModified: TODAY, changeFrequency: 'daily'   as const, priority: 0.95 },
+    { url: `${BASE}/about`,            lastModified: TODAY, changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/quiz`,             lastModified: TODAY, changeFrequency: 'monthly' as const, priority: 0.5 },
     ...CATEGORY_META.filter(c => c.slug !== 'sex-toys').map(c => ({
       url: `${BASE}/${c.slug}`,
       lastModified: TODAY,
