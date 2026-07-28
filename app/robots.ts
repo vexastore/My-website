@@ -7,14 +7,22 @@ export default function robots(): MetadataRoute.Robots {
         userAgent: '*',
         allow: [
           '/',
-          '/api/img/', // product images via CDN proxy — must be crawlable for Merchant Listings
+          '/api/img/', // product image proxy — crawlable for Merchant Listings
         ],
-        // Block only admin / checkout / API internals.
-        // /api/img/ is explicitly allowed above (allow wins over disallow for more-specific paths).
+        // Block admin/internal routes only.
+        // /api/img/ is explicitly listed first with allow, so Google honours the
+        // more-specific /api/img/ allow over the broader /api/ disallow.
+        // Using specific paths here (not just /api/) avoids any parser ambiguity.
         disallow: [
           '/admin',
           '/checkout',
-          '/api/',
+          '/api/products',
+          '/api/revalidate',
+          '/api/notify-order',
+          '/api/upload',
+          '/api/indexnow',
+          '/api/test-telegram',
+          '/api/deploy',
         ],
       },
     ],
@@ -22,4 +30,3 @@ export default function robots(): MetadataRoute.Robots {
     host: 'https://vexatoys.com',
   };
 }
-
