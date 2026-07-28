@@ -29,11 +29,13 @@ export function middleware(req: NextRequest) {
     // If root arrives with any query param, clean it up.
     // This prevents /?category=Sex+Toys from being a separate crawlable URL.
     if (req.nextUrl.pathname === '/' && req.nextUrl.search) {
-      const clean = req.nextUrl.clone();
-      clean.pathname = '/sex-toys';
-      clean.search = '';
-      // Use numeric status — avoids Vercel Edge Runtime 307 coercion.
-      return NextResponse.redirect(clean, 301);
+      // Use new URL() instead of clone() — clone() does not reliably strip
+      // the search string in Next.js 15 Edge Runtime, causing query params to
+      // leak into the redirect target (/sex-toys?category=...).
+      // new URL('/sex-toys', ...) constructs a clean URL with no query params.
+      const target = new URL('/sex-toys', `https://${CANONICAL_HOST}`);
+      // Numeric 301 — prevents Vercel Edge Runtime from coercing to 308.
+      return NextResponse.redirect(target, 301);
     }
     return NextResponse.next();
   }
