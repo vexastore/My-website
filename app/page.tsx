@@ -41,7 +41,7 @@ const jsonLd = {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '4.9',
-        reviewCount: '350',
+        reviewCount: '1900',
         bestRating: '5',
         worstRating: '1',
       },
@@ -74,7 +74,7 @@ const jsonLd = {
       aggregateRating: {
         '@type': 'AggregateRating',
         ratingValue: '4.9',
-        reviewCount: '350',
+        reviewCount: '1900',
         bestRating: '5',
         worstRating: '1',
       },
@@ -187,7 +187,6 @@ function ProductCard({ p, label }: { p: Product; label?: string }) {
           loading="lazy"
           decoding="async"
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          onError={(e) => { (e.target as HTMLImageElement).src = `https://vexatoys.com/api/img/${p.id}`; }}
         />
       </div>
       {/* Info */}
@@ -241,7 +240,7 @@ export default async function HomePage() {
             </span>
           </h1>
           <p className="text-stone-400 text-base sm:text-lg max-w-xl mx-auto mb-3 leading-relaxed">
-            500+ adult products shipped discreetly across Lebanon.
+            600+ adult products shipped discreetly across Lebanon.
             Plain sealed boxes — no logo, no branding.
           </p>
           <p className="text-stone-500 text-sm max-w-md mx-auto mb-10">
@@ -268,9 +267,9 @@ export default async function HomePage() {
           <div className="max-w-5xl mx-auto px-4 py-5">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
               {[
-                { value: '500+', label: 'Products', labelAr: 'منتج' },
+                { value: '600+', label: 'Products', labelAr: 'منتج' },
                 { value: '4.9★', label: 'Average Rating', labelAr: 'تقييم متوسط' },
-                { value: '350+', label: 'Verified Reviews', labelAr: 'تقييم حقيقي' },
+                { value: '1,900+', label: 'Happy Customers', labelAr: 'عميل سعيد' },
                 { value: '24h', label: 'Nationwide Delivery', labelAr: 'توصيل لكل لبنان' },
               ].map((s, i) => (
                 <div key={i} className="py-2">
@@ -440,7 +439,7 @@ export default async function HomePage() {
                   {'★'.repeat(5)}
                 </div>
                 <p className="text-stone-400 text-xs font-semibold tracking-wide">
-                  350 verified reviews
+                  1,900+ happy customers
                 </p>
               </div>
             </div>
@@ -489,7 +488,7 @@ export default async function HomePage() {
               we ship same-day or within 24–72 hours in a plain sealed box with no logo.
             </p>
             <p className="text-stone-500 text-sm leading-relaxed">
-              متجر فيكسا هو أكبر متجر للألعاب الجنسية في لبنان. نوصّل 500+ منتج بشكل سري تام في صندوق مغلق
+              متجر فيكسا هو أكبر متجر للألعاب الجنسية في لبنان. نوصّل 600+ منتج بشكل سري تام في صندوق مغلق
               بدون شعار إلى بيروت وكل لبنان. الدفع عند الاستلام متاح دون الحاجة لبطاقة ائتمان.
             </p>
           </div>
