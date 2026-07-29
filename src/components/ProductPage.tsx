@@ -398,11 +398,13 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               <span className="text-sm font-black text-stone-300">{isArabic ? 'الكمية' : 'Quantity'}</span>
               <div className="flex items-center border border-white/20 rounded-lg overflow-hidden">
                 <button onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1}
+                  aria-label={isArabic ? 'تقليل الكمية' : 'Decrease quantity'}
                   className="px-3 py-2 text-stone-400 hover:bg-white/10 transition disabled:opacity-30">
                   <Minus size={14} />
                 </button>
                 <span className="px-4 py-2 font-black text-white min-w-[3rem] text-center">{qty}</span>
                 <button onClick={() => setQty(q => Math.min(remaining, q + 1))} disabled={qty >= remaining}
+                  aria-label={isArabic ? 'زيادة الكمية' : 'Increase quantity'}
                   className="px-3 py-2 text-stone-400 hover:bg-white/10 transition disabled:opacity-30">
                   <Plus size={14} />
                 </button>
