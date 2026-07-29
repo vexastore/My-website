@@ -488,12 +488,18 @@ export const ShopProvider: React.FC<{
   // ─── Firestore product operations ─────────────────────────────────────────
 
   // ─── Cache invalidation after any product change ─────────────────────────
-  const revalidateAfterProductChange = (opts = {}) => {
+  const revalidateAfterProductChange = (opts: { categorySlug?: string; slug?: string } = {}) => {
     try { localStorage.removeItem('vexa_products_v2'); localStorage.removeItem('vexa_products_v2_ts'); } catch (_) {}
+    // Revalidate ISR cache
     fetch('/api/revalidate?secret=vexa-reval-2026', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(opts),
     }).catch(() => {});
-    fetch('/api/indexnow').catch(() => {});
+    // Notify Bing + IndexNow members immediately — fire-and-forget
+    fetch('/api/indexnow', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ categorySlug: opts.categorySlug, slug: opts.slug }),
+    }).catch(() => {});
   };
 
     const addProduct = async (productData: Omit<Product, 'id'>) => {
