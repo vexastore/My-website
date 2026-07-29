@@ -54,13 +54,12 @@ export const revalidate = 3600; // regenerate hourly
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ──────────────────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE,                       lastModified: TODAY, changeFrequency: 'weekly'  as const, priority: 1.0 },
     { url: `${BASE}/sex-toys`,         lastModified: TODAY, changeFrequency: 'daily'   as const, priority: 1.0 },
     // /adult-toys is a standalone page (NOT in CATEGORY_META to avoid duplicate-id corruption).
     // Adding it here manually so it still appears in the sitemap.
     { url: `${BASE}/adult-toys`,       lastModified: TODAY, changeFrequency: 'daily'   as const, priority: 0.95 },
-    { url: `${BASE}/about`,            lastModified: TODAY, changeFrequency: 'monthly' as const, priority: 0.6 },
-    { url: `${BASE}/quiz`,             lastModified: TODAY, changeFrequency: 'monthly' as const, priority: 0.5 },
+    { url: `${BASE}/about`,            lastModified: '2026-07-01', changeFrequency: 'monthly' as const, priority: 0.6 },
+    { url: `${BASE}/quiz`,             lastModified: '2026-07-01', changeFrequency: 'monthly' as const, priority: 0.5 },
     ...CATEGORY_META.filter(c => c.slug !== 'sex-toys').map(c => ({
       url: `${BASE}/${c.slug}`,
       lastModified: TODAY,
