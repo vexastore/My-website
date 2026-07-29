@@ -19,13 +19,16 @@ const catSlug = (id: string) => CATEGORY_SLUGS[id] || id.toLowerCase().replace(/
 const VexaLogo = () => (
   <div
     className="relative select-none flex-shrink-0"
-    style={{ filter: 'drop-shadow(0 0 14px rgba(220,20,20,0.85)) drop-shadow(0 0 28px rgba(180,0,0,0.55))' }}
+    style={{ filter: 'drop-shadow(0 0 16px rgba(220,20,20,0.95)) drop-shadow(0 0 32px rgba(180,0,0,0.65))' }}
   >
     <img
       src="/vexa-logo.png"
       alt="متجر فيكسا - أفضل متجر ألعاب زوجية ولانجري في لبنان"
+      width={76}
+      height={76}
+      fetchPriority="high"
       className="h-[62px] w-[62px] sm:h-[76px] sm:w-[76px] rounded-full object-cover"
-      style={{ border: '2.5px solid rgba(220,30,30,0.75)', boxShadow: '0 0 18px rgba(220,20,20,0.6), 0 0 36px rgba(180,0,0,0.35)' }}
+      style={{ border: '2.5px solid rgba(220,30,30,0.85)', boxShadow: '0 0 22px rgba(220,20,20,0.75), 0 0 44px rgba(180,0,0,0.45)' }}
     />
   </div>
 );
