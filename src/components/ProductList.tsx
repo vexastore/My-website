@@ -289,7 +289,7 @@ export const ProductList: React.FC = () => {
                   {filteredProducts.length} {isArabic ? 'منتج' : 'products'}
                 </p>
               </div>
-              <button onClick={() => setIsFilterOpen(false)} className="text-white/70 transition hover:text-white">
+              <button onClick={() => setIsFilterOpen(false)} aria-label={isArabic ? 'إغلاق الفلتر' : 'Close filter'} className="text-white/70 transition hover:text-white">
                 <X size={34} strokeWidth={1.05} />
               </button>
             </div>
