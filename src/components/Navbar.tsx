@@ -125,7 +125,7 @@ export const Navbar: React.FC = () => {
 
   const IconBar = ({ size }: { size: number }) => (
     <div className="flex items-center justify-end gap-2.5 sm:gap-4">
-      <button onClick={() => { setIsSearchOpen(v => !v); setIsMenuOpen(false); }} className="text-white transition hover:text-white/70">
+      <button onClick={() => { setIsSearchOpen(v => !v); setIsMenuOpen(false); }} aria-label={isArabic ? 'بحث' : 'Search'} className="text-white transition hover:text-white/70">
         <Search size={size} strokeWidth={1.4} />
       </button>
       <button onClick={toggleLanguage} aria-label={isArabic ? "Switch to English" : "التبديل إلى العربية"}
@@ -160,6 +160,7 @@ export const Navbar: React.FC = () => {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid h-[88px] grid-cols-[1fr_auto_1fr] items-center sm:h-[108px]">
           <button onClick={() => setIsMenuOpen(true)}
+            aria-label={isArabic ? 'فتح القائمة' : 'Open menu'}
             className="flex h-14 w-14 items-center justify-center justify-self-start text-white transition hover:text-white/70">
             <Menu size={28} strokeWidth={1.5} />
           </button>
@@ -176,7 +177,7 @@ export const Navbar: React.FC = () => {
               <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
                 placeholder={isArabic ? 'ابحث عن المنتجات...' : 'Search products...'}
                 className="w-full bg-transparent text-sm font-medium text-white outline-none placeholder:text-white/40" autoFocus />
-              <button onClick={() => setIsSearchOpen(false)} className="text-white/60 hover:text-white"><X size={18} /></button>
+              <button onClick={() => setIsSearchOpen(false)} aria-label={isArabic ? 'إغلاق البحث' : 'Close search'} className="text-white/60 hover:text-white"><X size={18} /></button>
             </div>
           </div>
         )}
@@ -187,6 +188,7 @@ export const Navbar: React.FC = () => {
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <div className="grid h-[88px] grid-cols-[1fr_auto_1fr] items-center sm:h-[108px]">
               <button onClick={() => { activeSubmenu ? setActiveSubmenu(null) : setIsMenuOpen(false); }}
+                aria-label={activeSubmenu ? (isArabic ? 'رجوع' : 'Go back') : (isArabic ? 'إغلاق القائمة' : 'Close menu')}
                 className="flex h-14 w-14 items-center justify-center justify-self-start text-white transition hover:text-white/70">
                 {activeSubmenu ? <ChevronLeft size={36} strokeWidth={1.2} /> : <X size={38} strokeWidth={1.05} />}
               </button>
@@ -280,7 +282,7 @@ export const Navbar: React.FC = () => {
                   <span className="bg-white/10 text-white text-xs font-black px-2 py-0.5 rounded-full">{orders.length}</span>
                 )}
               </div>
-              <button onClick={() => setIsOrdersOpen(false)} className="text-white/40 hover:text-white transition">
+              <button onClick={() => setIsOrdersOpen(false)} aria-label={isArabic ? 'إغلاق' : 'Close'} className="text-white/40 hover:text-white transition">
                 <X size={22} />
               </button>
             </div>
