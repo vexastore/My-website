@@ -100,7 +100,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
               key={imgKey}
               ref={imgRef}
               src={imgSrc}
-              alt=""
+              alt={isArabic ? product.name : (product.nameEn || product.name)}
               className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               loading={priority ? 'eager' : 'lazy'}
               decoding="async"
