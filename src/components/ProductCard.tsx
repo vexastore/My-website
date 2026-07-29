@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Product } from '../types';
 import { useShop } from '../context/ShopContext';
-import { Star, Link2, Check } from 'lucide-react';
+import { Star } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
@@ -20,7 +20,6 @@ function toSlug(text: string): string {
 export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) => {
   const { cart, language, navigateToProduct } = useShop();
   const isArabic = language === 'ar';
-  const [copied, setCopied] = useState(false);
   // imgKey increments to force React to remount the <img> on retry.
   const [imgKey, setImgKey] = useState(0);
   const [imgError, setImgError] = useState(false);
@@ -77,20 +76,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   const pSlug = product.slug || toSlug(product.nameEn || product.name || product.id);
   const catSlug = product.categorySlug || toSlug(product.category || 'sex-toys');
   const productUrl = `/${catSlug}/${pSlug}`;
-  const productFullUrl = `https://vexatoys.com${productUrl}`;
-
   const handleProductClick = (e: React.MouseEvent) => {
     e.preventDefault();
     navigateToProduct(product);
-  };
-
-  const handleCopyLink = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    navigator.clipboard.writeText(productFullUrl).then(() => {
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }).catch(() => {});
   };
 
   return (
@@ -105,20 +93,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
           SALE
         </span>
 
-        <button
-          type="button"
-          onClick={handleCopyLink}
-          title={isArabic ? 'نسخ رابط المنتج' : 'Copy product link'}
-          className={`absolute right-3 top-3 z-20 flex items-center gap-1 rounded-full px-2 py-1.5 text-[10px] font-black uppercase tracking-wide transition-all duration-200 ${
-            copied ? 'bg-green-500 text-white' : 'bg-black/60 text-white/60 hover:bg-white/20 hover:text-white'
-          }`}
-        >
-          {copied ? (
-            <><Check size={11} /><span>{isArabic ? 'تم' : 'Copied'}</span></>
-          ) : (
-            <><Link2 size={11} /><span>{isArabic ? 'رابط' : 'Link'}</span></>
-          )}
-        </button>
 
         <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
           {!imgError && (
