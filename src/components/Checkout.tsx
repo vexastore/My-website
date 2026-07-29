@@ -92,27 +92,13 @@ export const Checkout: React.FC = () => {
       `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
     ].join('\n');
 
-    // Send to secure backend → Telegram (token never exposed to browser).
-    // AbortController gives a hard 12-second timeout — prevents the spinner
-    // from freezing forever if Telegram or the Vercel function is slow.
-    try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 12000);
-      const tgRes = await fetch('/api/notify-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ msgText }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-      if (!tgRes.ok) {
-        const err = await tgRes.json().catch(() => ({}));
-        console.error('[Checkout] notify-order error:', err);
-      }
-    } catch (err) {
-      // Non-blocking — order still completes even if Telegram notification fails
-      console.error('[Checkout] notify-order failed (non-fatal):', err);
-    }
+    // Fire-and-forget: Telegram notification runs in background.
+    // Order completes instantly — user is not blocked waiting for Telegram.
+    fetch('/api/notify-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ msgText }),
+    }).catch(err => console.error('[Checkout] notify-order failed (non-fatal):', err));
 
     const customerInfo: CustomerInfo = {
       name: form.name,
@@ -122,9 +108,15 @@ export const Checkout: React.FC = () => {
       address: form.address,
       notes: form.notes
     };
-    const placed = placeOrder(customerInfo);
-    setIsSubmitting(false);
-    if (placed) setOrderComplete(placed);
+    // try/finally guarantees isSubmitting resets even if placeOrder throws
+    try {
+      const placed = placeOrder(customerInfo);
+      if (placed) setOrderComplete(placed);
+    } catch (err) {
+      console.error('[Checkout] placeOrder error:', err);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
