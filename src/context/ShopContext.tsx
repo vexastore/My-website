@@ -723,7 +723,7 @@ export const ShopProvider: React.FC<{
       if (process.env.NODE_ENV === 'development') console.error('Firestore save order error:', error);
     });
     clearCart();
-    setView('shop');
+    // Navigation handled by Checkout via setOrderComplete — do NOT call setView here.
     return newOrder;
   };
 
