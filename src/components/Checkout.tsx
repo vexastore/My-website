@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { CustomerInfo, Order } from '../types';
 import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
@@ -41,8 +41,15 @@ export const Checkout: React.FC = () => {
   const [orderComplete, setOrderComplete] = useState<Order | null>(null);
   const [errors, setErrors] = useState<Partial<Record<string, string>>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [validationBanner, setValidationBanner] = useState<string | null>(null);
 
-  const validateForm = () => {
+  // Refs for scrolling to the first invalid field on mobile
+  const nameRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
+  const cityRef = useRef<HTMLSelectElement>(null);
+  const addressRef = useRef<HTMLInputElement>(null);
+
+  const validateForm = (): boolean => {
     const newErrors: Partial<Record<string, string>> = {};
     if (!form.name.trim()) newErrors.name = isArabic ? 'الاسم الكامل مطلوب.' : 'Full name is required.';
     if (!form.phone.trim()) {
@@ -53,12 +60,34 @@ export const Checkout: React.FC = () => {
     if (!form.city.trim()) newErrors.city = isArabic ? 'يرجى اختيار المدينة.' : 'Please select a city.';
     if (!form.address.trim()) newErrors.address = isArabic ? 'يرجى كتابة العنوان.' : 'Please enter your address.';
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+
+    if (Object.keys(newErrors).length > 0) {
+      // Scroll to + focus the FIRST invalid field so mobile users see the error
+      // even when it's above the fold (e.g. name field scrolled off screen).
+      const firstRef =
+        newErrors.name ? nameRef :
+        newErrors.phone ? phoneRef :
+        newErrors.city ? cityRef :
+        newErrors.address ? addressRef : null;
+      if (firstRef?.current) {
+        firstRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => firstRef.current?.focus(), 350);
+      }
+      setValidationBanner(
+        isArabic
+          ? '⚠️ يرجى تعبئة جميع الحقول الإلزامية المُشار إليها بالأحمر أعلاه.'
+          : '⚠️ Please fill in the required fields highlighted above.'
+      );
+      return false;
+    }
+    setValidationBanner(null);
+    return true;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting || !validateForm()) return;
+    setValidationBanner(null);
     setIsSubmitting(true);
 
     const fullPhone = `${form.countryCode} ${form.phone}`.trim();
@@ -161,7 +190,7 @@ export const Checkout: React.FC = () => {
               {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
             </p>
           </div>
-          <p className="text-[10px] text-stone-300 mb-2">v4</p>
+
 
           <div className="text-right border-t border-b border-stone-100 py-4 mb-6 space-y-3">
             {orderComplete.items.map((item, i) => (
@@ -185,7 +214,7 @@ export const Checkout: React.FC = () => {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-stone-500">{isArabic ? 'رسوم التوصيل' : 'Delivery'}</span>
-                <span className="font-bold">$5.00 USD</span>
+                <span className="font-bold">${deliveryFee.toFixed(2)} USD</span>
               </div>
               <div className="flex justify-between pt-2 border-t border-dashed border-stone-200">
                 <span className="font-black text-stone-700">{isArabic ? 'المجموع:' : 'Total:'}</span>
@@ -292,7 +321,7 @@ export const Checkout: React.FC = () => {
                   <Truck size={13} className="text-purple-500" />
                   {isArabic ? 'رسوم التوصيل:' : 'Delivery:'}
                 </span>
-                <span className="text-sm font-bold text-stone-700">$5.00 USD</span>
+                <span className="text-sm font-bold text-stone-700">${deliveryFee.toFixed(2)} USD</span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-stone-200">
                 <span className="text-base font-black text-stone-800">{isArabic ? 'المجموع:' : 'Total:'}</span>
@@ -311,7 +340,7 @@ export const Checkout: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'الاسم الكامل *' : 'Full name *'}</label>
-              <input type="text" name="name" value={form.name} onChange={handleInputChange}
+              <input ref={nameRef} type="text" name="name" value={form.name} onChange={handleInputChange}
                 placeholder={isArabic ? 'اسمك الكامل' : 'Your full name'}
                 className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.name ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
               {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
@@ -335,7 +364,7 @@ export const Checkout: React.FC = () => {
                   </select>
                   <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
                 </div>
-                <input type="tel" name="phone" value={form.phone} onChange={handleInputChange} dir="ltr"
+                <input ref={phoneRef} type="tel" name="phone" value={form.phone} onChange={handleInputChange} dir="ltr"
                   placeholder={form.countryCode === '+961' ? '03 123 456' : '555 1234'}
                   className={`flex-1 border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.phone ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
               </div>
@@ -347,7 +376,7 @@ export const Checkout: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'المدينة *' : 'City *'}</label>
-              <select name="city" value={form.city} onChange={handleInputChange}
+              <select ref={cityRef} name="city" value={form.city} onChange={handleInputChange}
                 className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 bg-white ${errors.city ? 'border-red-400' : 'border-stone-200'}`}>
                 <option value="">{isArabic ? '— اختر المدينة —' : '— Select city —'}</option>
                 {(isArabic ? LEBANESE_CITIES_AR : LEBANESE_CITIES_EN).map((city, idx) => { const val = LEBANESE_CITIES_AR[idx]; return <option key={val} value={val}>{city}</option>; })}
@@ -358,7 +387,7 @@ export const Checkout: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'العنوان بالتفصيل *' : 'Full address *'}</label>
-              <input type="text" name="address" value={form.address} onChange={handleInputChange}
+              <input ref={addressRef} type="text" name="address" value={form.address} onChange={handleInputChange}
                 placeholder={isArabic ? 'الحي، الشارع، رقم المبنى...' : 'Street, building, floor...'}
                 className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.address ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
               {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
@@ -370,6 +399,15 @@ export const Checkout: React.FC = () => {
                 placeholder={isArabic ? 'أي تعليمات للتوصيل...' : 'Any delivery instructions...'}
                 className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 resize-none" />
             </div>
+
+            {/* Validation banner — appears above the button when required fields are missing.
+                This ensures mobile users who have scrolled down past the name/phone fields
+                get visible feedback right next to the button they just tapped. */}
+            {validationBanner && (
+              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 text-center">
+                {validationBanner}
+              </div>
+            )}
 
             <button type="submit" disabled={isSubmitting}
               className="w-full py-4 bg-black text-white font-black text-sm rounded-xl hover:bg-stone-800 transition active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2">
