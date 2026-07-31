@@ -54,6 +54,9 @@ export const revalidate = 3600; // regenerate hourly
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ──────────────────────────────────────────────────────────
   const staticPages: MetadataRoute.Sitemap = [
+    // Homepage — vexatoys.com/ is a real landing page (NOT a redirect on the canonical host).
+    // Middleware only redirects non-canonical hosts (www, *.vercel.app) or root with query params.
+    { url: `${BASE}`,                  lastModified: TODAY, changeFrequency: 'daily'   as const, priority: 1.0 },
     { url: `${BASE}/sex-toys`,         lastModified: TODAY, changeFrequency: 'daily'   as const, priority: 1.0 },
     // /adult-toys is a standalone page (NOT in CATEGORY_META to avoid duplicate-id corruption).
     // Adding it here manually so it still appears in the sitemap.
