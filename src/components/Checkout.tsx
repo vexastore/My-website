@@ -4,6 +4,11 @@ import { useShop } from '../context/ShopContext';
 import { CustomerInfo, Order } from '../types';
 import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
 
+// Synchronous guard — prevents double-submissions caused by React's async state
+// batching. Two rapid taps can both see isSubmitting===false before the first
+// setIsSubmitting(true) re-render lands, so we need a ref that updates instantly.
+const _submitting = { current: false };
+
 const LEBANESE_CITIES_AR = [
   'بيروت', 'طرابلس', 'صيدا', 'صور', 'جونية', 'زحلة', 'النبطية', 'بعلبك', 'جبيل', 'عاليه',
   'بشري', 'بنت جبيل', 'مرجعيون', 'كسروان', 'راشيا', 'الشوف', 'المتن', 'بعبدا', 'الضاحية الجنوبية'
@@ -86,48 +91,14 @@ export const Checkout: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isSubmitting || !validateForm()) return;
+    // _submitting.current is a synchronous ref — blocks double-taps and rapid
+    // clicks that arrive before React's async setIsSubmitting(true) re-renders.
+    if (_submitting.current || isSubmitting || !validateForm()) return;
+    _submitting.current = true;
     setValidationBanner(null);
     setIsSubmitting(true);
 
     const fullPhone = `${form.countryCode} ${form.phone}`.trim();
-    const subtotal = getCartTotal();
-    const total = subtotal + deliveryFee;
-    const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-
-    const itemsString = cart.map(i => {
-      const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-        ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${k}:${val}`).join(', ') + ']'
-        : '';
-      return `${i.product.name} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
-    }).join('\n');
-
-    const msgText = [
-      '🛒 <b>طلب جديد — Vexa Store!</b>',
-      '',
-      `🆔 <b>رقم الطلب:</b> ${orderId}`,
-      `📅 <b>التاريخ:</b> ${new Date().toLocaleString('ar-LB')}`,
-      '',
-      `👤 <b>الاسم:</b> ${form.name}`,
-      `📞 <b>الهاتف:</b> ${fullPhone}`,
-      `🏙️ <b>المدينة:</b> ${form.city}`,
-      `📍 <b>العنوان:</b> ${form.address}`,
-      `📝 <b>ملاحظات:</b> ${form.notes || '—'}`,
-      '',
-      `📦 <b>المنتجات:</b>\n${itemsString}`,
-      '',
-      `💵 <b>المنتجات:</b> $${subtotal.toFixed(2)} USD`,
-      `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
-      `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
-    ].join('\n');
-
-    // Fire-and-forget: Telegram notification runs in background.
-    // Order completes instantly — user is not blocked waiting for Telegram.
-    fetch('/api/notify-order', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ msgText }),
-    }).catch(err => console.error('[Checkout] notify-order failed (non-fatal):', err));
 
     const customerInfo: CustomerInfo = {
       name: form.name,
@@ -137,13 +108,61 @@ export const Checkout: React.FC = () => {
       address: form.address,
       notes: form.notes
     };
-    // try/finally guarantees isSubmitting resets even if placeOrder throws
+
     try {
+      // Place the order first so we get the REAL order ID from Firebase/localStorage.
+      // Previously the Telegram message used a different random ID, causing a mismatch.
       const placed = placeOrder(customerInfo);
-      if (placed) setOrderComplete(placed);
+      if (!placed) {
+        // Cart was empty or placeOrder failed — should not normally happen here.
+        _submitting.current = false;
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Show success screen immediately — don't wait for Telegram.
+      setOrderComplete(placed);
+
+      // Build Telegram message using the ACTUAL saved order ID.
+      const subtotal = placed.total - deliveryFee;
+      const itemsString = placed.items.map(i => {
+        const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
+          ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${k}:${val}`).join(', ') + ']'
+          : '';
+        return `${i.product.name} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
+      }).join('\n');
+
+      const msgText = [
+        '🛒 <b>طلب جديد — Vexa Store!</b>',
+        '',
+        `🆔 <b>رقم الطلب:</b> ${placed.id}`,
+        `📅 <b>التاريخ:</b> ${new Date().toLocaleString('ar-LB')}`,
+        '',
+        `👤 <b>الاسم:</b> ${form.name}`,
+        `📞 <b>الهاتف:</b> ${fullPhone}`,
+        `🏙️ <b>المدينة:</b> ${form.city}`,
+        `📍 <b>العنوان:</b> ${form.address}`,
+        `📝 <b>ملاحظات:</b> ${form.notes || '—'}`,
+        '',
+        `📦 <b>المنتجات:</b>\n${itemsString}`,
+        '',
+        `💵 <b>المنتجات:</b> $${subtotal.toFixed(2)} USD`,
+        `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
+        `💰 <b>المجموع الكلي:</b> $${placed.total.toFixed(2)} USD`,
+      ].join('\n');
+
+      // Fire-and-forget: user is already on the success screen; Telegram runs in background.
+      fetch('/api/notify-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ msgText }),
+      }).catch(() => {});
+
     } catch (err) {
       console.error('[Checkout] placeOrder error:', err);
     } finally {
+      // Always release both guards so the button never stays frozen.
+      _submitting.current = false;
       setIsSubmitting(false);
     }
   };
