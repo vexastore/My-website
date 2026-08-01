@@ -103,28 +103,34 @@ export const Checkout: React.FC = () => {
     const total = subtotal + deliveryFee;
     const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 
+    // Escape characters that break Telegram's HTML parser.
+    // If a product name or field contains & < > the parser silently drops
+    // everything after the offending character, producing a truncated message.
+    const esc = (s: string) =>
+      (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
     const itemsString = cart.map(i => {
       const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-        ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${k}:${val}`).join(', ') + ']'
+        ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${esc(k)}:${esc(String(val))}`).join(', ') + ']'
         : '';
-      return `${i.product.name} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
+      return `${esc(i.product.name)} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
     }).join('\n');
 
     const msgText = [
       '🛒 <b>طلب جديد — Vexa Store!</b>',
       '',
-      `🆔 <b>رقم الطلب:</b> ${orderId}`,
-      `📅 <b>التاريخ:</b> ${new Date().toLocaleString('ar-LB')}`,
+      `🆔 <b>رقم الطلب:</b> ${esc(orderId)}`,
+      `📅 <b>التاريخ:</b> ${esc(new Date().toLocaleString('ar-LB'))}`,
       '',
-      `👤 <b>الاسم:</b> ${form.name}`,
-      `📞 <b>الهاتف:</b> ${fullPhone}`,
-      `🏙️ <b>المدينة:</b> ${form.city}`,
-      `📍 <b>العنوان:</b> ${form.address}`,
-      `📝 <b>ملاحظات:</b> ${form.notes || '—'}`,
+      `👤 <b>الاسم:</b> ${esc(form.name)}`,
+      `📞 <b>الهاتف:</b> ${esc(fullPhone)}`,
+      `🏙️ <b>المدينة:</b> ${esc(form.city)}`,
+      `📍 <b>العنوان:</b> ${esc(form.address)}`,
+      `📝 <b>ملاحظات:</b> ${esc(form.notes) || '—'}`,
       '',
       `📦 <b>المنتجات:</b>\n${itemsString}`,
       '',
-      `💵 <b>المنتجات:</b> $${subtotal.toFixed(2)} USD`,
+      `💵 <b>سعر المنتجات:</b> $${subtotal.toFixed(2)} USD`,
       `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
       `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
     ].join('\n');
