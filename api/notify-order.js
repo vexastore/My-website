@@ -5,14 +5,24 @@
 // Body: { msgText: string }
 // Requires Vercel env vars: TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID
 
+export const config = { api: { bodyParser: true } };
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { msgText } = req.body || {};
-  if (!msgText || typeof msgText !== 'string') {
-    return res.status(400).json({ error: 'Missing msgText in request body' });
+  // Support both parsed body (Vercel default) and raw string body
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch (_) { body = {}; }
+  }
+
+  const msgText = (body && body.msgText) ? String(body.msgText) : '';
+
+  if (!msgText.trim()) {
+    console.error('[notify-order] msgText is empty. body received:', JSON.stringify(body));
+    return res.status(400).json({ error: 'msgText is empty or missing' });
   }
 
   const token  = process.env.TELEGRAM_BOT_TOKEN;
@@ -42,13 +52,15 @@ export default async function handler(req, res) {
     );
     clearTimeout(timeoutId);
 
+    const tgData = await tgRes.json().catch(() => ({}));
+
     if (!tgRes.ok) {
-      const details = await tgRes.text().catch(() => '');
-      console.error('[notify-order] Telegram API error:', tgRes.status, details);
-      return res.status(502).json({ error: 'Telegram API error', status: tgRes.status, details });
+      console.error('[notify-order] Telegram API error:', tgRes.status, JSON.stringify(tgData));
+      return res.status(502).json({ error: 'Telegram API error', status: tgRes.status, details: tgData });
     }
 
-    return res.status(200).json({ ok: true });
+    console.log('[notify-order] Sent OK, message_id:', tgData?.result?.message_id);
+    return res.status(200).json({ ok: true, message_id: tgData?.result?.message_id });
   } catch (err) {
     const isTimeout = err.name === 'AbortError';
     console.error('[notify-order] error:', err.message);
