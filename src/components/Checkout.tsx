@@ -156,7 +156,9 @@ export const Checkout: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ msgText }),
-      }).catch(() => {});
+      }).then(r => {
+        if (!r.ok) r.json().catch(() => ({})).then(e => console.error('[Checkout] notify-order failed:', r.status, e));
+      }).catch(err => console.error('[Checkout] notify-order network error:', err));
 
     } catch (err) {
       console.error('[Checkout] placeOrder error:', err);
