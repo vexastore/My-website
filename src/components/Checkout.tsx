@@ -91,84 +91,83 @@ export const Checkout: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // _submitting.current blocks double-taps that arrive before React's
-    // async setIsSubmitting(true) re-render lands. isSubmitting covers the rest.
     if (_submitting.current || isSubmitting || !validateForm()) return;
     _submitting.current = true;
     setValidationBanner(null);
     setIsSubmitting(true);
 
-    const fullPhone = `${form.countryCode} ${form.phone}`.trim();
-    const subtotal = getCartTotal();
-    const total = subtotal + deliveryFee;
-    const orderId = 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-
-    // Escape characters that break Telegram's HTML parser.
-    // If a product name or field contains & < > the parser silently drops
-    // everything after the offending character, producing a truncated message.
-    const esc = (s: string) =>
-      (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-    const itemsString = cart.map(i => {
-      const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-        ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${esc(k)}:${esc(String(val))}`).join(', ') + ']'
-        : '';
-      return `${esc(i.product.name)} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
-    }).join('\n');
-
-    const msgText = [
-      '🛒 <b>طلب جديد — Vexa Store!</b>',
-      '',
-      `🆔 <b>رقم الطلب:</b> ${esc(orderId)}`,
-      `📅 <b>التاريخ:</b> ${esc(new Date().toLocaleString('ar-LB'))}`,
-      '',
-      `👤 <b>الاسم:</b> ${esc(form.name)}`,
-      `📞 <b>الهاتف:</b> ${esc(fullPhone)}`,
-      `🏙️ <b>المدينة:</b> ${esc(form.city)}`,
-      `📍 <b>العنوان:</b> ${esc(form.address)}`,
-      `📝 <b>ملاحظات:</b> ${esc(form.notes) || '—'}`,
-      '',
-      `📦 <b>المنتجات:</b>\n${itemsString}`,
-      '',
-      `💵 <b>سعر المنتجات:</b> $${subtotal.toFixed(2)} USD`,
-      `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
-      `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
-    ].join('\n');
-
-    // Send Telegram notification. AbortController caps wait at 10 s so the
-    // button never freezes forever if Vercel or Telegram is slow.
-    // Order is still placed even if Telegram fails (catch is non-fatal).
     try {
-      const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000);
-      const tgRes = await fetch('/api/notify-order', {
+      const fullPhone = `${form.countryCode} ${form.phone}`.trim();
+
+      const customerInfo: CustomerInfo = {
+        name: form.name,
+        phone: fullPhone,
+        countryCode: form.countryCode,
+        city: form.city,
+        address: form.address,
+        notes: form.notes,
+      };
+
+      // ── 1. Place order FIRST — saves to Firestore + localStorage immediately.
+      //    This also gives us the real order ID (same ID that admin sees).
+      //    Do NOT await Telegram before this — that was causing the 10-second freeze.
+      const placed = placeOrder(customerInfo);
+      if (!placed) return; // cart was empty — shouldn't happen but guard anyway
+
+      // ── 2. Build Telegram message with the REAL order ID from placeOrder.
+      //    Previous bug: two different IDs were generated — one for Telegram,
+      //    one for Firestore — so they never matched in the admin panel.
+      const esc = (s: string) =>
+        (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      const subtotal = placed.total - deliveryFee;
+
+      const itemsString = placed.items.map(i => {
+        const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
+          ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${esc(k)}:${esc(String(val))}`).join(', ') + ']'
+          : '';
+        return `${esc(i.product.name)} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
+      }).join('\n');
+
+      const msgText = [
+        '🛒 <b>طلب جديد — Vexa Store!</b>',
+        '',
+        `🆔 <b>رقم الطلب:</b> ${esc(placed.id)}`,
+        `📅 <b>التاريخ:</b> ${esc(new Date().toLocaleString('ar-LB'))}`,
+        '',
+        `👤 <b>الاسم:</b> ${esc(form.name)}`,
+        `📞 <b>الهاتف:</b> ${esc(fullPhone)}`,
+        `🏙️ <b>المدينة:</b> ${esc(form.city)}`,
+        `📍 <b>العنوان:</b> ${esc(form.address)}`,
+        `📝 <b>ملاحظات:</b> ${esc(form.notes) || '—'}`,
+        '',
+        `📦 <b>المنتجات:</b>\n${itemsString}`,
+        '',
+        `💵 <b>سعر المنتجات:</b> $${subtotal.toFixed(2)} USD`,
+        `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
+        `💰 <b>المجموع الكلي:</b> $${placed.total.toFixed(2)} USD`,
+      ].join('\n');
+
+      // ── 3. Fire Telegram in background — do NOT await.
+      //    The customer should never wait on Telegram's response.
+      //    If the network is slow or Telegram is down, the order is already
+      //    saved and the customer sees the success screen immediately.
+      fetch('/api/notify-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ msgText }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeoutId);
-      if (!tgRes.ok) {
-        const err = await tgRes.json().catch(() => ({}));
-        console.error('[Checkout] notify-order error:', err);
-      }
-    } catch (err) {
-      // Non-fatal — order always completes even if Telegram notification fails.
-      console.error('[Checkout] notify-order failed (non-fatal):', err);
-    }
+      }).catch(err => console.error('[Checkout] notify-order failed:', err));
 
-    const customerInfo: CustomerInfo = {
-      name: form.name,
-      phone: fullPhone,
-      countryCode: form.countryCode,
-      city: form.city,
-      address: form.address,
-      notes: form.notes
-    };
-    const placed = placeOrder(customerInfo);
-    _submitting.current = false;
-    setIsSubmitting(false);
-    if (placed) setOrderComplete(placed);
+      // ── 4. Show success screen immediately.
+      setOrderComplete(placed);
+
+    } finally {
+      // try-finally guarantees the spinner ALWAYS stops, even if something
+      // throws unexpectedly. Previously a crash between setIsSubmitting(true)
+      // and setIsSubmitting(false) could leave the button frozen forever.
+      _submitting.current = false;
+      setIsSubmitting(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
