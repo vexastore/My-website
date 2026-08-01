@@ -96,8 +96,32 @@ export const Checkout: React.FC = () => {
     setValidationBanner(null);
     setIsSubmitting(true);
 
+    // ── WHY this await exists ──────────────────────────────────────────────
+    // React 18 automatic batching: when everything below is synchronous,
+    // setIsSubmitting(true) and setIsSubmitting(false) are batched into the
+    // SAME render, so the spinner never appears and the button looks frozen.
+    // A zero-delay setTimeout creates a microtask boundary that forces React
+    // to flush setIsSubmitting(true) first, render the spinner, then continue.
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     try {
       const fullPhone = `${form.countryCode} ${form.phone}`.trim();
+
+      // ── 1. Escape chars that break Telegram's HTML parser ─────────────────
+      //    & < > must be replaced BEFORE building the message string.
+      const esc = (s: string) =>
+        (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+      // ── 2. Build Telegram message from cart NOW, before placeOrder clears it
+      const subtotal = getCartTotal();
+      const total = subtotal + deliveryFee;
+
+      const itemsString = cart.map(i => {
+        const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
+          ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${esc(k)}:${esc(String(val))}`).join(', ') + ']'
+          : '';
+        return `${esc(i.product.name)} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
+      }).join('\n');
 
       const customerInfo: CustomerInfo = {
         name: form.name,
@@ -108,27 +132,12 @@ export const Checkout: React.FC = () => {
         notes: form.notes,
       };
 
-      // ── 1. Place order FIRST — saves to Firestore + localStorage immediately.
-      //    This also gives us the real order ID (same ID that admin sees).
-      //    Do NOT await Telegram before this — that was causing the 10-second freeze.
+      // ── 3. Place order — saves to Firestore + localStorage, clears cart ───
       const placed = placeOrder(customerInfo);
-      if (!placed) return; // cart was empty — shouldn't happen but guard anyway
+      if (!placed) return; // cart was empty — guard only, shouldn't happen
 
-      // ── 2. Build Telegram message with the REAL order ID from placeOrder.
-      //    Previous bug: two different IDs were generated — one for Telegram,
-      //    one for Firestore — so they never matched in the admin panel.
-      const esc = (s: string) =>
-        (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-      const subtotal = placed.total - deliveryFee;
-
-      const itemsString = placed.items.map(i => {
-        const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-          ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${esc(k)}:${esc(String(val))}`).join(', ') + ']'
-          : '';
-        return `${esc(i.product.name)} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
-      }).join('\n');
-
+      // ── 4. Build message with the REAL order ID returned by placeOrder ────
+      //    (previously two different IDs were generated; they never matched)
       const msgText = [
         '🛒 <b>طلب جديد — Vexa Store!</b>',
         '',
@@ -145,26 +154,22 @@ export const Checkout: React.FC = () => {
         '',
         `💵 <b>سعر المنتجات:</b> $${subtotal.toFixed(2)} USD`,
         `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
-        `💰 <b>المجموع الكلي:</b> $${placed.total.toFixed(2)} USD`,
+        `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
       ].join('\n');
 
-      // ── 3. Fire Telegram in background — do NOT await.
-      //    The customer should never wait on Telegram's response.
-      //    If the network is slow or Telegram is down, the order is already
-      //    saved and the customer sees the success screen immediately.
+      // ── 5. Fire Telegram in background — do NOT await ────────────────────
+      //    Customer never waits on Telegram. Order is already saved.
       fetch('/api/notify-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ msgText }),
       }).catch(err => console.error('[Checkout] notify-order failed:', err));
 
-      // ── 4. Show success screen immediately.
+      // ── 6. Show success screen ────────────────────────────────────────────
       setOrderComplete(placed);
 
     } finally {
-      // try-finally guarantees the spinner ALWAYS stops, even if something
-      // throws unexpectedly. Previously a crash between setIsSubmitting(true)
-      // and setIsSubmitting(false) could leave the button frozen forever.
+      // Guarantees spinner stops even if something throws unexpectedly.
       _submitting.current = false;
       setIsSubmitting(false);
     }
