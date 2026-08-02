@@ -951,6 +951,694 @@ BDSM اختصار لـ Bondage & Discipline, Dominance & Submission, Sadism & Ma
     keywords: ['bdsm beginners guide', 'bdsm safe', 'bdsm lebanon', 'bondage guide'],
     keywordsAr: ['دليل BDSM للمبتدئين', 'BDSM آمن', 'BDSM في لبنان', 'دليل التقييد'],
   },
+
+  // ─── NEW POST 1 ────────────────────────────────────────────────────────────
+  {
+    id: 'couples-gift-guide-lebanon-2026',
+    slug: 'couples-gift-guide-lebanon-2026',
+    categorySlug: 'guides',
+    title: 'Best Couples Gift Guide Lebanon 2026 — 15 Ideas for Every Budget',
+    titleAr: 'أفضل هدايا للأزواج في لبنان 2026 — 15 فكرة لكل ميزانية',
+    excerpt: 'Looking for a unique gift for your partner in Lebanon? From luxury lingerie to couples toys, here are 15 discreet gift ideas delivered to your door.',
+    excerptAr: 'تبحث عن هدية مميزة لشريكك في لبنان؟ من اللانجري الفاخر إلى الألعاب الزوجية، إليك 15 فكرة سرية تُوصَّل لبابك.',
+    content: `
+## Why Intimate Gifts Are the Best Couples Gifts
+
+Giving your partner something personal and intimate tells them you care about your shared life — not just the surface. In Lebanon, where discretion matters, Vexa Store ships everything in plain sealed boxes with no branding, making it easy to surprise your partner without anyone knowing.
+
+## Top 15 Couples Gift Ideas in Lebanon
+
+### Budget: Under 50,000 LBP
+
+**1. Scented Massage Oil**
+Start simple. A quality massage oil sets the mood and requires nothing but your hands. Ideal as a first gift or add-on to a larger order.
+
+**2. Silk Blindfold**
+Elegant and versatile. A silk blindfold adds an element of surprise to any evening. Lightweight, packable, and very easy to use.
+
+**3. Mini Bullet Vibrator**
+Compact, quiet, and beginner-friendly. A mini bullet vibrator is one of the most popular first-time purchases at Vexa Store Lebanon — and for good reason.
+
+### Budget: 50,000–150,000 LBP
+
+**4. Couples Starter Kit**
+Pre-curated kits include two or three complementary products — typically a vibrator, lubricant, and one accessory. Everything a couple needs to start exploring together.
+
+**5. Luxury Lingerie Set**
+Lebanese women love high-quality lingerie. Choose a lace set or satin bodysuit for a gift that feels truly luxurious. Available in all sizes with discreet delivery.
+
+**6. Wand Massager**
+Wand massagers are the most versatile adult product. Powerful enough for full-body massage, precise enough for targeted stimulation. A gift that genuinely lasts.
+
+**7. Couple's Dice Game**
+Low-stakes, high-fun. Intimate dice games prompt spontaneous activity without pressure. Great for couples who want to add variety without a big step.
+
+### Budget: 150,000–300,000 LBP
+
+**8. Remote-Control Vibrator**
+Let your partner control the intensity. Remote-control vibrators work at range, making them perfect for couples who enjoy the element of play and shared control.
+
+**9. BDSM Starter Set**
+For curious couples, a beginner BDSM set typically includes soft restraints, a blindfold, and a light tickler. All body-safe and designed for first-timers.
+
+**10. Luxury Dildo (Silicone)**
+Body-safe, realistic, and elegant. A premium silicone dildo is a lasting gift — the material stays hygienic and the quality is immediately noticeable.
+
+### Budget: 300,000+ LBP
+
+**11. App-Connected Toy**
+High-tech couples toys connect via Bluetooth to a smartphone app. Partner controls vibration intensity, patterns, and timing. Ideal for tech-savvy couples or long-distance partners.
+
+**12. Full Lingerie + Toy Bundle**
+Combine a luxury lingerie set with a matching intimate toy for a complete experience. Vexa Store can suggest pairings based on your preferences — contact us on WhatsApp.
+
+**13. Bondage Furniture Set**
+For couples who are ready to invest in their bedroom experience: padded restraint sets and positioning gear that add a new dimension to intimacy.
+
+**14. Rechargeable Couple's Vibrator**
+Designed to be worn during intimacy and controlled by either partner. Hands-free, rechargeable, and discreet enough to wear in other settings too.
+
+**15. Premium Couples Experience Box**
+Vexa Store's curated luxury boxes include five or more premium products — lubricants, vibrator, restraints, lingerie voucher, and more. The ultimate couples gift.
+
+## How to Order Discreetly in Lebanon
+
+1. Browse vexatoys.com — all prices shown are final, in USD.
+2. Add to cart and choose your delivery window.
+3. Pay cash on delivery — no credit card required.
+4. Receive in a plain sealed box with no external branding.
+
+Delivery is same-day in Beirut and suburbs, 24–72 hours to other Lebanese regions.
+
+## Frequently Asked Questions
+
+**Will anyone know what I ordered?**
+No. The box has no logos, no receipts visible from outside, and the delivery rider carries nothing that identifies the contents.
+
+**Can I specify a delivery time?**
+Yes. Contact us on WhatsApp after ordering and we will coordinate a window that works for you.
+
+**What if my partner doesn't like the product?**
+We offer exchange on unopened products within 7 days. Contact our WhatsApp support team.
+`,
+    contentAr: `
+## لماذا الهدايا الحميمة هي أفضل هدايا للأزواج؟
+
+إهداء شريكك شيئاً شخصياً وحميمياً يدل على اهتمامك بحياتكما المشتركة. في لبنان حيث الخصوصية مهمة، يُشحن كل طلب من متجر فيكسا في صندوق عادي مُحكم الإغلاق بدون أي شعار، مما يجعل المفاجأة ممكنة دون أن يعلم أحد.
+
+## أفضل 15 فكرة هدية للأزواج في لبنان
+
+### الميزانية: أقل من 50,000 ل.ل.
+
+**1. زيت تدليك معطّر**
+بداية بسيطة ورومانسية. زيت التدليك الفاخر يُهيئ الأجواء ويحتاج فقط ليديك. مثالي كهدية أولى أو إضافة لطلب أكبر.
+
+**2. غمامة حريرية**
+أنيقة ومتعددة الاستخدامات. الغمامة الحريرية تضيف عنصر المفاجأة لأي سهرة. خفيفة الوزن وسهلة الاستخدام.
+
+**3. هزاز نقطي مصغّر**
+صغير وهادئ ومناسب للمبتدئين. يُعدّ الهزاز النقطي المصغّر من أكثر المشتريات الأولى شيوعاً في متجر فيكسا لبنان.
+
+### الميزانية: 50,000–150,000 ل.ل.
+
+**4. طقم بداية للأزواج**
+طقم مُجهّز مسبقاً يشمل منتجين أو ثلاثة متكاملة — عادةً هزاز وزيت تشحيم وإكسسوار. كل ما يحتاجه الزوجان للبدء معاً.
+
+**5. طقم لانجري فاخر**
+اللبنانيات يُقدّرن اللانجري عالي الجودة. اختر طقماً من الدانتيل أو الساتان لهدية تشعر بالفخامة الحقيقية. متوفر بكل المقاسات.
+
+**6. مدلّكة العصا الكبيرة**
+من أكثر المنتجات تنوعاً. قوية للتدليك الكامل للجسم، ودقيقة للتحفيز المحدد. هدية تدوم فعلاً.
+
+**7. لعبة نرد للأزواج**
+مرح وبسيط. ألعاب النرد الحميمية تُحفّز على الاستكشاف دون ضغط. رائعة للأزواج الذين يريدون إضافة التنوع بخطوات صغيرة.
+
+### الميزانية: 150,000–300,000 ل.ل.
+
+**8. هزاز بتحكم عن بُعد**
+دع شريكك يتحكم في الشدة. يعمل عن بُعد، مما يجعله مثالياً للأزواج الذين يستمتعون باللعب المشترك.
+
+**9. طقم BDSM للمبتدئين**
+للأزواج الفضوليين، يشمل الطقم المبتدئ أربطة ناعمة وغمامة وريشة خفيفة. جميع المواد آمنة للجسم.
+
+**10. ديلدو فاخر (سيليكون)**
+آمن للجسم وأنيق. ديلدو السيليكون الفاخر هدية تدوم — المادة تبقى صحية والجودة محسوسة فوراً.
+
+### الميزانية: 300,000+ ل.ل.
+
+**11. لعبة متصلة بالتطبيق**
+ألعاب الأزواج التقنية تتصل عبر Bluetooth بتطبيق الهاتف. مثالية للأزواج المهتمين بالتكنولوجيا أو الأزواج في مدن مختلفة.
+
+**12. باقة لانجري + لعبة زوجية**
+الجمع بين طقم لانجري فاخر ولعبة حميمية متناسبة لتجربة متكاملة. تواصل معنا عبر واتساب للاقتراحات.
+
+**13. طقم قيود متعدد**
+للأزواج المستعدين للاستثمار في تجربتهم: طقم قيود مبطّن يُضيف بُعداً جديداً للحميمية.
+
+**14. هزاز زوجي قابل للشحن**
+مُصمم للارتداء أثناء العلاقة الحميمة وتحكم أي من الشريكين. بدون يدين وهادئ بشكل كافٍ.
+
+**15. صندوق تجربة الأزواج الفاخر**
+صناديق فيكسا المنتقاة تشمل خمسة منتجات فأكثر — زيت تشحيم وهزاز وقيود وقسيمة لانجري وأكثر. الهدية الزوجية المثالية.
+
+## كيف تطلب بخصوصية تامة في لبنان
+
+1. تصفح vexatoys.com — جميع الأسعار نهائية.
+2. أضف للسلة واختر موعد التوصيل.
+3. ادفع عند الاستلام — لا حاجة لبطاقة ائتمان.
+4. استلم في صندوق عادي مُحكم بدون أي علامة تجارية.
+
+التوصيل في نفس اليوم في بيروت والضواحي، 24–72 ساعة لباقي المناطق اللبنانية.
+`,
+    publishedAt: '2026-07-15',
+    updatedAt: '2026-08-02',
+    author: 'Vexa Store Team',
+    readingTime: 7,
+    keywords: ['couples gift lebanon', 'gift ideas beirut', 'intimate gifts lebanon', 'couples toys gift', 'lingerie gift lebanon', 'valentines gift beirut'],
+    keywordsAr: ['هدايا للأزواج لبنان', 'هدايا رومانسية بيروت', 'هدايا حميمية لبنان', 'أفكار هدايا للأزواج', 'هدية مميزة للزوجة'],
+  },
+
+  // ─── NEW POST 2 ────────────────────────────────────────────────────────────
+  {
+    id: 'privacy-guide-buy-adult-toys-lebanon',
+    slug: 'privacy-guide-buy-adult-toys-lebanon',
+    categorySlug: 'tips',
+    title: 'How to Buy Adult Toys with Complete Privacy in Lebanon — Full Guide',
+    titleAr: 'كيف تشتري ألعاباً للبالغين بخصوصية تامة في لبنان — دليل شامل',
+    excerpt: 'Worried about privacy when buying adult toys in Lebanon? This guide covers everything: discreet delivery, packaging, payment, and what to expect at the door.',
+    excerptAr: 'قلق من الخصوصية عند شراء منتجات للبالغين في لبنان؟ هذا الدليل يغطي كل شيء: التوصيل السري والتغليف والدفع وما يحدث عند الباب.',
+    content: `
+## Privacy Matters — Especially in Lebanon
+
+Lebanon's close-knit social culture makes privacy a genuine concern for many shoppers. Whether you live with family, in a shared apartment, or simply value discretion, buying adult products privately is entirely possible when you know how.
+
+This guide explains exactly what happens from checkout to doorstep at Vexa Store Lebanon.
+
+## The Packaging: What the Box Looks Like
+
+**Outside the box:**
+- Plain brown or white cardboard — no logos, no branding
+- No text indicating the contents
+- No "Vexa Store" or any adult-related text on the label
+- Sender name on the waybill is a generic business name, not "Vexa Store"
+- Completely sealed with tape on all sides
+
+**Inside the box:**
+- Products wrapped in plain tissue paper
+- No printed invoice visible from outside
+- A simple white receipt is inside for your records only
+
+The box looks identical to any standard e-commerce delivery. A neighbor, a family member, or a building security guard would see nothing unusual.
+
+## The Delivery Process: What Happens at Your Door
+
+1. **You place the order** on vexatoys.com — no account required, guest checkout available.
+2. **You receive a WhatsApp confirmation** within 15–30 minutes with estimated delivery time.
+3. **The rider arrives** in civilian clothing — not a branded uniform.
+4. **You pay cash** — exact amount or the rider provides change.
+5. **You sign or confirm** receipt — the rider leaves immediately.
+
+The transaction takes under two minutes. The rider has no knowledge of the box contents.
+
+## Payment: Cash Only, No Traces
+
+All orders at Vexa Store Lebanon are cash on delivery. This means:
+
+- **No bank statement record** of an adult purchase
+- **No credit card history** showing the transaction
+- **No PayPal or digital wallet** records
+- **No saved card details** anywhere
+
+For those who share bank accounts or live with partners who check statements, COD provides complete financial privacy.
+
+## WhatsApp and Order History: What's Stored
+
+- **WhatsApp conversation**: Standard WhatsApp messages. Delete them after ordering if preferred.
+- **Order confirmation**: Sent to your phone number. No personal account is created unless you register.
+- **Vexa Store does not share customer data** with any third party, government body, or partner company.
+
+## Tips for Maximum Discretion
+
+**Tip 1: Use a delivery time when you're home alone**
+Coordinate your delivery window via WhatsApp after placing the order. Most riders in Beirut can accommodate a 1–2 hour window.
+
+**Tip 2: Deliver to an alternative address**
+Office, car park, friend's address — delivery can go anywhere in Lebanon. Just specify the address at checkout.
+
+**Tip 3: Use a nickname or first name only**
+The waybill only needs a delivery name and phone number. Using a nickname or first name is fine.
+
+**Tip 4: Delete WhatsApp chat after delivery**
+WhatsApp chats are stored locally on your device. You can delete the Vexa Store conversation thread after your order arrives.
+
+**Tip 5: Guest checkout**
+You do not need to create an account. Guest checkout leaves no login trail.
+
+## Frequently Asked Questions
+
+**Will Vexa Store appear on my phone bill?**
+Phone calls and WhatsApp messages are standard communication — your telecom provider records the number but not the nature of the conversation. WhatsApp messages are end-to-end encrypted.
+
+**Can I pick up in person instead of delivery?**
+Contact us on WhatsApp to arrange a pickup option in Beirut.
+
+**What if I'm not home at delivery time?**
+Message us on WhatsApp before the window closes to reschedule. Packages are not left unattended.
+
+**Is my address stored permanently?**
+Only for the duration of the order. Guest checkout data is not permanently stored in a customer account.
+`,
+    contentAr: `
+## الخصوصية مهمة — خاصةً في لبنان
+
+الطابع الاجتماعي المترابط في لبنان يجعل الخصوصية مصدر قلق حقيقي لكثير من المتسوقين. سواء كنت تسكن مع العائلة أو في شقة مشتركة أو تقدّر الخصوصية ببساطة، فإن شراء المنتجات للبالغين بشكل سري ممكن تماماً عندما تعرف كيف.
+
+هذا الدليل يشرح بالضبط ما يحدث من لحظة الطلب حتى وصول الصندوق في متجر فيكسا لبنان.
+
+## التغليف: كيف يبدو الصندوق؟
+
+**من الخارج:**
+- كرتون بني أو أبيض عادي — بدون شعارات أو علامات تجارية
+- لا نص يدل على المحتويات
+- لا "Vexa Store" أو أي نص للبالغين على البطاقة
+- اسم المُرسل على بوليصة الشحن اسم تجاري عام
+- مُحكم الإغلاق بالشريط من جميع الجوانب
+
+**من الداخل:**
+- المنتجات ملفوفة بورق تيشو عادي
+- لا فاتورة مطبوعة مرئية من الخارج
+- إيصال أبيض بسيط بالداخل لسجلاتك فقط
+
+الصندوق يبدو مطابقاً لأي توصيل تجارة إلكترونية عادي. جار أو فرد من العائلة أو أمن المبنى لن يلاحظ أي شيء غير عادي.
+
+## عملية التوصيل: ما يحدث عند الباب
+
+1. **تضع الطلب** على vexatoys.com — لا حاجة لحساب، الدفع كضيف متاح.
+2. **تستلم تأكيداً عبر واتساب** خلال 15-30 دقيقة مع وقت التوصيل المتوقع.
+3. **يصل السائق** بملابس عادية — ليس زياً موحداً مُوسوماً.
+4. **تدفع نقداً** — المبلغ الكامل أو السائق يعطيك الباقي.
+5. **توقّع أو تأكد** الاستلام — السائق يغادر فوراً.
+
+المعاملة تأخذ أقل من دقيقتين. السائق لا يعرف محتويات الصندوق.
+
+## الدفع: نقداً فقط، بدون آثار
+
+جميع طلبات متجر فيكسا لبنان نقداً عند الاستلام. هذا يعني:
+- **لا سجل في كشف الحساب البنكي** لعملية شراء للبالغين
+- **لا تاريخ بطاقة ائتمان** يُظهر المعاملة
+- **لا تفاصيل بطاقة محفوظة** في أي مكان
+
+لمن يُشاركون حسابات بنكية أو يعيشون مع أزواج يراجعون الكشوف، يوفر الدفع عند الاستلام خصوصية مالية تامة.
+
+## نصائح للحصول على أقصى قدر من التكتم
+
+**النصيحة 1: اختر وقت توصيل عندما تكون وحدك**
+نسّق نافذة التوصيل عبر واتساب بعد تقديم الطلب. معظم السائقين في بيروت يستوعبون نافذة ساعة إلى ساعتين.
+
+**النصيحة 2: التوصيل لعنوان بديل**
+المكتب، موقف السيارات، عنوان صديق — التوصيل يمكن أن يذهب لأي مكان في لبنان. فقط حدد العنوان عند الطلب.
+
+**النصيحة 3: استخدم اسماً مستعاراً أو الاسم الأول فقط**
+بوليصة الشحن تحتاج فقط اسم تسليم ورقم هاتف. استخدام اسم مستعار أو الاسم الأول مقبول.
+
+**النصيحة 4: احذف محادثة واتساب بعد التوصيل**
+محادثات واتساب مخزنة محلياً على جهازك. يمكنك حذف محادثة فيكسا بعد وصول طلبك.
+
+**النصيحة 5: الطلب كضيف**
+لا تحتاج إنشاء حساب. الطلب كضيف لا يترك أثر تسجيل دخول.
+`,
+    publishedAt: '2026-07-20',
+    updatedAt: '2026-08-02',
+    author: 'Vexa Store Team',
+    readingTime: 6,
+    keywords: ['buy adult toys privately lebanon', 'discreet delivery lebanon', 'privacy online shopping lebanon', 'discreet packaging beirut', 'anonymous adult toy delivery'],
+    keywordsAr: ['شراء ألعاب بالغين بسرية لبنان', 'توصيل سري لبنان', 'خصوصية التسوق الإلكتروني لبنان', 'تغليف سري بيروت'],
+  },
+
+  // ─── NEW POST 3 ────────────────────────────────────────────────────────────
+  {
+    id: 'improve-intimacy-relationship-tips-couples',
+    slug: 'improve-intimacy-relationship-tips-couples',
+    categorySlug: 'relationships',
+    title: '7 Proven Ways to Improve Intimacy in Your Relationship',
+    titleAr: '7 طرق مُجرَّبة لتحسين الحميمية في علاقتك',
+    excerpt: 'Intimacy fades in every long-term relationship. Here are 7 research-backed strategies — from communication to physical connection — that actually work.',
+    excerptAr: 'الحميمية تتراجع في كل علاقة طويلة الأمد. إليك 7 استراتيجيات مُثبتة بالبحث — من التواصل إلى الارتباط الجسدي — تعمل فعلاً.',
+    content: `
+## Why Intimacy Fades — And Why It's Normal
+
+Research consistently shows that emotional and physical intimacy naturally decreases after the first 12–18 months of a relationship. Neurochemically, the intensity of early attachment (dopamine, oxytocin, norepinephrine spikes) stabilises. What felt automatic now requires intention.
+
+This is not failure. It's biology. What matters is what couples do about it.
+
+## 1. Schedule Intimacy — And Stop Apologising for It
+
+Spontaneous intimacy is a myth in long-term partnerships. Work schedules, family demands, stress, and daily logistics make "spontaneous" rare. Couples who thrive intentionally make time.
+
+**What this looks like:**
+- Block time in your calendar — the same way you would a meeting
+- Make it a commitment you both respect
+- Remove the pressure of spontaneity by making intention a habit
+
+Scheduling does not kill romance. It protects it.
+
+## 2. Separate Emotional Intimacy from Physical Intimacy
+
+These two types of intimacy need different conditions to thrive — and confusing them causes frustration.
+
+**Emotional intimacy** needs: undistracted time, genuine curiosity about your partner's inner life, vulnerability, and non-judgmental listening.
+
+**Physical intimacy** needs: physical safety, relaxation, absence of performance pressure, and genuine desire — not obligation.
+
+Practice both separately. Plan a device-free dinner conversation that doesn't lead to sex. Plan physical time that doesn't require emotional depth. Both are valid.
+
+## 3. Introduce Novelty Deliberately
+
+The neuroscience is clear: novelty reactivates the dopamine system. New shared experiences — not necessarily sexual — strengthen relationship bonds.
+
+**Easy novelty experiments:**
+- Cook a cuisine you've never tried together
+- Take a day trip to a Lebanese destination you haven't visited
+- Try a new physical activity: hiking Chouf, paddleboarding in Jounieh
+- Introduce a new intimate product to your bedroom routine
+
+The introduction of novelty in the bedroom specifically has strong research support. Adult products — vibrators, lubricants, couples toys — are used by the majority of long-term couples in relationship satisfaction studies.
+
+## 4. Communicate Explicitly About Physical Needs
+
+Most couples assume their partner knows what they want. Most partners are guessing. This silent gap is one of the most common drivers of declining physical satisfaction.
+
+**The practice:**
+- Set aside 20 minutes once a month specifically to discuss physical preferences
+- Use "I feel/I'd like" language rather than criticism
+- Be specific: timing, frequency, types of touch, environment preferences
+
+This conversation is awkward the first time. It gets easier — and the results compound.
+
+## 5. Address Physical Barriers Directly
+
+Stress, hormonal changes, medication side effects, body image, and chronic fatigue are among the most common drivers of reduced physical desire — and all are addressable.
+
+In Lebanon, access to couples therapists and psychosexual counselors is growing. Speaking to a professional is not a sign of failure; it's the fastest path to resolution.
+
+Physical aids — lubricants for reduced natural lubrication, vibrators for reduced arousal speed, massage oils for tension — address barriers practically rather than waiting for them to resolve on their own.
+
+## 6. Rebuild Non-Sexual Physical Touch
+
+Studies on long-term couples consistently find that non-sexual physical touch — hugging, hand-holding, back rubs, sitting close — is a strong predictor of physical and emotional satisfaction.
+
+When non-sexual touch disappears, physical connection becomes transactional. Rebuild the habit: a 20-second hug daily has measurable effects on oxytocin levels within two weeks.
+
+## 7. Invest in the Environment
+
+Where you spend your intimate time matters. A cluttered, work-invaded bedroom signals the brain to stay alert — the opposite of what physical intimacy requires.
+
+**Small environment upgrades:**
+- Remove work equipment from the bedroom
+- Invest in quality bedding
+- Add soft lighting (a dimmer switch is a genuinely worthwhile purchase)
+- Use scent — candles or a diffuser — to create a distinct sensory environment for intimate time
+
+The environment sets the conditions. Conditions shape the experience.
+
+## The Role of Intimate Products in Long-Term Relationships
+
+Research published in the Journal of Sexual Medicine found that couples who use intimate products together report significantly higher relationship satisfaction, better communication about physical needs, and greater physical confidence.
+
+At Vexa Store Lebanon, all products are available for discreet delivery — no account required, cash on delivery, plain packaging. Starting small (a couples massage oil or a single vibrator) is entirely sufficient.
+
+## When to Seek Professional Support
+
+If changes in intimacy are accompanied by emotional disconnection, resentment, or persistent loss of desire despite genuine effort, a couples therapist can provide structured support. In Beirut, the Lebanese Psychological Association maintains a directory of licensed practitioners.
+`,
+    contentAr: `
+## لماذا تتراجع الحميمية — ولماذا هذا طبيعي؟
+
+تُظهر الأبحاث باستمرار أن الحميمية العاطفية والجسدية تنخفض بشكل طبيعي بعد أول 12 إلى 18 شهراً من العلاقة. الكيمياء العصبية التي جعلت بداية العلاقة مشتعلة تستقر. ما كان تلقائياً يصبح يحتاج قصداً.
+
+هذا ليس فشلاً. إنه علم الأحياء. المهم هو ما يفعله الأزواج حيال ذلك.
+
+## 1. جدوِل الحميمية — وتوقّف عن الاعتذار عنها
+
+الحميمية التلقائية أسطورة في الشراكات الطويلة. جداول العمل ومتطلبات الأسرة والضغط واللوجستيات اليومية تجعل "التلقائي" نادراً. الأزواج الناجحون يخصصون الوقت عن قصد.
+
+**كيف يبدو ذلك:**
+- احجز وقتاً في تقويمك — بنفس الطريقة التي تحجز بها اجتماعاً
+- اجعله التزاماً يحترمه كلاكما
+- ازِل ضغط العفوية بجعل القصد عادة
+
+جدولة الحميمية لا تقتل الرومانسية. بل تحميها.
+
+## 2. افصل بين الحميمية العاطفية والجسدية
+
+هذان النوعان من الحميمية يحتاجان ظروفاً مختلفة — والخلط بينهما يسبب الإحباط.
+
+**الحميمية العاطفية** تحتاج: وقتاً بدون إلهاء، فضولاً حقيقياً تجاه الحياة الداخلية لشريكك، وضعفاً بناءً، واستماعاً بدون حكم.
+
+**الحميمية الجسدية** تحتاج: أماناً جسدياً، واسترخاءً، وغياب ضغط الأداء، ورغبة حقيقية — ليس التزاماً.
+
+مارس كليهما بشكل منفصل. خطط لعشاء بدون أجهزة لا يُفضي للجنس. خطط لوقت جسدي لا يتطلب عمقاً عاطفياً. كلاهما صحيح.
+
+## 3. أدخل التجديد عن قصد
+
+العلم الأعصاب واضح: التجديد يُعيد تنشيط نظام الدوبامين. التجارب المشتركة الجديدة — وليس بالضرورة الجنسية — تعزز روابط العلاقة.
+
+**تجارب التجديد السهلة:**
+- طبّخا مطبخاً لم تجرباه معاً من قبل
+- قوما برحلة يوم إلى وجهة لبنانية لم تزوراها
+- جرّبا نشاطاً جسدياً جديداً: تسلق جبال الشوف، ركوب الأمواج في جونية
+- أدخلا منتجاً حميمياً جديداً لروتين غرفة نومكما
+
+إدخال التجديد في غرفة النوم تحديداً له دعم بحثي قوي. المنتجات الحميمية — الهزازات وزيوت التشحيم وألعاب الأزواج — تُستخدم من قِبَل غالبية الأزواج في دراسات الرضا عن العلاقة.
+
+## 4. تواصل بوضوح حول الاحتياجات الجسدية
+
+معظم الأزواج يفترضون أن شريكهم يعرف ما يريدون. معظم الشركاء يخمنون. هذه الفجوة الصامتة هي أحد أكثر المحركات شيوعاً لانخفاض الرضا الجسدي.
+
+**الممارسة:**
+- خصّصا 20 دقيقة مرة شهرياً للحديث عن التفضيلات الجسدية
+- استخدم لغة "أشعر/أودّ" بدلاً من النقد
+- كن محدداً: التوقيت، التكرار، أنواع اللمس، تفضيلات البيئة
+
+هذه المحادثة محرجة في المرة الأولى. تصبح أسهل — وتتراكم نتائجها.
+
+## 5. عالج الحواجز الجسدية مباشرة
+
+الضغط والتغيرات الهرمونية وآثار الأدوية الجانبية وصورة الجسم والإرهاق المزمن هي من أكثر المحركات شيوعاً لانخفاض الرغبة الجسدية — وكلها قابلة للمعالجة.
+
+الوسائل الجسدية — زيوت التشحيم للترطيب، والهزازات لتسريع الإثارة، وزيوت التدليك للتوتر — تعالج الحواجز عملياً بدلاً من انتظار حلّها من تلقاء نفسها.
+
+## 6. أعد بناء اللمس الجسدي غير الجنسي
+
+تجد الدراسات على الأزواج طويلي الأمد باستمرار أن اللمس الجسدي غير الجنسي — العناق، ومسك اليد، وتدليك الظهر، والجلوس بالقرب — مؤشر قوي على الرضا.
+
+عندما يختفي اللمس غير الجنسي، يصبح الاتصال الجسدي معاملاتياً. أعد بناء العادة: عناق لمدة 20 ثانية يومياً له آثار قابلة للقياس على مستويات الأوكسيتوسين خلال أسبوعين.
+
+## 7. استثمر في البيئة
+
+غرفة النوم المزدحمة تُرسل إشارات للدماغ للبقاء في حالة تأهب — عكس ما تحتاجه الحميمية الجسدية.
+
+**تحسينات بيئية صغيرة:**
+- أزِل معدات العمل من غرفة النوم
+- استثمر في أغطية سرير جيدة الجودة
+- أضف إضاءة ناعمة
+- استخدم العطر — شمعة أو موزع عطر — لخلق بيئة حسية مميزة لوقت الحميمية
+`,
+    publishedAt: '2026-07-25',
+    updatedAt: '2026-08-02',
+    author: 'Vexa Store Team',
+    readingTime: 8,
+    keywords: ['improve intimacy relationship', 'couples intimacy tips', 'relationship advice lebanon', 'intimacy long term relationship', 'couples connection tips'],
+    keywordsAr: ['تحسين الحميمية في العلاقة', 'نصائح للأزواج', 'علاقة زوجية أفضل', 'حميمية في الزواج', 'نصائح العلاقة الزوجية'],
+  },
+
+  // ─── NEW POST 4 ────────────────────────────────────────────────────────────
+  {
+    id: 'beginners-guide-adult-toys-couples-lebanon',
+    slug: 'beginners-guide-adult-toys-couples-lebanon',
+    categorySlug: 'guides',
+    title: "Beginner's Guide to Adult Toys for Couples in Lebanon — Start Here",
+    titleAr: 'دليل المبتدئين للألعاب الزوجية في لبنان — ابدأ من هنا',
+    excerpt: "Never bought adult toys before? This beginner's guide walks you through what to buy first, what to avoid, and how to start the conversation with your partner.",
+    excerptAr: 'لم تشترِ ألعاباً للبالغين من قبل؟ هذا الدليل للمبتدئين يأخذك خطوة بخطوة لما تشتريه أولاً، وما تتجنبه، وكيف تبدأ الحديث مع شريكك.',
+    content: `
+## Starting Out: The Most Important Thing First
+
+The single most important factor in buying adult toys as a beginner is this: start smaller and simpler than you think. The biggest mistake beginners make is choosing something complex, intimidating, or too powerful — and then forming a negative first impression.
+
+A $10 bullet vibrator used correctly delivers more satisfaction than a $150 rabbit vibrator used with hesitation.
+
+## Step 1: Have the Conversation First
+
+Before purchasing anything, talk to your partner. This conversation does not have to be elaborate.
+
+**Opening lines that work:**
+- "I read something about couples who try new things together — want to look at some options?"
+- "I'm curious about this. Can we look together?"
+- "I want to try something new with you. Are you open to it?"
+
+The conversation removes the element of surprise — which can land anywhere from delightful to awkward. Mutual enthusiasm is more important than the product itself.
+
+## Step 2: Choose Your First Product Category
+
+### For couples exploring together:
+
+**Best first choice: Couples massage oil or lubricant**
+Zero barrier to entry. Enhances what you already do. Requires no explanation or instruction. Available from LBP 30,000.
+
+**Second choice: Small vibrator (bullet or egg)**
+The most purchased beginner item at Vexa Store Lebanon. Small, quiet, simple to use, and immediately clear in its purpose. Non-threatening size. Available from LBP 60,000.
+
+**Third choice: Couples dice or card game**
+For couples who want structure and novelty without a physical product. Prompts spontaneous activity in a low-pressure format.
+
+### For individuals purchasing alone:
+
+**Women:** Mini bullet vibrator or wand massager.
+**Men:** Basic masturbator sleeve or cock ring.
+
+Both categories have entry-level options under LBP 80,000 with discreet delivery to any Lebanese address.
+
+## Step 3: Know What to Avoid as a Beginner
+
+**Avoid: Large or penetrative toys as a first purchase**
+Save realistic dildos and large insertables for after you've established comfort and communication.
+
+**Avoid: BDSM sets as an introduction**
+Bondage, restraints, and impact play require established trust, communication, and agreed boundaries. Not a starting point.
+
+**Avoid: Cheap materials**
+Products made from jelly, rubber, latex, or PVC are porous — they cannot be fully cleaned and harbor bacteria. Always buy silicone, ABS plastic, glass, or stainless steel. At Vexa Store, all products meet this standard.
+
+**Avoid: Buying based on size alone**
+Bigger is not better — especially for beginners. Sensation comes from vibration pattern, material, and correct use, not size.
+
+## Step 4: Understand Body-Safe Materials
+
+This is non-negotiable for health and safety.
+
+| Material | Safe? | Notes |
+|----------|-------|-------|
+| Medical silicone | ✅ Yes | Best choice. Non-porous, hypoallergenic |
+| ABS plastic | ✅ Yes | Hard toys, motors |
+| Borosilicate glass | ✅ Yes | Temperature play, easy to clean |
+| Stainless steel | ✅ Yes | Durable, temperature-responsive |
+| PVC / jelly / rubber | ❌ No | Porous, cannot be sterilised |
+| Cyberskin / UR3 | ❌ No | Porous, degrades quickly |
+
+## Step 5: Cleaning and Care
+
+Clean before first use and after every use.
+
+**Silicone, glass, stainless steel:**
+Warm water + unscented soap. Or boil (no motors/electronics attached) for 3 minutes. Or dishwasher top rack.
+
+**ABS plastic (with motor/electronics):**
+Wipe with a damp cloth and mild soap. Do not submerge unless rated fully waterproof.
+
+Store in a clean cloth pouch or the original box. Keep away from other materials — silicone and certain plastics can interact and degrade.
+
+## Step 6: Ordering in Lebanon
+
+At Vexa Store Lebanon:
+- No account required — guest checkout available
+- All prices shown in USD, payable in Lebanese pounds at current rate
+- Cash on delivery — no credit card
+- Plain sealed box — no logos, no brand name visible
+- Same-day delivery in Beirut, 24–72 hours across Lebanon
+- WhatsApp support for product recommendations before purchase
+
+## Common First-Timer Questions
+
+**Is it normal to feel awkward the first time?**
+Yes, completely. Awkward is almost universal. The awkwardness passes quickly — usually within minutes of use.
+
+**What if I/my partner doesn't like it?**
+Exchange unopened products within 7 days. For opened products, contact our WhatsApp team — we will find a solution.
+
+**Are the products really discreet?**
+Yes. The packaging, delivery, and payment process are designed specifically for the Lebanese context. Many Vexa Store customers live with family. Discretion is not an afterthought — it is the core service.
+`,
+    contentAr: `
+## البداية: أهم شيء أولاً
+
+أهم عامل عند شراء ألعاب للبالغين كمبتدئ هو: ابدأ بشيء أبسط وأصغر مما تتخيل. أكبر خطأ يرتكبه المبتدئون هو اختيار شيء معقد أو مخيف أو قوي جداً — ثم تكوين انطباع أول سلبي.
+
+هزاز نقطي صغير يُستخدم بشكل صحيح يُقدّم رضا أكثر من هزاز أرنب فاخر يُستخدم بتردد.
+
+## الخطوة 1: أجرِ المحادثة أولاً
+
+قبل شراء أي شيء، تحدّث مع شريكك. لا تحتاج هذه المحادثة أن تكون معقدة.
+
+**جمل افتتاحية تنجح:**
+- "قرأت شيئاً عن أزواج يجربون أشياء جديدة معاً — هل تريد أن ننظر في بعض الخيارات؟"
+- "أنا فضولي حول هذا. هل يمكننا النظر معاً؟"
+- "أريد تجربة شيء جديد معك. هل أنت منفتح على ذلك؟"
+
+المحادثة تُزيل عنصر المفاجأة — الذي يمكن أن يصل من المثير للبهجة إلى المحرج. الحماس المتبادل أهم من المنتج نفسه.
+
+## الخطوة 2: اختر فئة منتجك الأول
+
+### للأزواج يستكشفون معاً:
+
+**الخيار الأول: زيت تدليك أو زيت تشحيم للأزواج**
+لا حاجز للدخول. يُحسّن ما تفعله بالفعل. لا يحتاج شرحاً أو تعليمات. متاح من 30,000 ل.ل.
+
+**الخيار الثاني: هزاز صغير (نقطي أو بيضاوي)**
+العنصر الأكثر شراءً للمبتدئين في متجر فيكسا لبنان. صغير وهادئ وبسيط الاستخدام. حجم غير مخيف. متاح من 60,000 ل.ل.
+
+**الخيار الثالث: لعبة نرد أو بطاقات للأزواج**
+للأزواج الذين يريدون البنية والتجديد بدون منتج جسدي. يُحفّز على النشاط التلقائي بصيغة منخفضة الضغط.
+
+## الخطوة 3: اعرف ما تتجنبه كمبتدئ
+
+**تجنّب: الألعاب الكبيرة كأول شراء**
+احتفظ بالديلدو الواقعي والألعاب الكبيرة لما بعد أن تُرسّخ الراحة والتواصل.
+
+**تجنّب: أطقم BDSM كمقدمة**
+القيود وألعاب الهيمنة تحتاج ثقة راسخة وتواصلاً وحدوداً متفقاً عليها. ليست نقطة بداية.
+
+**تجنّب: المواد الرخيصة**
+المنتجات المصنوعة من الجيلي أو المطاط أو اللاتكس أو PVC مسامية — لا يمكن تنظيفها بشكل كامل وتُبقي البكتيريا. اشترِ دائماً سيليكون أو بلاستيك ABS أو زجاج أو فولاذ مقاوم للصدأ. في متجر فيكسا، جميع المنتجات تلتزم بهذا المعيار.
+
+## الخطوة 4: فهم المواد الآمنة للجسم
+
+هذا غير قابل للتفاوض للصحة والسلامة.
+
+| المادة | آمنة؟ | ملاحظات |
+|--------|--------|---------|
+| سيليكون طبي | ✅ نعم | الخيار الأفضل. غير مسامي، مضاد للحساسية |
+| بلاستيك ABS | ✅ نعم | ألعاب صلبة ومحركات |
+| زجاج بوروسيليكات | ✅ نعم | سهل التنظيف |
+| فولاذ مقاوم للصدأ | ✅ نعم | متين ومستجيب للحرارة |
+| PVC / جيلي / مطاط | ❌ لا | مسامي، لا يمكن تعقيمه |
+
+## الخطوة 5: التنظيف والعناية
+
+نظّف قبل الاستخدام الأول وبعد كل استخدام.
+
+**السيليكون والزجاج والفولاذ:**
+ماء دافئ + صابون بدون عطر. أو اغلِ (بدون محركات) لمدة 3 دقائق. أو الغسالة الرف العلوي.
+
+**البلاستيك ABS (مع محرك إلكتروني):**
+امسح بقماش مبلل وصابون خفيف. لا تغمره إلا إذا كان مقاوماً للماء بالكامل.
+
+## الخطوة 6: الطلب في لبنان
+
+في متجر فيكسا لبنان:
+- لا حاجة لحساب — الطلب كضيف متاح
+- دفع نقداً عند الاستلام — لا بطاقة ائتمانية
+- صندوق مُحكم عادي — بدون شعارات أو اسم العلامة التجارية
+- توصيل في نفس اليوم في بيروت، 24-72 ساعة في جميع أنحاء لبنان
+- دعم واتساب لتوصيات المنتجات قبل الشراء
+`,
+    publishedAt: '2026-08-01',
+    updatedAt: '2026-08-02',
+    author: 'Vexa Store Team',
+    readingTime: 9,
+    keywords: ['beginner adult toys couples', 'first adult toy lebanon', 'couples toys guide beginners', 'how to start using sex toys', 'adult toys beginners guide lebanon'],
+    keywordsAr: ['ألعاب زوجية للمبتدئين لبنان', 'أول لعبة للبالغين', 'دليل المبتدئين ألعاب زوجية', 'كيف أبدأ مع ألعاب البالغين', 'ألعاب زوجية بيروت'],
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPost | undefined {
