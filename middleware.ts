@@ -26,9 +26,11 @@ export function middleware(req: NextRequest) {
 
   // ── Canonical host ───────────────────────────────────────────────────────
   if (hostname === CANONICAL_HOST) {
-    // If root arrives with any query param, clean it up.
-    // This prevents /?category=Sex+Toys from being a separate crawlable URL.
-    if (req.nextUrl.pathname === '/' && req.nextUrl.search) {
+    // Only redirect when ?category= is present — prevents canonical confusion.
+    // UTM params, fbclid, gclid, and other tracking params must NOT redirect;
+    // they land on the homepage legitimately and stripping them via 301 kills
+    // ad attribution and inflates /sex-toys authority artificially.
+    if (req.nextUrl.pathname === '/' && req.nextUrl.searchParams.has('category')) {
       // Use new URL() instead of clone() — clone() does not reliably strip
       // the search string in Next.js 15 Edge Runtime, causing query params to
       // leak into the redirect target (/sex-toys?category=...).
