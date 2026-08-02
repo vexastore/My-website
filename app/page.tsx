@@ -7,17 +7,17 @@ export const revalidate = 300;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
-  title: 'متجر فيكسا | رقم 1 في لبنان للألعاب الزوجية واللانجري',
-  description: '500+ adult products shipped discreetly across Lebanon — plain sealed boxes, no logo. Vibrators, Dildos, Lingerie & more. Same-day Beirut delivery, cash on delivery. Your privacy is guaranteed.',
-  keywords: 'sex toys lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, adult toys lebanon, lingerie beirut, vexa store, ألعاب زوجية لبنان, هزازات لبنان, العاب جنسيه لبنان',
+  title: 'متجر فيكسا | Vexa Store Lebanon — متجر سري للبالغين',
+  description: 'متجر فيكسا — الوجهة الأولى للبالغين في لبنان. 600+ منتج بتغليف سري تام بدون شعار، توصيل في نفس اليوم في بيروت، دفع عند الاستلام. ثقة أكثر من 1900 عميل. Vexa Store Lebanon — discreet adult store.',
+  keywords: 'vexa store lebanon, متجر فيكسا, vexa store, متجر سري لبنان, adult store beirut, متجر بالغين لبنان, vexa store بيروت',
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
     type: 'website',
     locale: 'ar_LB',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
-    title: 'متجر فيكسا | ألعاب زوجية ولانجري في لبنان',
-    description: '500+ adult products shipped discreetly across Lebanon — plain sealed boxes, no logo. Same-day Beirut delivery, cash on delivery.',
+    title: 'متجر فيكسا | Vexa Store Lebanon',
+    description: 'متجر فيكسا — أكبر متجر سري للبالغين في لبنان. تغليف سري، دفع عند الاستلام، توصيل في نفس اليوم في بيروت.',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon' }],
   },
   twitter: { card: 'summary_large_image', site: '@vexastore', images: ['https://vexatoys.com/opengraph.jpg'] },
@@ -480,16 +480,16 @@ export default async function HomePage() {
         <section className="border-t border-white/10">
           <div className="max-w-3xl mx-auto px-4 py-14">
             <h2 className="text-xl font-black text-white mb-4">
-              Sex Toys Lebanon — متجر فيكسا لبنان
+              متجر فيكسا — Vexa Store Lebanon
             </h2>
             <p className="text-stone-400 text-sm leading-relaxed mb-4">
-              Vexa Store is Lebanon&apos;s largest online adult store, delivering 500+ premium sex toys and lingerie
-              discreetly across Lebanon. Whether you&apos;re in Beirut, Tripoli, Sidon, or any other region,
-              we ship same-day or within 24–72 hours in a plain sealed box with no logo.
+              Vexa Store is Lebanon&apos;s most trusted adult store — serving 1,900+ customers across Beirut,
+              Tripoli, Sidon, and all Lebanese regions. Every order ships in a plain sealed box with no logo,
+              no branding, and complete privacy. Cash on delivery available everywhere.
             </p>
             <p className="text-stone-500 text-sm leading-relaxed">
-              متجر فيكسا هو أكبر متجر للألعاب الجنسية في لبنان. نوصّل 600+ منتج بشكل سري تام في صندوق مغلق
-              بدون شعار إلى بيروت وكل لبنان. الدفع عند الاستلام متاح دون الحاجة لبطاقة ائتمان.
+              متجر فيكسا — الوجهة الأولى للبالغين في لبنان منذ أكثر من 3 سنوات. تسوّق بثقة وخصوصية تامة:
+              تغليف سري بدون شعار، دفع عند الاستلام في كل لبنان، وتوصيل سريع إلى باب بيتك.
             </p>
           </div>
         </section>
