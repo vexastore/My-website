@@ -108,6 +108,17 @@ export async function generateStaticParams() {
   }
 }
 
+
+/** Trim product name to keep HTML <title> ≤60 chars after appending the suffix. */
+function toSeoTitle(rawName: string): string {
+  const suffix = ' | Vexa Store Lebanon';
+  const max = 60 - suffix.length; // 39 chars for the name
+  if (rawName.length <= max) return rawName + suffix;
+  const cut = rawName.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 10 ? cut.slice(0, lastSpace) : cut) + suffix;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug } = await params;
   const meta = getCategoryMeta(category);
@@ -123,7 +134,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // so any noindex we set here would never reach Google.
     // If we set noindex AND the page somehow renders (edge-case cache divergence),
     // that causes "Indexing request rejected" in GSC — worse than a plain 404.
-    if (!product) return { title: meta.titleEn };
+    if (!product) return { title: { absolute: meta.titleEn } };
 
     const name = cleanText(product.nameEn || product.name || slug);
     const rawDesc = product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`;
@@ -140,7 +151,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const pageUrl = `https://vexatoys.com/${canonicalCat}/${canonicalSlugMeta}`;
 
     return {
-      title: `${name} | Vexa Store Lebanon`,
+      title: { absolute: toSeoTitle(name) },
       description: desc,
       openGraph: {
         title: `${name} | Vexa Store Lebanon`,
