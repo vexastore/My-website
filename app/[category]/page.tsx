@@ -16,7 +16,7 @@ import { notFound } from 'next/navigation';
     const meta = getCategoryMeta(slug);
     const pageUrl = `https://vexatoys.com/${slug}`;
     return {
-      title: meta.titleEn,
+      title: { absolute: meta.titleEn },
       description: meta.descEn,
       openGraph: {
         title: meta.titleEn, description: meta.descEn, url: pageUrl,
