@@ -101,9 +101,6 @@ export default async function AdultToysPage() {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      {/* SEO H1 — server-rendered, matches page title for Google */}
-      <h1 className="sr-only">Adult Toys in Lebanon — Shop All Categories | Vexa Store</h1>
-
       {/* Interactive shop — all categories, no pre-filter */}
       <ShopApp
         initialProducts={productsWithImages}

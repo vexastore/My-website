@@ -17,7 +17,7 @@ import { notFound } from 'next/navigation';
     const pageUrl = `https://vexatoys.com/${slug}`;
     return {
       title: { absolute: meta.titleEn },
-      description: meta.descEn,
+      description: meta.descEn.slice(0, 160),
       openGraph: {
         title: meta.titleEn, description: meta.descEn, url: pageUrl,
         siteName: 'Vexa Store Lebanon', locale: 'ar_LB', type: 'website',

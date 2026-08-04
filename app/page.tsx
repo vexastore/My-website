@@ -8,7 +8,7 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
   title: 'متجر فيكسا | Vexa Store Lebanon — متجر سري للبالغين',
-  description: 'متجر فيكسا — الوجهة الأولى للبالغين في لبنان. 600+ منتج بتغليف سري تام بدون شعار، توصيل في نفس اليوم في بيروت، دفع عند الاستلام. ثقة أكثر من 1900 عميل. Vexa Store Lebanon — discreet adult store.',
+  description: 'متجر فيكسا — 600+ منتج للبالغين في لبنان بتغليف سري. توصيل نفس اليوم ببيروت، دفع عند الاستلام. Vexa Store Lebanon – discreet adult store.',
   keywords: 'vexa store lebanon, متجر فيكسا, vexa store, متجر سري لبنان, adult store beirut, متجر بالغين لبنان, vexa store بيروت',
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
