@@ -11,14 +11,25 @@ export function generateStaticParams() {
   return BLOG_POSTS.map(p => ({ blogCategory: p.categorySlug, slug: p.slug }));
 }
 
+
+/** Trim title to keep HTML <title> ≤60 chars. */
+function toSeoTitle(rawTitle: string): string {
+  const suffix = ' | Vexa Store Lebanon';
+  const max = 60 - suffix.length;
+  if (rawTitle.length <= max) return rawTitle + suffix;
+  const cut = rawTitle.slice(0, max);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 10 ? cut.slice(0, lastSpace) : cut) + suffix;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { blogCategory, slug } = await params;
   const post = getBlogPost(slug);
-  if (!post || post.categorySlug !== blogCategory) return { title: 'Blog | Vexa Store Lebanon' };
+  if (!post || post.categorySlug !== blogCategory) return { title: { absolute: 'Blog | Vexa Store Lebanon' } };
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}/${slug}`;
   return {
-    title: `${post.title} | Vexa Store Lebanon`,
+    title: { absolute: toSeoTitle(post.title) },
     description: post.excerpt,
     keywords: post.keywords?.join(', '),
     alternates: { canonical: pageUrl },

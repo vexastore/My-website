@@ -44,6 +44,8 @@ export default function QuizPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {/* Server-rendered H1 for SEO — matches page title; quiz UI begins immediately below */}
+      <h1 className="sr-only">Find Your Perfect Toy — Vexa Store Lebanon</h1>
       <QuizShell />
     </>
   );

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/blogPosts';
 
 export const metadata: Metadata = {
-  title: 'Blog – Sex Toys & Intimacy Guides Lebanon | Vexa Store',
+  title: { absolute: 'Blog – Sex Toys & Intimacy Guides Lebanon | Vexa Store' },
   description: 'Expert guides, tips, and advice on intimate products, relationships, and sexual wellness in Lebanon. Vexa Store Blog.',
   alternates: { canonical: 'https://vexatoys.com/blog' },
   openGraph: {

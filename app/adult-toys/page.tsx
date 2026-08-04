@@ -17,7 +17,7 @@ import { ShopApp } from '@/src/ShopApp';
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
+  title: { absolute: 'Adult Toys in Lebanon | All Categories | Vexa Store' },
   description: 'Shop all adult toys in Lebanon — 500+ products across every category with 100% discreet delivery. Plain sealed boxes, no logo. Same-day Beirut delivery, cash on delivery. العاب جنسيه في لبنان.',
   alternates: { canonical: 'https://vexatoys.com/adult-toys' },
   openGraph: {
@@ -100,6 +100,9 @@ export default async function AdultToysPage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+
+      {/* SEO H1 — server-rendered, matches page title for Google */}
+      <h1 className="sr-only">Adult Toys in Lebanon — Shop All Categories | Vexa Store</h1>
 
       {/* Interactive shop — all categories, no pre-filter */}
       <ShopApp
