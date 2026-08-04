@@ -213,6 +213,6 @@ async function _fetchProductsLive(): Promise<Product[]> {
 // Falls back to static list if Firebase is unreachable.
 export const fetchProductsServer = unstable_cache(
   _fetchProductsLive,
-  ['vexa-products-live-v7'],
+  ['vexa-products-live-v8'],
   { revalidate: 86400, tags: ['vexa-products'] }
 );

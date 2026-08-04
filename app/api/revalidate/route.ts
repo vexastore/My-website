@@ -42,8 +42,9 @@ export async function POST(req: NextRequest) {
 
   // Invalidate server-side data caches
   revalidateTag('vexa-images');
-  revalidateTag('vexa-products');        // cache key v7
-  revalidateTag('vexa-products-live-v6'); // backward compat
+  revalidateTag('vexa-products');        // cache key v8
+  revalidateTag('vexa-products-live-v7'); // backward compat (previous key)
+  revalidateTag('vexa-products-live-v6'); // backward compat (older key)
 
   // Revalidate global layout + sitemap
   revalidatePath('/', 'layout');
