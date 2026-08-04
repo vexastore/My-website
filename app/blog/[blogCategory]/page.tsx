@@ -12,11 +12,11 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { blogCategory } = await params;
   const cat = getBlogCategory(blogCategory);
-  if (!cat) return { title: 'Blog | Vexa Store Lebanon' };
+  if (!cat) return { title: { absolute: 'Blog | Vexa Store Lebanon' } };
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}`;
   return {
-    title: `${cat.name} | Vexa Store Lebanon Blog`,
+    title: { absolute: `${cat.name} | Vexa Store Lebanon Blog` },
     description: cat.description + ' – Vexa Store Lebanon.',
     alternates: { canonical: pageUrl },
     openGraph: {
