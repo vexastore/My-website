@@ -102,7 +102,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const seenUrls = new Set<string>();
 
     for (const p of products) {
-      const slug = p.slug || toSl(p.nameEn || p.name || p.id);
+      const slug = (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, '');
       if (!slug) continue;
 
       // Resolve canonical categorySlug using the SAME logic as the product page
