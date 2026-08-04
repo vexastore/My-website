@@ -61,11 +61,11 @@ export const About: React.FC = () => {
           <p className="mb-4 text-[10px] font-black uppercase tracking-[0.4em] text-white/40">
             {isArabic ? 'عن متجر فيكسا' : 'About Vexa Store Lebanon'}
           </p>
-          <h1 className="text-3xl font-black uppercase tracking-[0.08em] text-white sm:text-5xl">
+          <h2 className="text-3xl font-black uppercase tracking-[0.08em] text-white sm:text-5xl">
             {isArabic
               ? 'متجر فيكسا — الوجهة الأولى للمنتجات الزوجية الفاخرة في لبنان'
               : 'Vexa Store — Lebanon\'s #1 Destination for Discreet Adult Products'}
-          </h1>
+          </h2>
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-white/55 sm:text-base">
             {isArabic
               ? 'متجر فيكسا هو المتجر الرائد والأكثر أماناً لشراء الألعاب الزوجية، الهزازات، اللانجري الفاخر، ومنتجات BDSM في لبنان. نوفر تجربة تسوق سرية 100% مع توصيل في نفس اليوم في بيروت وخلال 72 ساعة لكل المناطق اللبنانية.'

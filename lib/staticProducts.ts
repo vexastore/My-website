@@ -110,7 +110,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "rating": 5,
     "descriptionEn": "Premium dual-layer silicone dildo designed with a soft-touch exterior and firm inner core for a balanced realistic feel. Smooth curved shape provides comfortable handling and enhanced stimulation. Waterproof, body-safe, flexible, and easy to clean for long-lasting use.\nSex toys lebanon \nDildo in lebanon \nDildo in beirut ",
     "categorySlug": "sex-toys",
-    "slug": "luxecurve-silicone-dildo-in-lebanon-"
+    "slug": "luxecurve-silicone-dildo-in-lebanon"
   },
   {
     "isNew": true,
@@ -176,7 +176,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "description": "STRONG, DURABLE  dildo : This borosilicate glass is the same kind of glass used in many household tupperware and cooking glass items. It can handle changes in heat and is fairly durable.\nSMOOTH WITH REALISTIC DETAILS: The dildo is textured with a round head, corona, and veins along the shaft as well as a wrinkled set of balls. All surfaces are super smooth and glide in easily.\nHARNESS COMPATIBLE: the wide base makes this compatible with most strapon harnesses!\nEASY TO CLEAN: Separate the silicone and glass to clean them separately with warm water and mild soap. For serious cleaning, boil the glass or place in dishwasher.\nMEASUREMENTS: Overall length: 7.1 inches. Insertable length: 22 cm . Widest insertable diameter: 4cm.",
     "categorySlug": "dildos",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-4EJO4D56E/img-0-qhA5tcuEXec7zfBxPOsT3vn6DVftCv.jpg",
-    "slug": "dildos-silicone-custom-colors-in-lebanon-",
+    "slug": "dildos-silicone-custom-colors-in-lebanon",
     "nameEn": " Dildos silicone – Custom Colors in lebanon ",
     "rating": 5,
     "stock": 29,
@@ -1411,7 +1411,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "name": "RealCock Premium Realistic Dildo in lebanon – Hyper-Realistic Silicone Pleasure Toy",
     "categorySlug": "sex-toys",
     "category": "Sex Toys",
-    "slug": "realcock-premium-realistic-dildo-in-lebanon-hyper-realistic-",
+    "slug": "realcock-premium-realistic-dildo-in-lebanon-hyper-realistic",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-OJ1U56Q7F/img-0-4p6txSCtxznRWF8dd2iiah3dAOIa2Z.jpg",
     "categories": [
       "Sex Toys",
@@ -1830,7 +1830,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "BDSM",
       "Bondage"
     ],
-    "slug": "anhua-leather-bondage-restraint-set-neck-to-ankle-full-body-",
+    "slug": "anhua-leather-bondage-restraint-set-neck-to-ankle-full-body",
     "category": "Sex Toys",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-U5ILZEOJS/img-0-ZWYbjKd0ycYlrRZRRBNVe9NOjApZP3.jpg",
     "name": "Anhua® Leather Bondage Restraint Set – Neck to Ankle Full Body Shackles",
@@ -1953,7 +1953,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "Holiday Collection"
     ],
     "nameEn": "10-Mode Dual-Arm Clitoral Orgasm Stimulator - Pink Silicone G-Spot Vibrator",
-    "slug": "10-mode-dual-arm-clitoral-orgasm-stimulator-pink-silicone-g-"
+    "slug": "10-mode-dual-arm-clitoral-orgasm-stimulator-pink-silicone-g"
   },
   {
     "price": 90,
