@@ -30,21 +30,21 @@ export const BLOG_CATEGORIES: BlogCategory[] = [
     slug: 'guides',
     name: 'Product Guides',
     nameAr: 'دليل المنتجات',
-    description: 'Comprehensive guides to help you choose the right products',
+    description: 'Comprehensive buying guides to help you choose the right adult products in Lebanon — vibrators, dildos, lingerie, BDSM, and more.',
     descriptionAr: 'أدلة شاملة لمساعدتك في اختيار المنتج المناسب',
   },
   {
     slug: 'relationships',
     name: 'Relationships & Intimacy',
     nameAr: 'العلاقات والحميمية',
-    description: 'Tips and advice for a healthy intimate relationship',
+    description: 'Expert tips and honest advice for a healthier, more fulfilling intimate relationship. Practical guides for couples in Lebanon.',
     descriptionAr: 'نصائح وإرشادات لعلاقة حميمة صحية',
   },
   {
     slug: 'tips',
     name: 'Tips & Care',
     nameAr: 'نصائح وعناية',
-    description: 'How to use and care for your products safely',
+    description: 'How to use, clean, and store your intimate products safely. Material-specific care guides to protect your health and extend product life.',
     descriptionAr: 'كيفية استخدام المنتجات والعناية بها بأمان',
   },
 ];
@@ -280,7 +280,7 @@ Small, consistent actions build the deepest intimacy. Start with one item from t
     categorySlug: 'tips',
     title: 'How to Clean and Store Your Intimate Products: A Complete Guide',
     titleAr: 'كيفية تنظيف وتخزين منتجاتك الحميمة: دليل شامل',
-    excerpt: 'Proper cleaning and storage of intimate products is essential for your health and the longevity of your products. Learn the right methods for different materials.',
+    excerpt: 'Proper cleaning and storage of intimate products protects your health and extends product life. Learn the correct methods for silicone, glass, and more.',
     excerptAr: 'التنظيف والتخزين السليم للمنتجات الحميمة ضروري لصحتك وطول عمر منتجاتك. تعلم الطرق الصحيحة للمواد المختلفة.',
     content: `
 ## Why Proper Cleaning Matters
@@ -428,7 +428,7 @@ Proper storage extends the life of your products significantly:
     categorySlug: 'guides',
     title: 'Lingerie Buying Guide for Lebanon: What to Look for in Quality Lingerie',
     titleAr: 'دليل شراء اللانجري في لبنان: ما الذي تبحث عنه في اللانجري عالي الجودة',
-    excerpt: 'From sizing to fabrics, our expert guide helps you choose lingerie that looks beautiful, feels comfortable, and lasts. Available with discreet delivery in Lebanon.',
+    excerpt: 'From sizing to fabrics, our expert guide helps you choose lingerie that looks beautiful and feels comfortable. Discreet delivery available in Lebanon.',
     excerptAr: 'من المقاسات إلى الأقمشة، يساعدك دليلنا الخبير على اختيار لانجري يبدو جميلاً ومريحاً ودائماً. متاح مع التوصيل السري في لبنان.',
     content: `
 ## Finding the Perfect Lingerie
