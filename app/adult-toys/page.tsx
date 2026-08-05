@@ -114,9 +114,9 @@ export default async function AdultToysPage() {
 
           {/* Hero text */}
           <header className="space-y-3">
-            <h1 className="text-3xl font-black text-white">
+            <h2 className="text-3xl font-black text-white">
               Adult Toys in Lebanon | ألعاب للكبار في لبنان
-            </h1>
+            </h2>
             <p className="text-stone-300 text-sm leading-relaxed max-w-3xl">
               Vexa Store is Lebanon&apos;s #1 destination for <strong>adult toys in Lebanon</strong> —
               500+ products across every category, delivered in plain sealed boxes with no logo.
