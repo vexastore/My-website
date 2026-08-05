@@ -509,6 +509,11 @@
       "permanent": true
     },
     {
+      "source": "/sex-toys/premium-anal-cleansing-douche-easy-comfortable-cleaning-310",
+      "destination": "/sex-toys/anal-cleansing-douche-easy-comfortable-cleaning",
+      "permanent": true
+    },
+    {
       "source": "/(.*)",
       "has": [
         {
