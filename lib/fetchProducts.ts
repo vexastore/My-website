@@ -152,16 +152,15 @@ async function _fetchProductsLive(): Promise<Product[]> {
     // products + deleted_products are fetched without a timeout — they are
     // critical (no products = blank store) and are always fast (<1 s).
     //
-    // product_images (gallery) has an 8-second timeout. We reduced this from
-    // 20 s — the 20 s timeout was causing up to 20.9 s TTFB on cold-start
-    // ISR misses because the function blocked on a slow Firebase gallery fetch.
-    // 8 s is enough for warm Firebase instances (typically < 2 s) and avoids
-    // the worst-case 20 s stall while staying inside Vercel's 30 s budget.
+    // product_images (gallery) has a 3-second timeout. Reduced from 8 s:
+    // 8 s was still causing 21 s TTFB on cold-start ISR misses (Vercel function
+    // init ~10 s + 8 s gallery wait + overhead). 3 s keeps total TTFB under
+    // ~6 s on cold start while warm Firebase instances finish in < 2 s.
     // Products without gallery images fall back to the /api/img CDN proxy.
     const [prodDocs, delDocs, galleryDocs] = await Promise.all([
       fetchAllDocs('products', headers, 300),
       fetchAllDocs('deleted_products', headers, 300),
-      withTimeout(fetchAllDocs('product_images', headers, 300), 8_000, []),
+      withTimeout(fetchAllDocs('product_images', headers, 300), 3_000, []),
     ]);
 
     const deletedIds = new Set(delDocs.map(d => d.name.split('/').pop()!));

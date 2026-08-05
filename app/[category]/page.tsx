@@ -12,6 +12,48 @@ function toSl(n: string): string {
     .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
 }
 
+/**
+ * Slug remaps: old/legacy product slug → canonical slug.
+ * Prevents the server-rendered product index from linking to URLs
+ * that trigger 3XX redirects (flagged by Ahrefs as "links to redirect").
+ * Keep in sync with sitemap.ts and vercel.json redirects.
+ */
+const SLUG_REMAPS: Record<string, string> = {
+  'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
+    'anal-cleansing-douche-easy-comfortable-cleaning',
+};
+
+/**
+ * Related categories map — used to render cross-category links in the
+ * server-rendered footer of each category page.
+ * Increases the number of dofollow internal links between category pages,
+ * improving crawl depth and distributing PageRank more evenly.
+ */
+const RELATED_CATEGORIES: Record<string, Array<{ slug: string; label: string }>> = {
+  'sex-toys':          [{ slug: 'vibrators', label: 'Vibrators' }, { slug: 'dildos', label: 'Dildos' }, { slug: 'male-toys', label: 'Male Toys' }, { slug: 'bdsm', label: 'BDSM' }, { slug: 'lubricants', label: 'Lubricants' }],
+  'vibrators':         [{ slug: 'sex-toys', label: 'All Sex Toys' }, { slug: 'dildos', label: 'Dildos' }, { slug: 'kegel-balls', label: 'Kegel Balls' }, { slug: 'lubricants', label: 'Lubricants' }],
+  'male-toys':         [{ slug: 'cock-rings', label: 'Cock Rings' }, { slug: 'masturbators', label: 'Masturbators' }, { slug: 'penis-pumps', label: 'Penis Pumps' }, { slug: 'lubricants', label: 'Lubricants' }, { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }],
+  'dildos':            [{ slug: 'vibrators', label: 'Vibrators' }, { slug: 'strap-ons', label: 'Strap-Ons' }, { slug: 'lubricants', label: 'Lubricants' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'bdsm':              [{ slug: 'bondage', label: 'Bondage' }, { slug: 'sex-toys', label: 'All Sex Toys' }, { slug: 'lingerie', label: 'Lingerie' }],
+  'anal-toys':         [{ slug: 'butt-plugs', label: 'Butt Plugs' }, { slug: 'lubricants', label: 'Lubricants' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'butt-plugs':        [{ slug: 'anal-toys', label: 'Anal Toys' }, { slug: 'lubricants', label: 'Lubricants' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'lubricants':        [{ slug: 'vibrators', label: 'Vibrators' }, { slug: 'anal-toys', label: 'Anal Toys' }, { slug: 'sex-toys', label: 'All Sex Toys' }, { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }],
+  'lingerie':          [{ slug: 'bdsm', label: 'BDSM' }, { slug: 'holiday-collection', label: 'Gift Sets' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'bondage':           [{ slug: 'bdsm', label: 'BDSM' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'strap-ons':         [{ slug: 'dildos', label: 'Dildos' }, { slug: 'lubricants', label: 'Lubricants' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'cock-rings':        [{ slug: 'male-toys', label: 'Male Toys' }, { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }, { slug: 'lubricants', label: 'Lubricants' }],
+  'masturbators':      [{ slug: 'male-toys', label: 'Male Toys' }, { slug: 'cock-rings', label: 'Cock Rings' }, { slug: 'lubricants', label: 'Lubricants' }],
+  'penis-pumps':       [{ slug: 'male-toys', label: 'Male Toys' }, { slug: 'cock-rings', label: 'Cock Rings' }, { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }],
+  'kegel-balls':       [{ slug: 'vibrators', label: 'Vibrators' }, { slug: 'lubricants', label: 'Lubricants' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'sexual-enhancers':  [{ slug: 'lubricants', label: 'Lubricants' }, { slug: 'male-toys', label: 'Male Toys' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'chastity':          [{ slug: 'bdsm', label: 'BDSM' }, { slug: 'cock-rings', label: 'Cock Rings' }, { slug: 'male-toys', label: 'Male Toys' }],
+  'sex-machines':      [{ slug: 'vibrators', label: 'Vibrators' }, { slug: 'dildos', label: 'Dildos' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'sex-dolls':         [{ slug: 'male-toys', label: 'Male Toys' }, { slug: 'lubricants', label: 'Lubricants' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'holiday-collection':[{ slug: 'lingerie', label: 'Lingerie' }, { slug: 'bdsm', label: 'BDSM' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+  'new-arrivals':      [{ slug: 'sex-toys', label: 'All Sex Toys' }, { slug: 'vibrators', label: 'Vibrators' }, { slug: 'male-toys', label: 'Male Toys' }],
+  'poppers':           [{ slug: 'lubricants', label: 'Lubricants' }, { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }, { slug: 'sex-toys', label: 'All Sex Toys' }],
+};
+
   const RESERVED = ['about', 'checkout', 'admin', 'orders', 'advice', 'sitemap.xml', 'robots.txt', 'blog', 'quiz'];
 
   interface Props { params: Promise<{ category: string }> }
@@ -69,7 +111,10 @@ function toSl(n: string): string {
       .filter(p => p.categorySlug === slug || p.category === categoryId)
       .map(p => ({
         ...p,
-        canonicalSlug: (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, ''),
+        canonicalSlug: (() => {
+          const raw = (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, '');
+          return SLUG_REMAPS[raw] ?? raw;
+        })(),
         canonicalCategorySlug: p.categorySlug || slug,
       }));
 
@@ -199,6 +244,35 @@ function toSl(n: string): string {
                       className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
                     >
                       {(p.nameEn || p.name || '').slice(0, 60)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </nav>
+        )}
+
+        {/* ── Related categories cross-links ────────────────────────────────
+            Server-rendered dofollow links to sibling categories — increases
+            the number of internal links between category pages, improving
+            crawl depth and PageRank distribution. */}
+        {RELATED_CATEGORIES[slug] && (
+          <nav
+            aria-label="Related categories"
+            className="bg-[#050101] border-t border-white/5"
+          >
+            <div className="mx-auto max-w-5xl px-4 py-6">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-3">
+                Related Categories
+              </p>
+              <ul className="flex flex-wrap gap-3">
+                {RELATED_CATEGORIES[slug].map(rel => (
+                  <li key={rel.slug}>
+                    <a
+                      href={`/${rel.slug}`}
+                      className="text-xs font-bold text-stone-500 hover:text-stone-300 bg-white/[0.03] border border-white/10 px-3 py-1.5 rounded-full transition-colors"
+                    >
+                      {rel.label}
                     </a>
                   </li>
                 ))}

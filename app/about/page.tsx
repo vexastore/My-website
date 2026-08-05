@@ -4,7 +4,7 @@ import { fetchProductsServer } from '@/lib/fetchProducts';
 
 export const metadata: Metadata = {
   title: 'About Vexa Store | #1 Sex Toys Lebanon',
-  description: 'About Vexa Store — The #1 Sex Toys store in Lebanon. 500+ discreet products. Same-day delivery in Beirut, cash on delivery. Vibrators, dildos, lingerie, BDSM & more.',
+  description: 'About Vexa Store — Lebanon\'s #1 sex toy shop. 500+ discreet products. Same-day Beirut delivery, cash on delivery. Vibrators, dildos, lingerie, BDSM & more.',
   alternates: { canonical: 'https://vexatoys.com/about' },
   openGraph: {
     title: 'About Vexa Store | #1 Sex Toys Lebanon',

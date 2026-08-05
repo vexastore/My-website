@@ -219,6 +219,10 @@ export default async function ProductPage({ params }: Props) {
 
   const initialProducts = [p!];
 
+  // Server-rendered product name for H1 — used both for the sr-only heading
+  // (which Ahrefs and Googlebot read in the initial HTML) and for the jsonLd block.
+  const productDisplayName = cleanText(p.nameEn || p.name || slug);
+
   // Canonical always uses the product's own categorySlug (matches the sitemap URL)
   // so every path that leads here agrees on one canonical.
   const productUrl = `https://vexatoys.com/${canonicalCat}/${canonicalSlug}`;
@@ -334,8 +338,40 @@ export default async function ProductPage({ params }: Props) {
     };
   } catch { /* non-blocking */ }
 
+  // Build a list of up to 5 related products in the same category for the
+  // server-rendered internal-linking footer. This increases dofollow internal
+  // links to sibling products (fixes "only 1 dofollow inlink" Ahrefs flag).
+  function toSlugLocal(n: string): string {
+    return (n || '').toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+  }
+  const RELATED_SLUG_REMAPS: Record<string, string> = {
+    'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
+      'anal-cleansing-douche-easy-comfortable-cleaning',
+  };
+  const relatedProducts = serverProducts
+    .filter(rp => {
+      const rpCatSlug = rp.categorySlug && SLUG_TO_CATEGORY[rp.categorySlug]
+        ? rp.categorySlug : canonicalCat;
+      return rpCatSlug === canonicalCat && rp.id !== p.id;
+    })
+    .slice(0, 5)
+    .map(rp => {
+      const rawSlug = (rp.slug || toSlugLocal(rp.nameEn || rp.name || rp.id)).replace(/-+$/, '');
+      const rpSlug = RELATED_SLUG_REMAPS[rawSlug] ?? rawSlug;
+      const rpCatSlug = rp.categorySlug && SLUG_TO_CATEGORY[rp.categorySlug]
+        ? rp.categorySlug : canonicalCat;
+      return { name: rp.nameEn || rp.name || '', slug: rpSlug, catSlug: rpCatSlug };
+    })
+    .filter(rp => rp.slug && rp.name);
+
   return (
     <>
+      {/* Server-rendered H1 — screen-reader only, present in initial HTML.
+          The visible H1 is rendered by the ProductPage client component after hydration.
+          This sr-only heading ensures Ahrefs/Googlebot always sees an H1 in the static HTML. */}
+      <h1 className="sr-only">{productDisplayName}</h1>
       {jsonLd && (
         <script
           type="application/ld+json"
@@ -348,6 +384,42 @@ export default async function ProductPage({ params }: Props) {
         initialView="product"
         initialProductSlug={slug}
       />
+      {/* ── Server-rendered related products ─────────────────────────────────
+          These dofollow links are present in the static HTML, giving each
+          product page multiple inbound internal links from sibling pages.
+          Fixes "page has only 1 dofollow internal link" Ahrefs flag. */}
+      {relatedProducts.length > 0 && (
+        <nav
+          aria-label={`More products in ${meta.titleEn.split('|')[0].trim()}`}
+          className="bg-[#050101] border-t border-white/5"
+        >
+          <div className="mx-auto max-w-2xl px-4 py-8">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-4">
+              More in {meta.titleEn.split('|')[0].trim()}
+            </p>
+            <ul className="flex flex-wrap gap-x-4 gap-y-2">
+              {relatedProducts.map(rp => (
+                <li key={rp.slug}>
+                  <a
+                    href={`/${rp.catSlug}/${rp.slug}`}
+                    className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
+                  >
+                    {rp.name.slice(0, 60)}
+                  </a>
+                </li>
+              ))}
+              <li>
+                <a
+                  href={`/${canonicalCat}`}
+                  className="text-purple-600 hover:text-purple-400 text-xs font-bold transition-colors"
+                >
+                  View all →
+                </a>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      )}
     </>
   );
 }
