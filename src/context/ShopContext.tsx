@@ -491,7 +491,7 @@ export const ShopProvider: React.FC<{
   const revalidateAfterProductChange = (opts: { categorySlug?: string; slug?: string } = {}) => {
     try { localStorage.removeItem('vexa_products_v2'); localStorage.removeItem('vexa_products_v2_ts'); } catch (_) {}
     // Revalidate ISR cache
-    fetch('/api/revalidate?secret=vexa-reval-2026', {
+    fetch('/revalidate?secret=vexa-reval-2026', {
       method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(opts),
     }).catch(() => {});
     // Notify Bing + IndexNow members immediately — fire-and-forget
