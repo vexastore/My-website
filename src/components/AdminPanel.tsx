@@ -62,14 +62,21 @@ export const AdminPanel: React.FC = () => {
   // Firebase-sourced orders (all customers) — loaded when admin unlocks
   const [firebaseOrders, setFirebaseOrders] = useState<Order[]>([]);
   const [isLoadingOrders, setIsLoadingOrders] = useState(false);
+  const [ordersError, setOrdersError] = useState<string | null>(null);
 
   const loadOrders = async () => {
     setIsLoadingOrders(true);
+    setOrdersError(null);
     try {
       const all = await fetchAllOrdersFromFirebase();
       setFirebaseOrders(all);
-    } catch { /* ignore */ }
-    finally { setIsLoadingOrders(false); }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      setOrdersError(msg);
+      console.error('[Admin] Failed to load orders from Firestore:', msg);
+    } finally {
+      setIsLoadingOrders(false);
+    }
   };
 
   // Blog functions
@@ -609,6 +616,20 @@ export const AdminPanel: React.FC = () => {
           {isLoadingOrders && (
             <div className="flex items-center gap-2 text-white/40 text-xs py-2">
               <Loader2 size={14} className="animate-spin" /> جاري تحميل الطلبات من Firebase...
+            </div>
+          )}
+          {ordersError && (
+            <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-4 flex items-start gap-3">
+              <AlertTriangle size={16} className="text-red-400 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-red-400 text-xs font-black mb-1">خطأ في تحميل الطلبات من Firebase</p>
+                <p className="text-red-300/70 text-[11px] font-mono break-all">{ordersError}</p>
+                <p className="text-red-300/60 text-[11px] mt-1">💡 تأكد من: 1) قواعد Firestore تسمح بالقراءة، 2) اتصال الإنترنت، 3) Firebase مفعّل</p>
+              </div>
+              <button onClick={loadOrders}
+                className="flex-shrink-0 text-[11px] font-black text-red-400 hover:text-red-300 border border-red-500/30 px-2.5 py-1.5 rounded-lg transition">
+                إعادة المحاولة
+              </button>
             </div>
           )}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

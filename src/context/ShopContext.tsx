@@ -1,7 +1,8 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
-import { db } from '../firebase';
+import { db, auth } from '../firebase';
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import {
   collection,
   doc,
@@ -578,18 +579,26 @@ export const ShopProvider: React.FC<{
   };
 
   const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => {
-    try {
-      const snapshot = await getDocs(collection(db, ORDERS_COLLECTION));
-      if (!snapshot.empty) {
-        return snapshot.docs.map(docSnap => ({
-          ...(docSnap.data() as Omit<Order, 'id'>),
-          id: docSnap.id
-        }));
-      }
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Firestore orders error:', error);
+    // Wait for anonymous auth to be established before reading Firestore.
+    // signInAnonymously() is fire-and-forget at module init — this prevents
+    // a race condition where getDocs runs before auth resolves, causing
+    // "Missing or insufficient permissions" that is silently swallowed.
+    await new Promise<void>((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, () => {
+        unsubscribe();
+        resolve();
+      });
+    });
+
+    // Throws on permission errors so AdminPanel can surface them to the admin.
+    const snapshot = await getDocs(collection(db, ORDERS_COLLECTION));
+    if (!snapshot.empty) {
+      return snapshot.docs.map(docSnap => ({
+        ...(docSnap.data() as Omit<Order, 'id'>),
+        id: docSnap.id
+      }));
     }
-    return orders;
+    return [];
   };
 
   const updateStockInFirestore = async (updatedProducts: Product[]) => {
@@ -729,9 +738,20 @@ export const ShopProvider: React.FC<{
     setProducts(updatedProducts);
     updateStockInFirestore(updatedProducts);
     setOrders(prev => [newOrder, ...prev]);
-    setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder).catch(error => {
-      if (process.env.NODE_ENV === 'development') console.error('Firestore save order error:', error);
-    });
+    // Save order to Firestore. On permission error, re-authenticate anonymously and retry once.
+    (async () => {
+      try {
+        await setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder);
+      } catch (firstErr) {
+        console.error('[placeOrder] Firestore save failed — retrying after re-auth:', firstErr);
+        try {
+          await signInAnonymously(auth);
+          await setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder);
+        } catch (retryErr) {
+          console.error('[placeOrder] Firestore save failed after re-auth:', retryErr);
+        }
+      }
+    })();
     clearCart();
     // Navigation handled by Checkout via setOrderComplete — do NOT call setView here.
     return newOrder;
