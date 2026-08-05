@@ -152,16 +152,16 @@ async function _fetchProductsLive(): Promise<Product[]> {
     // products + deleted_products are fetched without a timeout — they are
     // critical (no products = blank store) and are always fast (<1 s).
     //
-    // product_images (gallery) has a 20-second timeout. This is much more
-    // generous than the old 6-second race, giving Firebase time to respond
-    // on cold starts, while still keeping us inside Vercel's 30-second
-    // function limit. The old 6-second race was firing too often, causing
-    // every product to land with image:"" and triggering the CDN cold-path
-    // on /api/img/{id}. 20 s keeps the function safe without burning images.
+    // product_images (gallery) has an 8-second timeout. We reduced this from
+    // 20 s — the 20 s timeout was causing up to 20.9 s TTFB on cold-start
+    // ISR misses because the function blocked on a slow Firebase gallery fetch.
+    // 8 s is enough for warm Firebase instances (typically < 2 s) and avoids
+    // the worst-case 20 s stall while staying inside Vercel's 30 s budget.
+    // Products without gallery images fall back to the /api/img CDN proxy.
     const [prodDocs, delDocs, galleryDocs] = await Promise.all([
       fetchAllDocs('products', headers, 300),
       fetchAllDocs('deleted_products', headers, 300),
-      withTimeout(fetchAllDocs('product_images', headers, 300), 20_000, []),
+      withTimeout(fetchAllDocs('product_images', headers, 300), 8_000, []),
     ]);
 
     const deletedIds = new Set(delDocs.map(d => d.name.split('/').pop()!));
@@ -185,7 +185,16 @@ async function _fetchProductsLive(): Promise<Product[]> {
         .map(p => {
           const fb = fbMap.get(p.id);
           const base = fb
-            ? { ...fb, slug: fb.slug || p.slug, categorySlug: fb.categorySlug || p.categorySlug }
+            ? {
+                ...p,           // static defaults (including fallback image URLs)
+                ...fb,          // Firestore overrides (more recent data)
+                // Prefer non-empty image: if Firestore cleared the image field,
+                // fall back to the static image (e.g. opengraph.jpg placeholder)
+                // so the product page never generates a broken /api/img/ URL.
+                image: fb.image || p.image,
+                slug: fb.slug || p.slug,
+                categorySlug: fb.categorySlug || p.categorySlug,
+              }
             : { ...p };
           // Gallery image takes priority over products/{id}.image which may be stale/empty
           const gallery = galleryMap[p.id];

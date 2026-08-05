@@ -143,7 +143,10 @@ function getProductUrl(p: Product): string {
     (p.categorySlug && p.categorySlug !== 'adult-toys' && p.categorySlug !== '' ? p.categorySlug : null) ||
     (p.category ? CATEGORY_TO_SLUG[p.category] : null) ||
     'sex-toys';
-  const slug = p.slug || p.id;
+  // Strip trailing hyphens — legacy Firestore slugs sometimes end with '-'.
+  // Using the clean slug as href prevents homepage internal links from pointing
+  // to redirect URLs (30+ links flagged by Ahrefs as "links to redirects").
+  const slug = (p.slug || p.id).replace(/-+$/, '');
   return `/${catSlug}/${slug}`;
 }
 

@@ -5,6 +5,13 @@ import { CATEGORY_CONTENT } from '@/lib/categoryContent';
 import { ShopApp } from '@/src/ShopApp';
 import { notFound } from 'next/navigation';
 
+/** Shared slug normaliser — must match the logic in app/[category]/[slug]/page.tsx */
+function toSl(n: string): string {
+  return (n || '').toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+    .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
+}
+
   const RESERVED = ['about', 'checkout', 'admin', 'orders', 'advice', 'sitemap.xml', 'robots.txt', 'blog', 'quiz'];
 
   interface Props { params: Promise<{ category: string }> }
@@ -50,13 +57,20 @@ import { notFound } from 'next/navigation';
       images: (p.images || []).filter(s => s && !s.startsWith('data:')),
     }));
 
-    const jsonLdProducts = productsWithImages
+    // Category products — used for JSON-LD and server-rendered link nav below.
+    // Strip trailing hyphens from slug to produce clean canonical URLs (prevents
+    // the JSON-LD from referencing redirect URLs that Ahrefs flags as broken links).
+    const categoryProducts = productsWithImages
       .filter(p => p.categorySlug === slug || p.category === categoryId)
-      .slice(0, 8)
       .map(p => ({
+        ...p,
+        canonicalSlug: (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, ''),
+      }));
+
+    const jsonLdProducts = categoryProducts.slice(0, 8).map(p => ({
         name: p.nameEn || p.name,
-        url: `https://vexatoys.com/${slug}/${p.slug}`,
-        image: `https://vexatoys.com/api/img/${p.id}`,
+        url: `https://vexatoys.com/${slug}/${p.canonicalSlug}`,
+        image: (p.image && p.image.startsWith('https://')) ? p.image : `https://vexatoys.com/api/img/${p.id}`,
         price: p.price, stock: p.stock,
       }));
 
@@ -68,16 +82,16 @@ import { notFound } from 'next/navigation';
           { '@type': 'ListItem', position: 2, name: meta.titleEn.split('|')[0].trim(), item: `https://vexatoys.com/${slug}` },
         ]},
         { '@type': 'CollectionPage', name: meta.titleEn, description: meta.descEn, url: `https://vexatoys.com/${slug}` },
-        ...(jsonLdProducts.length > 0 ? [{
+        ...(categoryProducts.length > 0 ? [{
           '@type': 'ItemList',
           name: meta.titleEn,
           url: `https://vexatoys.com/${slug}`,
-          numberOfItems: jsonLdProducts.length,
-          itemListElement: jsonLdProducts.map((p, i) => ({
+          numberOfItems: categoryProducts.length,
+          itemListElement: categoryProducts.map((p, i) => ({
             '@type': 'ListItem',
             position: i + 1,
-            url: p.url,
-            name: p.name,
+            url: `https://vexatoys.com/${slug}/${p.canonicalSlug}`,
+            name: p.nameEn || p.name,
           })),
         }] : []),
         { '@type': 'FAQPage', mainEntity: [
@@ -155,6 +169,36 @@ import { notFound } from 'next/navigation';
 
             </div>
           </section>
+        )}
+
+        {/* ── Server-rendered product index ──────────────────────────────── */}
+        {/* These links are server-side HTML — Googlebot discovers every     */}
+        {/* product in this category without needing to execute JavaScript.  */}
+        {/* Fixes "orphan pages" (no incoming internal links) flagged by     */}
+        {/* Ahrefs for product pages that only appear in the JS product grid.*/}
+        {categoryProducts.length > 0 && (
+          <nav
+            aria-label={`All products in ${meta.titleEn.split('|')[0].trim()}`}
+            className="bg-[#050101] border-t border-white/5"
+          >
+            <div className="mx-auto max-w-5xl px-4 py-8">
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-4">
+                All Products
+              </p>
+              <ul className="flex flex-wrap gap-x-4 gap-y-2">
+                {categoryProducts.map(p => (
+                  <li key={p.id}>
+                    <a
+                      href={`/${slug}/${p.canonicalSlug}`}
+                      className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
+                    >
+                      {(p.nameEn || p.name || '').slice(0, 60)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </nav>
         )}
       </>
     );

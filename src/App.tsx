@@ -290,7 +290,7 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
 
         {/* ── Bottom Bar ── */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-t border-stone-800 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-500 font-medium">
-          <p>© {new Date().getFullYear()} Vexa Store Lebanon — <a href="/sitemap.xml" className="hover:text-stone-300 transition" rel="nofollow">Sitemap</a></p>
+          <p>© {new Date().getFullYear()} Vexa Store Lebanon — <a href="/sitemap.xml" className="hover:text-stone-300 transition">Sitemap</a></p>
           <div className="flex items-center gap-4">
             <a
               href="/blog"

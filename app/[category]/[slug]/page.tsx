@@ -45,12 +45,19 @@ function toSl(n: string): string {
 /**
  * Finds a product by URL slug using the same three-way match used everywhere:
  * stored slug → product ID → name-derived slug.
+ *
+ * Normalises both the incoming slug and the stored slug by stripping trailing
+ * hyphens — some legacy products in Firestore have slugs ending with '-'
+ * (truncation artefact from old slug generation). The product page strips the
+ * trailing hyphen for the canonical redirect, so the clean URL must also resolve
+ * to the product or it returns 404 instead of 200.
  */
 function findProductBySlug(products: Awaited<ReturnType<typeof import('@/lib/fetchProducts').fetchProductsServer>>, slug: string) {
+  const normalizedSlug = slug.replace(/-+$/, '');
   return products.find(p =>
-    p.slug === slug ||
+    (p.slug || '').replace(/-+$/, '') === normalizedSlug ||
     p.id === slug ||
-    toSl(p.nameEn || p.name || '') === slug
+    toSl(p.nameEn || p.name || '') === normalizedSlug
   );
 }
 

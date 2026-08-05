@@ -617,7 +617,11 @@ export const ShopProvider: React.FC<{
     };
 
     const navigateToProduct = (product: Product) => {
-      const pSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
+      // Strip trailing hyphens from the stored slug — legacy Firestore slugs may end
+      // with '-' (truncation artefact). Using the clean slug prevents window.history
+      // from pushing a redirect URL instead of the canonical 200 URL.
+      const rawSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
+      const pSlug = rawSlug.replace(/-+$/, '');
       // Normalize categorySlug before building URL — raw Firestore value may have
       // spaces or uppercase (e.g. "Male Toys") which would produce a broken URL.
       const rawCat = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');

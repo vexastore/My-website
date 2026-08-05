@@ -11,6 +11,24 @@ const TODAY = new Date().toISOString().slice(0, 10);
 // to avoid duplicate id='Sex Toys' corruption. It IS added manually to staticPages below.
 const VALID_SLUGS = new Set(CATEGORY_META.map(c => c.slug));
 
+/**
+ * Slug remaps: old/legacy product slug → canonical slug.
+ *
+ * Used to prevent the sitemap from listing URLs that return 3XX redirects
+ * (because the product's slug in Firestore still holds the old value while
+ * vercel.json already redirects that old URL to the canonical destination).
+ *
+ * Keep in sync with the permanent redirects in vercel.json.
+ * Key   = the slug as stored in Firestore (what fetchProductsServer returns)
+ * Value = the canonical slug that returns 200
+ */
+const SLUG_REMAPS: Record<string, string> = {
+  // vercel.json: /sex-toys/premium-anal-cleansing-douche-easy-comfortable-cleaning-310
+  //           → /sex-toys/anal-cleansing-douche-easy-comfortable-cleaning
+  'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
+    'anal-cleansing-douche-easy-comfortable-cleaning',
+};
+
 function toCategorySlug(raw: string): string {
   return (raw || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
 }
@@ -102,7 +120,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const seenUrls = new Set<string>();
 
     for (const p of products) {
-      const slug = (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, '');
+      // Strip trailing hyphens first (legacy Firestore slugs ending with '-'),
+      // then apply any explicit slug remaps so the sitemap never lists a URL
+      // that returns 3XX (redirect) instead of 200.
+      const rawSlug = (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, '');
+      const slug = SLUG_REMAPS[rawSlug] ?? rawSlug;
       if (!slug) continue;
 
       // Resolve canonical categorySlug using the SAME logic as the product page

@@ -1447,6 +1447,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "stock": 0,
     "nameEn": "Luxury Lingerie in Lebanon | Lingerie Collection - Vexa Store",
     "rating": 5,
+    "image": "https://vexatoys.com/opengraph.jpg",
     "id": "prod-P1DIVLKTJ"
   },
   {

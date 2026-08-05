@@ -73,7 +73,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   const cartQty = cartItem ? cartItem.quantity : 0;
   const remainingStock = product.stock - cartQty;
 
-  const pSlug = product.slug || toSlug(product.nameEn || product.name || product.id);
+  // Strip trailing hyphens — legacy Firestore slugs sometimes end with '-' due
+  // to 60-char truncation. Using the clean slug as the href prevents 30+
+  // internal links from pointing to redirect URLs instead of the canonical 200.
+  const pSlug = (product.slug || toSlug(product.nameEn || product.name || product.id)).replace(/-+$/, '');
   const catSlug = product.categorySlug || toSlug(product.category || 'sex-toys');
   const productUrl = `/${catSlug}/${pSlug}`;
   const handleProductClick = (e: React.MouseEvent) => {
