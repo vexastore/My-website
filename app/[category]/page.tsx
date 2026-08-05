@@ -60,16 +60,22 @@ function toSl(n: string): string {
     // Category products — used for JSON-LD and server-rendered link nav below.
     // Strip trailing hyphens from slug to produce clean canonical URLs (prevents
     // the JSON-LD from referencing redirect URLs that Ahrefs flags as broken links).
+    // canonicalCategorySlug uses the product's own categorySlug (if set) so that
+    // products whose primary category differs from the current page slug (e.g. a
+    // BDSM product with categorySlug:"sex-toys" appearing on the /bdsm page) get
+    // linked to their real canonical URL instead of /<currentSlug>/... which would
+    // produce a 308 permanent redirect detected by Ahrefs as a broken internal link.
     const categoryProducts = productsWithImages
       .filter(p => p.categorySlug === slug || p.category === categoryId)
       .map(p => ({
         ...p,
         canonicalSlug: (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, ''),
+        canonicalCategorySlug: p.categorySlug || slug,
       }));
 
     const jsonLdProducts = categoryProducts.slice(0, 8).map(p => ({
         name: p.nameEn || p.name,
-        url: `https://vexatoys.com/${slug}/${p.canonicalSlug}`,
+        url: `https://vexatoys.com/${p.canonicalCategorySlug}/${p.canonicalSlug}`,
         image: (p.image && p.image.startsWith('https://')) ? p.image : `https://vexatoys.com/api/img/${p.id}`,
         price: p.price, stock: p.stock,
       }));
@@ -90,7 +96,7 @@ function toSl(n: string): string {
           itemListElement: categoryProducts.map((p, i) => ({
             '@type': 'ListItem',
             position: i + 1,
-            url: `https://vexatoys.com/${slug}/${p.canonicalSlug}`,
+            url: `https://vexatoys.com/${p.canonicalCategorySlug}/${p.canonicalSlug}`,
             name: p.nameEn || p.name,
           })),
         }] : []),
@@ -189,7 +195,7 @@ function toSl(n: string): string {
                 {categoryProducts.map(p => (
                   <li key={p.id}>
                     <a
-                      href={`/${slug}/${p.canonicalSlug}`}
+                      href={`/${p.canonicalCategorySlug}/${p.canonicalSlug}`}
                       className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
                     >
                       {(p.nameEn || p.name || '').slice(0, 60)}

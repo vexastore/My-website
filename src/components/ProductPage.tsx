@@ -224,7 +224,9 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   };
 
   const productSlugForLink = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-  const productFullLink = (product as Product & { link?: string }).link || `https://vexatoys.com${productUrl}`;
+  // Always derive share URL from canonical path -- never use product.link
+  // (may contain www.vexatoys.com, causing 301 redirects detected by crawlers).
+  const productFullLink = `https://vexatoys.com${productUrl}`;
 
   const selectedImg = images[imgIdx] || product.image || '';
 
