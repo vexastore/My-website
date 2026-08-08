@@ -1,10 +1,4 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/migrate-all",
-      "schedule": "5 7 * * *"
-    }
-  ],
+
   "redirects": [
     {
       "source": "/sex-toys/luxecurve-silicone-dildo-in-lebanon-",
