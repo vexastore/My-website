@@ -1,41 +1,11 @@
 import { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
-import { getCategoryMeta, SLUG_TO_CATEGORY, CATEGORY_META } from '@/lib/categoryMeta';
+import { CATEGORY_META, getCategoryMeta, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
+import { CATEGORY_CONTENT } from '@/lib/categoryContent';
 import { ShopApp } from '@/src/ShopApp';
-import { notFound, permanentRedirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 
-interface Props { params: Promise<{ category: string; slug: string }> }
-
-export const revalidate = 300; // 5 min ISR
-export const dynamicParams = true; // serve admin-added products not in generateStaticParams
-
-const STORE_LOGO = 'https://vexatoys.com/vexa-logo.png';
-
-/**
- * Returns a valid https:// URL for product images.
- * Priority: real https → upgraded http → /api/img proxy (actual Firebase photo) → logo.
- * The proxy fallback fixes 'Invalid URL in field image' in Google Merchant Center
- * for products whose stored image is a data: URI or empty string.
- */
-function toImageUrl(raw: string | undefined | null, productId?: string): string {
-  if (raw && raw.startsWith('https://')) return raw;
-  // Upgrade insecure http:// to https:// — Google Merchant Listings require HTTPS images.
-  if (raw && raw.startsWith('http://')) return raw.replace(/^http:/, 'https:');
-  // Use the image proxy — serves the real product photo from Firebase CDN.
-  // A real product image is required by Google Merchant Center (logo is rejected).
-  if (productId) return `https://vexatoys.com/api/img/${productId}`;
-  return STORE_LOGO;
-}
-
-/** Strips newlines and collapses whitespace — safe for og:description / twitter:description. */
-function cleanText(raw: string): string {
-  return raw.replace(/\n+/g, ' ').replace(/\s{2,}/g, ' ').trim();
-}
-
-/**
- * Single shared slug normalizer — used identically by generateStaticParams,
- * generateMetadata, and the page render so all three resolve the same product.
- */
+/** Shared slug normaliser — must match the logic in app/[category]/[slug]/page.tsx */
 function toSl(n: string): string {
   return (n || '').toLowerCase()
     .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
@@ -43,384 +13,443 @@ function toSl(n: string): string {
 }
 
 /**
- * Finds a product by URL slug using the same three-way match used everywhere:
- * stored slug → product ID → name-derived slug.
- *
- * Normalises both the incoming slug and the stored slug by stripping trailing
- * hyphens — some legacy products in Firestore have slugs ending with '-'
- * (truncation artefact from old slug generation). The product page strips the
- * trailing hyphen for the canonical redirect, so the clean URL must also resolve
- * to the product or it returns 404 instead of 200.
+ * Slug remaps: old/legacy product slug → canonical slug.
+ * Prevents the server-rendered product index from linking to URLs
+ * that trigger 3XX redirects (flagged by Ahrefs as "links to redirect").
+ * Keep in sync with sitemap.ts and vercel.json redirects.
  */
-function findProductBySlug(products: Awaited<ReturnType<typeof import('@/lib/fetchProducts').fetchProductsServer>>, slug: string) {
-  const normalizedSlug = slug.replace(/-+$/, '');
-  return products.find(p =>
-    (p.slug || '').replace(/-+$/, '') === normalizedSlug ||
-    p.id === slug ||
-    toSl(p.nameEn || p.name || '') === normalizedSlug
-  );
-}
-
-// The set of valid routed category slugs.
-const VALID_SLUGS = new Set(CATEGORY_META.map(c => c.slug));
+const SLUG_REMAPS: Record<string, string> = {
+  'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
+    'anal-cleansing-douche-easy-comfortable-cleaning',
+};
 
 /**
- * Resolve the best valid categorySlug for a product.
- * 1. Use p.categorySlug if it maps to a real routed page.
- * 2. Otherwise, scan p.categories[] and pick the first valid one.
- * 3. Return undefined if no valid slug is found.
- *
- * Must stay in sync with the identical function in app/sitemap.ts so that
- * generateStaticParams pre-renders exactly the URLs the sitemap advertises.
+ * Related categories map — used to render cross-category links in the
+ * server-rendered footer of each category page.
  */
-function resolveValidCategorySlug(p: {
-  categorySlug?: string;
-  categories?: string[];
-}): string | undefined {
-  const norm = (s: string) => (s || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
-  const primary = norm(p.categorySlug || '');
-  if (primary && VALID_SLUGS.has(primary)) return primary;
-  for (const cat of p.categories || []) {
-    const slug = norm(cat);
-    if (slug && VALID_SLUGS.has(slug)) return slug;
-  }
-  return undefined;
+const RELATED_CATEGORIES: Record<string, Array<{ slug: string; label: string }>> = {
+  'sex-toys': [
+    { slug: 'vibrators', label: 'Vibrators' },
+    { slug: 'dildos', label: 'Dildos' },
+    { slug: 'male-toys', label: 'Male Toys' },
+    { slug: 'bdsm', label: 'BDSM' },
+    { slug: 'lubricants', label: 'Lubricants' }
+  ],
+  'vibrators': [
+    { slug: 'sex-toys', label: 'All Sex Toys' },
+    { slug: 'dildos', label: 'Dildos' },
+    { slug: 'kegel-balls', label: 'Kegel Balls' },
+    { slug: 'lubricants', label: 'Lubricants' }
+  ],
+  'male-toys': [
+    { slug: 'cock-rings', label: 'Cock Rings' },
+    { slug: 'masturbators', label: 'Masturbators' },
+    { slug: 'penis-pumps', label: 'Penis Pumps' },
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }
+  ],
+  'dildos': [
+    { slug: 'vibrators', label: 'Vibrators' },
+    { slug: 'strap-ons', label: 'Strap-Ons' },
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'bdsm': [
+    { slug: 'bondage', label: 'Bondage' },
+    { slug: 'sex-toys', label: 'All Sex Toys' },
+    { slug: 'lingerie', label: 'Lingerie' }
+  ],
+  'anal-toys': [
+    { slug: 'butt-plugs', label: 'Butt Plugs' },
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'butt-plugs': [
+    { slug: 'anal-toys', label: 'Anal Toys' },
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'lubricants': [
+    { slug: 'vibrators', label: 'Vibrators' },
+    { slug: 'anal-toys', label: 'Anal Toys' },
+    { slug: 'sex-toys', label: 'All Sex Toys' },
+    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }
+  ],
+  'lingerie': [
+    { slug: 'bdsm', label: 'BDSM' },
+    { slug: 'holiday-collection', label: 'Gift Sets' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'bondage': [
+    { slug: 'bdsm', label: 'BDSM' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'strap-ons': [
+    { slug: 'dildos', label: 'Dildos' },
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'cock-rings': [
+    { slug: 'male-toys', label: 'Male Toys' },
+    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' },
+    { slug: 'lubricants', label: 'Lubricants' }
+  ],
+  'masturbators': [
+    { slug: 'male-toys', label: 'Male Toys' },
+    { slug: 'cock-rings', label: 'Cock Rings' },
+    { slug: 'lubricants', label: 'Lubricants' }
+  ],
+  'penis-pumps': [
+    { slug: 'male-toys', label: 'Male Toys' },
+    { slug: 'cock-rings', label: 'Cock Rings' },
+    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' }
+  ],
+  'kegel-balls': [
+    { slug: 'vibrators', label: 'Vibrators' },
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'sexual-enhancers': [
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'male-toys', label: 'Male Toys' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'chastity': [
+    { slug: 'bdsm', label: 'BDSM' },
+    { slug: 'cock-rings', label: 'Cock Rings' },
+    { slug: 'male-toys', label: 'Male Toys' }
+  ],
+  'sex-machines': [
+    { slug: 'vibrators', label: 'Vibrators' },
+    { slug: 'dildos', label: 'Dildos' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'sex-dolls': [
+    { slug: 'male-toys', label: 'Male Toys' },
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'holiday-collection': [
+    { slug: 'lingerie', label: 'Lingerie' },
+    { slug: 'bdsm', label: 'BDSM' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+  'new-arrivals': [
+    { slug: 'sex-toys', label: 'All Sex Toys' },
+    { slug: 'vibrators', label: 'Vibrators' },
+    { slug: 'male-toys', label: 'Male Toys' }
+  ],
+  'poppers': [
+    { slug: 'lubricants', label: 'Lubricants' },
+    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' },
+    { slug: 'sex-toys', label: 'All Sex Toys' }
+  ],
+};
+
+const RESERVED = [
+  'about',
+  'checkout',
+  'admin',
+  'orders',
+  'advice',
+  'sitemap.xml',
+  'robots.txt',
+  'blog',
+  'quiz'
+];
+
+interface Props {
+  params: Promise<{ category: string }>;
 }
 
-/**
- * Pre-render static paths for ALL known products — including admin-added products
- * that lack a valid categorySlug (resolved via their categories[] array, same
- * logic as the sitemap). This ensures every URL in the sitemap is pre-rendered
- * at build time instead of relying on on-demand ISR for first-hit pages.
- */
-export async function generateStaticParams() {
-  try {
-    const products = await fetchProductsServer();
-    const params: { category: string; slug: string }[] = [];
-    const seen = new Set<string>();
-
-    for (const p of products) {
-      const productSlug = (p.slug || toSl(p.nameEn || p.name || '')).replace(/-+$/, '');
-      const categorySlug = resolveValidCategorySlug(p);
-      if (!productSlug || !categorySlug) continue;
-      const key = `${categorySlug}/${productSlug}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      params.push({ category: categorySlug, slug: productSlug });
-    }
-
-    return params;
-  } catch {
-    return CATEGORY_META.map(c => ({ category: c.slug, slug: 'placeholder' }));
-  }
-}
-
-
-/** Trim product name to keep HTML <title> ≤60 chars after appending the suffix. */
-function toSeoTitle(rawName: string): string {
-  const suffix = ' | Vexa Store Lebanon';
-  const max = 60 - suffix.length; // 39 chars for the name
-  if (rawName.length <= max) return rawName + suffix;
-  const cut = rawName.slice(0, max);
-  const lastSpace = cut.lastIndexOf(' ');
-  return (lastSpace > 10 ? cut.slice(0, lastSpace) : cut) + suffix;
-}
+const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { category, slug } = await params;
-  const meta = getCategoryMeta(category);
+  const { category: slug } = await params;
+  const meta = getCategoryMeta(slug);
+  const pageUrl = `https://vexatoys.com/${slug}`;
 
-  try {
-    const products = await fetchProductsServer();
-    // Use same three-way match as page render — slug / id / nameEn-derived slug
-    const product = findProductBySlug(products, slug);
-
-    // Product not found — return a neutral fallback title only.
-    // Do NOT set robots: { index: false } here: if the page throws notFound(),
-    // Next.js returns a 404 response with the not-found page's own metadata,
-    // so any noindex we set here would never reach Google.
-    // If we set noindex AND the page somehow renders (edge-case cache divergence),
-    // that causes "Indexing request rejected" in GSC — worse than a plain 404.
-    if (!product) return { title: { absolute: meta.titleEn } };
-
-    const name = cleanText(product.nameEn || product.name || slug);
-    const rawDesc = product.descriptionEn || product.description || `Buy ${name} in Lebanon. Discreet delivery Beirut.`;
-    const desc = cleanText(rawDesc).slice(0, 160);
-    const imgUrl = toImageUrl(product.image, product.id);
-
-    // Canonical always uses the product's own categorySlug to avoid duplicate-canonical
-    // issues when Google crawls the same product under a different category URL.
-    const canonicalCat = (product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug])
-      ? product.categorySlug
-      : category;
-    // Use the stored product slug for canonical — URL slug may differ (e.g. toSl(name) vs stored slug)
-    const canonicalSlugMeta = (product.slug || slug).replace(/-+$/, '');
-    const pageUrl = `https://vexatoys.com/${canonicalCat}/${canonicalSlugMeta}`;
-
-    return {
-      title: { absolute: toSeoTitle(name) },
-      description: desc,
-      openGraph: {
-        title: `${name} | Vexa Store Lebanon`,
-        description: desc,
-        url: pageUrl,
-        siteName: 'Vexa Store Lebanon',
-        images: [{ url: imgUrl, alt: name, width: 800, height: 800 }],
-        type: 'website',
-      },
-      twitter: {
-        card: 'summary_large_image',
-        title: `${name} | Vexa Store Lebanon`,
-        description: desc,
-        images: [imgUrl],
-      },
-      alternates: { canonical: pageUrl },
-      robots: { index: true, follow: true },
-    };
-  } catch {
-    return { title: meta.titleEn };
-  }
+  return {
+    title: { absolute: meta.titleEn },
+    description: meta.descEn.slice(0, 160),
+    openGraph: {
+      title: meta.titleEn,
+      description: meta.descEn,
+      url: pageUrl,
+      siteName: 'Vexa Store Lebanon',
+      locale: 'ar_LB',
+      type: 'website',
+      images: [{
+        url: DEFAULT_OG_IMAGE,
+        alt: meta.titleEn,
+        width: 1200,
+        height: 630
+      }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      site: '@vexastore',
+      title: meta.titleEn,
+      description: meta.descEn,
+      images: [DEFAULT_OG_IMAGE]
+    },
+    alternates: {
+      canonical: pageUrl
+    },
+    robots: {
+      index: true,
+      follow: true
+    },
+  };
 }
 
-export default async function ProductPage({ params }: Props) {
-  const { category: rawCategory, slug } = await params;
-  // Normalize URL category segment — handles URL-decoded "Male Toys" vs "male-toys"
-  const category = rawCategory.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
-  const categoryId = SLUG_TO_CATEGORY[category];
+export const revalidate = 300;
+
+export function generateStaticParams() {
+  return CATEGORY_META.map(c => ({ category: c.slug }));
+}
+
+export default async function CategoryPage({ params }: Props) {
+  const { category: slug } = await params;
+
+  if (RESERVED.includes(slug)) notFound();
+
+  const categoryId = SLUG_TO_CATEGORY[slug];
   if (!categoryId) notFound();
 
-  const meta = getCategoryMeta(category);
-  const categoryLabel = meta.titleEn.split('|')[0].trim();
+  const meta = getCategoryMeta(slug);
+  const allProducts = await fetchProductsServer();
 
-  let jsonLd = null;
-  let serverProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
-  try {
-    serverProducts = await fetchProductsServer();
-  } catch { /* non-blocking — fall back to empty */ }
+  const productsWithImages = allProducts.map(p => ({
+    ...p,
+    image: (p.image && !p.image.startsWith('data:')) ? p.image : '',
+    images: (p.images || []).filter(s => s && !s.startsWith('data:')),
+  }));
 
-  // Uses the shared findProductBySlug helper (same logic as generateMetadata & generateStaticParams).
-  const p = findProductBySlug(serverProducts, slug);
+  const categoryProducts = productsWithImages
+    .filter(p => p.categorySlug === slug || p.category === categoryId)
+    .map(p => ({
+      ...p,
+      canonicalSlug: (() => {
+        const raw = (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, '');
+        return SLUG_REMAPS[raw] ?? raw;
+      })(),
+      canonicalCategorySlug:
+        (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
+          ? p.categorySlug
+          : slug,
+    }));
 
-  // Product not found under any slug variation → genuine 404
-  if (!p) notFound();
+  const jsonLdProducts = categoryProducts.slice(0, 8).map(p => ({
+    name: p.nameEn || p.name,
+    url: `https://vexatoys.com/${p.canonicalCategorySlug}/${p.canonicalSlug}`,
+    image: (p.image && p.image.startsWith('https://'))
+      ? p.image
+      : `https://vexatoys.com/api/img/${p.id}`,
+    price: p.price,
+    stock: p.stock,
+  }));
 
-  // If the URL category doesn't match the product's canonical category, redirect
-  // to the canonical URL (308) so Google permanently consolidates ranking on one URL.
-  // Use a relative path (not absolute) to avoid issues on staging/preview domains.
-  const canonicalCat = (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug])
-    ? p.categorySlug
-    : category;
-  // Redirect if either the category OR the slug in the URL differs from the product canonical.
-  // This consolidates URLs like /sex-toys/pulsevibe-4-mode-vibrating-dildo → canonical slug.
-  const canonicalSlug = (p.slug || slug).replace(/-+$/, '');
-  if (canonicalCat !== category || canonicalSlug !== slug) {
-    permanentRedirect(`/${canonicalCat}/${canonicalSlug}`);
-  }
-
-  const initialProducts = [p!];
-
-  // Server-rendered product name for H1 — used both for the sr-only heading
-  // (which Ahrefs and Googlebot read in the initial HTML) and for the jsonLd block.
-  const productDisplayName = cleanText(p.nameEn || p.name || slug);
-
-  // Canonical always uses the product's own categorySlug (matches the sitemap URL)
-  // so every path that leads here agrees on one canonical.
-  const productUrl = `https://vexatoys.com/${canonicalCat}/${canonicalSlug}`;
-
-  try {
-    const productName = cleanText(p.nameEn || p.name || slug);
-    // Always provide a description — Google requires it for Merchant Listings.
-    const productDesc = cleanText(
-      p.descriptionEn || p.description ||
-      `Buy ${productName} online in Lebanon. Discreet delivery in Beirut and all regions. Cash on delivery.`
-    ).slice(0, 500);
-
-    // image: use /api/img proxy as fallback — serves the actual Firebase product photo.
-    // This fixes 'Invalid URL in field image' in Google Merchant Center.
-    const productImage = toImageUrl(p.image, p.id);
-    // Collect all extra product images — Merchant Center rewards multi-image listings.
-    const extraImages = (p.images || [])
-      .filter((img: string) => img && img.startsWith('http'))
-      .map((img: string) => img.replace(/^http:/, 'https:'))
-      .filter((img: string) => img !== productImage);
-    const allProductImages = [productImage, ...extraImages].slice(0, 6);
-
-    jsonLd = {
-      '@context': 'https://schema.org',
-      '@graph': [
-        {
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
-            { '@type': 'ListItem', position: 2, name: categoryLabel, item: `https://vexatoys.com/${canonicalCat}` },
-            { '@type': 'ListItem', position: 3, name: productName, item: productUrl },
-          ],
-        },
-        {
-          '@type': 'Product',
-          name: productName,
-          url: productUrl,
-          description: productDesc,
-          // All available product images — required for Rich Results & Merchant Listings.
-          // Multiple images improve Merchant Center click-through rates.
-          image: allProductImages,
-          sku: p.id,
-          mpn: p.id,
-          brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
-          offers: {
-            '@type': 'Offer',
-            url: productUrl,
-            price: p.price,
-            priceCurrency: 'USD',
-            // validFrom tells Google when this price became valid — required for Merchant Listings
-            validFrom: '2024-01-01',
-            // priceValidUntil: required by Google Merchant Listings for rich price display.
-            // Set to 1 year rolling — revalidated every 5 min with ISR so it stays fresh.
-            priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-            availability: p.stock > 0
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
-            itemCondition: 'https://schema.org/NewCondition',
-            seller: {
-              '@type': 'Organization',
-              name: 'Vexa Store Lebanon',
-              url: 'https://vexatoys.com',
-            },
-            // ── shippingDetails — required for Merchant Listings ──────────────
-            shippingDetails: {
-              '@type': 'OfferShippingDetails',
-              shippingRate: {
-                '@type': 'MonetaryAmount',
-                value: '3.00',
-                currency: 'USD',
-              },
-              shippingDestination: {
-                '@type': 'DefinedRegion',
-                addressCountry: 'LB',
-              },
-              deliveryTime: {
-                '@type': 'ShippingDeliveryTime',
-                handlingTime: {
-                  '@type': 'QuantitativeValue',
-                  minValue: 0,
-                  maxValue: 1,
-                  unitCode: 'DAY',
-                },
-                transitTime: {
-                  '@type': 'QuantitativeValue',
-                  minValue: 1,
-                  maxValue: 2,
-                  unitCode: 'DAY',
-                },
-              },
-            },
-            // ── hasMerchantReturnPolicy — required for Merchant Listings ─────
-            hasMerchantReturnPolicy: {
-              '@type': 'MerchantReturnPolicy',
-              applicableCountry: 'LB',
-              returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-              merchantReturnDays: 7,
-              returnMethod: 'https://schema.org/ReturnByMail',
-              returnFees: 'https://schema.org/FreeReturn',
-            },
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Vexa Store',
+            item: 'https://vexatoys.com'
           },
-          ...({
-            aggregateRating: {
-              '@type': 'AggregateRating',
-              ratingValue: Number((p.rating > 0 ? p.rating : 5.0).toFixed(1)),
-              reviewCount: p.reviewsCount > 0 ? p.reviewsCount : 1,
-              bestRating: 5,
-              worstRating: 1,
-            },
-          }),
-        },
-      ],
-    };
-  } catch { /* non-blocking */ }
-
-  // Build a list of up to 5 related products in the same category for the
-  // server-rendered internal-linking footer. This increases dofollow internal
-  // links to sibling products (fixes "only 1 dofollow inlink" Ahrefs flag).
-  function toSlugLocal(n: string): string {
-    return (n || '').toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-  }
-  const RELATED_SLUG_REMAPS: Record<string, string> = {
-    'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
-      'anal-cleansing-douche-easy-comfortable-cleaning',
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: meta.titleEn.split('|')[0].trim(),
+            item: `https://vexatoys.com/${slug}`
+          },
+        ]
+      },
+      {
+        '@type': 'CollectionPage',
+        name: meta.titleEn,
+        description: meta.descEn,
+        url: `https://vexatoys.com/${slug}`
+      },
+      ...(categoryProducts.length > 0 ? [{
+        '@type': 'ItemList',
+        name: meta.titleEn,
+        url: `https://vexatoys.com/${slug}`,
+        numberOfItems: categoryProducts.length,
+        itemListElement: categoryProducts.map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: `https://vexatoys.com/${p.canonicalCategorySlug}/${p.canonicalSlug}`,
+          name: p.nameEn || p.name,
+        }))
+      }] : []),
+      {
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: 'Do you deliver discreetly in Lebanon?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Yes. Plain sealed box, no logo, same-day delivery in Beirut.'
+            }
+          },
+          {
+            '@type': 'Question',
+            name: 'Can I pay cash on delivery?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Yes. Cash on delivery (COD) is available. No online payment required.'
+            }
+          },
+          {
+            '@type': 'Question',
+            name: 'How fast is delivery?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Same-day in Beirut, 48-72 hours for other regions.'
+            }
+          },
+        ]
+      },
+    ],
   };
-  const relatedProducts = serverProducts
-    .filter(rp => {
-      const rpCatSlug = rp.categorySlug && SLUG_TO_CATEGORY[rp.categorySlug]
-        ? rp.categorySlug : canonicalCat;
-      return rpCatSlug === canonicalCat && rp.id !== p.id;
-    })
-    .slice(0, 5)
-    .map(rp => {
-      const rawSlug = (rp.slug || toSlugLocal(rp.nameEn || rp.name || rp.id)).replace(/-+$/, '');
-      const rpSlug = RELATED_SLUG_REMAPS[rawSlug] ?? rawSlug;
-      const rpCatSlug = rp.categorySlug && SLUG_TO_CATEGORY[rp.categorySlug]
-        ? rp.categorySlug : canonicalCat;
-      return { name: rp.nameEn || rp.name || '', slug: rpSlug, catSlug: rpCatSlug };
-    })
-    .filter(rp => rp.slug && rp.name);
+
+  const content = CATEGORY_CONTENT[slug];
 
   return (
     <>
-      {/* Server-rendered H1 — screen-reader only, present in initial HTML.
-          The visible H1 is rendered by the ProductPage client component after hydration.
-          This sr-only heading ensures Ahrefs/Googlebot always sees an H1 in the static HTML. */}
-      <h1 className="sr-only">{productDisplayName}</h1>
-      {jsonLd && (
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-      )}
-      <ShopApp
-        initialProducts={initialProducts}
-        initialCategory={categoryId}
-        initialView="product"
-        initialProductSlug={slug}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      {/* ── Server-rendered related products ─────────────────────────────────
-          These dofollow links are present in the static HTML, giving each
-          product page multiple inbound internal links from sibling pages.
-          Fixes "page has only 1 dofollow internal link" Ahrefs flag. */}
-      {relatedProducts.length > 0 && (
+
+      <ShopApp
+        initialProducts={productsWithImages}
+        initialCategory={categoryId}
+        initialView="shop"
+      />
+
+      {content && (
+        <section className="bg-[#050101] border-t border-white/10">
+          <div className="mx-auto max-w-5xl px-4 py-14 space-y-10">
+
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-4">
+                Buying Guide
+              </p>
+
+              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
+                <p className="text-stone-300 text-sm leading-[1.85] whitespace-pre-line">
+                  {content.guide}
+                </p>
+              </div>
+            </div>
+
+            {content.faqs.length > 0 && (
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-4">
+                  Frequently Asked Questions
+                </p>
+
+                <div className="space-y-3">
+                  {content.faqs.map((faq, i) => (
+                    <div
+                      key={i}
+                      className="rounded-xl border border-white/10 bg-white/[0.03] p-5"
+                    >
+                      <p className="font-black text-white text-sm mb-2 leading-snug">
+                        {faq.q}
+                      </p>
+
+                      <p className="text-stone-400 text-sm leading-relaxed">
+                        {faq.a}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div>
+                <p className="font-black text-white mb-1">
+                  Not sure where to start?
+                </p>
+
+                <p className="text-stone-400 text-sm">
+                  Take our 3-question quiz and get a personalised recommendation.
+                </p>
+              </div>
+
+              <a
+                href="/quiz"
+                className="shrink-0 inline-flex items-center gap-2 bg-white text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-stone-200 transition active:scale-[0.98]"
+              >
+                Find my product →
+              </a>
+            </div>
+
+          </div>
+        </section>
+      )}
+
+      {categoryProducts.length > 0 && (
         <nav
-          aria-label={`More products in ${meta.titleEn.split('|')[0].trim()}`}
+          aria-label={`All products in ${meta.titleEn.split('|')[0].trim()}`}
           className="bg-[#050101] border-t border-white/5"
         >
-          <div className="mx-auto max-w-2xl px-4 py-8">
+          <div className="mx-auto max-w-5xl px-4 py-8">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-4">
-              More in {meta.titleEn.split('|')[0].trim()}
+              All Products
             </p>
+
             <ul className="flex flex-wrap gap-x-4 gap-y-2">
-              {relatedProducts.map(rp => (
-                <li key={rp.slug}>
+              {categoryProducts.map(p => (
+                <li key={p.id}>
                   <a
-                    href={`/${rp.catSlug}/${rp.slug}`}
+                    href={`/${p.canonicalCategorySlug}/${p.canonicalSlug}`}
                     className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
                   >
-                    {rp.name.slice(0, 60)}
+                    {(p.nameEn || p.name || '').slice(0, 60)}
                   </a>
                 </li>
               ))}
-              <li>
-                <a
-                  href={`/${canonicalCat}`}
-                  className="text-purple-600 hover:text-purple-400 text-xs font-bold transition-colors"
-                >
-                  View all →
-                </a>
-              </li>
+            </ul>
+          </div>
+        </nav>
+      )}
+
+      {RELATED_CATEGORIES[slug] && (
+        <nav
+          aria-label="Related categories"
+          className="bg-[#050101] border-t border-white/5"
+        >
+          <div className="mx-auto max-w-5xl px-4 py-6">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-3">
+              Related Categories
+            </p>
+
+            <ul className="flex flex-wrap gap-3">
+              {RELATED_CATEGORIES[slug].map(rel => (
+                <li key={rel.slug}>
+                  <a
+                    href={`/${rel.slug}`}
+                    className="text-xs font-bold text-stone-500 hover:text-stone-300 bg-white/[0.03] border border-white/10 px-3 py-1.5 rounded-full transition-colors"
+                  >
+                    {rel.label}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
         </nav>
       )}
     </>
   );
-}
-
+    }
