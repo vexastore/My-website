@@ -5,15 +5,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: '*',
-        allow: [
-          '/',
-          '/api/img/', // product image proxy — crawlable for Merchant Listings
-        ],
-        // Block admin/internal routes only.
-        // /api/img/ is explicitly listed first with allow, so Google honours the
-        // more-specific /api/img/ allow over the broader /api/ disallow.
-        // Using specific paths here (not just /api/) avoids any parser ambiguity.
+        allow: ['/'],
+        // Block admin/internal routes.
+        // /api/img/ is now disallowed: every product exposes direct Vercel Blob
+        // image URLs in its markup + Product schema, so crawlers don't need the
+        // serverless proxy — blocking it cuts unnecessary function invocations.
         disallow: [
+          '/api/img/',
           '/admin',
           '/checkout',
           '/revalidate',

@@ -31,13 +31,21 @@ export function middleware(req: NextRequest) {
     // they land on the homepage legitimately and stripping them via 301 kills
     // ad attribution and inflates /sex-toys authority artificially.
     if (req.nextUrl.pathname === '/' && req.nextUrl.searchParams.has('category')) {
-      // Use new URL() instead of clone() — clone() does not reliably strip
-      // the search string in Next.js 15 Edge Runtime, causing query params to
-      // leak into the redirect target (/sex-toys?category=...).
-      // new URL('/sex-toys', ...) constructs a clean URL with no query params.
-      const target = new URL('/sex-toys', `https://${CANONICAL_HOST}`);
-      // Numeric 301 — prevents Vercel Edge Runtime from coercing to 308.
-      return NextResponse.redirect(target, 301);
+      // Map the legacy ?category= value to its real category page (clean 301,
+      // query stripped). Unknown values fall back to /sex-toys.
+      const cat = (req.nextUrl.searchParams.get('category') || '')
+        .toLowerCase()
+        .replace(/\s+/g, '-');
+      const KNOWN = new Set([
+        'sex-toys','vibrators','male-toys','dildos','lingerie','bdsm',
+        'anal-toys','butt-plugs','bondage','strap-ons','kegel-balls',
+        'lubricants','masturbators','cock-rings','penis-pumps','chastity',
+        'sex-machines','sexual-enhancers','new-arrivals','holiday-collection',
+        'poppers','sex-dolls',
+      ]);
+      const targetPath = KNOWN.has(cat) ? `/${cat}` : '/sex-toys';
+      const catTarget = new URL(targetPath, `https://${CANONICAL_HOST}`);
+      return NextResponse.redirect(catTarget, 301);
     }
     return NextResponse.next();
   }

@@ -780,7 +780,7 @@ export const AdminPanel: React.FC = () => {
                 <div key={product.id} className="bg-[#0d0d0d] border border-white/10 rounded-xl overflow-hidden">
                   <div className="aspect-video bg-stone-900 relative">
                     <img
-                        src={'/api/img/' + product.id}
+                        src={product.image && product.image.startsWith('https://') ? product.image : '/api/img/' + product.id}
                         alt={product.name}
                         className="w-full h-full object-cover opacity-80"
                         onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
