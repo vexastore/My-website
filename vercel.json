@@ -2,6 +2,36 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "redirects": [
     {
+      "source": "/sex-toys/male-masturbator-in-lebanon-realistic-stimulation-sleeve",
+      "destination": "/sex-toys/male-masturbator-sex-toy-realistic-sleeve-stroker-for-men",
+      "statusCode": 301
+    },
+    {
+      "source": "/dildos/coocfan-realistic-giant-dildo-in-lebanon-dual-layer-silicone",
+      "destination": "/sex-toys/coocfan-realistic-giant-dildo-in-lebanon-dual-layer-silicone",
+      "statusCode": 301
+    },
+    {
+      "source": "/sex-toys/2026-realistic-thrusting-silicone-vibrator-multi-speed-10-mo",
+      "destination": "/sex-toys",
+      "statusCode": 301
+    },
+    {
+      "source": "/sex-toys/lip-style-clitoral-suction-licking-vibrating-stimulator",
+      "destination": "/sex-toys",
+      "statusCode": 301
+    },
+    {
+      "source": "/sex-toys/premium-medical-silicone-realistic-dildo-ultra-soft",
+      "destination": "/sex-toys",
+      "statusCode": 301
+    },
+    {
+      "source": "/sex-toys/penis-sleeve-reusable-silicone-extender-enhancer",
+      "destination": "/sex-toys",
+      "statusCode": 301
+    },
+    {
       "source": "/sex-toys/luxecurve-silicone-dildo-in-lebanon-",
       "destination": "/sex-toys/luxecurve-silicone-dildo-in-lebanon",
       "permanent": true
@@ -49,11 +79,6 @@
     {
       "source": "/dildos/silicone-strap-on-dildo",
       "destination": "/dildos/silicone-strap-on-dildo-in-lebanon",
-      "permanent": true
-    },
-    {
-      "source": "/sex-toys/male-masturbator-in-lebanon-realistic-stimulation-sleeve",
-      "destination": "/sex-toys/male-masturbator-sex-toy-realistic-sleeve-stroker-for-men",
       "permanent": true
     },
     {
