@@ -133,7 +133,7 @@ export const STATIC_PRODUCTS: Product[] = [
     ],
     "stock": 19,
     "descriptionEn": "Soft plush BDSM handcuffs designed for couples’ role-play and light bondage experiences. Features adjustable straps with secure metal locking mechanisms and a comfortable faux-fur lining for a soft feel on the skin. The leopard design adds a bold, playful aesthetic for themed or fantasy play.\nBuilt for comfort and control, these cuffs can be used on wrists or ankles, making them suitable for beginner-friendly exploration of restraint and intimacy. Durable yet soft construction ensures a balance between security and comfort during use.",
-    "link": "https://www.vexatoys.com/sex-toys/bdsm-plush-leopard-handcuffs-set-adjustable-furry-wrist-ankl",
+    "link": "https://vexatoys.com/sex-toys/bdsm-plush-leopard-handcuffs-set-adjustable-furry-wrist-ankl",
     "nameEn": "BDSM Plush Leopard Handcuffs Set – Adjustable Furry Wrist & Ankle Restraints",
     "rating": 5,
     "slug": "bdsm-plush-leopard-handcuffs-set-adjustable-furry-wrist-ankl",
@@ -146,7 +146,7 @@ export const STATIC_PRODUCTS: Product[] = [
   },
   {
     "descriptionEn": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Store.",
-    "link": "https://www.vexatoys.com/sexual-enhancers/viagra50mg",
+    "link": "https://vexatoys.com/sexual-enhancers/viagra50mg",
     "images": [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-3NRRJJDJU/img-0-zUK7weFJ130xQmGzzHAAyUlqOovoku.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-3NRRJJDJU/img-1-PUra3mTJKVpVZxxJm4lm6H3eO4FNF3.jpg"
@@ -228,7 +228,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "Lubricants"
     ],
     "descriptionEn": "High-quality intimate lubricants in Lebanon for smooth and comfortable experience. Safe, body-friendly formulas with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Store.",
-    "link": "https://www.vexatoys.com/sex-toys/lubricants-in-lebanon-intimate-lubricant-collection-vexa-sto"
+    "link": "https://vexatoys.com/sex-toys/lubricants-in-lebanon-intimate-lubricant-collection-vexa-sto"
   },
   {
     "stock": 20,
@@ -318,7 +318,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "category": "Vibrators",
     "isNew": true,
     "descriptionEn": "Powerful 3-in-1 adult vibrator featuring tongue-licking stimulation, thrusting motion, and suction function for intense pleasure. Designed with 10 speed modes and a soft medical-grade silicone body for a realistic, comfortable feel. The curved shape targets the G-spot for deeper internal stimulation while the suction head enhances external sensations.\nFully waterproof and rechargeable, making it suitable for shower or bath use. Ideal for solo play or couples looking to explore stronger, more exciting sensations and varied stimulation in one compact toy.",
-    "link": "https://www.vexatoys.com/vibrators/3-in-1-tongue-licking-thrusting-vibrator-10-speeds-suction-g",
+    "link": "https://vexatoys.com/vibrators/3-in-1-tongue-licking-thrusting-vibrator-10-speeds-suction-g",
     "stock": 1,
     "categories": [
       "Vibrators",
@@ -363,7 +363,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "Sexual Enhancers"
     ],
     "descriptionEn": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Store.",
-    "link": "https://www.vexatoys.com/sex-toys/mens-wellness-vitality-products-in-lebanon-vexa-store"
+    "link": "https://vexatoys.com/sex-toys/mens-wellness-vitality-products-in-lebanon-vexa-store"
   },
   {
     "images": [
@@ -418,7 +418,7 @@ export const STATIC_PRODUCTS: Product[] = [
     ],
     "categorySlug": "sex-toys",
     "reviewsCount": 10,
-    "link": "https://www.vexatoys.com/sex-toys/auxfun-thrusting-machine-6-attachments-adjustable-angles",
+    "link": "https://vexatoys.com/sex-toys/auxfun-thrusting-machine-6-attachments-adjustable-angles",
     "description": "Powerful thrusting machine with adjustable speed up to 450 thrusts per minute. Designed for customizable pleasure with adjustable angles and 6 interchangeable attachments.\nFeatures\nSpeed control: 0–450 thrusts/min\nHandheld remote control\n6 included attachments\nAdjustable angles\nStrong suction cup base\nSuitable for solo or couple use\nEasy to clean and store\nFor best experience, use on a stable surface and clean attachments after each use.",
     "slug": "auxfun-thrusting-machine-6-attachments-adjustable-angles",
     "name": "AUXFUN Thrusting Machine – 6 Attachments & Adjustable Angles",
@@ -681,7 +681,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-D056P0QP3/img-0-u5Ecop2IZYFnVc8ZG1xE4tXZzMU8OT.jpg",
     "id": "prod-D056P0QP3",
     "isNew": true,
-    "link": "https://www.vexatoys.com/poppers/poppers-in-lebanon-intimate-relaxation-products-vexa-store",
+    "link": "https://vexatoys.com/poppers/poppers-in-lebanon-intimate-relaxation-products-vexa-store",
     "categories": [
       "Poppers"
     ],
@@ -732,7 +732,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "categorySlug": "vibrators",
     "name": "Mini Rechargeable Silicone Air Pulse Massager",
     "id": "prod-DGS5SBC1M",
-    "link": "https://www.vexatoys.com/vibrators/mini-rechargeable-silicone-air-pulse-massager",
+    "link": "https://vexatoys.com/vibrators/mini-rechargeable-silicone-air-pulse-massager",
     "reviewsCount": 1,
     "nameEn": "Mini Rechargeable Silicone Air Pulse Massager",
     "rating": 5,
@@ -759,7 +759,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-E9VLPCTAS/img-0-RCVUrPi8etgFk2rrkyvbb8QUgSlEyb.jpg",
     "descriptionEn": "Flexible spiral sleeve cock ring designed to enhance sensation and comfort for both partners during use.\nFeatures\nStretchable TPE material\nSpiral textured design\nSecure and comfortable fit\nEnhances sensitivity and stimulation\nSuitable for solo or couple use\nLightweight and easy to carry\nLength: 10.5 cm | Width: 3 cm\nCompact design made for increased pleasure and easy use.",
     "id": "prod-E9VLPCTAS",
-    "link": "https://www.vexatoys.com/sex-toys/spiral-cock-ring-sleeve-couples-toy",
+    "link": "https://vexatoys.com/sex-toys/spiral-cock-ring-sleeve-couples-toy",
     "name": "Spiral Cock Ring Sleeve – Couples Toy",
     "nameEn": "Spiral Cock Ring Sleeve – Couples Toy",
     "stock": 20,
@@ -789,7 +789,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "categorySlug": "sex-toys",
     "slug": "flesh-color-male-masturbator-realistic-silicone-sleeve-for-m",
     "id": "prod-EL0BFSA8U",
-    "link": "https://www.vexatoys.com/sex-toys/flesh-color-male-masturbator-realistic-silicone-sleeve-for-m",
+    "link": "https://vexatoys.com/sex-toys/flesh-color-male-masturbator-realistic-silicone-sleeve-for-m",
     "name": "Flesh Color Male Masturbator – Realistic Silicone Sleeve for Men (Soft & Tight Design)",
     "reviewsCount": 9,
     "stock": 49,
@@ -818,7 +818,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "isNew": true,
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-EQ95C68JB/img-0-gtEgqSQ1fpaisOYcTKBXKqmw9Agg27.jpg",
     "name": "Electric Vacuum Pump – Compact Design",
-    "link": "https://www.vexatoys.com/male-toys/electric-vacuum-pump-compact-design",
+    "link": "https://vexatoys.com/male-toys/electric-vacuum-pump-compact-design",
     "id": "prod-EQ95C68JB",
     "rating": 5,
     "description": "Compact electric vacuum pump designed for easy and controlled suction with simple one-button operation.\nHow to Use\nPlace the device securely on the area of use\nTurn on the electric pump\nAdjust suction level as needed\nUse for a short controlled session\nTurn off and release pressure after use\nClean the device after each use\nBenefits\nHelps improve blood flow temporarily\nMay support enhanced sensitivity\nEasy and hands-free electric operation\nCompact and portable design\nSimple one-button control",
@@ -872,7 +872,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "isNew": true,
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-FOHZGLNB9/img-0-lSr9Ay7bR9d8aW6oTCX31WVfuvS8SZ.jpg",
     "name": "Beaded Dual Penetrator – Vibrating Silicone Toy",
-    "link": "https://www.vexatoys.com/male-toys/beaded-dual-penetrator-vibrating-silicone-toy",
+    "link": "https://vexatoys.com/male-toys/beaded-dual-penetrator-vibrating-silicone-toy",
     "id": "prod-FOHZGLNB9",
     "images": [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-FOHZGLNB9/img-0-lSr9Ay7bR9d8aW6oTCX31WVfuvS8SZ.jpg",
@@ -1015,7 +1015,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "rating": 5,
     "nameEn": "SXOVO Clitoral Vibrator – G-Spot Stimulator, 10 Intensity Modes, Waterproof Rechargeable",
     "descriptionEn": "Powerful clitoral and G-spot vibrator designed for women and couples, featuring strong multi-point stimulation for enhanced pleasure and faster orgasmic response. Equipped with 10 intensity modes for customizable sensations ranging from gentle to intense.\nMade from soft, body-safe silicone with a waterproof and rechargeable design for convenient use anywhere. The ergonomic shape allows precise clitoral contact and internal stimulation, making it suitable for solo pleasure or partnered play.",
-    "link": "https://www.vexatoys.com/vibrators/sxovo-clitoral-vibrator-g-spot-stimulator-10-intensity-modes",
+    "link": "https://vexatoys.com/vibrators/sxovo-clitoral-vibrator-g-spot-stimulator-10-intensity-modes",
     "category": "Vibrators",
     "slug": "sxovo-clitoral-vibrator-g-spot-stimulator-10-intensity-modes",
     "id": "prod-J2ALOTTRK",
@@ -1249,7 +1249,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "id": "prod-MPVIBW2PO"
   },
   {
-    "link": "https://www.vexatoys.com/sex-toys/anal-cleansing-douche-easy-comfortable-cleaning",
+    "link": "https://vexatoys.com/sex-toys/anal-cleansing-douche-easy-comfortable-cleaning",
     "name": "Anal Cleansing Douche – Easy & Comfortable Cleaning",
     "category": "Sex Toys",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-MTBLD2HU9/img-0-3GBzTaW7pmuoNjG0reWgjMjJaK3uBe.jpg",
@@ -1428,7 +1428,7 @@ export const STATIC_PRODUCTS: Product[] = [
   },
   {
     "name": "Luxury Lingerie in Lebanon | Lingerie Collection - Vexa Store",
-    "link": "https://www.vexatoys.com/sex-toys/luxury-lingerie-in-lebanon-lingerie-collection-vexa-store",
+    "link": "https://vexatoys.com/sex-toys/luxury-lingerie-in-lebanon-lingerie-collection-vexa-store",
     "categorySlug": "sex-toys",
     "slug": "luxury-lingerie-in-lebanon-lingerie-collection-vexa-store",
     "image": "",
@@ -1614,7 +1614,7 @@ export const STATIC_PRODUCTS: Product[] = [
     ],
     "stock": 10,
     "categorySlug": "sex-toys",
-    "link": "https://www.vexatoys.com/sex-toys/silicone-textured-enhancement-sleeve",
+    "link": "https://vexatoys.com/sex-toys/silicone-textured-enhancement-sleeve",
     "category": "Sex Toys",
     "rating": 5
   },
@@ -1720,7 +1720,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "nameEn": "Vergeaura Glow-in-the-Dark Gypsy Rose Sucking Vibrator – Air Pulse Clitoral Stimulator",
     "descriptionEn": "Elegant rose-shaped clitoral suction vibrator designed with glow-in-the-dark effect for a unique visual experience in low light. Uses air-pulse suction technology to deliver focused stimulation that mimics oral-like sensations for stronger and more intense pleasure.\nFeatures multiple suction/vibration modes for customizable use, soft body-safe silicone construction, and a compact ergonomic rose design for easy handling. Rechargeable with magnetic charging system and designed for quiet, discreet use. Perfect for solo or couples exploration with a mix of style, comfort, and powerful stimulation.",
     "variants": [],
-    "link": "https://www.vexatoys.com/vibrators/vergeaura-glow-in-the-dark-gypsy-rose-sucking-vibrator-air-p",
+    "link": "https://vexatoys.com/vibrators/vergeaura-glow-in-the-dark-gypsy-rose-sucking-vibrator-air-p",
     "categorySlug": "vibrators",
     "stock": 10,
     "category": "Vibrators",
@@ -1784,7 +1784,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "reviewsCount": 5,
     "stock": 20,
     "id": "prod-SW2PO6PDS",
-    "link": "https://www.vexatoys.com/male-toys/donut-cock-rings-3-pack-assorted-colors",
+    "link": "https://vexatoys.com/male-toys/donut-cock-rings-3-pack-assorted-colors",
     "rating": 5,
     "variants": [],
     "descriptionEn": "Set of elastic cock rings designed for comfort, flexibility, and enhanced performance. Made from stretchable material for a secure and adjustable fit.\nFeatures\nSet of 3 pieces\nFlexible and stretchable design\nComfortable and secure fit\nAssorted colors: black, clear, blue\nMade from TPE material\nPhthalate-free\nEasy to clean and reuse\nSize\nApprox: 3.3 × 1.75 cm\nDesigned to provide better support and a more controlled fit during use.",
@@ -1810,7 +1810,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-T5F7683VZ/img-0-gdA4QcMV5JHc7yWtnoBYcI5SERQrMc.jpg",
     "reviewsCount": 7,
     "stock": 20,
-    "link": "https://www.vexatoys.com/sex-toys/flexible-silicone-finger-vibrator-sleeve-with-vibrating-stim",
+    "link": "https://vexatoys.com/sex-toys/flexible-silicone-finger-vibrator-sleeve-with-vibrating-stim",
     "id": "prod-T5F7683VZ",
     "rating": 5,
     "isNew": true,
@@ -1907,7 +1907,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "descriptionEn": "Enhance intimacy with this textured silicone couples enhancement sleeve featuring a beaded design. Made from soft, stretchable body-safe silicone that fits comfortably and adapts to most sizes. The sleeve combines smooth ribbed sections with raised round beads in contrasting color for varied tactile stimulation.\r\n\r\nKey features:\r\n- *Dual-texture design* — smooth ribbed bands paired with raised beaded accents for enhanced sensation\r\n- *Flexible stretch silicone* — soft, skin-friendly material that’s comfortable and reusable\r\n- *Comfortable fit* — easy to put on and remove while maintaining a secure hold\r\n- *Waterproof and easy to clean* — simple rinse for quick hygiene after use\r\n- *Translucent pink finish* — discreet and modern appearance\r\n\r\nA practical addition to your couples’ wellness collection, designed for comfort, durability, and easy care.",
     "variants": [],
     "rating": 5,
-    "link": "https://www.vexatoys.com/sex-toys/textured-silicone-couples-enhancement-sleeve-with-beaded-des",
+    "link": "https://vexatoys.com/sex-toys/textured-silicone-couples-enhancement-sleeve-with-beaded-des",
     "id": "prod-VKHE4Z562",
     "stock": 19,
     "reviewsCount": 10,
@@ -1976,7 +1976,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "rating": 5,
     "stock": 5,
     "id": "prod-XMN0MTS93",
-    "link": "https://www.vexatoys.com/vibrators/3-in-1-clitoral-vibrator-tongue-licking-g-spot-stimulator-14",
+    "link": "https://vexatoys.com/vibrators/3-in-1-clitoral-vibrator-tongue-licking-g-spot-stimulator-14",
     "images": [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-XMN0MTS93/img-0-0OChKMIBkxNoMkGtWz91IyvYvJmVTM.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-XMN0MTS93/img-1-nKCvWtdrh5ZGw2Qj9r2WpVMgRqTtSY.jpg",
@@ -2008,7 +2008,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-YTOC4FAF1/img-0-9Mifc0r1vrMW4FZ6zTpcYunDr6ZnYk.jpg",
     "category": "Sex Toys",
     "reviewsCount": 4,
-    "link": "https://www.vexatoys.com/sex-toys/textured-silicone-couples-enhancement-ring-4-colors",
+    "link": "https://vexatoys.com/sex-toys/textured-silicone-couples-enhancement-ring-4-colors",
     "stock": 20,
     "id": "prod-YTOC4FAF1",
     "rating": 5,
@@ -2039,7 +2039,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "price": 18,
     "stock": 6,
     "id": "prod-ZCBYKCIEQ",
-    "link": "https://www.vexatoys.com/male-toys/rosetta-sperm-stopper-urethral-dilator-love-vibes",
+    "link": "https://vexatoys.com/male-toys/rosetta-sperm-stopper-urethral-dilator-love-vibes",
     "rating": 5,
     "variants": [],
     "descriptionEn": "Features\nSmooth medical-grade material\nErgonomic curved design\nDesigned for urethral play use\nLightweight and easy to handle\nEasy to clean and maintain\nSuitable for advanced users only\nCare\nMust be cleaned thoroughly before and after each use and used with appropriate lubrication.\nDesigned for experienced users seeking specialized stimulation and exploration.",
