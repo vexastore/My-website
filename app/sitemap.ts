@@ -67,7 +67,7 @@ function resolveProductCanonicalCategorySlug(p: {
   return undefined;
 }
 
-export const revalidate = 300; // 5 min — stays in sync with product page ISR (was 3600)
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ──────────────────────────────────────────────────────────

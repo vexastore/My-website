@@ -3,7 +3,7 @@ import { fetchProductsServer } from '@/lib/fetchProducts';
 import { CATEGORY_TO_SLUG } from '@/lib/categoryMeta';
 import { Product } from '@/src/types';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),

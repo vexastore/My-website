@@ -3,11 +3,10 @@ import { notFound } from 'next/navigation';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { SLUG_TO_CATEGORY, getCategoryMeta } from '@/lib/categoryMeta';
 import { ShopApp } from '@/src/ShopApp';
-import { Product } from '@/src/types';
+import type { Product } from '@/src/types';
 
 /**
- * Shared slug normaliser.
- * Must match the logic in src/context/ShopContext.tsx.
+ * Shared slug normaliser — must match ShopContext client logic.
  */
 function toSl(n: string): string {
   return (n || '')
@@ -20,106 +19,106 @@ function toSl(n: string): string {
 }
 
 /**
- * Slug remaps: old/legacy product slug → canonical slug.
+ * Old/legacy product slug → canonical slug.
  */
 const SLUG_REMAPS: Record<string, string> = {
   'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
     'anal-cleansing-douche-easy-comfortable-cleaning',
 };
 
+const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
+
 interface Props {
   params: Promise<{ category: string; slug: string }>;
 }
 
-const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
-
 /**
- * Resolve a product from the merged static + Firebase catalog.
- *
- * Returns null when the slug matches no product — the page then
- * responds with a real HTTP 404 via notFound(), instead of the
- * previous soft-404 (HTTP 200 category page with the category
- * canonical) that Google flagged as Duplicate / Crawled-not-indexed.
+ * Find a product by URL slug.
+ * Matches stored slug, normalised name, or product id.
  */
-async function resolveProduct(
-  rawSlug: string
-): Promise<{ product: Product; canonicalSlug: string; products: Product[] } | null> {
-  const slug = SLUG_REMAPS[rawSlug] ?? rawSlug;
+function findProduct(products: Product[], rawSlug: string): Product | undefined {
+  const slug = (SLUG_REMAPS[rawSlug] ?? rawSlug).replace(/-+$/, '');
 
-  const products = await fetchProductsServer();
-
-  const product = products.find(
-    (p) =>
-      p.slug === slug ||
-      p.id === slug ||
-      toSl(p.nameEn || p.name || '') === slug
-  );
-
-  if (!product) return null;
-
-  const canonicalSlug = (
-    product.slug || toSl(product.nameEn || product.name || product.id)
-  ).replace(/-+$/, '');
-
-  return { product, canonicalSlug, products };
+  return products.find((p) => {
+    const stored = (p.slug || '').replace(/-+$/, '');
+    if (stored && stored === slug) return true;
+    if (toSl(p.nameEn || p.name || '') === slug) return true;
+    return p.id === slug;
+  });
 }
 
 /**
- * Canonical category slug for a product: prefer the product's own
- * categorySlug when it maps to a known category, otherwise fall back
- * to the category segment from the URL.
+ * Canonical URL for a product: always uses the product's own
+ * categorySlug (or 'sex-toys' fallback) + stored slug.
  */
-function canonicalCategoryFor(product: Product, urlCategory: string): string {
-  const ps = (product.categorySlug || '').trim();
-  if (ps && SLUG_TO_CATEGORY[ps]) return ps;
-  if (SLUG_TO_CATEGORY[urlCategory]) return urlCategory;
-  return ps || urlCategory;
+function productCanonicalPath(product: Product): string {
+  const cat =
+    product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug]
+      ? product.categorySlug
+      : 'sex-toys';
+  const slug =
+    (product.slug || toSl(product.nameEn || product.name || product.id)).replace(/-+$/, '');
+  return `/${cat}/${slug}`;
 }
 
 /**
- * Product metadata — the page gets its OWN product canonical
- * (never the category canonical).
+ * First non-base64 product image.
+ */
+function productImage(product: Product): string {
+  const candidates = [product.image, ...(product.images || [])];
+  const img = candidates.find((i) => i && !i.startsWith('data:'));
+  return img || DEFAULT_OG_IMAGE;
+}
+
+/**
+ * Product-specific metadata (title, description, canonical, OG, Twitter).
  */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { category, slug } = await params;
 
-  const resolved = await resolveProduct(slug);
+  const products = await fetchProductsServer();
+  const product = findProduct(products, slug);
 
-  if (!resolved) {
-    // Page body calls notFound(); make sure nothing indexes this URL.
+  if (!product) {
+    // Will 404 in the page component; emit noindex to be safe.
     return {
-      title: 'Product Not Found',
+      title: 'Product Not Found | Vexa Store',
       robots: { index: false, follow: false },
     };
   }
 
-  const { product, canonicalSlug } = resolved;
-  const categorySlug = canonicalCategoryFor(product, category);
-  const pageUrl = `https://vexatoys.com/${categorySlug}/${canonicalSlug}`;
+  const name = (product.nameEn || product.name || '').trim();
+  const catMeta = getCategoryMeta(
+    product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug]
+      ? product.categorySlug
+      : category
+  );
+  const categoryLabel = catMeta.titleEn.split('|')[0].trim();
 
-  const title = product.nameEn || product.name || 'Product';
-  const description = (product.descriptionEn || product.description || '')
-    .replace(/\s+/g, ' ')
-    .trim()
-    .slice(0, 160);
+  const title = `${name} | ${categoryLabel} | Vexa Store Lebanon`;
 
-  const image =
-    product.image && !product.image.startsWith('data:')
-      ? product.image
-      : DEFAULT_OG_IMAGE;
+  const description = (
+    (product.descriptionEn || product.description || '')
+      .replace(/\s+/g, ' ')
+      .trim() ||
+    `Buy ${name} in Lebanon. Discreet same-day delivery in Beirut, cash on delivery.`
+  ).slice(0, 158);
+
+  const canonical = `https://vexatoys.com${productCanonicalPath(product)}`;
+  const image = productImage(product);
 
   return {
-    title: { absolute: `${title} | Vexa Store Lebanon` },
+    title: { absolute: title },
     description,
 
     openGraph: {
       title,
       description,
-      url: pageUrl,
+      url: canonical,
       siteName: 'Vexa Store Lebanon',
       locale: 'ar_LB',
       type: 'website',
-      images: [{ url: image, alt: title }],
+      images: [{ url: image, alt: name, width: 800, height: 800 }],
     },
 
     twitter: {
@@ -130,66 +129,72 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [image],
     },
 
-    alternates: {
-      canonical: pageUrl,
-    },
+    alternates: { canonical },
 
-    robots: {
-      index: true,
-      follow: true,
-    },
+    robots: { index: true, follow: true },
   };
 }
 
 /**
- * Revalidate product pages every 5 minutes.
+ * Revalidate product pages every hour (cost-efficient ISR).
  */
-export const revalidate = 300;
+export const revalidate = 3600;
 
 /**
- * Product page.
+ * Product detail page — server-rendered with Product JSON-LD.
  */
 export default async function ProductPage({ params }: Props) {
   const { category, slug } = await params;
 
-  const resolved = await resolveProduct(slug);
-
-  /**
-   * Unknown slug → real HTTP 404.
-   * (vercel.json redirects run before this route, so existing
-   * 301s for legacy URLs still take priority.)
-   */
-  if (!resolved) {
+  // Unknown categories 404 immediately.
+  if (!SLUG_TO_CATEGORY[category]) {
     notFound();
   }
 
-  const { product, canonicalSlug, products } = resolved;
-  const categorySlug = canonicalCategoryFor(product, category);
-  const pageUrl = `https://vexatoys.com/${categorySlug}/${canonicalSlug}`;
+  const allProducts = await fetchProductsServer();
+  const product = findProduct(allProducts, slug);
 
   /**
-   * Remove Base64 images from server-rendered data.
+   * Unknown product slug → real 404 (no more soft-404 category
+   * pages that Google flags as duplicates / redirect errors).
    */
-  const productsWithImages = products.map((p) => ({
+  if (!product) {
+    notFound();
+  }
+
+  const name = (product.nameEn || product.name || '').trim();
+  const canonicalPath = productCanonicalPath(product);
+  const canonicalUrl = `https://vexatoys.com${canonicalPath}`;
+  const image = productImage(product);
+
+  const catSlug =
+    product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug]
+      ? product.categorySlug
+      : category;
+  const catMeta = getCategoryMeta(catSlug);
+  const categoryLabel = catMeta.titleEn.split('|')[0].trim();
+
+  const description = (
+    (product.descriptionEn || product.description || '')
+      .replace(/\s+/g, ' ')
+      .trim()
+  ).slice(0, 5000);
+
+  /**
+   * Strip Base64 images from the serialised initial payload.
+   */
+  const productsWithImages = allProducts.map((p) => ({
     ...p,
     image: p.image && !p.image.startsWith('data:') ? p.image : '',
-    images: (p.images || []).filter(
-      (image) => image && !image.startsWith('data:')
-    ),
+    images: (p.images || []).filter((i) => i && !i.startsWith('data:')),
   }));
 
-  const image =
-    product.image && !product.image.startsWith('data:')
-      ? product.image
-      : DEFAULT_OG_IMAGE;
+  const images = [product.image, ...(product.images || [])].filter(
+    (i) => i && !i.startsWith('data:')
+  );
 
-  const categoryMeta = SLUG_TO_CATEGORY[categorySlug]
-    ? getCategoryMeta(categorySlug)
-    : null;
+  const inStock = (product.stock ?? 0) > 0;
 
-  /**
-   * Schema.org structured data.
-   */
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -199,36 +204,31 @@ export default async function ProductPage({ params }: Props) {
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Home',
+            name: 'Vexa Store',
             item: 'https://vexatoys.com',
           },
-          ...(categoryMeta
-            ? [
-                {
-                  '@type': 'ListItem',
-                  position: 2,
-                  name: categoryMeta.titleEn,
-                  item: `https://vexatoys.com/${categorySlug}`,
-                },
-              ]
-            : []),
           {
             '@type': 'ListItem',
-            position: categoryMeta ? 3 : 2,
-            name: product.nameEn || product.name,
-            item: pageUrl,
+            position: 2,
+            name: categoryLabel,
+            item: `https://vexatoys.com/${catSlug}`,
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name,
+            item: canonicalUrl,
           },
         ],
       },
       {
         '@type': 'Product',
-        name: product.nameEn || product.name,
-        description: (product.descriptionEn || product.description || '')
-          .replace(/\s+/g, ' ')
-          .trim()
-          .slice(0, 500),
-        image,
-        url: pageUrl,
+        name,
+        description,
+        image: images.length > 0 ? images : [DEFAULT_OG_IMAGE],
+        url: canonicalUrl,
+        sku: product.id,
+        brand: { '@type': 'Brand', name: 'Vexa Store' },
         ...(product.rating && product.reviewsCount
           ? {
               aggregateRating: {
@@ -240,13 +240,20 @@ export default async function ProductPage({ params }: Props) {
           : {}),
         offers: {
           '@type': 'Offer',
-          price: product.price,
+          url: canonicalUrl,
           priceCurrency: 'USD',
-          availability:
-            product.stock > 0
-              ? 'https://schema.org/InStock'
-              : 'https://schema.org/OutOfStock',
-          url: pageUrl,
+          price: product.price,
+          availability: inStock
+            ? 'https://schema.org/InStock'
+            : 'https://schema.org/OutOfStock',
+          itemCondition: 'https://schema.org/NewCondition',
+          shippingDetails: {
+            '@type': 'OfferShippingDetails',
+            shippingDestination: {
+              '@type': 'DefinedRegion',
+              addressCountry: 'LB',
+            },
+          },
         },
       },
     ],
@@ -257,17 +264,25 @@ export default async function ProductPage({ params }: Props) {
       {/* JSON-LD structured data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      {/* Server-rendered product summary for crawlers */}
+      <div className="sr-only">
+        <h1>{name}</h1>
+        <p>{description.slice(0, 300)}</p>
+        <p>
+          {categoryLabel} — ${product.price} — {inStock ? 'In stock' : 'Out of stock'} —
+          Discreet delivery across Lebanon, cash on delivery.
+        </p>
+      </div>
 
       {/* Main shop application, opened on this product */}
       <ShopApp
         initialProducts={productsWithImages}
-        initialCategory={SLUG_TO_CATEGORY[categorySlug]}
+        initialCategory={catMeta ? SLUG_TO_CATEGORY[catSlug] : undefined}
         initialView="product"
-        initialProductSlug={canonicalSlug}
+        initialProductSlug={slug}
       />
     </>
   );

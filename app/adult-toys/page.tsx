@@ -14,7 +14,7 @@ import { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { ShopApp } from '@/src/ShopApp';
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: { absolute: 'Adult Toys in Lebanon | All Categories | Vexa Store' },

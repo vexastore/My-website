@@ -78,7 +78,7 @@ const RELATED_CATEGORIES: Record<string, Array<{ slug: string; label: string }>>
     };
   }
 
-  export const revalidate = 300;
+  export const revalidate = 3600;
 
   export function generateStaticParams() {
     return CATEGORY_META.map(c => ({ category: c.slug }));
