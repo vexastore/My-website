@@ -1,17 +1,13 @@
 import { Metadata } from 'next';
-import { fetchProductsServer } from '@/lib/fetchProducts';
-import {
-  CATEGORY_META,
-  getCategoryMeta,
-  SLUG_TO_CATEGORY,
-} from '@/lib/categoryMeta';
-import { CATEGORY_CONTENT } from '@/lib/categoryContent';
-import { ShopApp } from '@/src/ShopApp';
 import { notFound } from 'next/navigation';
+import { fetchProductsServer } from '@/lib/fetchProducts';
+import { SLUG_TO_CATEGORY, getCategoryMeta } from '@/lib/categoryMeta';
+import { ShopApp } from '@/src/ShopApp';
+import { Product } from '@/src/types';
 
 /**
  * Shared slug normaliser.
- * Must match the logic in app/[category]/[slug]/page.tsx
+ * Must match the logic in src/context/ShopContext.tsx.
  */
 function toSl(n: string): string {
   return (n || '')
@@ -25,227 +21,113 @@ function toSl(n: string): string {
 
 /**
  * Slug remaps: old/legacy product slug → canonical slug.
- *
- * This prevents server-rendered product links from pointing
- * to URLs that trigger 3XX redirects.
  */
 const SLUG_REMAPS: Record<string, string> = {
   'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
     'anal-cleansing-douche-easy-comfortable-cleaning',
 };
 
-/**
- * Related categories map.
- *
- * These links are rendered server-side so search engines can
- * discover related category pages directly from the HTML.
- */
-const RELATED_CATEGORIES: Record<
-  string,
-  Array<{ slug: string; label: string }>
-> = {
-  'sex-toys': [
-    { slug: 'vibrators', label: 'Vibrators' },
-    { slug: 'dildos', label: 'Dildos' },
-    { slug: 'male-toys', label: 'Male Toys' },
-    { slug: 'bdsm', label: 'BDSM' },
-    { slug: 'lubricants', label: 'Lubricants' },
-  ],
-
-  'vibrators': [
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-    { slug: 'dildos', label: 'Dildos' },
-    { slug: 'kegel-balls', label: 'Kegel Balls' },
-    { slug: 'lubricants', label: 'Lubricants' },
-  ],
-
-  'male-toys': [
-    { slug: 'cock-rings', label: 'Cock Rings' },
-    { slug: 'masturbators', label: 'Masturbators' },
-    { slug: 'penis-pumps', label: 'Penis Pumps' },
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' },
-  ],
-
-  'dildos': [
-    { slug: 'vibrators', label: 'Vibrators' },
-    { slug: 'strap-ons', label: 'Strap-Ons' },
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'bdsm': [
-    { slug: 'bondage', label: 'Bondage' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-    { slug: 'lingerie', label: 'Lingerie' },
-  ],
-
-  'anal-toys': [
-    { slug: 'butt-plugs', label: 'Butt Plugs' },
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'butt-plugs': [
-    { slug: 'anal-toys', label: 'Anal Toys' },
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'lubricants': [
-    { slug: 'vibrators', label: 'Vibrators' },
-    { slug: 'anal-toys', label: 'Anal Toys' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' },
-  ],
-
-  'lingerie': [
-    { slug: 'bdsm', label: 'BDSM' },
-    { slug: 'holiday-collection', label: 'Gift Sets' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'bondage': [
-    { slug: 'bdsm', label: 'BDSM' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'strap-ons': [
-    { slug: 'dildos', label: 'Dildos' },
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'cock-rings': [
-    { slug: 'male-toys', label: 'Male Toys' },
-    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' },
-    { slug: 'lubricants', label: 'Lubricants' },
-  ],
-
-  'masturbators': [
-    { slug: 'male-toys', label: 'Male Toys' },
-    { slug: 'cock-rings', label: 'Cock Rings' },
-    { slug: 'lubricants', label: 'Lubricants' },
-  ],
-
-  'penis-pumps': [
-    { slug: 'male-toys', label: 'Male Toys' },
-    { slug: 'cock-rings', label: 'Cock Rings' },
-    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' },
-  ],
-
-  'kegel-balls': [
-    { slug: 'vibrators', label: 'Vibrators' },
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'sexual-enhancers': [
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'male-toys', label: 'Male Toys' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'chastity': [
-    { slug: 'bdsm', label: 'BDSM' },
-    { slug: 'cock-rings', label: 'Cock Rings' },
-    { slug: 'male-toys', label: 'Male Toys' },
-  ],
-
-  'sex-machines': [
-    { slug: 'vibrators', label: 'Vibrators' },
-    { slug: 'dildos', label: 'Dildos' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'sex-dolls': [
-    { slug: 'male-toys', label: 'Male Toys' },
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'holiday-collection': [
-    { slug: 'lingerie', label: 'Lingerie' },
-    { slug: 'bdsm', label: 'BDSM' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-
-  'new-arrivals': [
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-    { slug: 'vibrators', label: 'Vibrators' },
-    { slug: 'male-toys', label: 'Male Toys' },
-  ],
-
-  'poppers': [
-    { slug: 'lubricants', label: 'Lubricants' },
-    { slug: 'sexual-enhancers', label: 'Sexual Enhancers' },
-    { slug: 'sex-toys', label: 'All Sex Toys' },
-  ],
-};
-
-/**
- * Routes that must not be treated as category pages.
- */
-const RESERVED = [
-  'about',
-  'checkout',
-  'admin',
-  'orders',
-  'advice',
-  'sitemap.xml',
-  'robots.txt',
-  'blog',
-  'quiz',
-];
-
 interface Props {
-  params: Promise<{ category: string }>;
+  params: Promise<{ category: string; slug: string }>;
 }
 
 const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
 
 /**
- * Category metadata.
+ * Resolve a product from the merged static + Firebase catalog.
+ *
+ * Returns null when the slug matches no product — the page then
+ * responds with a real HTTP 404 via notFound(), instead of the
+ * previous soft-404 (HTTP 200 category page with the category
+ * canonical) that Google flagged as Duplicate / Crawled-not-indexed.
  */
-export async function generateMetadata({
-  params,
-}: Props): Promise<Metadata> {
-  const { category: slug } = await params;
+async function resolveProduct(
+  rawSlug: string
+): Promise<{ product: Product; canonicalSlug: string; products: Product[] } | null> {
+  const slug = SLUG_REMAPS[rawSlug] ?? rawSlug;
 
-  const meta = getCategoryMeta(slug);
-  const pageUrl = `https://vexatoys.com/${slug}`;
+  const products = await fetchProductsServer();
+
+  const product = products.find(
+    (p) =>
+      p.slug === slug ||
+      p.id === slug ||
+      toSl(p.nameEn || p.name || '') === slug
+  );
+
+  if (!product) return null;
+
+  const canonicalSlug = (
+    product.slug || toSl(product.nameEn || product.name || product.id)
+  ).replace(/-+$/, '');
+
+  return { product, canonicalSlug, products };
+}
+
+/**
+ * Canonical category slug for a product: prefer the product's own
+ * categorySlug when it maps to a known category, otherwise fall back
+ * to the category segment from the URL.
+ */
+function canonicalCategoryFor(product: Product, urlCategory: string): string {
+  const ps = (product.categorySlug || '').trim();
+  if (ps && SLUG_TO_CATEGORY[ps]) return ps;
+  if (SLUG_TO_CATEGORY[urlCategory]) return urlCategory;
+  return ps || urlCategory;
+}
+
+/**
+ * Product metadata — the page gets its OWN product canonical
+ * (never the category canonical).
+ */
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { category, slug } = await params;
+
+  const resolved = await resolveProduct(slug);
+
+  if (!resolved) {
+    // Page body calls notFound(); make sure nothing indexes this URL.
+    return {
+      title: 'Product Not Found',
+      robots: { index: false, follow: false },
+    };
+  }
+
+  const { product, canonicalSlug } = resolved;
+  const categorySlug = canonicalCategoryFor(product, category);
+  const pageUrl = `https://vexatoys.com/${categorySlug}/${canonicalSlug}`;
+
+  const title = product.nameEn || product.name || 'Product';
+  const description = (product.descriptionEn || product.description || '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 160);
+
+  const image =
+    product.image && !product.image.startsWith('data:')
+      ? product.image
+      : DEFAULT_OG_IMAGE;
 
   return {
-    title: {
-      absolute: meta.titleEn,
-    },
-
-    description: meta.descEn.slice(0, 160),
+    title: { absolute: `${title} | Vexa Store Lebanon` },
+    description,
 
     openGraph: {
-      title: meta.titleEn,
-      description: meta.descEn,
+      title,
+      description,
       url: pageUrl,
       siteName: 'Vexa Store Lebanon',
       locale: 'ar_LB',
       type: 'website',
-
-      images: [
-        {
-          url: DEFAULT_OG_IMAGE,
-          alt: meta.titleEn,
-          width: 1200,
-          height: 630,
-        },
-      ],
+      images: [{ url: image, alt: title }],
     },
 
     twitter: {
       card: 'summary_large_image',
       site: '@vexastore',
-      title: meta.titleEn,
-      description: meta.descEn,
-      images: [DEFAULT_OG_IMAGE],
+      title,
+      description,
+      images: [image],
     },
 
     alternates: {
@@ -260,217 +142,115 @@ export async function generateMetadata({
 }
 
 /**
- * Revalidate category pages every 5 minutes.
+ * Revalidate product pages every 5 minutes.
  */
 export const revalidate = 300;
 
 /**
- * Pre-generate all known category pages.
+ * Product page.
  */
-export function generateStaticParams() {
-  return CATEGORY_META.map((category) => ({
-    category: category.slug,
-  }));
-}
+export default async function ProductPage({ params }: Props) {
+  const { category, slug } = await params;
 
-/**
- * Category page.
- */
-export default async function CategoryPage({ params }: Props) {
-  const { category: slug } = await params;
+  const resolved = await resolveProduct(slug);
 
   /**
-   * Prevent reserved application routes from being handled
-   * by the dynamic category route.
+   * Unknown slug → real HTTP 404.
+   * (vercel.json redirects run before this route, so existing
+   * 301s for legacy URLs still take priority.)
    */
-  if (RESERVED.includes(slug)) {
+  if (!resolved) {
     notFound();
   }
 
-  const categoryId = SLUG_TO_CATEGORY[slug];
-
-  if (!categoryId) {
-    notFound();
-  }
-
-  const meta = getCategoryMeta(slug);
-
-  /**
-   * Fetch products server-side.
-   *
-   * This allows Googlebot to see the product links in the
-   * initial HTML without depending on client-side JavaScript.
-   */
-  const allProducts = await fetchProductsServer();
+  const { product, canonicalSlug, products } = resolved;
+  const categorySlug = canonicalCategoryFor(product, category);
+  const pageUrl = `https://vexatoys.com/${categorySlug}/${canonicalSlug}`;
 
   /**
    * Remove Base64 images from server-rendered data.
-   *
-   * External image URLs are preserved.
    */
-  const productsWithImages = allProducts.map((product) => ({
-    ...product,
-
-    image:
-      product.image && !product.image.startsWith('data:')
-        ? product.image
-        : '',
-
-    images: (product.images || []).filter(
+  const productsWithImages = products.map((p) => ({
+    ...p,
+    image: p.image && !p.image.startsWith('data:') ? p.image : '',
+    images: (p.images || []).filter(
       (image) => image && !image.startsWith('data:')
     ),
   }));
 
-  /**
-   * Products belonging to this category.
-   *
-   * Every product receives one canonical category + canonical slug
-   * so the generated internal links don't intentionally point to
-   * redirecting URLs.
-   */
-  const categoryProducts = productsWithImages
-    .filter(
-      (product) =>
-        product.categorySlug === slug ||
-        product.category === categoryId
-    )
-    .map((product) => {
-      const rawSlug = (
-        product.slug ||
-        toSl(product.nameEn || product.name || product.id)
-      ).replace(/-+$/, '');
+  const image =
+    product.image && !product.image.startsWith('data:')
+      ? product.image
+      : DEFAULT_OG_IMAGE;
 
-      const canonicalSlug = SLUG_REMAPS[rawSlug] ?? rawSlug;
-
-      const canonicalCategorySlug =
-        product.categorySlug &&
-        SLUG_TO_CATEGORY[product.categorySlug]
-          ? product.categorySlug
-          : slug;
-
-      return {
-        ...product,
-        canonicalSlug,
-        canonicalCategorySlug,
-      };
-    });
+  const categoryMeta = SLUG_TO_CATEGORY[categorySlug]
+    ? getCategoryMeta(categorySlug)
+    : null;
 
   /**
    * Schema.org structured data.
    */
   const jsonLd = {
     '@context': 'https://schema.org',
-
     '@graph': [
-      /**
-       * Breadcrumb.
-       */
       {
         '@type': 'BreadcrumbList',
-
         itemListElement: [
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Vexa Store',
+            name: 'Home',
             item: 'https://vexatoys.com',
           },
-
+          ...(categoryMeta
+            ? [
+                {
+                  '@type': 'ListItem',
+                  position: 2,
+                  name: categoryMeta.titleEn,
+                  item: `https://vexatoys.com/${categorySlug}`,
+                },
+              ]
+            : []),
           {
             '@type': 'ListItem',
-            position: 2,
-            name: meta.titleEn.split('|')[0].trim(),
-            item: `https://vexatoys.com/${slug}`,
+            position: categoryMeta ? 3 : 2,
+            name: product.nameEn || product.name,
+            item: pageUrl,
           },
         ],
       },
-
-      /**
-       * Collection page.
-       */
       {
-        '@type': 'CollectionPage',
-        name: meta.titleEn,
-        description: meta.descEn,
-        url: `https://vexatoys.com/${slug}`,
-      },
-
-      /**
-       * Product list.
-       */
-      ...(categoryProducts.length > 0
-        ? [
-            {
-              '@type': 'ItemList',
-              name: meta.titleEn,
-              url: `https://vexatoys.com/${slug}`,
-              numberOfItems: categoryProducts.length,
-
-              itemListElement: categoryProducts.map(
-                (product, index) => ({
-                  '@type': 'ListItem',
-                  position: index + 1,
-
-                  url: `https://vexatoys.com/${product.canonicalCategorySlug}/${product.canonicalSlug}`,
-
-                  name:
-                    product.nameEn ||
-                    product.name ||
-                    product.id,
-                })
-              ),
-            },
-          ]
-        : []),
-
-      /**
-       * FAQ.
-       */
-      {
-        '@type': 'FAQPage',
-
-        mainEntity: [
-          {
-            '@type': 'Question',
-            name: 'Do you deliver discreetly in Lebanon?',
-
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text:
-                'Yes. Plain sealed box, no logo, same-day delivery in Beirut.',
-            },
-          },
-
-          {
-            '@type': 'Question',
-            name: 'Can I pay cash on delivery?',
-
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text:
-                'Yes. Cash on delivery (COD) is available. No online payment required.',
-            },
-          },
-
-          {
-            '@type': 'Question',
-            name: 'How fast is delivery?',
-
-            acceptedAnswer: {
-              '@type': 'Answer',
-              text:
-                'Same-day in Beirut, 48-72 hours for other regions.',
-            },
-          },
-        ],
+        '@type': 'Product',
+        name: product.nameEn || product.name,
+        description: (product.descriptionEn || product.description || '')
+          .replace(/\s+/g, ' ')
+          .trim()
+          .slice(0, 500),
+        image,
+        url: pageUrl,
+        ...(product.rating && product.reviewsCount
+          ? {
+              aggregateRating: {
+                '@type': 'AggregateRating',
+                ratingValue: product.rating,
+                reviewCount: product.reviewsCount,
+              },
+            }
+          : {}),
+        offers: {
+          '@type': 'Offer',
+          price: product.price,
+          priceCurrency: 'USD',
+          availability:
+            product.stock > 0
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/OutOfStock',
+          url: pageUrl,
+        },
       },
     ],
   };
-
-  /**
-   * SEO content for the category.
-   */
-  const content = CATEGORY_CONTENT[slug];
 
   return (
     <>
@@ -482,144 +262,13 @@ export default async function CategoryPage({ params }: Props) {
         }}
       />
 
-      {/* Main shop application */}
+      {/* Main shop application, opened on this product */}
       <ShopApp
         initialProducts={productsWithImages}
-        initialCategory={categoryId}
-        initialView="shop"
+        initialCategory={SLUG_TO_CATEGORY[categorySlug]}
+        initialView="product"
+        initialProductSlug={canonicalSlug}
       />
-
-      {/* SEO content */}
-      {content && (
-        <section className="bg-[#050101] border-t border-white/10">
-          <div className="mx-auto max-w-5xl px-4 py-14 space-y-10">
-
-            {/* Buying Guide */}
-            <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-4">
-                Buying Guide
-              </p>
-
-              <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">
-                <p className="text-stone-300 text-sm leading-[1.85] whitespace-pre-line">
-                  {content.guide}
-                </p>
-              </div>
-            </div>
-
-            {/* FAQs */}
-            {content.faqs.length > 0 && (
-              <div>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-4">
-                  Frequently Asked Questions
-                </p>
-
-                <div className="space-y-3">
-                  {content.faqs.map((faq, index) => (
-                    <div
-                      key={index}
-                      className="rounded-xl border border-white/10 bg-white/[0.03] p-5"
-                    >
-                      <p className="font-black text-white text-sm mb-2 leading-snug">
-                        {faq.q}
-                      </p>
-
-                      <p className="text-stone-400 text-sm leading-relaxed">
-                        {faq.a}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Quiz CTA */}
-            <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div>
-                <p className="font-black text-white mb-1">
-                  Not sure where to start?
-                </p>
-
-                <p className="text-stone-400 text-sm">
-                  Take our 3-question quiz and get a personalised recommendation.
-                </p>
-              </div>
-
-              <a
-                href="/quiz"
-                className="shrink-0 inline-flex items-center gap-2 bg-white text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-stone-200 transition active:scale-[0.98]"
-              >
-                Find my product →
-              </a>
-            </div>
-
-          </div>
-        </section>
-      )}
-
-      {/* Server-rendered product index */}
-      {categoryProducts.length > 0 && (
-        <nav
-          aria-label={`All products in ${meta.titleEn
-            .split('|')[0]
-            .trim()}`}
-          className="bg-[#050101] border-t border-white/5"
-        >
-          <div className="mx-auto max-w-5xl px-4 py-8">
-
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-4">
-              All Products
-            </p>
-
-            <ul className="flex flex-wrap gap-x-4 gap-y-2">
-              {categoryProducts.map((product) => (
-                <li key={product.id}>
-                  <a
-                    href={`/${product.canonicalCategorySlug}/${product.canonicalSlug}`}
-                    className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
-                  >
-                    {(
-                      product.nameEn ||
-                      product.name ||
-                      ''
-                    ).slice(0, 60)}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-          </div>
-        </nav>
-      )}
-
-      {/* Related category links */}
-      {RELATED_CATEGORIES[slug] && (
-        <nav
-          aria-label="Related categories"
-          className="bg-[#050101] border-t border-white/5"
-        >
-          <div className="mx-auto max-w-5xl px-4 py-6">
-
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-3">
-              Related Categories
-            </p>
-
-            <ul className="flex flex-wrap gap-3">
-              {RELATED_CATEGORIES[slug].map((related) => (
-                <li key={related.slug}>
-                  <a
-                    href={`/${related.slug}`}
-                    className="text-xs font-bold text-stone-500 hover:text-stone-300 bg-white/[0.03] border border-white/10 px-3 py-1.5 rounded-full transition-colors"
-                  >
-                    {related.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-          </div>
-        </nav>
-      )}
     </>
   );
-                                    }
+}
