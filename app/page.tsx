@@ -167,7 +167,8 @@ function StarRating({ rating }: { rating: number }) {
 
 function ProductCard({ p, label }: { p: Product; label?: string }) {
   const url = getProductUrl(p);
-  const img = cleanImage(p.image) || `https://vexatoys.com/api/img/${p.id}`;
+  // Fallback must be a crawlable HTTPS image — /api/img/ is disallowed in robots.txt.
+  const img = cleanImage(p.image) || 'https://vexatoys.com/opengraph.jpg';
   const name = (p.nameEn || p.name || '').slice(0, 55);
 
   return (

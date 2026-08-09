@@ -121,7 +121,8 @@ const RELATED_CATEGORIES: Record<string, Array<{ slug: string; label: string }>>
     const jsonLdProducts = categoryProducts.slice(0, 8).map(p => ({
         name: p.nameEn || p.name,
         url: `https://vexatoys.com/${p.canonicalCategorySlug}/${p.canonicalSlug}`,
-        image: (p.image && p.image.startsWith('https://')) ? p.image : `https://vexatoys.com/api/img/${p.id}`,
+        // Fallback must be a crawlable HTTPS image — /api/img/ is disallowed in robots.txt.
+        image: (p.image && p.image.startsWith('https://')) ? p.image : 'https://vexatoys.com/opengraph.jpg',
         price: p.price, stock: p.stock,
       }));
 
