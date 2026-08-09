@@ -34,7 +34,9 @@ Our collection spans every category of intimate products: vibrators for solo or 
 
 Shopping for sex toys in Lebanon has never been simpler or more private. Browse by category, add to cart, and choose your delivery window. Our discreet riders deliver to your door in Beirut the same day, or within 48–72 hours to other regions. Your purchase stays completely between you and Vexa Store — we never share customer data.
 
-Whether you're buying for the first time or adding to your collection, our team is available 24/7 via WhatsApp for personalised recommendations.`,
+Whether you're buying for the first time or adding to your collection, our team is available 24/7 via WhatsApp for personalised recommendations.
+
+Whether you want to buy sex toys in Lebanon for solo play or are browsing couples sex toys in Lebanon for shared experiences, our range covers every level of experience. As a fully online sex shop in Lebanon, we make sex toys delivery in Lebanon simple: order today, and discreet sex toys packaging plus same-day sex toys delivery in Beirut keep your privacy fully protected.`,
     faqs: [
       { q: 'Do you deliver sex toys discreetly in Lebanon?', a: 'Yes. Every order ships in a plain sealed box with no logos or labels. The delivery rider carries no indication of what is inside. Same-day delivery is available in Beirut.' },
       { q: 'Can I pay cash on delivery?', a: 'Absolutely. Cash on delivery (COD) is available for all orders across Lebanon. You pay the rider when you receive your package — no online payment required.' },
@@ -49,7 +51,9 @@ The main types available are bullet vibrators (small, precise, ideal for beginne
 
 When choosing, prioritise body-safe silicone over plastic — it's softer, non-porous, and hypoallergenic. Look for waterproof or IPX7-rated models for easy cleaning. Noise level matters for discretion: most quality models operate under 50 dB. If you're a first-time buyer, start with a mid-range bullet or rabbit vibrator before investing in a premium wand.
 
-All vibrators at Vexa Store come in discreet packaging with no visible branding. Cash on delivery is available, and same-day shipping is offered in Beirut.`,
+All vibrators at Vexa Store come in discreet packaging with no visible branding. Cash on delivery is available, and same-day shipping is offered in Beirut.
+
+Vibrators remain the most searched-for female sex toys in Lebanon. If you're choosing your first vibrator in Lebanon, start with a simple bullet style — then explore wands and rabbits as you learn what you enjoy.`,
     faqs: [
       { q: 'What vibrator is best for beginners in Lebanon?', a: 'A small bullet vibrator or a simple rabbit vibrator is ideal for beginners. They are easy to control, quiet, and deliver strong results without being overwhelming. Vexa Store carries beginner-friendly options from $15 upward.' },
       { q: 'Are vibrators waterproof?', a: 'Most vibrators we carry are waterproof (IPX7 rated) or at minimum splashproof. This makes them safe to use in the shower and much easier to clean thoroughly after use.' },
@@ -64,7 +68,11 @@ The most popular category is male masturbators — devices with realistic intern
 
 Prostate massagers are a growing category — the prostate gland (also called the male G-spot) responds strongly to targeted vibration. Many men report prostate stimulation produces significantly more intense orgasms.
 
-All male toys at Vexa Store are made from body-safe silicone, ABS plastic, or TPE (thermoplastic elastomer). We do not carry cheap rubber or latex products. Delivery across Lebanon is discreet, fast, and available with COD.`,
+All male toys at Vexa Store are made from body-safe silicone, ABS plastic, or TPE (thermoplastic elastomer). We do not carry cheap rubber or latex products. Delivery across Lebanon is discreet, fast, and available with COD.
+
+Vexa Store carries the widest range of male sex toys in Lebanon, all shipped in unmarked boxes.
+
+يبحث كثيرون عن اير اصطناعي في لبنان — تجده عندنا بخامات آمنة وواقعية، مع توصيل سري في بيروت وكل لبنان ودفع عند الاستلام.`,
     faqs: [
       { q: 'Are male sex toys discreet to order in Lebanon?', a: 'Yes. All male toys ship in plain sealed boxes with no external labels, logos, or product names. The delivery rider has no idea what is in the package. Same-day Beirut delivery available.' },
       { q: 'What is the difference between a masturbator and a pocket pussy?', a: 'They are the same product category. A pocket pussy or masturbator is a handheld sleeve device with an internal textured channel designed for male stimulation. Different products vary by texture, tightness, and material.' },
@@ -79,7 +87,11 @@ The two most popular materials are silicone and glass. Medical-grade silicone is
 
 Realistic dildos are modelled to simulate the look and feel of the real thing. Non-realistic dildos focus on function over aesthetics and often include ergonomic shapes, curves, or ridges for enhanced G-spot or P-spot stimulation. Vibrating dildos add motorised stimulation for a combined experience.
 
-When choosing size, start conservatively if you are new to the category — you can always upgrade. Always use a water-based lubricant with silicone toys to preserve the material. Cash on delivery and discreet same-day shipping in Beirut is available for all orders.`,
+When choosing size, start conservatively if you are new to the category — you can always upgrade. Always use a water-based lubricant with silicone toys to preserve the material. Cash on delivery and discreet same-day shipping in Beirut is available for all orders.
+
+Looking for dildos in Lebanon? Vexa Store is the easiest place to buy a dildo in Lebanon online — with cash on delivery and plain packaging on every order.
+
+إذا كنت تبحث عن ديلدو في لبنان، متجر فيكسا يوفر أفضل تشكيلة ديلدو لبنان بسيليكون طبي آمن، مع توصيل سري ودفع عند الاستلام في بيروت وكل المناطق.`,
     faqs: [
       { q: 'What is the safest material for a dildo?', a: 'Medical-grade silicone is the safest choice — it is non-porous, hypoallergenic, easy to clean, and holds no bacteria. Borosilicate glass and stainless steel are also excellent. Avoid rubber, jelly, or PVC products.' },
       { q: 'Can I use a dildo with a harness?', a: 'Yes — many dildos are harness-compatible (designed with a flat base). If you plan to use one with a strap-on harness, confirm the product has a flared base before purchasing.' },
@@ -94,7 +106,9 @@ Our collection spans sizes XS through 3XL. The most popular fabrics are stretch 
 
 When selecting lingerie, consider the occasion: a lace bra-and-panty set is a classic and universally appreciated gift, while a full bodysuit makes a bolder statement. Babydoll styles are flattering and easy to size. Garter sets add an element of theatre and work beautifully for special anniversaries.
 
-All lingerie at Vexa Store is packaged in tissue paper inside a plain outer box — completely discreet. We offer same-day delivery in Beirut and COD for all orders.`,
+All lingerie at Vexa Store is packaged in tissue paper inside a plain outer box — completely discreet. We offer same-day delivery in Beirut and COD for all orders.
+
+From playful pieces to premium adult lingerie in Lebanon, every set is chosen for comfort, quality, and confidence.`,
     faqs: [
       { q: 'How do I choose the right lingerie size?', a: 'Most lingerie is sized by bra cup and waist measurement. Check the size chart on each product listing. If you are between sizes, size up for comfort. Stretch fabrics are generally forgiving across one size up or down.' },
       { q: 'Is lingerie from Vexa Store discreetly packaged?', a: 'Yes. All lingerie ships in a plain sealed outer box with no visible product name, store logo, or imagery. Safe to receive at home or at a pickup point.' },
@@ -259,7 +273,9 @@ The internal texture is the primary differentiator between masturbators. Tight r
 
 Automatic masturbators do the work for you — motorised sleeves or thrusting devices with multiple speed and pattern settings. These are hands-free options ideal for solo sessions or as a couple's accessory. Heating features (some models warm the internal sleeve to body temperature) significantly enhance the experience.
 
-Cleaning masturbators thoroughly after each use is critical. TPE and SuperSkin are porous materials — bacteria can grow inside the channel if not dried and cleaned properly. Rinse with warm water and dedicated toy cleaner, then allow to dry completely before storage. Never use silicone lubricant with TPE devices.`,
+Cleaning masturbators thoroughly after each use is critical. TPE and SuperSkin are porous materials — bacteria can grow inside the channel if not dried and cleaned properly. Rinse with warm water and dedicated toy cleaner, then allow to dry completely before storage. Never use silicone lubricant with TPE devices.
+
+الاسم الشائع بالعربية لهذه الفئة هو اير اصطناعي — إذا كنت تبحث عن اير اصطناعي لبنان أو اير اصطناعي في لبنان، هذه الصفحة تجمع أفضل الموديلات بملمس واقعي وتنظيف سهل، مع تغليف سري بالكامل.`,
     faqs: [
       { q: 'What lubricant works best with masturbators?', a: 'Use water-based lubricant only. TPE and SuperSkin materials are degraded by silicone-based lubricants. Water-based lubricants are safe, easy to wash out, and available from Vexa Store alongside masturbators.' },
       { q: 'How do I clean a masturbator properly?', a: 'Rinse the internal channel thoroughly with warm (not hot) water after each use. Use a small amount of antibacterial toy cleaner, rinse again, and allow to dry completely inverted on a stand or cloth before storing.' },

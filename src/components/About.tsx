@@ -69,7 +69,7 @@ export const About: React.FC = () => {
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-white/55 sm:text-base">
             {isArabic
               ? 'متجر فيكسا هو المتجر الرائد والأكثر أماناً لشراء الألعاب الزوجية، الهزازات، اللانجري الفاخر، ومنتجات BDSM في لبنان. نوفر تجربة تسوق سرية 100% مع توصيل في نفس اليوم في بيروت وخلال 72 ساعة لكل المناطق اللبنانية.'
-              : 'Vexa Store is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. We offer a 100% discreet shopping experience with same-day delivery in Beirut and within 72 hours across all Lebanese regions.'}
+              : 'Vexa Store is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. As a fully online sex shop in Lebanon and a discreet online adult store, we serve customers in Beirut and every Lebanese region — a 100% private shopping experience with same-day delivery in Beirut and within 72 hours nationwide, so you never need to visit a physical sex shop in Beirut to get what you want.'}
           </p>
           <button
             onClick={() => setView('shop')}

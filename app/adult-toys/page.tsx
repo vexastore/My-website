@@ -121,6 +121,8 @@ export default async function AdultToysPage() {
               Vexa Store is Lebanon&apos;s #1 destination for <strong>adult toys in Lebanon</strong> —
               500+ products across every category, delivered in plain sealed boxes with no logo.
               <strong> Same-day delivery in Beirut</strong>. Cash on delivery everywhere.
+              The easiest way to buy adult toys in Lebanon online — no store visit needed,
+              our adult toys Lebanon collection ships straight to your door.
             </p>
             <p className="text-stone-400 text-sm leading-relaxed max-w-3xl">
               متجر فيكسا — الوجهة الأولى للألعاب للكبار في لبنان. <strong>العاب جنسيه في لبنان</strong> بتغليف سري 100% بدون شعار.
