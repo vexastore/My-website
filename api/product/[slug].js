@@ -30,6 +30,9 @@ const CATEGORY_LABELS = {
   'new-arrivals':       { ar: 'وصل حديثاً',        en: 'New Arrivals' },
 };
 
+const OFFER_VALID_FROM = '2026-01-01';
+const OFFER_PRICE_VALID_UNTIL = '2027-12-31';
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function toSlug(str) {
   return (str || '').toLowerCase().trim()
@@ -50,6 +53,21 @@ function smartTrunc(str, max) {
   return clean.slice(0, max).replace(/\s+\S*$/, '') + '…';
 }
 
+function schemaImageUrl(value) {
+  if (!value || String(value).startsWith('data:')) {
+    return 'https://vexatoys.com/opengraph.jpg';
+  }
+  try {
+    const url = new URL(String(value), 'https://vexatoys.com');
+    if (url.protocol === 'http:') url.protocol = 'https:';
+    return url.protocol === 'https:'
+      ? url.toString()
+      : 'https://vexatoys.com/opengraph.jpg';
+  } catch {
+    return 'https://vexatoys.com/opengraph.jpg';
+  }
+}
+
 // ── Read the actual built index.html (has correct hashed asset paths) ─────────
 // includeFiles in vercel.json ensures dist/index.html is bundled with this function.
 function readIndexHtml() {
@@ -68,8 +86,7 @@ function patchHtml(html, product, slug) {
   const url      = `https://vexatoys.com/product/${slug}`;
   const price    = Number(product.price  || 0).toFixed(2);
   const inStock  = (product.stock || 0) > 0;
-  const image    = (product.image && !product.image.startsWith('data:'))
-                     ? product.image : 'https://vexatoys.com/opengraph.jpg';
+  const image    = schemaImageUrl(product.image);
   const rating      = Number(product.rating       || 4.5).toFixed(1);
   const reviewCount = Number(product.reviewsCount || 1);
   const catSlug  = (product.category || 'sex-toys').toLowerCase().replace(/\s+/g, '-');
@@ -98,13 +115,15 @@ function patchHtml(html, product, slug) {
           url,
           priceCurrency: 'USD',
           price: price,
+          validFrom: OFFER_VALID_FROM,
+          priceValidUntil: OFFER_PRICE_VALID_UNTIL,
           availability: inStock
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
           seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com/' },
           shippingDetails: {
             '@type': 'OfferShippingDetails',
-            shippingRate: { '@type': 'MonetaryAmount', value: '0', currency: 'USD' },
+            shippingRate: { '@type': 'MonetaryAmount', value: 0, currency: 'USD' },
             deliveryTime: {
               '@type': 'ShippingDeliveryTime',
               handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
@@ -112,7 +131,13 @@ function patchHtml(html, product, slug) {
             },
             shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'LB' },
           },
-          priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+          hasMerchantReturnPolicy: {
+            '@type': 'MerchantReturnPolicy',
+            applicableCountry: 'LB',
+            returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+            merchantReturnMethod: 'https://schema.org/ReturnByMail',
+            returnFees: 'https://schema.org/ReturnShippingFees',
+          },
         },
         aggregateRating: {
           '@type': 'AggregateRating',

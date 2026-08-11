@@ -13,6 +13,20 @@ if (!fs.existsSync(distDir)) {
 const TODAY = new Date().toISOString().slice(0, 10);
 const FIREBASE_API_KEY = 'AIzaSyAhrOE6l4uGbrNcc3ivbDTLyC1IBd63TV8';
 const FIREBASE_PROJECT  = 'vexa-store';
+const OFFER_VALID_FROM = '2026-01-01';
+const OFFER_PRICE_VALID_UNTIL = '2027-12-31';
+const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
+
+function schemaImageUrl(value) {
+  if (!value || String(value).startsWith('data:')) return DEFAULT_OG_IMAGE;
+  try {
+    const url = new URL(String(value), 'https://vexatoys.com');
+    if (url.protocol === 'http:') url.protocol = 'https:';
+    return url.protocol === 'https:' ? url.toString() : DEFAULT_OG_IMAGE;
+  } catch {
+    return DEFAULT_OG_IMAGE;
+  }
+}
 
 // ── URL-friendly slug from English product name ───────────────────────────
 function toSlug(name) {
@@ -278,7 +292,7 @@ function generateProductPage(product, catSlugOverride) {
         name: nameEn,
         alternateName: nameAr,
         description: descEn || descAr,
-        image: (product.image && !product.image.startsWith('data:')) ? [product.image] : [],
+        image: [schemaImageUrl(product.image)],
         sku: product.id,
         brand: { '@type':'Brand', name:'Vexa Store Lebanon' },
         offers: {
@@ -288,7 +302,8 @@ function generateProductPage(product, catSlugOverride) {
           availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
           url: canonical,
           seller: { '@type':'Organization', name:'Vexa Store Lebanon', url:'https://vexatoys.com' },
-          priceValidUntil: new Date(Date.now() + 365*24*60*60*1000).toISOString().slice(0,10),
+           validFrom: OFFER_VALID_FROM,
+           priceValidUntil: OFFER_PRICE_VALID_UNTIL,
           shippingDetails: {
             '@type':'OfferShippingDetails',
             shippingRate:{ '@type':'MonetaryAmount', value:'3.00', currency:'USD' },
@@ -300,10 +315,9 @@ function generateProductPage(product, catSlugOverride) {
           hasMerchantReturnPolicy: {
             '@type':'MerchantReturnPolicy',
             applicableCountry:'LB',
-            returnPolicyCategory:'https://schema.org/MerchantReturnFiniteReturnWindow',
-            merchantReturnDays:7,
-            returnMethod:'https://schema.org/ReturnByMail',
-            returnFees:'https://schema.org/FreeReturn',
+             returnPolicyCategory:'https://schema.org/MerchantReturnNotPermitted',
+             merchantReturnMethod:'https://schema.org/ReturnByMail',
+             returnFees:'https://schema.org/ReturnShippingFees',
           },
         },
         ...(product.reviewsCount > 0 ? { aggregateRating: { '@type':'AggregateRating', ratingValue: product.rating || 4.5, reviewCount: Math.max(1, product.reviewsCount || 1), bestRating:5, worstRating:1 } } : {}),

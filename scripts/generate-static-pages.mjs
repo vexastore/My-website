@@ -11,7 +11,20 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const publicDir = path.resolve(__dirname, '..', 'public');
 const TODAY = new Date().toISOString().slice(0, 10);
-const PRICE_VALID_UNTIL = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+const OFFER_VALID_FROM = '2026-01-01';
+const PRICE_VALID_UNTIL = '2027-12-31';
+const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
+
+function schemaImageUrl(value) {
+  if (!value || String(value).startsWith('data:')) return DEFAULT_OG_IMAGE;
+  try {
+    const url = new URL(String(value), 'https://vexatoys.com');
+    if (url.protocol === 'http:') url.protocol = 'https:';
+    return url.protocol === 'https:' ? url.toString() : DEFAULT_OG_IMAGE;
+  } catch {
+    return DEFAULT_OG_IMAGE;
+  }
+}
 
 // ── Fallback product data (mirrors mockData.ts) ────────────────────────────
 const FALLBACK_PRODUCTS = [
@@ -97,7 +110,7 @@ function buildItemList(products) {
       name: p.nameEn,
       alternateName: p.nameAr,
       description: p.descEn || p.descAr,
-      image: p.image ? [p.image] : [],
+      image: [schemaImageUrl(p.image)],
       sku: p.id,
       brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
       offers: {
@@ -107,12 +120,24 @@ function buildItemList(products) {
         availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
         url: `https://vexatoys.com/product/${slug}`,
         seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
+        validFrom: OFFER_VALID_FROM,
         priceValidUntil: PRICE_VALID_UNTIL,
         shippingDetails: {
           '@type': 'OfferShippingDetails',
           shippingRate: { '@type': 'MonetaryAmount', value: '0', currency: 'USD' },
-          deliveryTime: { '@type': 'ShippingDeliveryTime', handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 2, unitCode: 'DAY' } }
-        }
+          deliveryTime: {
+            '@type': 'ShippingDeliveryTime',
+            handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
+            transitTime: { '@type': 'QuantitativeValue', minValue: 1, maxValue: 3, unitCode: 'DAY' },
+          },
+        },
+        hasMerchantReturnPolicy: {
+          '@type': 'MerchantReturnPolicy',
+          applicableCountry: 'LB',
+          returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+          merchantReturnMethod: 'https://schema.org/ReturnByMail',
+          returnFees: 'https://schema.org/ReturnShippingFees',
+        },
       },
     };
     if (p.rating && p.reviewsCount) {

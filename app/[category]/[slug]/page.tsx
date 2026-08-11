@@ -27,6 +27,23 @@ const SLUG_REMAPS: Record<string, string> = {
 };
 
 const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
+const OFFER_VALID_FROM = '2026-01-01';
+const OFFER_PRICE_VALID_UNTIL = '2027-12-31';
+
+function schemaImageUrl(product: Product): string {
+  const candidates = [product.image, ...(product.images || [])];
+  for (const candidate of candidates) {
+    if (!candidate || candidate.startsWith('data:')) continue;
+    try {
+      const url = new URL(candidate, 'https://vexatoys.com');
+      if (url.protocol === 'http:') url.protocol = 'https:';
+      if (url.protocol === 'https:') return url.toString();
+    } catch {
+      // Ignore malformed product image URLs and use the site fallback.
+    }
+  }
+  return DEFAULT_OG_IMAGE;
+}
 
 interface Props {
   params: Promise<{ category: string; slug: string }>;
@@ -65,9 +82,7 @@ function productCanonicalPath(product: Product): string {
  * First non-base64 product image.
  */
 function productImage(product: Product): string {
-  const candidates = [product.image, ...(product.images || [])];
-  const img = candidates.find((i) => i && !i.startsWith('data:'));
-  return img || DEFAULT_OG_IMAGE;
+  return schemaImageUrl(product);
 }
 
 /**
@@ -189,9 +204,7 @@ export default async function ProductPage({ params }: Props) {
     images: (p.images || []).filter((i) => i && !i.startsWith('data:')),
   }));
 
-  const images = [product.image, ...(product.images || [])].filter(
-    (i) => i && !i.startsWith('data:')
-  );
+  const images = [schemaImageUrl(product)];
 
   const inStock = (product.stock ?? 0) > 0;
 
@@ -243,16 +256,45 @@ export default async function ProductPage({ params }: Props) {
           url: canonicalUrl,
           priceCurrency: 'USD',
           price: product.price,
+          validFrom: OFFER_VALID_FROM,
+          priceValidUntil: OFFER_PRICE_VALID_UNTIL,
           availability: inStock
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
           itemCondition: 'https://schema.org/NewCondition',
           shippingDetails: {
             '@type': 'OfferShippingDetails',
+            shippingRate: {
+              '@type': 'MonetaryAmount',
+              value: 0,
+              currency: 'USD',
+            },
             shippingDestination: {
               '@type': 'DefinedRegion',
               addressCountry: 'LB',
             },
+            deliveryTime: {
+              '@type': 'ShippingDeliveryTime',
+              handlingTime: {
+                '@type': 'QuantitativeValue',
+                minValue: 0,
+                maxValue: 1,
+                unitCode: 'DAY',
+              },
+              transitTime: {
+                '@type': 'QuantitativeValue',
+                minValue: 1,
+                maxValue: 3,
+                unitCode: 'DAY',
+              },
+            },
+          },
+          hasMerchantReturnPolicy: {
+            '@type': 'MerchantReturnPolicy',
+            applicableCountry: 'LB',
+            returnPolicyCategory: 'https://schema.org/MerchantReturnNotPermitted',
+            merchantReturnMethod: 'https://schema.org/ReturnByMail',
+            returnFees: 'https://schema.org/ReturnShippingFees',
           },
         },
       },
