@@ -1,72 +1,20 @@
 import { MetadataRoute } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
-import { CATEGORY_META, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
+import { CATEGORY_META } from '@/lib/categoryMeta';
 import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/blogPosts';
+import {
+  canonicalProductPath,
+  canonicalProductSlug,
+  resolveProductCategorySlug,
+  SITE_BASE_URL,
+} from '@/lib/productSeo';
 
-const BASE = 'https://vexatoys.com';
+const BASE = SITE_BASE_URL;
 const TODAY = new Date().toISOString().slice(0, 10);
 
 // Valid routed category slugs — only slugs in CATEGORY_META have real product pages.
 // /adult-toys is a STANDALONE page (app/adult-toys/page.tsx) — not in CATEGORY_META
 // to avoid duplicate id='Sex Toys' corruption. It IS added manually to staticPages below.
-const VALID_SLUGS = new Set(CATEGORY_META.map(c => c.slug));
-
-/**
- * Slug remaps: old/legacy product slug → canonical slug.
- *
- * Used to prevent the sitemap from listing URLs that return 3XX redirects
- * (because the product's slug in Firestore still holds the old value while
- * vercel.json already redirects that old URL to the canonical destination).
- *
- * Keep in sync with the permanent redirects in vercel.json.
- * Key   = the slug as stored in Firestore (what fetchProductsServer returns)
- * Value = the canonical slug that returns 200
- */
-const SLUG_REMAPS: Record<string, string> = {
-  // vercel.json: /sex-toys/premium-anal-cleansing-douche-easy-comfortable-cleaning-310
-  //           → /sex-toys/anal-cleansing-douche-easy-comfortable-cleaning
-  'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
-    'anal-cleansing-douche-easy-comfortable-cleaning',
-};
-
-function toCategorySlug(raw: string): string {
-  return (raw || '').toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim();
-}
-
-/**
- * Resolve the canonical categorySlug for a product — must stay 100% in sync
- * with the identical logic in app/[category]/[slug]/page.tsx so the sitemap
- * only ever generates URLs the product page will NOT redirect away from.
- *
- * Priority:
- * 1. p.categorySlug is directly in SLUG_TO_CATEGORY → use it as-is
- * 2. p.categorySlug normalises to a VALID_SLUG (e.g. "New Arrivals" → "new-arrivals")
- * 3. Scan p.categories[] for the first valid slug
- * 4. Return undefined → product excluded from sitemap
- *
- * NOTE: 'adult-toys' is intentionally NOT in SLUG_TO_CATEGORY (not in CATEGORY_META).
- * Products stored with categorySlug='adult-toys' in Firestore will fall through to
- * categories[] resolution — this is correct behaviour and prevents redirect errors.
- */
-function resolveProductCanonicalCategorySlug(p: {
-  categorySlug?: string;
-  categories?: string[];
-}): string | undefined {
-  // Step 1: direct SLUG_TO_CATEGORY match (same as product page primary check)
-  if (p.categorySlug && SLUG_TO_CATEGORY[p.categorySlug]) return p.categorySlug;
-
-  // Step 2: normalise and check VALID_SLUGS
-  const primary = toCategorySlug(p.categorySlug || '');
-  if (primary && VALID_SLUGS.has(primary)) return primary;
-
-  // Step 3: scan categories[]
-  for (const cat of p.categories || []) {
-    const slug = toCategorySlug(cat);
-    if (slug && VALID_SLUGS.has(slug)) return slug;
-  }
-  return undefined;
-}
-
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -110,10 +58,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   let productPages: MetadataRoute.Sitemap = [];
   try {
     const products = await fetchProductsServer();
-    const toSl = (n: string) => (n || '').toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-
     // Deduplicate by canonical URL — prevents the same product from appearing
     // twice (e.g. once via stored slug and once via name-derived slug),
     // which was causing "Duplicate, Google chose different canonical" in GSC.
@@ -123,17 +67,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       // Strip trailing hyphens first (legacy Firestore slugs ending with '-'),
       // then apply any explicit slug remaps so the sitemap never lists a URL
       // that returns 3XX (redirect) instead of 200.
-      const rawSlug = (p.slug || toSl(p.nameEn || p.name || p.id)).replace(/-+$/, '');
-      const slug = SLUG_REMAPS[rawSlug] ?? rawSlug;
+      const slug = canonicalProductSlug(p);
       if (!slug) continue;
 
       // Resolve canonical categorySlug using the SAME logic as the product page
       // so the sitemap URL matches exactly what the product page renders at.
       // This prevents sitemap URLs from redirecting (which GSC flags as errors).
-      const categorySlug = resolveProductCanonicalCategorySlug(p);
-      if (!categorySlug) continue;
-
-      const url = `${BASE}/${categorySlug}/${slug}`;
+      const url = `${BASE}${canonicalProductPath(p)}`;
       if (seenUrls.has(url)) continue;
       seenUrls.add(url);
 

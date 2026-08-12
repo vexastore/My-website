@@ -4,28 +4,18 @@ import { fetchProductsServer } from '@/lib/fetchProducts';
 import { SLUG_TO_CATEGORY, getCategoryMeta } from '@/lib/categoryMeta';
 import { ShopApp } from '@/src/ShopApp';
 import type { Product } from '@/src/types';
+import {
+  canonicalProductPath,
+  canonicalProductSlug,
+  resolveProductCategorySlug,
+  SITE_BASE_URL,
+  SLUG_REMAPS,
+  toProductSlug,
+} from '@/lib/productSeo';
 
 /**
  * Shared slug normaliser — must match ShopContext client logic.
  */
-function toSl(n: string): string {
-  return (n || '')
-    .toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .slice(0, 60);
-}
-
-/**
- * Old/legacy product slug → canonical slug.
- */
-const SLUG_REMAPS: Record<string, string> = {
-  'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
-    'anal-cleansing-douche-easy-comfortable-cleaning',
-};
-
 const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
 const OFFER_VALID_FROM = '2026-01-01';
 const OFFER_PRICE_VALID_UNTIL = '2027-12-31';
@@ -57,25 +47,11 @@ function findProduct(products: Product[], rawSlug: string): Product | undefined 
   const slug = (SLUG_REMAPS[rawSlug] ?? rawSlug).replace(/-+$/, '');
 
   return products.find((p) => {
-    const stored = (p.slug || '').replace(/-+$/, '');
+    const stored = canonicalProductSlug(p);
     if (stored && stored === slug) return true;
-    if (toSl(p.nameEn || p.name || '') === slug) return true;
+    if (toProductSlug(p.nameEn || p.name || '') === slug) return true;
     return p.id === slug;
   });
-}
-
-/**
- * Canonical URL for a product: always uses the product's own
- * categorySlug (or 'sex-toys' fallback) + stored slug.
- */
-function productCanonicalPath(product: Product): string {
-  const cat =
-    product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug]
-      ? product.categorySlug
-      : 'sex-toys';
-  const slug =
-    (product.slug || toSl(product.nameEn || product.name || product.id)).replace(/-+$/, '');
-  return `/${cat}/${slug}`;
 }
 
 /**
@@ -119,7 +95,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     `Buy ${name} in Lebanon. Discreet same-day delivery in Beirut, cash on delivery.`
   ).slice(0, 158);
 
-  const canonical = `https://vexatoys.com${productCanonicalPath(product)}`;
+  const canonical = `${SITE_BASE_URL}${canonicalProductPath(product)}`;
   const image = productImage(product);
 
   return {
@@ -154,6 +130,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  * Revalidate product pages every hour (cost-efficient ISR).
  */
 export const revalidate = 3600;
+export const dynamicParams = true;
+
+/**
+ * Pre-render every currently known product at build time. New products remain
+ * eligible for on-demand ISR because dynamicParams stays enabled.
+ */
+export async function generateStaticParams(): Promise<Array<{ category: string; slug: string }>> {
+  const products = await fetchProductsServer();
+  const seen = new Set<string>();
+
+  return products.flatMap((product) => {
+    const category = resolveProductCategorySlug(product);
+    const slug = canonicalProductSlug(product);
+    const key = `${category}/${slug}`;
+    if (!slug || seen.has(key)) return [];
+    seen.add(key);
+    return [{ category, slug }];
+  });
+}
 
 /**
  * Product detail page — server-rendered with Product JSON-LD.
@@ -178,14 +173,11 @@ export default async function ProductPage({ params }: Props) {
   }
 
   const name = (product.nameEn || product.name || '').trim();
-  const canonicalPath = productCanonicalPath(product);
-  const canonicalUrl = `https://vexatoys.com${canonicalPath}`;
+  const canonicalPath = canonicalProductPath(product);
+  const canonicalUrl = `${SITE_BASE_URL}${canonicalPath}`;
   const image = productImage(product);
 
-  const catSlug =
-    product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug]
-      ? product.categorySlug
-      : category;
+  const catSlug = resolveProductCategorySlug(product, category);
   const catMeta = getCategoryMeta(catSlug);
   const categoryLabel = catMeta.titleEn.split('|')[0].trim();
 
