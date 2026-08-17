@@ -29,113 +29,99 @@ export const metadata: Metadata = {
     images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
-  // NOTE: No global canonical here — each page sets its own canonical via alternates.
-  // A global canonical pointing to "/" was causing canonical conflicts because
-  // the root page redirects to /sex-toys.
-  //
-  // NOTE: No global hreflang here either. hreflang is only meaningful when
-  // you have SEPARATE URLs for each language (e.g. /ar/sex-toys vs /en/sex-toys).
-  // This site serves mixed Arabic+English on the same URLs — adding global
-  // hreflang pointing to vexatoys.com/ (which itself redirects to /sex-toys)
-  // was causing Google Search Console to report redirect errors on every page.
+  other: { rating: 'adult' },
 };
 
-  const BASE = 'https://vexatoys.com';
+const BASE = 'https://vexatoys.com';
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Organization',
-        '@id': `${BASE}/#organization`,
-        name: 'Vexa Store Lebanon',
-        url: BASE,
-        logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.png` },
-        contactPoint: {
-          '@type': 'ContactPoint',
-          telephone: '+96176730767',
-          contactType: 'customer service',
-          availableLanguage: ['Arabic', 'English'],
-        },
-        sameAs: ['https://wa.me/96176730767'],
-        address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
-      },
-      {
-        '@type': 'WebSite',
-        '@id': `${BASE}/#website`,
-        url: BASE,
-        name: 'Vexa Store Lebanon',
-        publisher: { '@id': `${BASE}/#organization` },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/sex-toys?q={search_term_string}` },
-          'query-input': 'required name=search_term_string',
-        },
-      },
-      {
-        '@type': 'Store',
-        '@id': `${BASE}/#store`,
-        name: 'Vexa Store Lebanon',
-        url: BASE,
-        description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
-        priceRange: '$$',
-        currenciesAccepted: 'USD',
-        paymentAccepted: 'Cash, Credit Card',
-        openingHours: 'Mo-Sa 08:00-18:00',
-        address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${BASE}/#organization`,
+      name: 'Vexa Store Lebanon',
+      url: BASE,
+      logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.png` },
+      contactPoint: {
+        '@type': 'ContactPoint',
         telephone: '+96176730767',
-        hasMap: 'https://maps.google.com/?q=Beirut,Lebanon',
-        areaServed: { '@type': 'Country', name: 'Lebanon' },
+        contactType: 'customer service',
+        availableLanguage: ['Arabic', 'English'],
       },
-      {
-        '@type': 'ItemList',
-        '@id': `${BASE}/#category-list`,
-        name: 'Vexa Store Product Categories',
-        description: 'Browse all adult product categories at Vexa Store Lebanon',
-        numberOfItems: 8,
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Sex Toys Lebanon',   url: `${BASE}/sex-toys` },
-          { '@type': 'ListItem', position: 2, name: 'Vibrators Lebanon',  url: `${BASE}/vibrators` },
-          { '@type': 'ListItem', position: 3, name: 'Male Toys Lebanon',  url: `${BASE}/male-toys` },
-          { '@type': 'ListItem', position: 4, name: 'Dildos Lebanon',     url: `${BASE}/dildos` },
-          { '@type': 'ListItem', position: 5, name: 'Lingerie Lebanon',   url: `${BASE}/lingerie` },
-          { '@type': 'ListItem', position: 6, name: 'BDSM Toys Lebanon',  url: `${BASE}/bdsm` },
-          { '@type': 'ListItem', position: 7, name: 'New Arrivals',       url: `${BASE}/new-arrivals` },
-          { '@type': 'ListItem', position: 8, name: 'Holiday Collection', url: `${BASE}/holiday-collection` },
-        ],
+      sameAs: ['https://wa.me/96176730767'],
+      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${BASE}/#website`,
+      url: BASE,
+      name: 'Vexa Store Lebanon',
+      publisher: { '@id': `${BASE}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/sex-toys?q={search_term_string}` },
+        'query-input': 'required name=search_term_string',
       },
-    ],
-  };
+    },
+    {
+      '@type': 'Store',
+      '@id': `${BASE}/#store`,
+      name: 'Vexa Store Lebanon',
+      url: BASE,
+      description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
+      priceRange: '$$',
+      currenciesAccepted: 'USD',
+      paymentAccepted: 'Cash, Credit Card',
+      openingHours: 'Mo-Sa 08:00-18:00',
+      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
+      telephone: '+96176730767',
+      hasMap: 'https://maps.google.com/?q=Beirut,Lebanon',
+      areaServed: { '@type': 'Country', name: 'Lebanon' },
+    },
+    {
+      '@type': 'ItemList',
+      '@id': `${BASE}/#category-list`,
+      name: 'Vexa Store Product Categories',
+      description: 'Browse all adult product categories at Vexa Store Lebanon',
+      numberOfItems: 8,
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Sex Toys Lebanon',   url: `${BASE}/sex-toys` },
+        { '@type': 'ListItem', position: 2, name: 'Vibrators Lebanon',  url: `${BASE}/vibrators` },
+        { '@type': 'ListItem', position: 3, name: 'Male Toys Lebanon',  url: `${BASE}/male-toys` },
+        { '@type': 'ListItem', position: 4, name: 'Dildos Lebanon',     url: `${BASE}/dildos` },
+        { '@type': 'ListItem', position: 5, name: 'Lingerie Lebanon',   url: `${BASE}/lingerie` },
+        { '@type': 'ListItem', position: 6, name: 'BDSM Toys Lebanon',  url: `${BASE}/bdsm` },
+        { '@type': 'ListItem', position: 7, name: 'New Arrivals',       url: `${BASE}/new-arrivals` },
+        { '@type': 'ListItem', position: 8, name: 'Holiday Collection', url: `${BASE}/holiday-collection` },
+      ],
+    },
+  ],
+};
 
-  export default function RootLayout({ children }: { children: React.ReactNode }) {
-    return (
-      <html lang="ar" dir="rtl">
-        <head>
-          <link rel="icon" href="/favicon.png" type="image/png" />
-          <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-          <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-          {/* Preconnect — reduces TCP latency for critical external origins (LCP improvement) */}
-          <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
-          <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
-          <link rel="preconnect" href="https://firestore.googleapis.com" />
-          <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
-          <link rel="preconnect" href="https://www.googletagmanager.com" />
-          <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-          {/*
-           * No global hreflang — see metadata note above.
-           * lang="ar" on <html> tells Google the primary language is Arabic.
-           * Each page manages its own canonical via alternates in generateMetadata.
-           */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-        </head>
-        <body className="bg-[#050101]">
-          {children}
-          <MetaPixel />
-          <Analytics />
-        </body>
-      </html>
-    );
-  }
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="ar" dir="rtl">
+      <head>
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
+        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
+        <link rel="preconnect" href="https://firestore.googleapis.com" />
+        <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
+      <body className="bg-[#050101]">
+        {children}
+        <MetaPixel />
+        <Analytics />
+      </body>
+    </html>
+  );
+}
