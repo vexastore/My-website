@@ -25,12 +25,10 @@ export function middleware(req: NextRequest) {
 
   // ── Canonical host ───────────────────────────────────────────────────────
   if (hostname === CANONICAL_HOST) {
-    // Only redirect when ?category= is present. UTM params, fbclid, gclid,
-    // and other tracking params must remain untouched on the homepage.
-    if (req.nextUrl.pathname === '/' && req.nextUrl.searchParams.has('category')) {
-      // URLSearchParams.get() decodes both "+" and "%20". Build a fresh URL
-      // instead of mutating req.nextUrl so the old query can never leak into
-      // the Location header.
+    // Legacy category parameters are not indexable pages. Remove them from
+    // every path so Google cannot keep a duplicate URL such as
+    // /sex-toys?category=Sex%20Toys.
+    if (req.nextUrl.searchParams.has('category')) {
       const cat = (req.nextUrl.searchParams.get('category') || '')
         .trim()
         .toLowerCase()
@@ -42,11 +40,19 @@ export function middleware(req: NextRequest) {
         'sex-machines','sexual-enhancers','new-arrivals','holiday-collection',
         'poppers','sex-dolls',
       ]);
-      const targetPath = KNOWN.has(cat) ? `/${cat}` : '/sex-toys';
-      return NextResponse.redirect(
-        new URL(targetPath, `https://${CANONICAL_HOST}`),
-        301,
-      );
+      const targetPath =
+        req.nextUrl.pathname === '/'
+          ? (KNOWN.has(cat) ? `/${cat}` : '/sex-toys')
+          : req.nextUrl.pathname;
+      const target = new URL(targetPath, `https://${CANONICAL_HOST}`);
+
+      // Preserve legitimate tracking/search parameters while removing the
+      // legacy category selector that created duplicate URLs.
+      for (const [key, value] of req.nextUrl.searchParams) {
+        if (key !== 'category') target.searchParams.append(key, value);
+      }
+
+      return NextResponse.redirect(target, 301);
     }
     return NextResponse.next();
   }

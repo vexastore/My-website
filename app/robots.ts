@@ -6,8 +6,9 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         // Keep legacy category URLs crawlable so Google can follow their
-        // single 301 redirect to the clean category page.
-        allow: ['/', '/?category='],
+        // single 301 redirect to the clean category page. Allowing the root
+        // covers query-string variants as well.
+        allow: ['/'],
         // Block admin/internal routes.
         // /api/img/ is now disallowed: every product exposes direct Vercel Blob
         // image URLs in its markup + Product schema, so crawlers don't need the
