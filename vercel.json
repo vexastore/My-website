@@ -132,22 +132,6 @@
       "permanent": true
     },
     {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "vexatoys.com"
-        },
-        {
-          "type": "query",
-          "key": "value",
-          "value": "Kegel Balls"
-        }
-      ],
-      "destination": "https://vexatoys.com/kegel-balls",
-      "permanent": true
-    },
-    {
       "source": "/about.html",
       "destination": "https://vexatoys.com/about",
       "permanent": true
@@ -265,28 +249,6 @@
     {
       "source": "/sex-toys/premium-anal-cleansing-douche-easy-comfortable-cleaning-310",
       "destination": "https://vexatoys.com/sex-toys/anal-cleansing-douche-easy-comfortable-cleaning",
-      "permanent": true
-    },
-    {
-      "source": "/",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.vexatoys.com"
-        }
-      ],
-      "destination": "https://vexatoys.com/sex-toys",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.vexatoys.com"
-        }
-      ],
-      "destination": "https://vexatoys.com/:path*",
       "permanent": true
     }
   ],
