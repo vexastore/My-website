@@ -490,6 +490,11 @@ export default async function CategoryPage({
         initialProducts={productsWithImages}
         initialCategory={categoryId}
         initialView="shop"
+        seoHeading={slug === 'dildos'
+          ? 'Dildos in Lebanon | Premium Body-Safe Collection'
+          : slug === 'sex-toys'
+            ? 'Sex Toys in Lebanon | Vexa Store Collection'
+            : undefined}
       />
 
       {content && (

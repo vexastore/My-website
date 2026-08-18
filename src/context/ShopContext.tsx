@@ -24,6 +24,7 @@ interface ShopContextType {
   currentView: ViewType;
   selectedArticle: AdviceArticle | null;
   activeCategory: string;
+  seoHeading?: string;
   searchQuery: string;
   is18PlusVerified: boolean;
   isProductsLoading: boolean;
@@ -120,7 +121,8 @@ export const ShopProvider: React.FC<{
   initialCategory?: string;
   initialView?: string;
   initialProductSlug?: string;
-}> = ({ children, initialProducts, initialCategory, initialView: initialViewProp, initialProductSlug }) => {
+  seoHeading?: string;
+}> = ({ children, initialProducts, initialCategory, initialView: initialViewProp, initialProductSlug, seoHeading }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -782,6 +784,7 @@ export const ShopProvider: React.FC<{
       value={{
         language, products, cart, orders, currentView, selectedArticle,
         activeCategory, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
+        seoHeading,
         setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
         setActiveCategory: navigateToCategoryFn, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,

@@ -106,6 +106,7 @@ export default async function AdultToysPage() {
         initialProducts={productsWithImages}
         initialCategory=""
         initialView="shop"
+        seoHeading="Adult Toys in Lebanon | All Categories"
       />
 
       {/* ── SEO content block — server-rendered ─────────────────────────── */}

@@ -8,15 +8,17 @@ interface ShopAppProps {
   initialCategory?: string;
   initialView?: 'shop' | 'checkout' | 'admin' | 'orders' | 'about' | 'product';
   initialProductSlug?: string;
+  seoHeading?: string;
 }
 
-export function ShopApp({ initialProducts, initialCategory, initialView, initialProductSlug }: ShopAppProps) {
+export function ShopApp({ initialProducts, initialCategory, initialView, initialProductSlug, seoHeading }: ShopAppProps) {
   return (
     <ShopProvider
       initialProducts={initialProducts}
       initialCategory={initialCategory}
       initialView={initialView}
       initialProductSlug={initialProductSlug}
+      seoHeading={seoHeading}
     >
       <AppContent />
     </ShopProvider>

@@ -9,7 +9,7 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: 'Sex Toys',
     name: { ar: 'ألعاب زوجية', en: 'Sex Toys' },
-    titlePage: { ar: 'ألعاب زوجية في لبنان - مجموعة جديدة متوفرة', en: 'Sex Toys Lebanon - New Collection Available' },
+    titlePage: { ar: 'ألعاب جنسية في لبنان | متجر فيكسا', en: 'Sex Toys Lebanon | Vexa Store' },
     seoTab: { ar: 'ألعاب زوجية في لبنان | متجر فيكسا', en: 'Sex Toys in Lebanon | Vexa Store - Discreet Delivery' }
   },
   {
@@ -27,7 +27,7 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: 'Dildos',
     name: { ar: 'ديلدو', en: 'Dildos' },
-    titlePage: { ar: 'ديلدو - منتجات آمنة وفاخرة', en: 'Dildos - Premium Body-Safe Collection' },
+    titlePage: { ar: 'ديلدو في لبنان | سيليكون آمن', en: 'Dildos in Lebanon | Body-Safe Silicone' },
     seoTab: { ar: 'ديلدو في لبنان | متجر فيكسا', en: 'Dildo in Lebanon | Vexa Store - Discreet Delivery Beirut' }
   },
   {

@@ -7,7 +7,7 @@ import { CATEGORIES, getCategoryTitle, productMatchesCategory, getCategorySeoTab
 const PAGE_SIZE = 12;
 
 export const ProductList: React.FC = () => {
-  const { products, activeCategory, setActiveCategory, searchQuery, setSearchQuery, language, isProductsLoading } = useShop();
+  const { products, activeCategory, seoHeading, setActiveCategory, searchQuery, setSearchQuery, language, isProductsLoading } = useShop();
   const isArabic = language === 'ar';
   // Dynamic title + meta description per category (SEO)
   useEffect(() => {
@@ -113,6 +113,8 @@ export const ProductList: React.FC = () => {
             <h1 className="mt-2 max-w-3xl text-2xl font-black uppercase tracking-[0.12em] text-white sm:text-3xl">
               {searchQuery
                 ? (isArabic ? `نتائج البحث: ${searchQuery}` : `Search: ${searchQuery}`)
+                : seoHeading
+                  ? seoHeading
                 : getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')}
             </h1>
           </div>
