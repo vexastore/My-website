@@ -7,8 +7,8 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
-  title: 'متجر فيكسا | Vexa Store Lebanon — متجر سري للبالغين',
-  description: 'متجر فيكسا — 600+ منتج للبالغين في لبنان بتغليف سري. توصيل نفس اليوم ببيروت، دفع عند الاستلام. Vexa Store Lebanon – discreet adult store.',
+  title: 'The #1 Sex Toys Store in Lebanon | Vexa Store',
+  description: 'The #1 sex toys store in Lebanon. Shop vibrators, dildos, lingerie, masturbators and more with discreet delivery across Beirut and all Lebanon.',
   keywords: 'vexa store lebanon, متجر فيكسا, vexa store, متجر سري لبنان, adult store beirut, متجر بالغين لبنان, vexa store بيروت',
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
@@ -16,8 +16,8 @@ export const metadata: Metadata = {
     locale: 'ar_LB',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
-    title: 'متجر فيكسا | Vexa Store Lebanon',
-    description: 'متجر فيكسا — أكبر متجر سري للبالغين في لبنان. تغليف سري، دفع عند الاستلام، توصيل في نفس اليوم في بيروت.',
+    title: 'The #1 Sex Toys Store in Lebanon | Vexa Store',
+    description: 'The #1 sex toys store in Lebanon. Shop vibrators, dildos, lingerie, masturbators and more with discreet delivery across Beirut and all Lebanon.',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon' }],
   },
   twitter: { card: 'summary_large_image', site: '@vexastore', images: ['https://vexatoys.com/opengraph.jpg'] },
@@ -235,12 +235,14 @@ export default async function HomePage() {
         {/* ── HERO ──────────────────────────────────────────────────────────── */}
         <section className="relative max-w-5xl mx-auto px-4 pt-20 pb-16 text-center">
           <p className="text-[10px] font-black uppercase tracking-[0.35em] text-stone-500 mb-5">
-            Lebanon&apos;s #1 Adult Store · متجر فيكسا
+            The #1 Sex Toys Store in Lebanon · متجر فيكسا
           </p>
           <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-6">
-            متجر فيكسا لبنان
+            <span dir="ltr" className="block">
+              The #1 Sex Toys Store in Lebanon
+            </span>
             <span className="block text-2xl sm:text-3xl text-stone-400 font-bold mt-3">
-              Vexa Store Lebanon
+              متجر فيكسا · Vexa Store Lebanon
             </span>
           </h1>
           <p className="text-stone-400 text-base sm:text-lg max-w-xl mx-auto mb-3 leading-relaxed">
