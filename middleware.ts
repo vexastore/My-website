@@ -88,6 +88,9 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.png|favicon\\.svg|apple-touch-icon\\.png|opengraph\\.jpg|robots\\.txt|sitemap\\.xml|api/).*)',
+    // Keep robots.txt and sitemap.xml in the matcher so alternate hosts
+    // and legacy query-string variants are canonicalized too. Requests to
+    // the clean canonical paths still continue to their Next.js route.
+    '/((?!_next/static|_next/image|favicon\\.ico|favicon\\.png|favicon\\.svg|apple-touch-icon\\.png|opengraph\\.jpg|api/).*)',
   ],
 };
