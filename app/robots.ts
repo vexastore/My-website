@@ -29,6 +29,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: 'https://vexatoys.com/sitemap.xml',
-    host: 'https://vexatoys.com',
+    // The Host directive is only advisory; use the hostname (not a URL)
+    // so non-Google crawlers do not interpret it as a second sitemap URL.
+    host: 'vexatoys.com',
   };
 }

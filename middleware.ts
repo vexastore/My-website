@@ -2,6 +2,36 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const CANONICAL_HOST = 'vexatoys.com';
+const KNOWN_CATEGORY_SLUGS = new Set([
+  'sex-toys', 'vibrators', 'male-toys', 'dildos', 'lingerie', 'bdsm',
+  'anal-toys', 'butt-plugs', 'bondage', 'strap-ons', 'kegel-balls',
+  'lubricants', 'masturbators', 'cock-rings', 'penis-pumps', 'chastity',
+  'sex-machines', 'sexual-enhancers', 'new-arrivals', 'holiday-collection',
+  'poppers', 'sex-dolls',
+]);
+
+function getCategoryPath(pathname: string, value: string | null) {
+  const category = (value || '')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '-');
+
+  return pathname === '/'
+    ? (KNOWN_CATEGORY_SLUGS.has(category) ? `/${category}` : '/sex-toys')
+    : pathname;
+}
+
+function buildCleanUrl(req: NextRequest, pathname: string) {
+  const target = new URL(pathname, `https://${CANONICAL_HOST}`);
+
+  // Keep useful campaign/search parameters, but never keep the legacy
+  // category selector that created duplicate URLs in Search Console.
+  for (const [key, value] of req.nextUrl.searchParams) {
+    if (key !== 'category') target.searchParams.append(key, value);
+  }
+
+  return target;
+}
 
 /**
  * Domain canonicalization + query-param cleanup middleware.
@@ -29,50 +59,26 @@ export function middleware(req: NextRequest) {
     // every path so Google cannot keep a duplicate URL such as
     // /sex-toys?category=Sex%20Toys.
     if (req.nextUrl.searchParams.has('category')) {
-      const cat = (req.nextUrl.searchParams.get('category') || '')
-        .trim()
-        .toLowerCase()
-        .replace(/\s+/g, '-');
-      const KNOWN = new Set([
-        'sex-toys','vibrators','male-toys','dildos','lingerie','bdsm',
-        'anal-toys','butt-plugs','bondage','strap-ons','kegel-balls',
-        'lubricants','masturbators','cock-rings','penis-pumps','chastity',
-        'sex-machines','sexual-enhancers','new-arrivals','holiday-collection',
-        'poppers','sex-dolls',
-      ]);
-      const targetPath =
-        req.nextUrl.pathname === '/'
-          ? (KNOWN.has(cat) ? `/${cat}` : '/sex-toys')
-          : req.nextUrl.pathname;
-      const target = new URL(targetPath, `https://${CANONICAL_HOST}`);
-
-      // Preserve legitimate tracking/search parameters while removing the
-      // legacy category selector that created duplicate URLs.
-      for (const [key, value] of req.nextUrl.searchParams) {
-        if (key !== 'category') target.searchParams.append(key, value);
-      }
-
-      return NextResponse.redirect(target, 301);
+      return NextResponse.redirect(
+        buildCleanUrl(
+          req,
+          getCategoryPath(req.nextUrl.pathname, req.nextUrl.searchParams.get('category')),
+        ),
+        301,
+      );
     }
     return NextResponse.next();
   }
 
   // ── Non-canonical host (www, *.vercel.app, etc.) ─────────────────────────
-  // Read pathname BEFORE URL mutation for reliable root detection.
-  const originalPathname = req.nextUrl.pathname;
-  const isRoot = originalPathname === '/' || originalPathname === '';
-
-  const url = req.nextUrl.clone();
-  url.protocol = 'https:';
-  url.hostname = CANONICAL_HOST;
-  url.port = '';
-
-  if (isRoot) {
-    // Go directly to /sex-toys and strip any query params — avoids a second
-    // hop when vercel.json's /?category=X rules would otherwise fire again.
-    url.pathname = '/sex-toys';
-    url.search = '';
-  }
+  // Preserve the requested path so the canonical host is reached in one hop.
+  // In particular, the homepage must remain "/" rather than becoming
+  // "/sex-toys"; the homepage is a real indexable landing page in the sitemap.
+  const hasCategory = req.nextUrl.searchParams.has('category');
+  const targetPath = hasCategory
+    ? getCategoryPath(req.nextUrl.pathname, req.nextUrl.searchParams.get('category'))
+    : req.nextUrl.pathname;
+  const url = buildCleanUrl(req, targetPath);
 
   // Numeric status form prevents Vercel Edge Runtime from coercing to 307.
   // NOTE: Do NOT set X-Robots-Tag: noindex here — it is meaningless on a
