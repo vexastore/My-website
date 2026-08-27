@@ -1,20 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Product } from '../types';
 import { useShop } from '../context/ShopContext';
+import { canonicalProductPath } from '@/lib/productSeo';
 import { Star } from 'lucide-react';
 
 interface ProductCardProps {
   product: Product;
   priority?: boolean;
-}
-
-function toSlug(text: string): string {
-  return (text || '').toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/, '')
-    .slice(0, 60);
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) => {
@@ -76,9 +68,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   // Strip trailing hyphens — legacy Firestore slugs sometimes end with '-' due
   // to 60-char truncation. Using the clean slug as the href prevents 30+
   // internal links from pointing to redirect URLs instead of the canonical 200.
-  const pSlug = (product.slug || toSlug(product.nameEn || product.name || product.id)).replace(/-+$/, '');
-  const catSlug = product.categorySlug || toSlug(product.category || 'sex-toys');
-  const productUrl = `/${catSlug}/${pSlug}`;
+  const productUrl = canonicalProductPath(product);
   const handleProductClick = (e: React.MouseEvent) => {
     e.preventDefault();
     navigateToProduct(product);
