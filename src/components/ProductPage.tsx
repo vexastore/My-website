@@ -2,16 +2,11 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { Product, ProductVariant } from '../types';
 import { CATEGORIES, getProductCategories } from '../data/categories';
+import { canonicalProductPath } from '@/lib/productSeo';
 import {
   Star, ShoppingCart, Zap, ChevronLeft, ChevronRight, ArrowLeft,
   Truck, Lock, PackageCheck, Minus, Plus, Loader2, ShieldCheck, ChevronDown, X, Link2, Copy
 } from 'lucide-react';
-
-function toSlug(name: string): string {
-  return (name || '').toLowerCase()
-    .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-    .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-}
 
 const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const {
@@ -46,9 +41,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const productCats    = getProductCategories(product);
   const primaryCatId   = productCats[0] || product.category;
   const primaryCatName = CATEGORIES.find(c => c.id === primaryCatId)?.name?.[isArabic ? 'ar' : 'en'] || primaryCatId;
-  const catSlug        = (primaryCatId || 'sex-toys').toLowerCase().replace(/\s+/g, '-');
-  const productSlug    = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-  const productUrl     = `/${catSlug}/${productSlug}`;
+  const productUrl     = canonicalProductPath(product);
 
   const allVariantsSelected = !product.variants?.length ||
     product.variants.every((v: ProductVariant) => variants[v.name]);
@@ -58,10 +51,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     // so client canonical matches the server canonical and the sitemap URL.
     // Using catSlug/primaryCatId (UI-derived) would diverge from the server
     // canonical and reintroduce duplicate-canonical GSC errors after hydration.
-    const pSlug    = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
-    const pCatSlug = (product as Product & { categorySlug?: string }).categorySlug
-      || catSlug; // catSlug as last resort only
-    const canonical = `https://vexatoys.com/${pCatSlug}/${pSlug}`;
+    const canonical = `https://vexatoys.com${canonicalProductPath(product)}`;
     const productName = product.nameEn || product.name || '';
 
     // ── Meta tags ──
@@ -216,14 +206,12 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
   const waOrder = () => {
     const name = isArabic ? (product.name || product.nameEn) : (product.nameEn || product.name);
-    const slug  = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
     const msg   = isArabic
       ? `مرحباً متجر فيكسا، أريد الطلب:\n*${name}*\nالسعر: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com${productUrl}`
       : `Hello Vexa Store, I want to order:\n*${name}*\nPrice: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com${productUrl}`;
     window.open('https://wa.me/96176730767?text=' + encodeURIComponent(msg), '_blank');
   };
 
-  const productSlugForLink = (product as Product & { slug?: string }).slug || toSlug(product.nameEn || product.name || '');
   // Always derive share URL from canonical path -- never use product.link
   // (may contain www.vexatoys.com, causing 301 redirects detected by crawlers).
   const productFullLink = `https://vexatoys.com${productUrl}`;
