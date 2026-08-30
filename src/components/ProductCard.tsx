@@ -65,26 +65,46 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   const cartQty = cartItem ? cartItem.quantity : 0;
   const remainingStock = product.stock - cartQty;
 
+  // Out-of-stock products still show in the shop grid (so people can see
+  // everything that's sold), but they are fully inert: no click, no
+  // navigation to the product page, no hover affordance.
+  const isOutOfStock = product.stock <= 0;
+
   // Strip trailing hyphens — legacy Firestore slugs sometimes end with '-' due
   // to 60-char truncation. Using the clean slug as the href prevents 30+
   // internal links from pointing to redirect URLs instead of the canonical 200.
   const productUrl = canonicalProductPath(product);
   const handleProductClick = (e: React.MouseEvent) => {
     e.preventDefault();
+    if (isOutOfStock) return;
     navigateToProduct(product);
   };
 
+  // When sold out: no href (so it isn't a real link — not tabbable, not
+  // clickable, can't be opened in a new tab), no onClick, and tabIndex -1
+  // as a belt-and-braces measure. It's a static listing, not an action.
+  const cardProps: React.AnchorHTMLAttributes<HTMLAnchorElement> = isOutOfStock
+    ? { 'aria-disabled': true, tabIndex: -1 }
+    : { href: productUrl, onClick: handleProductClick };
+
   return (
     <a
-      href={productUrl}
-      onClick={handleProductClick}
-      className="group cursor-pointer bg-[#050505] text-white block no-underline"
-      aria-label={isArabic ? product.name : product.nameEn}
+      {...cardProps}
+      className={`group text-white block no-underline bg-[#050505] ${
+        isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'
+      }`}
+      aria-label={`${isArabic ? product.name : product.nameEn}${isOutOfStock ? (isArabic ? ' — نفدت الكمية' : ' — Out of stock') : ''}`}
     >
       <div className="relative overflow-hidden rounded-md border border-white/5 bg-[#101010] p-0 shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
-        <span className="absolute left-4 top-4 z-10 bg-white px-3 py-2 text-sm font-black uppercase text-black sm:text-base">
-          SALE
-        </span>
+        {isOutOfStock ? (
+          <span className="absolute left-4 top-4 z-10 bg-black/80 border border-white/20 px-3 py-2 text-sm font-black uppercase text-white/70 sm:text-base">
+            {isArabic ? 'نفدت الكمية' : 'Out of Stock'}
+          </span>
+        ) : (
+          <span className="absolute left-4 top-4 z-10 bg-white px-3 py-2 text-sm font-black uppercase text-black sm:text-base">
+            SALE
+          </span>
+        )}
 
 
         <div className={`relative aspect-[1.05/1] overflow-hidden bg-gradient-to-br ${gradientClass}`}>
@@ -94,7 +114,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
               ref={imgRef}
               src={imgSrc}
               alt={isArabic ? product.name : (product.nameEn || product.name)}
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 ${
+                isOutOfStock ? 'grayscale opacity-40' : 'group-hover:scale-105'
+              }`}
               loading={priority ? 'eager' : 'lazy'}
               decoding="async"
               onError={() => {
@@ -123,25 +145,26 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
               }}
             />
           )}
+          {isOutOfStock && <div className="absolute inset-0 bg-black/35" />}
           <div
             className="absolute bottom-5 left-5 right-5 flex items-center justify-between text-[11px] font-black uppercase tracking-[0.18em] text-white sm:text-xs"
             style={{ textShadow: '0 1px 4px rgba(0,0,0,0.9)' }}
           >
             <span>{categoryShort}</span>
-            <span>{Math.max(remainingStock, 0)} LEFT</span>
+            <span>{isOutOfStock ? (isArabic ? 'نفدت الكمية' : 'Out of Stock') : `${Math.max(remainingStock, 0)} LEFT`}</span>
           </div>
         </div>
       </div>
 
       <div className="pt-5 text-center sm:pt-6">
         <h3
-          className="truncate text-sm font-black uppercase tracking-[0.14em] text-white/80 sm:text-lg"
+          className={`truncate text-sm font-black uppercase tracking-[0.14em] sm:text-lg ${isOutOfStock ? 'text-white/40' : 'text-white/80'}`}
           title={isArabic ? product.name : product.nameEn}
         >
           {isArabic ? product.name : product.nameEn}
         </h3>
         <div className="mt-3 flex items-center justify-center gap-2 sm:gap-3">
-          <span className="text-lg font-black text-white sm:text-2xl">${product.price.toFixed(2)} USD</span>
+          <span className={`text-lg font-black sm:text-2xl ${isOutOfStock ? 'text-white/40' : 'text-white'}`}>${product.price.toFixed(2)} USD</span>
           <span className="text-sm font-black text-white/25 line-through sm:text-base">${oldPrice.toFixed(2)} USD</span>
         </div>
         <div className="mt-3 flex items-center justify-center gap-2 text-[#7d650c] sm:mt-4">
