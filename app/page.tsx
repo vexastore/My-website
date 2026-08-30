@@ -6,14 +6,35 @@ import { ShopApp } from '@/src/ShopApp';
 
 export const revalidate = 3600;
 
-const SITE_TITLE = 'Sex Toys in Lebanon | #1 Luxury Store — Vexa Store';
-const SITE_DESC = 'Sex toys in Lebanon, done right. Luxury vibrators, dildos, lingerie, masturbators & sex dolls — curated for quality, rated 4.9/5 by 1,900+ customers. Same-day discreet delivery across Beirut & all Lebanon, cash on delivery.';
+const SITE_TITLE = 'Premium Intimate Wellness & Couples Care | Vexa Store Lebanon';
+const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. Rated 4.9/5 by 1,900+ clients. 100% discreet same-day delivery across Beirut & all Lebanon. Cash on delivery.';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
   title: SITE_TITLE,
   description: SITE_DESC,
-  keywords: 'sex toys lebanon, sex toys in lebanon, luxury sex toys lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, designer lingerie beirut, adult toys lebanon, premium adult store lebanon, vexa store, ألعاب جنسية فاخرة لبنان, هزازات لبنان, لانجري فاخر بيروت, ألعاب زوجية لبنان',
+  keywords: [
+    // Core high-volume search targets (kept in metadata only, never in visible body copy)
+    'sex toys lebanon',
+    'sex toys in lebanon',
+    'adult store beirut',
+    'adult toys lebanon',
+    'vibrators lebanon',
+    'dildos lebanon',
+    // High-end legal euphemisms — safe, premium, brand-forward
+    'intimate wellness lebanon',
+    'luxury personal massagers beirut',
+    'couples intimacy products',
+    'premium lingerie beirut',
+    'vexa store',
+    'vexa store lebanon',
+    // Culturally compliant Arabic keywords
+    'ألعاب زوجية لبنان',
+    'منتجات متزوجين بيروت',
+    'هدايا للمتزوجين لبنان',
+    'متجر سري لبنان',
+    'مقويات زوجية لبنان',
+  ],
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
     type: 'website',
@@ -21,8 +42,8 @@ export const metadata: Metadata = {
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
     title: SITE_TITLE,
-    description: SITE_DESC,
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Luxury Adult Store' }],
+    description: 'Discover luxury personal massagers, elegant lingerie, and couples essentials. 100% discreet same-day delivery and private packaging across Lebanon. Cash on delivery.',
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Premium Intimate Wellness' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -34,6 +55,7 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    nocache: true,
     googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
   },
 };
@@ -155,7 +177,7 @@ const jsonLd = {
       '@id': `${BASE}/#store`,
       name: 'Vexa Store Lebanon',
       url: BASE,
-      description: 'متجر فيكسا — الوجهة الفاخرة الأولى في لبنان للألعاب الجنسية والزوجية واللانجري. توصيل سري، دفع عند الاستلام، وتقييم 4.9/5 من أكثر من 1,900 عميل.',
+      description: 'متجر فيكسا — الوجهة الفاخرة الأولى في لبنان لمنتجات العناية الحميمية وهدايا المتزوجين واللانجري. توصيل سري، دفع عند الاستلام، وتقييم 4.9/5 من أكثر من 1,900 عميل.',
       priceRange: '$$',
       currenciesAccepted: 'USD',
       paymentAccepted: 'Cash',
@@ -210,7 +232,7 @@ export default async function HomePage() {
         initialProducts={productsWithImages}
         initialCategory=""
         initialView="shop"
-        seoHeading="Sex Toys in Lebanon | #1 Luxury Store — Vexa Store"
+        seoHeading="Premium Intimate Wellness & Couples Care | Vexa Store Lebanon"
       />
 
       <main className="bg-[#050101] text-white">
@@ -367,24 +389,24 @@ export default async function HomePage() {
 
             <p className="text-stone-300 text-sm sm:text-base leading-relaxed mb-4">
               <strong className="text-white font-bold">Vexa Store</strong> is Lebanon&apos;s most trusted
-              destination for sex toys and luxury intimacy — serving 1,900+ customers across Beirut, Tripoli,
-              Sidon, Jounieh, Zahle, and every region in between. Our catalog spans luxury vibrators, dildos,
-              lingerie, masturbators, sex dolls, BDSM gear and more, every piece checked for body-safe materials
-              and genuine quality before it ever reaches your door.
+              destination for premium intimate wellness — serving 1,900+ clients across Beirut, Tripoli,
+              Sidon, Jounieh, Zahle, and every region in between. Our curated collection spans luxury personal
+              massagers, elegant lingerie, couples essentials and more, every piece checked for body-safe
+              materials and genuine quality before it ever reaches your door.
             </p>
             <p className="text-stone-400 text-sm sm:text-base leading-relaxed mb-4">
               Every order ships in a plain, sealed box — no logo, no branding, no indication of what&apos;s
               inside, not even to the courier. Pair that with same-day delivery in Beirut, cash on delivery
               nationwide, and a private WhatsApp line for judgment-free advice, and it&apos;s easy to see why
-              Vexa is rated <strong className="text-white font-bold">4.9 / 5</strong> by customers across Lebanon.
+              Vexa is rated <strong className="text-white font-bold">4.9 / 5</strong> by clients across Lebanon.
             </p>
 
             <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 mb-8" dir="rtl">
               <p className="text-stone-300 text-sm sm:text-base leading-loose mb-3">
-                <strong className="text-white font-bold">متجر فيكسا</strong> — الوجهة الفاخرة الأولى للبالغين في
-                لبنان، بثقة أكثر من 1,900 عميل في بيروت وطرابلس وصيدا وجونية وزحلة وكل المناطق اللبنانية. نوفّر
-                هزازات فاخرة، ديلدو، لانجري، أدوات استمناء، دمى جنسية وأدوات BDSM، جميعها مصنوعة من مواد آمنة
-                ومضمونة الجودة.
+                <strong className="text-white font-bold">متجر فيكسا</strong> — الوجهة الفاخرة الأولى في
+                لبنان لمنتجات العناية الحميمية، بثقة أكثر من 1,900 عميل في بيروت وطرابلس وصيدا وجونية وزحلة
+                وكل المناطق اللبنانية. نوفّر منتجات زوجية فاخرة، لانجري أنيق وهدايا للمتزوجين، جميعها مصنوعة
+                من مواد آمنة ومضمونة الجودة.
               </p>
               <p className="text-stone-400 text-sm sm:text-base leading-loose">
                 تسوّق بثقة وخصوصية تامة: تغليف سري بدون أي شعار، دفع عند الاستلام في كل لبنان، توصيل سريع في
@@ -403,7 +425,7 @@ export default async function HomePage() {
                   href={`/city/${c.slug}`}
                   className="text-xs font-semibold text-stone-400 border border-white/10 rounded-full px-3.5 py-1.5 hover:border-rose-500/40 hover:text-white hover:bg-white/[0.04] transition"
                 >
-                  Sex toys in {c.nameEn}
+                  Intimate wellness in {c.nameEn}
                 </Link>
               ))}
             </div>
