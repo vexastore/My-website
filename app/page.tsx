@@ -6,23 +6,36 @@ import { ShopApp } from '@/src/ShopApp';
 
 export const revalidate = 3600;
 
+const SITE_TITLE = 'Sex Toys in Lebanon | #1 Luxury Store — Vexa Store';
+const SITE_DESC = 'Sex toys in Lebanon, done right. Luxury vibrators, dildos, lingerie, masturbators & sex dolls — curated for quality, rated 4.9/5 by 1,900+ customers. Same-day discreet delivery across Beirut & all Lebanon, cash on delivery.';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
-  title: 'Luxury Sex Toys in Lebanon | Vexa Store',
-  description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
-  keywords: 'luxury sex toys lebanon, sex toys in lebanon, premium vibrators lebanon, high-end adult toys lebanon, designer lingerie beirut, luxury intimacy lebanon, curated sex toys lebanon, premium dildos lebanon, vexa store, ألعاب جنسية فاخرة لبنان, لانجري فاخر بيروت',
+  title: SITE_TITLE,
+  description: SITE_DESC,
+  keywords: 'sex toys lebanon, sex toys in lebanon, luxury sex toys lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, designer lingerie beirut, adult toys lebanon, premium adult store lebanon, vexa store, ألعاب جنسية فاخرة لبنان, هزازات لبنان, لانجري فاخر بيروت, ألعاب زوجية لبنان',
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
     type: 'website',
     locale: 'ar_LB',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
-    title: 'Luxury Sex Toys in Lebanon | Vexa Store',
-    description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon' }],
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Luxury Adult Store' }],
   },
-  twitter: { card: 'summary_large_image', site: '@vexastore', images: ['https://vexatoys.com/opengraph.jpg'] },
-  robots: { index: true, follow: true },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@vexastore',
+    title: SITE_TITLE,
+    description: SITE_DESC,
+    images: ['https://vexatoys.com/opengraph.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
+  },
 };
 
 const BASE = 'https://vexatoys.com';
@@ -142,7 +155,7 @@ const jsonLd = {
       '@id': `${BASE}/#store`,
       name: 'Vexa Store Lebanon',
       url: BASE,
-      description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
+      description: 'متجر فيكسا — الوجهة الفاخرة الأولى في لبنان للألعاب الجنسية والزوجية واللانجري. توصيل سري، دفع عند الاستلام، وتقييم 4.9/5 من أكثر من 1,900 عميل.',
       priceRange: '$$',
       currenciesAccepted: 'USD',
       paymentAccepted: 'Cash',
@@ -197,7 +210,7 @@ export default async function HomePage() {
         initialProducts={productsWithImages}
         initialCategory=""
         initialView="shop"
-        seoHeading="The #1 Sex Toys Store in Lebanon | Vexa Store"
+        seoHeading="Sex Toys in Lebanon | #1 Luxury Store — Vexa Store"
       />
 
       <main className="bg-[#050101] text-white">
@@ -340,26 +353,55 @@ export default async function HomePage() {
         </section>
 
         {/* ── SEO CONTENT ───────────────────────────────────────────────────── */}
-        <section className="border-t border-white/10">
-          <div className="max-w-3xl mx-auto px-4 py-14">
-            <h2 className="text-xl font-black text-white mb-4">
+        <section className="border-t border-white/10 relative overflow-hidden">
+          {/* subtle ambient glow for a premium feel */}
+          <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-rose-600/10 blur-3xl" />
+
+          <div className="max-w-3xl mx-auto px-4 py-16 relative">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
+              Lebanon&apos;s #1 Rated Adult Store
+            </p>
+            <h2 className="text-2xl sm:text-3xl font-black text-white text-center mb-6 tracking-tight">
               متجر فيكسا — Vexa Store Lebanon
             </h2>
-            <p className="text-stone-400 text-sm leading-relaxed mb-4">
-              Vexa Store is Lebanon&apos;s most trusted adult store — serving 1,900+ customers across Beirut,
-              Tripoli, Sidon, and all Lebanese regions. Every order ships in a plain sealed box with no logo,
-              no branding, and complete privacy. Cash on delivery available everywhere.
+
+            <p className="text-stone-300 text-sm sm:text-base leading-relaxed mb-4">
+              <strong className="text-white font-bold">Vexa Store</strong> is Lebanon&apos;s most trusted
+              destination for sex toys and luxury intimacy — serving 1,900+ customers across Beirut, Tripoli,
+              Sidon, Jounieh, Zahle, and every region in between. Our catalog spans luxury vibrators, dildos,
+              lingerie, masturbators, sex dolls, BDSM gear and more, every piece checked for body-safe materials
+              and genuine quality before it ever reaches your door.
             </p>
-            <p className="text-stone-500 text-sm leading-relaxed mb-6">
-              متجر فيكسا — الوجهة الأولى للبالغين في لبنان منذ أكثر من 3 سنوات. تسوّق بثقة وخصوصية تامة:
-              تغليف سري بدون شعار، دفع عند الاستلام في كل لبنان، وتوصيل سريع إلى باب بيتك.
+            <p className="text-stone-400 text-sm sm:text-base leading-relaxed mb-4">
+              Every order ships in a plain, sealed box — no logo, no branding, no indication of what&apos;s
+              inside, not even to the courier. Pair that with same-day delivery in Beirut, cash on delivery
+              nationwide, and a private WhatsApp line for judgment-free advice, and it&apos;s easy to see why
+              Vexa is rated <strong className="text-white font-bold">4.9 / 5</strong> by customers across Lebanon.
             </p>
-            <div className="flex flex-wrap gap-2">
+
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 mb-8" dir="rtl">
+              <p className="text-stone-300 text-sm sm:text-base leading-loose mb-3">
+                <strong className="text-white font-bold">متجر فيكسا</strong> — الوجهة الفاخرة الأولى للبالغين في
+                لبنان، بثقة أكثر من 1,900 عميل في بيروت وطرابلس وصيدا وجونية وزحلة وكل المناطق اللبنانية. نوفّر
+                هزازات فاخرة، ديلدو، لانجري، أدوات استمناء، دمى جنسية وأدوات BDSM، جميعها مصنوعة من مواد آمنة
+                ومضمونة الجودة.
+              </p>
+              <p className="text-stone-400 text-sm sm:text-base leading-loose">
+                تسوّق بثقة وخصوصية تامة: تغليف سري بدون أي شعار، دفع عند الاستلام في كل لبنان، توصيل سريع في
+                نفس اليوم داخل بيروت، ودعم واتساب خاص لمساعدتك باختيار الأنسب لك. تقييم 4.9 من 5 من عملائنا في
+                جميع أنحاء لبنان.
+              </p>
+            </div>
+
+            <p className="text-stone-500 text-xs font-semibold uppercase tracking-widest text-center mb-4">
+              Discreet delivery across Lebanon
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
               {CITY_META.map(c => (
                 <Link
                   key={c.slug}
                   href={`/city/${c.slug}`}
-                  className="text-xs font-semibold text-stone-400 border border-white/10 rounded-full px-3 py-1.5 hover:border-white/30 hover:text-white transition"
+                  className="text-xs font-semibold text-stone-400 border border-white/10 rounded-full px-3.5 py-1.5 hover:border-rose-500/40 hover:text-white hover:bg-white/[0.04] transition"
                 >
                   Sex toys in {c.nameEn}
                 </Link>
