@@ -1,9 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { fetchProductsServer } from '@/lib/fetchProducts';
-import { CATEGORY_TO_SLUG } from '@/lib/categoryMeta';
 import { CITY_META } from '@/lib/cityMeta';
-import { Product } from '@/src/types';
+import { ShopApp } from '@/src/ShopApp';
 
 export const revalidate = 3600;
 
@@ -171,148 +170,39 @@ const jsonLd = {
   ],
 };
 
-const TOP_CATEGORIES = [
-  { slug: 'sex-toys',    label: 'Sex Toys',    labelAr: 'ألعاب جنسية' },
-  { slug: 'vibrators',   label: 'Vibrators',   labelAr: 'هزازات' },
-  { slug: 'dildos',      label: 'Dildos',      labelAr: 'ديلدو' },
-  { slug: 'male-toys',   label: 'Male Toys',   labelAr: 'ألعاب رجالية' },
-  { slug: 'lingerie',    label: 'Lingerie',    labelAr: 'لانجري' },
-  { slug: 'bdsm',        label: 'BDSM',        labelAr: 'BDSM' },
-  { slug: 'anal-toys',   label: 'Anal Toys',   labelAr: 'ألعاب شرجية' },
-  { slug: 'adult-toys',  label: 'All Products', labelAr: 'كل المنتجات' },
-];
-
-function getProductUrl(p: Product): string {
-  const catSlug =
-    (p.categorySlug && p.categorySlug !== 'adult-toys' && p.categorySlug !== '' ? p.categorySlug : null) ||
-    (p.category ? CATEGORY_TO_SLUG[p.category] : null) ||
-    'sex-toys';
-  // Strip trailing hyphens — legacy Firestore slugs sometimes end with '-'.
-  // Using the clean slug as href prevents homepage internal links from pointing
-  // to redirect URLs (30+ links flagged by Ahrefs as "links to redirects").
-  const slug = (p.slug || p.id).replace(/-+$/, '');
-  return `/${catSlug}/${slug}`;
-}
-
-function cleanImage(img: string | undefined): string | null {
-  if (!img || img.startsWith('data:') || img.trim() === '') return null;
-  if (img.startsWith('http://')) return img.replace('http://', 'https://');
-  if (img.startsWith('https://')) return img;
-  return null;
-}
-
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <span className="text-amber-400 tracking-tight" aria-label={`${rating} out of 5 stars`}>
-      {'★'.repeat(Math.round(rating))}{'☆'.repeat(5 - Math.round(rating))}
-    </span>
-  );
-}
-
-function ProductCard({ p, label }: { p: Product; label?: string }) {
-  const url = getProductUrl(p);
-  // Fallback must be a crawlable HTTPS image — /api/img/ is disallowed in robots.txt.
-  const img = cleanImage(p.image) || 'https://vexatoys.com/opengraph.jpg';
-  const name = (p.nameEn || p.name || '').slice(0, 55);
-
-  return (
-    <a
-      href={url}
-      className="group relative flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] overflow-hidden hover:border-white/25 hover:bg-white/[0.06] transition-all duration-200"
-    >
-      {label && (
-        <span className="absolute top-2.5 left-2.5 z-10 bg-white text-black text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full">
-          {label}
-        </span>
-      )}
-      {/* Image */}
-      <div className="aspect-square w-full bg-white/[0.03] overflow-hidden">
-        <img
-          src={img}
-          alt={name}
-          width={320}
-          height={320}
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-      {/* Info */}
-      <div className="p-3.5 flex flex-col gap-1.5 flex-1">
-        {p.rating > 0 && (
-          <div className="flex items-center gap-1.5">
-            <StarRating rating={p.rating} />
-            {p.reviewsCount > 0 && (
-              <span className="text-stone-500 text-[10px]">({p.reviewsCount})</span>
-            )}
-          </div>
-        )}
-        <p className="text-white text-xs font-bold leading-snug line-clamp-2">{name}</p>
-        <p className="text-stone-300 text-sm font-black mt-auto">${p.price}</p>
-      </div>
-    </a>
-  );
-}
-
 export default async function HomePage() {
-  let allProducts: Product[] = [];
+  let allProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
   try {
     allProducts = await fetchProductsServer();
-  } catch { /* graceful fallback — page renders without products */ }
+  } catch { /* graceful fallback — shop renders empty, still functional */ }
 
-  const validProducts = allProducts.filter(p => p.stock > 0 && cleanImage(p.image));
-
-  // Best Sellers: score = rating × log(reviewsCount + 2)
-  const bestSellers = [...validProducts]
-    .sort((a, b) => (b.rating * Math.log(b.reviewsCount + 2)) - (a.rating * Math.log(a.reviewsCount + 2)))
-    .slice(0, 8);
-
-  // New Arrivals: products with isNew flag, fallback to last 8 by position
-  const newArrivals = validProducts.filter(p => p.isNew).slice(0, 8);
+  // Strip any base64 data-URIs before they ever reach the client bundle —
+  // same normalization used by /adult-toys and /[category].
+  const productsWithImages = allProducts.map(p => ({
+    ...p,
+    image: (p.image && !p.image.startsWith('data:')) ? p.image : '',
+    images: (p.images || []).filter((s: string) => s && !s.startsWith('data:')),
+  }));
 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <main className="min-h-screen bg-[#050101] text-white">
+      {/* ── THE SHOP ITSELF ───────────────────────────────────────────────────
+          This is the entire landing experience: navbar with search, cart,
+          hamburger menu, an always-visible category bar, and the full
+          product grid — every category, every product, no "Load more"
+          click. This is what a visitor sees the instant they land on "/". */}
+      <ShopApp
+        initialProducts={productsWithImages}
+        initialCategory=""
+        initialView="shop"
+        seoHeading="The #1 Sex Toys Store in Lebanon | Vexa Store"
+      />
 
-        {/* ── HERO ──────────────────────────────────────────────────────────── */}
-        <section className="relative max-w-5xl mx-auto px-4 pt-20 pb-16 text-center">
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-stone-500 mb-5">
-            The #1 Sex Toys Store in Lebanon · متجر فيكسا
-          </p>
-          <h1 className="text-4xl sm:text-6xl font-black leading-tight mb-6">
-            <span dir="ltr" className="block">
-              The #1 Sex Toys Store in Lebanon
-            </span>
-            <span className="block text-2xl sm:text-3xl text-stone-400 font-bold mt-3">
-              متجر فيكسا · Vexa Store Lebanon
-            </span>
-          </h1>
-          <p className="text-stone-400 text-base sm:text-lg max-w-xl mx-auto mb-3 leading-relaxed">
-            600+ adult products shipped discreetly across Lebanon.
-            Plain sealed boxes — no logo, no branding.
-          </p>
-          <p className="text-stone-500 text-sm max-w-md mx-auto mb-10">
-            توصيل في نفس اليوم في بيروت · دفع عند الاستلام · خصوصيتك مضمونة
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="/sex-toys"
-              className="inline-flex items-center justify-center gap-2 bg-white text-black font-black text-sm px-8 py-3.5 rounded-xl hover:bg-stone-200 transition active:scale-[0.97]"
-            >
-              تسوّق الآن · Shop Now →
-            </a>
-            <a
-              href="/quiz"
-              className="inline-flex items-center justify-center gap-2 border border-white/20 text-white font-bold text-sm px-8 py-3.5 rounded-xl hover:border-white/40 hover:bg-white/5 transition active:scale-[0.97]"
-            >
-              Not sure? Take the Quiz
-            </a>
-          </div>
-        </section>
+      <main className="bg-[#050101] text-white">
 
-        {/* ── STATS BAR ─────────────────────────────────────────────────────── */}
+        {/* ── TRUST STRIP ───────────────────────────────────────────────────── */}
         <section className="border-y border-white/10 bg-white/[0.015]">
           <div className="max-w-5xl mx-auto px-4 py-5">
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
@@ -331,83 +221,6 @@ export default async function HomePage() {
             </div>
           </div>
         </section>
-
-        {/* ── CATEGORIES ────────────────────────────────────────────────────── */}
-        <section className="max-w-5xl mx-auto px-4 py-16">
-          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-6 text-center">
-            Shop by Category · تسوّق حسب الفئة
-          </p>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {TOP_CATEGORIES.map(cat => (
-              <a
-                key={cat.slug}
-                href={`/${cat.slug}`}
-                className="block rounded-xl border border-white/10 bg-white/[0.03] px-4 py-5 text-center hover:border-white/25 hover:bg-white/[0.06] transition"
-              >
-                <p className="font-black text-white text-sm">{cat.label}</p>
-                <p className="text-stone-500 text-xs mt-0.5">{cat.labelAr}</p>
-              </a>
-            ))}
-          </div>
-        </section>
-
-        {/* ── BEST SELLERS ──────────────────────────────────────────────────── */}
-        {bestSellers.length > 0 && (
-          <section className="border-t border-white/10">
-            <div className="max-w-5xl mx-auto px-4 py-16">
-              <div className="flex items-end justify-between mb-8">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-2">
-                    Most Popular
-                  </p>
-                  <h2 className="text-2xl font-black text-white">
-                    Best Sellers · الأكثر مبيعاً
-                  </h2>
-                </div>
-                <a
-                  href="/sex-toys"
-                  className="text-stone-400 text-xs font-bold hover:text-white transition shrink-0 ml-4"
-                >
-                  View All →
-                </a>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {bestSellers.map((p, i) => (
-                  <ProductCard key={p.id} p={p} label={i === 0 ? '#1 Best Seller' : undefined} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* ── NEW ARRIVALS ──────────────────────────────────────────────────── */}
-        {newArrivals.length > 0 && (
-          <section className="border-t border-white/10">
-            <div className="max-w-5xl mx-auto px-4 py-16">
-              <div className="flex items-end justify-between mb-8">
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-2">
-                    Just Arrived
-                  </p>
-                  <h2 className="text-2xl font-black text-white">
-                    New Arrivals · منتجات جديدة
-                  </h2>
-                </div>
-                <a
-                  href="/new-arrivals"
-                  className="text-stone-400 text-xs font-bold hover:text-white transition shrink-0 ml-4"
-                >
-                  View All →
-                </a>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-                {newArrivals.map(p => (
-                  <ProductCard key={p.id} p={p} label="New" />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
 
         {/* ── WHY CHOOSE VEXA ───────────────────────────────────────────────── */}
         <section className="border-t border-white/10">
