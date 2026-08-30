@@ -1,23 +1,25 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { CATEGORY_TO_SLUG } from '@/lib/categoryMeta';
+import { CITY_META } from '@/lib/cityMeta';
 import { Product } from '@/src/types';
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
-  title: 'Sex Toys in Lebanon | #1 Premium Store — Vexa Store',
-  description: 'Sex toys in Lebanon, done right. Premium vibrators, dildos, lingerie, masturbators & sex dolls. Rated 4.9/5 by 1,900+ customers. Same-day discreet delivery across Beirut & all Lebanon, cash on delivery.',
-  keywords: 'sex toys lebanon, sex toys in lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, lingerie beirut, adult toys lebanon, vexa store, ألعاب زوجية لبنان, هزازات لبنان',
+  title: 'Luxury Sex Toys in Lebanon | Vexa Store',
+  description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
+  keywords: 'luxury sex toys lebanon, sex toys in lebanon, premium vibrators lebanon, high-end adult toys lebanon, designer lingerie beirut, luxury intimacy lebanon, curated sex toys lebanon, premium dildos lebanon, vexa store, ألعاب جنسية فاخرة لبنان, لانجري فاخر بيروت',
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
     type: 'website',
     locale: 'ar_LB',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
-    title: 'Sex Toys in Lebanon | #1 Premium Store — Vexa Store',
-    description: 'Sex toys in Lebanon, done right. Premium vibrators, dildos, lingerie, masturbators & sex dolls. Rated 4.9/5 by 1,900+ customers. Same-day discreet delivery, cash on delivery.',
+    title: 'Luxury Sex Toys in Lebanon | Vexa Store',
+    description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon' }],
   },
   twitter: { card: 'summary_large_image', site: '@vexastore', images: ['https://vexatoys.com/opengraph.jpg'] },
@@ -26,71 +28,31 @@ export const metadata: Metadata = {
 
 const BASE = 'https://vexatoys.com';
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': `${BASE}/#organization`,
-      name: 'Vexa Store Lebanon',
-      url: BASE,
-      logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.png` },
-      contactPoint: { '@type': 'ContactPoint', telephone: '+96176730767', contactType: 'customer service', availableLanguage: ['Arabic', 'English'] },
-      sameAs: ['https://wa.me/96176730767'],
-      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        reviewCount: '1900',
-        bestRating: '5',
-        worstRating: '1',
-      },
-    },
-    {
-      '@type': 'WebSite',
-      '@id': `${BASE}/#website`,
-      url: BASE,
-      name: 'Vexa Store Lebanon',
-      publisher: { '@id': `${BASE}/#organization` },
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/sex-toys?q={search_term_string}` },
-        'query-input': 'required name=search_term_string',
-      },
-    },
-    {
-      '@type': 'Store',
-      '@id': `${BASE}/#store`,
-      name: 'Vexa Store Lebanon',
-      url: BASE,
-      description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
-      priceRange: '$$',
-      currenciesAccepted: 'USD',
-      paymentAccepted: 'Cash',
-      openingHours: 'Mo-Su 08:00-22:00',
-      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
-      telephone: '+96176730767',
-      areaServed: { '@type': 'Country', name: 'Lebanon' },
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        reviewCount: '1900',
-        bestRating: '5',
-        worstRating: '1',
-      },
-    },
-  ],
-};
-
-const TOP_CATEGORIES = [
-  { slug: 'sex-toys',    label: 'Sex Toys',    labelAr: 'ألعاب جنسية' },
-  { slug: 'vibrators',   label: 'Vibrators',   labelAr: 'هزازات' },
-  { slug: 'dildos',      label: 'Dildos',      labelAr: 'ديلدو' },
-  { slug: 'male-toys',   label: 'Male Toys',   labelAr: 'ألعاب رجالية' },
-  { slug: 'lingerie',    label: 'Lingerie',    labelAr: 'لانجري' },
-  { slug: 'bdsm',        label: 'BDSM',        labelAr: 'BDSM' },
-  { slug: 'anal-toys',   label: 'Anal Toys',   labelAr: 'ألعاب شرجية' },
-  { slug: 'adult-toys',  label: 'All Products', labelAr: 'كل المنتجات' },
+// FAQ content — shown both as visible copy (below) and as FAQPage schema so
+// Google can surface these as expandable rich-result questions under the
+// homepage listing. Never mark up hidden-only text — this exact copy is
+// rendered in the FAQ_ITEMS section further down the page.
+const FAQ_ITEMS = [
+  {
+    q: 'Is delivery really discreet?',
+    a: 'Yes. Every order ships in a plain, sealed box with no logo, no branding, and no indication of contents. Even the courier doesn\u2019t know what\u2019s inside.',
+  },
+  {
+    q: 'Do you deliver sex toys across all of Lebanon?',
+    a: 'Yes — same-day delivery in Beirut, and 1-3 day delivery to Tripoli, Sidon, Zahle, Jounieh, and the rest of Lebanon.',
+  },
+  {
+    q: 'Can I pay cash on delivery?',
+    a: 'Yes, cash on delivery is available everywhere in Lebanon, alongside card payment options.',
+  },
+  {
+    q: 'Are the products body-safe and good quality?',
+    a: 'All products use body-safe silicone or medical-grade materials, and every item ships new and sealed.',
+  },
+  {
+    q: 'How do I order?',
+    a: 'Browse the site and check out directly, or message us on WhatsApp and our team will help you choose and confirm your order.',
+  },
 ];
 
 const REVIEWS = [
@@ -136,6 +98,88 @@ const REVIEWS = [
     initial: 'N',
     color: 'bg-sky-600',
   },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${BASE}/#organization`,
+      name: 'Vexa Store Lebanon',
+      url: BASE,
+      logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.png` },
+      contactPoint: { '@type': 'ContactPoint', telephone: '+96176730767', contactType: 'customer service', availableLanguage: ['Arabic', 'English'] },
+      sameAs: ['https://wa.me/96176730767'],
+      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
+      review: REVIEWS.slice(0, 5).map(r => ({
+        '@type': 'Review',
+        author: { '@type': 'Person', name: r.name },
+        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
+        reviewBody: r.text,
+      })),
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        reviewCount: '1900',
+        bestRating: '5',
+        worstRating: '1',
+      },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${BASE}/#website`,
+      url: BASE,
+      name: 'Vexa Store Lebanon',
+      publisher: { '@id': `${BASE}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/sex-toys?q={search_term_string}` },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+    {
+      '@type': 'Store',
+      '@id': `${BASE}/#store`,
+      name: 'Vexa Store Lebanon',
+      url: BASE,
+      description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
+      priceRange: '$$',
+      currenciesAccepted: 'USD',
+      paymentAccepted: 'Cash',
+      openingHours: 'Mo-Su 08:00-22:00',
+      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
+      telephone: '+96176730767',
+      areaServed: { '@type': 'Country', name: 'Lebanon' },
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: '4.9',
+        reviewCount: '1900',
+        bestRating: '5',
+        worstRating: '1',
+      },
+    },
+    {
+      '@type': 'FAQPage',
+      '@id': `${BASE}/#faq`,
+      mainEntity: FAQ_ITEMS.map(item => ({
+        '@type': 'Question',
+        name: item.q,
+        acceptedAnswer: { '@type': 'Answer', text: item.a },
+      })),
+    },
+  ],
+};
+
+const TOP_CATEGORIES = [
+  { slug: 'sex-toys',    label: 'Sex Toys',    labelAr: 'ألعاب جنسية' },
+  { slug: 'vibrators',   label: 'Vibrators',   labelAr: 'هزازات' },
+  { slug: 'dildos',      label: 'Dildos',      labelAr: 'ديلدو' },
+  { slug: 'male-toys',   label: 'Male Toys',   labelAr: 'ألعاب رجالية' },
+  { slug: 'lingerie',    label: 'Lingerie',    labelAr: 'لانجري' },
+  { slug: 'bdsm',        label: 'BDSM',        labelAr: 'BDSM' },
+  { slug: 'anal-toys',   label: 'Anal Toys',   labelAr: 'ألعاب شرجية' },
+  { slug: 'adult-toys',  label: 'All Products', labelAr: 'كل المنتجات' },
 ];
 
 function getProductUrl(p: Product): string {
@@ -493,10 +537,48 @@ export default async function HomePage() {
               Tripoli, Sidon, and all Lebanese regions. Every order ships in a plain sealed box with no logo,
               no branding, and complete privacy. Cash on delivery available everywhere.
             </p>
-            <p className="text-stone-500 text-sm leading-relaxed">
+            <p className="text-stone-500 text-sm leading-relaxed mb-6">
               متجر فيكسا — الوجهة الأولى للبالغين في لبنان منذ أكثر من 3 سنوات. تسوّق بثقة وخصوصية تامة:
               تغليف سري بدون شعار، دفع عند الاستلام في كل لبنان، وتوصيل سريع إلى باب بيتك.
             </p>
+            <div className="flex flex-wrap gap-2">
+              {CITY_META.map(c => (
+                <Link
+                  key={c.slug}
+                  href={`/city/${c.slug}`}
+                  className="text-xs font-semibold text-stone-400 border border-white/10 rounded-full px-3 py-1.5 hover:border-white/30 hover:text-white transition"
+                >
+                  Sex toys in {c.nameEn}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── FAQ ───────────────────────────────────────────────────────────── */}
+        {/* This visible copy matches FAQ_ITEMS / the FAQPage schema above word-for-word. */}
+        <section className="border-t border-white/10">
+          <div className="max-w-3xl mx-auto px-4 py-14">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
+              FAQ · الأسئلة الشائعة
+            </p>
+            <h2 className="text-2xl font-black text-white mb-8 text-center">
+              Frequently asked questions
+            </h2>
+            <div className="flex flex-col gap-3">
+              {FAQ_ITEMS.map((item, i) => (
+                <details
+                  key={i}
+                  className="group rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 open:bg-white/[0.05]"
+                >
+                  <summary className="cursor-pointer list-none flex items-center justify-between gap-4 text-sm font-bold text-white">
+                    {item.q}
+                    <span className="shrink-0 text-stone-500 group-open:rotate-45 transition-transform text-lg leading-none">+</span>
+                  </summary>
+                  <p className="mt-3 text-stone-400 text-sm leading-relaxed">{item.a}</p>
+                </details>
+              ))}
+            </div>
           </div>
         </section>
 
