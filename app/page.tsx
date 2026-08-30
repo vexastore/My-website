@@ -7,17 +7,17 @@ export const revalidate = 3600;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
-  title: 'The #1 Sex Toys Store in Lebanon | Vexa Store',
-  description: 'The #1 sex toys store in Lebanon. Shop vibrators, dildos, lingerie, masturbators and more with discreet delivery across Beirut and all Lebanon.',
-  keywords: 'vexa store lebanon, متجر فيكسا, vexa store, متجر سري لبنان, adult store beirut, متجر بالغين لبنان, vexa store بيروت',
+  title: 'Sex Toys in Lebanon | #1 Premium Store — Vexa Store',
+  description: 'Sex toys in Lebanon, done right. Premium vibrators, dildos, lingerie, masturbators & sex dolls. Rated 4.9/5 by 1,900+ customers. Same-day discreet delivery across Beirut & all Lebanon, cash on delivery.',
+  keywords: 'sex toys lebanon, sex toys in lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, lingerie beirut, adult toys lebanon, vexa store, ألعاب زوجية لبنان, هزازات لبنان',
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
     type: 'website',
     locale: 'ar_LB',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
-    title: 'The #1 Sex Toys Store in Lebanon | Vexa Store',
-    description: 'The #1 sex toys store in Lebanon. Shop vibrators, dildos, lingerie, masturbators and more with discreet delivery across Beirut and all Lebanon.',
+    title: 'Sex Toys in Lebanon | #1 Premium Store — Vexa Store',
+    description: 'Sex toys in Lebanon, done right. Premium vibrators, dildos, lingerie, masturbators & sex dolls. Rated 4.9/5 by 1,900+ customers. Same-day discreet delivery, cash on delivery.',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon' }],
   },
   twitter: { card: 'summary_large_image', site: '@vexastore', images: ['https://vexatoys.com/opengraph.jpg'] },
