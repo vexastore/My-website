@@ -6,11 +6,11 @@ import { Analytics } from '@vercel/analytics/next';
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
   title: {
-    default: 'Sex Toys in Lebanon | #1 Premium Store — Vexa Store',
+    default: 'Luxury Sex Toys in Lebanon | Vexa Store',
     template: '%s | متجر فيكسا لبنان',
   },
-  description: 'Sex toys in Lebanon, done right. Premium vibrators, dildos, lingerie, masturbators & sex dolls. Rated 4.9/5 by 1,900+ customers. Same-day discreet delivery across Beirut & all Lebanon, cash on delivery.',
-  keywords: 'sex toys lebanon, sex toys in lebanon, vibrators lebanon, dildos lebanon, masturbators lebanon, sex dolls lebanon, lingerie beirut, adult toys lebanon, vexa store, ألعاب زوجية لبنان, هزازات لبنان',
+  description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
+  keywords: 'luxury sex toys lebanon, sex toys in lebanon, premium vibrators lebanon, high-end adult toys lebanon, designer lingerie beirut, luxury intimacy lebanon, curated sex toys lebanon, premium dildos lebanon, vexa store, ألعاب جنسية فاخرة لبنان, لانجري فاخر بيروت',
   authors: [{ name: 'Vexa Store Lebanon' }],
   creator: 'Vexa Store',
   openGraph: {
@@ -19,8 +19,8 @@ export const metadata: Metadata = {
     alternateLocale: 'en_US',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
-    title: 'Sex Toys in Lebanon | #1 Premium Store — Vexa Store',
-    description: 'Sex toys in Lebanon, done right. Premium vibrators, dildos, lingerie, masturbators & sex dolls. Rated 4.9/5 by 1,900+ customers. Same-day discreet delivery, cash on delivery.',
+    title: 'Luxury Sex Toys in Lebanon | Vexa Store',
+    description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Sex Toys & Lingerie' }],
   },
   twitter: {
