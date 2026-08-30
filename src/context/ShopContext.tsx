@@ -76,7 +76,11 @@ const CATEGORY_TO_SLUG: Record<string, string> = Object.fromEntries(
 );
 
 function getInitialCategory(override?: string): string {
-  if (override) return override;
+  // NOTE: use `!== undefined` (not truthy) so an explicit "" override —
+  // meaning "show every category" (used by full-catalog pages like the
+  // homepage and /adult-toys) — isn't silently discarded in favor of the
+  // URL-based / default lookup below.
+  if (override !== undefined) return override;
   try {
     if (typeof window === 'undefined') return 'Sex Toys';
     const w = window as typeof window & { __INITIAL_CATEGORY__?: string };
