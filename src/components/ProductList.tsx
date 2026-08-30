@@ -4,8 +4,6 @@ import { ProductCard } from './ProductCard';
 import { SearchX, ShoppingBag, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
 import { CATEGORIES, getCategoryTitle, productMatchesCategory, getCategorySeoTab } from '../data/categories';
 
-const PAGE_SIZE = 12;
-
 export const ProductList: React.FC = () => {
   const { products, activeCategory, seoHeading, setActiveCategory, searchQuery, setSearchQuery, language, isProductsLoading } = useShop();
   const isArabic = language === 'ar';
@@ -28,7 +26,6 @@ export const ProductList: React.FC = () => {
   const [openFilterSection, setOpenFilterSection] = useState<'availability' | 'price' | 'categories' | null>(null);
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'in-stock' | 'low-stock'>('all');
   const [sortBy, setSortBy] = useState<'best' | 'price-low' | 'price-high'>('best');
-  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const filteredProducts = products.filter((product) => {
     const q = searchQuery.toLowerCase().trim();
@@ -50,8 +47,8 @@ export const ProductList: React.FC = () => {
     return b.reviewsCount - a.reviewsCount;
   });
 
-  const visibleProducts = filteredProducts.slice(0, visibleCount);
-  const hasMore = visibleCount < filteredProducts.length;
+  // Every matching product renders in one grid — no pagination, no "Load more" click.
+  const visibleProducts = filteredProducts;
 
   const faqs = [
     {
@@ -115,6 +112,8 @@ export const ProductList: React.FC = () => {
                 ? (isArabic ? `نتائج البحث: ${searchQuery}` : `Search: ${searchQuery}`)
                 : seoHeading
                   ? seoHeading
+                : activeCategory === ''
+                  ? (isArabic ? 'كل المنتجات' : 'All Products')
                 : getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')}
             </h1>
           </div>
@@ -128,6 +127,33 @@ export const ProductList: React.FC = () => {
           </button>
         </div>
 
+        {/* ── QUICK CATEGORY BAR — every category, one tap, no hamburger needed ── */}
+        <div className="mb-6 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <button
+            onClick={() => { setActiveCategory(''); setSearchQuery(''); }}
+            className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] transition active:scale-95 ${
+              !searchQuery && activeCategory === ''
+                ? 'border-white bg-white text-black'
+                : 'border-white/15 bg-white/[0.03] text-white/60 hover:border-white/35 hover:text-white'
+            }`}
+          >
+            {isArabic ? 'الكل' : 'All'}
+          </button>
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat.id}
+              onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); }}
+              className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] transition active:scale-95 ${
+                !searchQuery && activeCategory === cat.id
+                  ? 'border-white bg-white text-black'
+                  : 'border-white/15 bg-white/[0.03] text-white/60 hover:border-white/35 hover:text-white'
+              }`}
+            >
+              {isArabic ? cat.name.ar : cat.name.en}
+            </button>
+          ))}
+        </div>
+
         <div className="mb-8 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-white/35">
           <span>
             {isProductsLoading
@@ -135,7 +161,9 @@ export const ProductList: React.FC = () => {
               : `${filteredProducts.length} ${isArabic ? 'منتج' : 'items'}`}
           </span>
           <span>
-            {CATEGORIES.find(c => c.id === activeCategory)?.[isArabic ? 'name' : 'name']?.[isArabic ? 'ar' : 'en'] || activeCategory}
+            {activeCategory === ''
+              ? (isArabic ? 'كل الفئات' : 'All Categories')
+              : (CATEGORIES.find(c => c.id === activeCategory)?.[isArabic ? 'name' : 'name']?.[isArabic ? 'ar' : 'en'] || activeCategory)}
           </span>
         </div>
 
@@ -158,22 +186,6 @@ export const ProductList: React.FC = () => {
                 <ProductCard key={product.id} product={product} priority={index < 4} />
               ))}
             </div>
-            {hasMore && (
-              <div className="mt-14 flex flex-col items-center gap-2">
-                <button
-                  onClick={() => setVisibleCount(c => c + PAGE_SIZE)}
-                  aria-label={isArabic ? 'تحميل المزيد من المنتجات' : 'Load more products'}
-                  className="border border-white/20 px-10 py-3.5 text-[11px] font-black uppercase tracking-[0.22em] text-white/80 transition hover:bg-white hover:text-black active:scale-[0.98]"
-                >
-                  {isArabic ? 'تحميل المزيد' : 'Load more'}
-                </button>
-                <p className="text-[10px] text-white/30">
-                  {isArabic
-                    ? `عرض ${visibleProducts.length} من ${filteredProducts.length}`
-                    : `Showing ${visibleProducts.length} of ${filteredProducts.length}`}
-                </p>
-              </div>
-            )}
           </>
         ) : searchQuery ? (
           <div className="flex flex-col items-center justify-center border border-dashed border-white/15 bg-white/[0.03] px-4 py-20 text-center">
