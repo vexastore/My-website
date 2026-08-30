@@ -221,23 +221,24 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   return (
     <div className="min-h-screen bg-[#050101] text-white" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* ── Breadcrumb bar ── */}
-      <nav className="sticky top-0 z-30 bg-black/90 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3">
+      <nav className="sticky top-0 z-30 bg-black/80 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 py-3.5 flex items-center gap-3">
         <button
           onClick={goBack}
           aria-label={isArabic ? 'رجوع' : 'Back'}
-          className="flex items-center gap-1.5 text-white/60 hover:text-white transition text-sm font-bold"
+          className="flex items-center gap-1.5 text-white/60 hover:text-white transition text-sm font-bold shrink-0"
         >
           <ArrowLeft size={16} className={isArabic ? 'rotate-180' : ''} />
           {primaryCatName}
         </button>
-        <span className="text-white/20">/</span>
-        <span className="text-white/80 text-sm font-bold truncate max-w-[200px]">{displayName}</span>
+        <span className="text-white/15">/</span>
+        <span className="text-white/80 text-sm font-bold truncate">{displayName}</span>
       </nav>
 
-      <div className="mx-auto max-w-2xl px-4 py-6 space-y-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 py-6 sm:py-10 lg:grid lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:items-start space-y-6 lg:space-y-0">
 
+        <div className="space-y-4 lg:sticky lg:top-24">
         {/* ── Image carousel ── */}
-        <div className="relative bg-black rounded-2xl overflow-hidden aspect-square">
+        <div className="relative bg-black rounded-3xl overflow-hidden aspect-square border border-white/10 shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)]">
           {imgsLoading ? (
             <div className="absolute inset-0 flex items-center justify-center">
               <Loader2 size={32} className="animate-spin text-white/30" />
@@ -290,22 +291,23 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
         {/* Thumbnail strip */}
         {images.length > 1 && (
-          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4">
+          <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
             {images.map((img, i) => (
               <button key={i} onClick={() => setImgIdx(i)}
-                className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition ${i === imgIdx ? 'border-white' : 'border-white/10 opacity-60'}`}>
+                className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition ${i === imgIdx ? 'border-white' : 'border-white/10 opacity-60 hover:opacity-100'}`}>
                 <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
               </button>
             ))}
           </div>
         )}
+        </div>
 
         {/* ── Product info ── */}
-        <div className="space-y-4">
+        <div className="space-y-5 lg:rounded-3xl lg:border lg:border-white/10 lg:bg-white/[0.025] lg:p-8">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-purple-400 mb-1">{primaryCatName}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-400 mb-2">{primaryCatName}</p>
             {/* H1 for SEO */}
-            <h1 className="text-xl font-black leading-tight text-white">{displayName}</h1>
+            <h1 className="text-2xl sm:text-3xl font-black leading-tight text-white tracking-tight">{displayName}</h1>
           </div>
 
           {/* Rating */}
@@ -322,11 +324,13 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           </div>
 
           {/* Price */}
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <span className="text-2xl font-black text-white">${product.price.toFixed(2)}</span>
+          <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-4 flex items-baseline gap-2.5 flex-wrap">
+            <span className="text-3xl font-black text-white tracking-tight">${product.price.toFixed(2)}</span>
             <span className="text-sm font-bold text-stone-500 line-through">${oldPrice.toFixed(2)}</span>
             <span className="text-xs font-bold text-stone-400">USD</span>
-            <span className="text-[10px] font-black bg-white text-black px-2 py-0.5 rounded-full uppercase tracking-wider">Sale</span>
+            <span className="text-[10px] font-black bg-gradient-to-r from-rose-500 to-red-600 text-white px-2.5 py-1 rounded-full uppercase tracking-wider shadow-[0_4px_14px_-4px_rgba(225,29,72,0.6)]">
+              {isArabic ? `وفّر ${Math.round((1 - product.price / oldPrice) * 100)}٪` : `Save ${Math.round((1 - product.price / oldPrice) * 100)}%`}
+            </span>
           </div>
 
           {/* Stock */}
@@ -344,14 +348,14 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           )}
 
           {/* Trust badges */}
-          <div className="grid grid-cols-3 gap-2 text-center">
+          <div className="grid grid-cols-3 gap-2.5 text-center">
             {[
-              { icon: <Lock size={18} />, ar: 'الدفع عند\nالاستلام', en: 'Cash on\nDelivery' },
-              { icon: <PackageCheck size={18} />, ar: 'قابل\nللاسترجاع', en: 'Returnable' },
-              { icon: <Truck size={18} />, ar: 'توصيل سري\nوسريع', en: 'Discreet &\nFast' },
+              { icon: <Lock size={17} />, ar: 'الدفع عند\nالاستلام', en: 'Cash on\nDelivery', color: 'text-emerald-400' },
+              { icon: <PackageCheck size={17} />, ar: 'قابل\nللاسترجاع', en: 'Returnable', color: 'text-sky-400' },
+              { icon: <Truck size={17} />, ar: 'توصيل سري\nوسريع', en: 'Discreet &\nFast', color: 'text-rose-400' },
             ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5 rounded-xl border border-white/10 py-3 px-1 bg-white/5">
-                <span className="text-stone-400">{item.icon}</span>
+              <div key={i} className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 py-4 px-1 bg-white/[0.03] hover:border-white/20 transition">
+                <span className={`${item.color} flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06]`}>{item.icon}</span>
                 <span className="text-[9px] font-black uppercase tracking-wide text-stone-400 leading-tight whitespace-pre-line">
                   {isArabic ? item.ar : item.en}
                 </span>
@@ -409,7 +413,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition active:scale-[0.98] ${
                 remaining <= 0 ? 'bg-white/10 text-stone-500 cursor-not-allowed'
                   : variantError ? 'bg-red-600 text-white'
-                  : 'bg-white text-black hover:bg-stone-200'
+                  : 'bg-white text-black hover:bg-stone-200 shadow-[0_8px_24px_-8px_rgba(255,255,255,0.25)]'
               }`}>
               <ShoppingCart size={17} />
               {remaining <= 0
@@ -421,14 +425,14 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
             {remaining > 0 && (
               <button onClick={handleBuyNow}
-                className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black bg-gradient-to-r from-red-600 to-rose-500 text-white hover:from-red-700 hover:to-rose-600 transition active:scale-[0.98]">
+                className="flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black bg-gradient-to-r from-red-600 to-rose-500 text-white hover:from-red-700 hover:to-rose-600 transition active:scale-[0.98] shadow-[0_10px_30px_-10px_rgba(225,29,72,0.6)]">
                 <Zap size={16} fill="currentColor" />
                 {isArabic ? 'شراء الآن' : 'Buy it now'}
               </button>
             )}
 
             <button onClick={waOrder}
-              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold bg-[#25D366] hover:bg-[#1ebe5d] text-white transition active:scale-[0.98]">
+              className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold bg-[#25D366] hover:bg-[#1ebe5d] text-white transition active:scale-[0.98] shadow-[0_8px_24px_-10px_rgba(37,211,102,0.5)]">
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.845-1.587-5.921.003-6.556 5.338-11.891 11.893-11.891 3.176.001 6.165 1.236 8.413 3.484 2.248 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.916 3.21 1.399 4.909 1.4 5.424 0 9.835-4.411 9.838-9.835.002-2.628-1.021-5.1-2.88-6.958-1.859-1.859-4.331-2.88-6.955-2.881-5.423 0-9.835 4.412-9.838 9.836-.001 1.79.491 3.535 1.425 5.047l-1.012 3.7 3.784-.993zm11.458-7.228c-.312-.156-1.847-.91-2.132-1.014-.285-.104-.492-.156-.7.156-.207.312-.802 1.014-.983 1.221-.181.208-.363.234-.675.078-.312-.156-1.317-.485-2.51-1.549-.928-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.136-.636.141-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.207.052-.39-.026-.546-.078-.156-.7-1.688-.959-2.311-.253-.61-.51-.527-.7-.537-.182-.01-.39-.01-.597-.01-.208 0-.545.078-.83.39-.285.312-1.089 1.065-1.089 2.597 0 1.533 1.115 3.013 1.271 3.221.156.208 2.193 3.349 5.313 4.699.742.32 1.32.512 1.77.654.745.237 1.423.204 1.959.124.597-.089 1.847-.754 2.108-1.442.261-.689.261-1.274.182-1.39-.078-.118-.285-.182-.597-.338z"/>
               </svg>
