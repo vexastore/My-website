@@ -510,9 +510,13 @@ export const AdminPanel: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ imageData: imgData, productId }),
           });
-          if (!r.ok) return imgData;
+          if (!r.ok) {
+            const details = await r.text().catch(() => '');
+            throw new Error('فشل رفع الصورة إلى Vercel Blob (' + r.status + ')' + (details ? ': ' + details : ''));
+          }
           const { url } = await r.json();
-          return url || imgData;
+          if (!url) throw new Error('لم يرجع Vercel Blob رابط الصورة');
+          return url;
         } catch (_) { return imgData; }
       };
       const targetId = editingProduct?.id || ('prod-' + Math.random().toString(36).substr(2, 9).toUpperCase());
@@ -532,8 +536,10 @@ export const AdminPanel: React.FC = () => {
       setIsModalOpen(false);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes('400') || msg.toLowerCase().includes('too large') || msg.toLowerCase().includes('maximum')) {
-        alert('الصور كبيرة جداً لحفظها في Firebase.\n\nالحل: احذف بعض الصور من القائمة أو استخدم رابط URL بدلاً من رفع الصور مباشرة.');
+      if (msg.toLowerCase().includes('too large') || msg.toLowerCase().includes('maximum') || msg.toLowerCase().includes('firestore')) {
+        alert('بيانات المنتج كبيرة جداً للحفظ في قاعدة البيانات. الصور يجب أن تكون روابط Vercel Blob وليست صوراً بصيغة base64.');
+      } else if (msg.toLowerCase().includes('vercel blob') || msg.toLowerCase().includes('رفع الصورة')) {
+        alert('تعذر رفع الصورة إلى Vercel Blob. لم يتم حفظ التعديل؛ تحقق من إعدادات Vercel Blob ثم حاول مرة أخرى.');
       } else if (msg.toLowerCase().includes('permission') || msg.toLowerCase().includes('unauthorized')) {
         alert('خطأ في الصلاحيات. تأكد من إعدادات Firebase Security Rules.');
       } else if (msg.toLowerCase().includes('network') || msg.toLowerCase().includes('offline') || msg.toLowerCase().includes('unavailable')) {
