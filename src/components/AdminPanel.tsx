@@ -458,7 +458,7 @@ export const AdminPanel: React.FC = () => {
       return;
     }
 
-    if (!prodForm.name || !prodForm.price || !prodForm.image) {
+    if (!prodForm.name || !prodForm.price || !(prodForm.image || prodForm.images?.length)) {
       alert('يرجى ملء: الاسم، السعر، والصورة.');
       return;
     }
@@ -483,10 +483,13 @@ export const AdminPanel: React.FC = () => {
       description: prodForm.description,
       descriptionEn: prodForm.description,
       price: prodForm.price,
-      image: prodForm.image || prodForm.images?.[0] || '',
-      // Safety: if imagesModifiedByUser but form images are suspiciously empty, fall back to Firebase backup
+      image: imagesModifiedByUser
+        ? (prodForm.images?.[0] || prodForm.image || '')
+        : (prodForm.image || prodForm.images?.[0] || ''),
+      // When the admin edits images, persist the exact current list. Do not
+      // fall back to the old Firebase gallery: that made deleted images return.
       images: imagesModifiedByUser
-        ? (prodForm.images?.length ? prodForm.images : (loadedFirebaseImagesRef.current.length ? loadedFirebaseImagesRef.current : (prodForm.image ? [prodForm.image] : [])))
+        ? (prodForm.images || [])
         : (prodForm.images?.length ? prodForm.images : (prodForm.image ? [prodForm.image] : [])),
       category: primaryCat as CategoryId,
       categories: prodForm.categories,
