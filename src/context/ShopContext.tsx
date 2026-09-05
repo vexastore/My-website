@@ -501,14 +501,19 @@ export const ShopProvider: React.FC<{
     // Wait for the server to invalidate its product/ISR cache. Previously this
     // was fire-and-forget, so the admin showed success while the public site
     // could continue serving stale prices and images.
-    const response = await fetch('/api/product-revalidate?secret=vexa-reval-2026', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(opts),
-    });
-    if (!response.ok) {
-      const details = await response.text().catch(() => '');
-      throw new Error('تم حفظ المنتج لكن فشل تحديث كاش الموقع (' + response.status + ')' + (details ? ': ' + details : ''));
+    // Cache refresh is best-effort: it must never make a successful
+    // Firestore product save look like a failed price/image update.
+    try {
+      const response = await fetch('/api/product-revalidate?secret=vexa-reval-2026', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(opts),
+      });
+      if (!response.ok) {
+        console.warn('[Shop] Product saved, but cache refresh returned', response.status);
+      }
+    } catch (error) {
+      console.warn('[Shop] Product saved, but cache refresh failed', error);
     }
 
     // Notify Bing + IndexNow members immediately — this is best-effort and
