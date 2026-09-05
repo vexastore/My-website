@@ -501,7 +501,7 @@ export const ShopProvider: React.FC<{
     // Wait for the server to invalidate its product/ISR cache. Previously this
     // was fire-and-forget, so the admin showed success while the public site
     // could continue serving stale prices and images.
-    const response = await fetch('/revalidate?secret=vexa-reval-2026', {
+    const response = await fetch('/api/product-revalidate?secret=vexa-reval-2026', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(opts),
