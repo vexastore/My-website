@@ -50,7 +50,7 @@ interface ShopContextType {
   getCartItemsCount: () => number;
   getDeliveryFee: () => number;
   addProduct: (product: Omit<Product, 'id'>) => Promise<void>;
-  updateProduct: (id: string, product: Omit<Product, 'id'>) => Promise<void>;
+  updateProduct: (id: string, product: Omit<Product, 'id'>, imagesModifiedByUser?: boolean) => Promise<void>;
   deleteProduct: (productId: string) => Promise<void>;
   fetchProductImages: (productId: string) => Promise<string[]>;
   fetchAllOrdersFromFirebase: () => Promise<Order[]>;
@@ -495,13 +495,24 @@ export const ShopProvider: React.FC<{
   // ─── Firestore product operations ─────────────────────────────────────────
 
   // ─── Cache invalidation after any product change ─────────────────────────
-  const revalidateAfterProductChange = (opts: { categorySlug?: string; slug?: string } = {}) => {
+  const revalidateAfterProductChange = async (opts: { categorySlug?: string; slug?: string } = {}) => {
     try { localStorage.removeItem('vexa_products_v2'); localStorage.removeItem('vexa_products_v2_ts'); } catch (_) {}
-    // Revalidate ISR cache
-    fetch('/revalidate?secret=vexa-reval-2026', {
-      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(opts),
-    }).catch(() => {});
-    // Notify Bing + IndexNow members immediately — fire-and-forget
+
+    // Wait for the server to invalidate its product/ISR cache. Previously this
+    // was fire-and-forget, so the admin showed success while the public site
+    // could continue serving stale prices and images.
+    const response = await fetch('/revalidate?secret=vexa-reval-2026', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(opts),
+    });
+    if (!response.ok) {
+      const details = await response.text().catch(() => '');
+      throw new Error('تم حفظ المنتج لكن فشل تحديث كاش الموقع (' + response.status + ')' + (details ? ': ' + details : ''));
+    }
+
+    // Notify Bing + IndexNow members immediately — this is best-effort and
+    // must not make a successful Firestore save look like a failed save.
     fetch('/api/indexnow', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -532,7 +543,11 @@ export const ShopProvider: React.FC<{
     revalidateAfterProductChange({ categorySlug, slug });
   };
 
-  const updateProduct = async (id: string, productData: Omit<Product, 'id'>) => {
+  const updateProduct = async (
+    id: string,
+    productData: Omit<Product, 'id'>,
+    imagesModifiedByUser = false,
+  ) => {
     const toSlg = (s: string) => (s || '').toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
       .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60) || id;
@@ -550,8 +565,20 @@ export const ShopProvider: React.FC<{
     const categorySlug = productData.categorySlug || CAT_SLUG_U[productData.category] || toSlg(productData.category || 'sex-toys');
     const updated: Product = { ...productData, id, slug, categorySlug };
     await setDoc(doc(db, PRODUCTS_COLLECTION, id), updated);
+
+    // product_images is the authoritative gallery source used by the public
+    // storefront. Keep it in sync only when the admin actually edited images;
+    // otherwise an info-only edit must not overwrite the existing gallery.
+    if (imagesModifiedByUser) {
+      await setDoc(
+        doc(db, IMAGES_COLLECTION, id),
+        { images: Array.isArray(productData.images) ? productData.images : [] },
+        { merge: true },
+      );
+    }
+
     setProducts(prev => prev.map(p => p.id === id ? updated : p));
-    revalidateAfterProductChange({ categorySlug, slug });
+    await revalidateAfterProductChange({ categorySlug, slug });
   };
 
   const deleteProduct = async (productId: string) => {
@@ -559,10 +586,11 @@ export const ShopProvider: React.FC<{
     // hidden too — absence from PRODUCTS_COLLECTION is NOT a delete signal.
     await Promise.all([
       deleteDoc(doc(db, PRODUCTS_COLLECTION, productId)).catch(() => {}),
+      deleteDoc(doc(db, IMAGES_COLLECTION, productId)).catch(() => {}),
       setDoc(doc(db, DELETED_PRODUCTS_COLLECTION, productId), { deletedAt: Date.now() }),
     ]);
     setProducts(prev => prev.filter(p => p.id !== productId));
-    revalidateAfterProductChange();
+    await revalidateAfterProductChange();
   };
 
   const fetchProductImages = async (productId: string): Promise<string[]> => {
