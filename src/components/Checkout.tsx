@@ -133,7 +133,7 @@ export const Checkout: React.FC = () => {
       };
 
       // ── 3. Place order — saves to Firestore + localStorage, clears cart ───
-      const placed = placeOrder(customerInfo);
+      const placed = await placeOrder(customerInfo);
       if (!placed) return; // cart was empty — guard only, shouldn't happen
 
       // ── 4. Build message with the REAL order ID returned by placeOrder ────
@@ -168,6 +168,8 @@ export const Checkout: React.FC = () => {
       // ── 6. Show success screen ────────────────────────────────────────────
       setOrderComplete(placed);
 
+    } catch (error) {
+      setValidationBanner(error instanceof Error ? error.message : (isArabic ? 'تعذر إرسال الطلب. يرجى المحاولة مرة ثانية.' : 'Could not place the order. Please try again.'));
     } finally {
       // Guarantees spinner stops even if something throws unexpectedly.
       _submitting.current = false;
