@@ -45,16 +45,12 @@ export async function POST(req: NextRequest) {
       clearTimeout(timeoutId);
     }
 
-    const tgData = await tgRes.json().catch(() => null);
-    if (!tgRes.ok || !tgData?.ok) {
-      console.error('[notify-order] Telegram rejected message:', tgData);
-      return NextResponse.json(
-        { error: 'Telegram API error', details: tgData || { httpStatus: tgRes.status } },
-        { status: 502 }
-      );
+    if (!tgRes.ok) {
+      const errBody = await tgRes.text().catch(() => '');
+      return NextResponse.json({ error: 'Telegram API error', details: errBody }, { status: 502 });
     }
 
-    return NextResponse.json({ ok: true, messageId: tgData.result?.message_id });
+    return NextResponse.json({ ok: true });
   } catch (error) {
     const isTimeout = error instanceof Error && error.name === 'AbortError';
     return NextResponse.json(

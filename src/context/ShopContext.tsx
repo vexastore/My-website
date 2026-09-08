@@ -2,7 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { db, auth } from '../firebase';
-import { signInAnonymously } from 'firebase/auth';
+import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
 import {
   collection,
   doc,
@@ -42,7 +42,7 @@ interface ShopContextType {
   removeFromCart: (productId: string) => void;
   updateCartQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
-  placeOrder: (customer: CustomerInfo) => Promise<Order | null>;
+  placeOrder: (customer: CustomerInfo) => Order | null;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   deleteOrder: (orderId: string) => void;
   deleteOrderLocally: (orderId: string) => void;
@@ -118,15 +118,6 @@ const ORDERS_COLLECTION = 'orders';
 const IMAGES_COLLECTION = 'product_images';
 const DELETED_PRODUCTS_COLLECTION = 'deleted_products';
 const DELIVERY_FEE = 5;
-
-// Make every Firestore operation wait for anonymous auth. A background
-// sign-in used to race the first order write and silently lose the order.
-const ensureFirebaseAuth = async () => {
-  if (auth.currentUser) return auth.currentUser;
-  await signInAnonymously(auth);
-  if (!auth.currentUser) throw new Error('Firebase authentication did not complete');
-  return auth.currentUser;
-};
 
 export const ShopProvider: React.FC<{
   children: React.ReactNode;
@@ -627,8 +618,16 @@ export const ShopProvider: React.FC<{
   };
 
   const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => {
-    // Firestore rules require an authenticated client.
-    await ensureFirebaseAuth();
+    // Wait for anonymous auth to be established before reading Firestore.
+    // signInAnonymously() is fire-and-forget at module init — this prevents
+    // a race condition where getDocs runs before auth resolves, causing
+    // "Missing or insufficient permissions" that is silently swallowed.
+    await new Promise<void>((resolve) => {
+      const unsubscribe = onAuthStateChanged(auth, () => {
+        unsubscribe();
+        resolve();
+      });
+    });
 
     // Throws on permission errors so AdminPanel can surface them to the admin.
     const snapshot = await getDocs(collection(db, ORDERS_COLLECTION));
@@ -756,7 +755,7 @@ export const ShopProvider: React.FC<{
   const getCartTotal = () => cart.reduce((t, i) => t + i.product.price * i.quantity, 0);
   const getCartItemsCount = () => cart.reduce((c, i) => c + i.quantity, 0);
 
-  const placeOrder = async (customer: CustomerInfo): Promise<Order | null> => {
+  const placeOrder = (customer: CustomerInfo): Order | null => {
     if (cart.length === 0) return null;
 
     const subtotal = cart.reduce((t, i) => t + i.product.price * i.quantity, 0);
@@ -776,21 +775,22 @@ export const ShopProvider: React.FC<{
     });
 
     setProducts(updatedProducts);
+    updateStockInFirestore(updatedProducts);
     setOrders(prev => [newOrder, ...prev]);
-
-    try {
-      // Do not report success to the customer until the durable order exists.
-      await ensureFirebaseAuth();
-      await setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder);
-      updateStockInFirestore(updatedProducts);
-    } catch (error) {
-      // Roll back optimistic UI state instead of leaving a phantom order/cart.
-      setProducts(products);
-      setOrders(prev => prev.filter(order => order.id !== newOrder.id));
-      console.error('[placeOrder] Firestore save failed:', error);
-      throw new Error('تعذر حفظ الطلب. يرجى المحاولة مرة ثانية.');
-    }
-
+    // Save order to Firestore. On permission error, re-authenticate anonymously and retry once.
+    (async () => {
+      try {
+        await setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder);
+      } catch (firstErr) {
+        console.error('[placeOrder] Firestore save failed — retrying after re-auth:', firstErr);
+        try {
+          await signInAnonymously(auth);
+          await setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder);
+        } catch (retryErr) {
+          console.error('[placeOrder] Firestore save failed after re-auth:', retryErr);
+        }
+      }
+    })();
     clearCart();
     // Navigation handled by Checkout via setOrderComplete — do NOT call setView here.
     return newOrder;
