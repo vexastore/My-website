@@ -12,3 +12,5 @@ The public Telegram `/api/notify-order` relay and `/api/test-telegram` diagnosti
 During local development only, `LOCAL_CHECKOUT_MOCK=true` causes `POST /api/orders` success responses to include `testMode: true`. The client then suppresses the WhatsApp handoff and does not record a local receipt. Never enable this marker for a live database connection.
 
 `POST /api/orders` uses the same transactional RPC in staging. The staging launcher requires a branch URL and server-only secret, and refuses the live project hostname.
+
+In 1.2.0, successful `POST /api/orders` responses also include `deliveryFee` and `placedAt` from the committed order when the follow-up read succeeds. The existing `total` and order reference remain authoritative; the client falls back to its current delivery fee and confirmation time if those optional fields are unavailable. Public product reads include product and variant-option SKU values.

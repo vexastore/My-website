@@ -8,3 +8,5 @@ The storefront shows the imported Supabase product catalog and blog content. Car
 After real order persistence, checkout opens the store WhatsApp chat with the order prefilled. A development mock instead displays a clear local-test notice and leaves the cart intact.
 
 A guarded staging mode lets a local storefront submit real test transactions to an isolated Supabase branch without changing live customer orders.
+
+The English and Arabic WhatsApp drafts group order reference/date, customer, product lines, optional SKU and public image URL, then subtotal, delivery, and total. Product image links are text links and are omitted when the product has no HTTPS image.

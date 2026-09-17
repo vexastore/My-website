@@ -75,7 +75,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: invalid ? 'An item or customer detail is invalid or unavailable' : 'Could not save order' }, { status: invalid ? 409 : 503 });
     }
     const order = data[0];
+    const { data: details } = await supabase.from('orders')
+      .select('delivery_fee,placed_at').eq('id', order.order_id).single();
     return NextResponse.json({ id: order.order_id, reference: order.order_reference, status: order.order_status, total: Number(order.order_total),
+      deliveryFee: details?.delivery_fee == null ? null : Number(details.delivery_fee),
+      placedAt: details?.placed_at ?? null,
       testMode: process.env.NODE_ENV !== 'production' && process.env.LOCAL_CHECKOUT_MOCK === 'true'
         && ['localhost', '127.0.0.1'].includes(new URL(url).hostname) }, {
       status: 201, headers: { 'Cache-Control': 'no-store' },

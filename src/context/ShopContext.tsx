@@ -517,10 +517,11 @@ export const ShopProvider: React.FC<{
         items: cart.map(item => ({ productId: item.product.id, quantity: item.quantity, selectedOptions: item.selectedVariant || {} })) }),
     });
     if (!response.ok) throw new Error(`Order save failed: ${response.status}`);
-    const saved = await response.json() as { id: string; reference: string; status: Order['status']; total: number; testMode?: boolean };
+    const saved = await response.json() as { id: string; reference: string; status: Order['status']; total: number; deliveryFee?: number | null; placedAt?: string | null; testMode?: boolean };
     const order: Order = {
-      id: saved.reference, isTestOrder: saved.testMode === true, items: [...cart], customer, total: saved.total, deliveryFee,
+      id: saved.reference, isTestOrder: saved.testMode === true, items: [...cart], customer, total: saved.total, deliveryFee: saved.deliveryFee ?? deliveryFee,
       date: new Date().toLocaleString(language === 'ar' ? 'ar-LB' : 'en-LB'),
+      placedAt: saved.placedAt ?? new Date().toISOString(),
       dateKey: new Date().toISOString().slice(0, 10), status: saved.status,
     };
     sessionStorage.removeItem('vexa_pending_order');

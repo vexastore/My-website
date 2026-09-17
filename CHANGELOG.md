@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-09-17
+
+### Changed
+
+- Format English and Arabic WhatsApp order drafts with structured customer, product, SKU, date, and price sections requested by the store owner. Include a public image URL for each product when available; regular WhatsApp links cannot attach an image file.
+- Read product and selected-option SKUs from Supabase and use the persisted order delivery fee and timestamp when constructing the receipt.
+
 ## [1.1.0] - 2026-09-17
 
 ### Deployment

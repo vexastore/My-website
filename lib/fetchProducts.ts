@@ -3,10 +3,10 @@ import type { Product, ProductVariant } from '@/src/types';
 
 type Category = { slug: string; name_en: string };
 type Media = { source_url: string | null; storage_path: string | null; position: number; is_primary: boolean; is_active: boolean };
-type Option = { value_en: string; price_delta: number; stock: number | null; position: number; is_active: boolean };
+type Option = { value_en: string; price_delta: number; stock: number | null; sku: string | null; position: number; is_active: boolean };
 type Variant = { name_en: string; name_ar: string; is_required: boolean; position: number; is_active: boolean; product_variant_options: Option[] };
 type Row = {
-  id: string; legacy_id: string | null; slug: string; name_en: string; name_ar: string;
+  id: string; legacy_id: string | null; slug: string; sku: string | null; name_en: string; name_ar: string;
   description_en: string; description_ar: string; price: number; stock: number;
   rating: number; reviews_count: number; is_new: boolean;
   canonical_category: Category | null;
@@ -15,11 +15,11 @@ type Row = {
 };
 
 const select = [
-  'id,legacy_id,slug,name_en,name_ar,description_en,description_ar,price,stock,rating,reviews_count,is_new',
+  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,stock,rating,reviews_count,is_new',
   'canonical_category:categories!products_canonical_category_id_fkey(slug,name_en)',
   'product_categories(categories(slug,name_en))',
   'product_media(source_url,storage_path,position,is_primary,is_active)',
-  'product_variants(name_en,name_ar,is_required,position,is_active,product_variant_options(value_en,price_delta,stock,position,is_active))',
+  'product_variants(name_en,name_ar,is_required,position,is_active,product_variant_options(value_en,price_delta,stock,sku,position,is_active))',
 ].join(',');
 
 function config() {
@@ -48,10 +48,11 @@ export function mapProduct(row: Row, base: string): Product {
         options: options.map(option => option.value_en),
         optionPriceDeltas: Object.fromEntries(options.map(option => [option.value_en, Number(option.price_delta)])),
         optionStock: Object.fromEntries(options.map(option => [option.value_en, option.stock])),
+        optionSkus: Object.fromEntries(options.map(option => [option.value_en, option.sku])),
       };
     });
   return {
-    id: row.id, legacyId: row.legacy_id || undefined, slug: row.slug,
+    id: row.id, legacyId: row.legacy_id || undefined, slug: row.slug, sku: row.sku || undefined,
     categorySlug: row.canonical_category?.slug || '',
     name: row.name_ar, nameEn: row.name_en,
     description: row.description_ar, descriptionEn: row.description_en,
@@ -75,6 +76,6 @@ async function fetchPublishedProducts(): Promise<Product[]> {
 }
 
 // An unavailable database must never resurrect an archived product from static data.
-export const fetchProductsServer = unstable_cache(fetchPublishedProducts, ['supabase-products-v1'], {
+export const fetchProductsServer = unstable_cache(fetchPublishedProducts, ['supabase-products-v2'], {
   revalidate: 300, tags: ['vexa-products'],
 });

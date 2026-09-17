@@ -10,3 +10,5 @@ Legacy Firebase-backed Vercel functions under `api/`, the old local admin compon
 A successful real RPC response is the only trigger for the browser to navigate to `wa.me`. Before leaving, the receipt and emptied cart are written to local storage. `LOCAL_CHECKOUT_MOCK=true` is a development-only marker for isolated UI tests; simulated orders do not alter local order history or reach the admin.
 
 Staging runs the storefront and admin locally against one isolated Supabase branch. Production `admin.vexatoys.com` remains connected to the live project and therefore cannot display staging orders. The staging startup scripts reject the live project hostname.
+
+The 1.2.0 order response reads the committed delivery fee and timestamp after `create_order`, so the browser receipt and WhatsApp draft use persisted values. Catalog reads include product and option SKUs; the WhatsApp image line is a link to existing public media, with no file upload or WhatsApp API.

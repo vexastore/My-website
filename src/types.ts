@@ -1,10 +1,11 @@
-export interface ProductVariant {
+  export interface ProductVariant {
     name: string;
     nameEn: string;
     options: string[];
     isRequired?: boolean;
     optionPriceDeltas?: Record<string, number>;
     optionStock?: Record<string, number | null>;
+    optionSkus?: Record<string, string | null>;
   }
 
   export type CategoryId =
@@ -21,6 +22,7 @@ export interface ProductVariant {
     categorySlug?: string;
     link?: string;
     id: string;
+    sku?: string;
     name: string;
     nameEn: string;
     description: string;
@@ -60,6 +62,7 @@ export interface ProductVariant {
     total: number;
     deliveryFee?: number;
     date: string;
+    placedAt?: string;
     dateKey?: string;
     status: 'pending' | 'shipping' | 'delivered' | 'cancelled';
   }
@@ -75,4 +78,3 @@ export interface ProductVariant {
     image: string;
     date: string;
   }
-
