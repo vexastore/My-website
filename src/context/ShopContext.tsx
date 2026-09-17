@@ -1,8 +1,9 @@
 'use client';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 import { cartItemKey, cartSubtotal } from '../utils/pricing';
+import { isStorefrontReference, mergeOrderStatuses } from '../utils/order-status';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
 
@@ -11,6 +12,8 @@ interface ShopContextType {
   products: Product[];
   cart: CartItem[];
   orders: Order[];
+  orderStatusSync: 'idle' | 'loading' | 'ready' | 'error';
+  refreshOrderStatuses: () => Promise<void>;
   currentView: ViewType;
   selectedArticle: AdviceArticle | null;
   activeCategory: string;
@@ -33,7 +36,6 @@ interface ShopContextType {
   updateCartQuantity: (productId: string, quantity: number, selectedVariants?: Record<string, string>) => void;
   clearCart: () => void;
   placeOrder: (customer: CustomerInfo) => Promise<Order | null>;
-  updateOrderStatus: (orderId: string, status: Order['status']) => void;
   deleteOrder: (orderId: string) => void;
   deleteOrderLocally: (orderId: string) => void;
   getCartTotal: () => number;
@@ -118,6 +120,10 @@ export const ShopProvider: React.FC<{
   const [deliveryFee, setDeliveryFee] = useState(DELIVERY_FEE);
   const [cartHydrated, setCartHydrated] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersHydrated, setOrdersHydrated] = useState(false);
+  const [orderStatusSync, setOrderStatusSync] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
+  const ordersRef = useRef<Order[]>([]);
+  const statusRequestInFlight = useRef(false);
   const [currentView, setViewState] = useState<ViewType>(() => getInitialView(initialViewProp));
   const [selectedArticle, setSelectedArticleState] = useState<AdviceArticle | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>(() => getInitialCategory(initialCategory));
@@ -300,6 +306,7 @@ export const ShopProvider: React.FC<{
       const storedOrders = localStorage.getItem('adult_store_orders');
       if (storedOrders) setOrders((JSON.parse(storedOrders) as Order[]).filter(order => order.id !== 'VX-LOCALTEST' && !order.isTestOrder));
     } catch { setOrders([]); }
+    setOrdersHydrated(true);
 
     const storedAgeVerify = localStorage.getItem('adult_store_age_verified');
     if (storedAgeVerify === 'true') setIs18PlusVerified(true);
@@ -374,8 +381,52 @@ export const ShopProvider: React.FC<{
   }, [language]);
 
   useEffect(() => {
-    localStorage.setItem('adult_store_orders', JSON.stringify(orders));
-  }, [orders]);
+    ordersRef.current = orders;
+    if (ordersHydrated) localStorage.setItem('adult_store_orders', JSON.stringify(orders));
+  }, [orders, ordersHydrated]);
+
+  const refreshOrderStatuses = useCallback(async () => {
+    if (statusRequestInFlight.current || document.visibilityState === 'hidden') return;
+    const receipts = ordersRef.current.filter(order => isStorefrontReference(order.id)
+      && !order.isTestOrder && typeof order.customer?.phone === 'string');
+    if (!receipts.length) return;
+    statusRequestInFlight.current = true;
+    setOrderStatusSync('loading');
+    try {
+      const updates: { reference: string; status: unknown }[] = [];
+      for (let offset = 0; offset < receipts.length; offset += 20) {
+        const response = await fetch('/api/orders/status', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, cache: 'no-store',
+          body: JSON.stringify({ orders: receipts.slice(offset, offset + 20)
+            .map(order => ({ reference: order.id, phone: order.customer.phone })) }),
+        });
+        if (!response.ok) throw new Error(`Order status unavailable: ${response.status}`);
+        const result = await response.json() as { orders: { reference: string; status: unknown }[] };
+        updates.push(...result.orders);
+      }
+      setOrders(previous => mergeOrderStatuses(previous, updates));
+      const matchedReferences = new Set(updates.map(item => item.reference));
+      setOrderStatusSync(receipts.every(order => matchedReferences.has(order.id)) ? 'ready' : 'error');
+    } catch {
+      setOrderStatusSync('error');
+    } finally {
+      statusRequestInFlight.current = false;
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!ordersHydrated || !orders.length) return;
+    void refreshOrderStatuses();
+    const interval = window.setInterval(() => void refreshOrderStatuses(), 60_000);
+    const onReturn = () => { if (document.visibilityState === 'visible') void refreshOrderStatuses(); };
+    document.addEventListener('visibilitychange', onReturn);
+    window.addEventListener('focus', onReturn);
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', onReturn);
+      window.removeEventListener('focus', onReturn);
+    };
+  }, [ordersHydrated, orders.length, refreshOrderStatuses]);
 
   // Product administration now lives on the separate, protected admin host.
   const addProduct = async (_product: Omit<Product, 'id'>) => { throw new Error('Use admin.vexatoys.com'); };
@@ -540,21 +591,18 @@ export const ShopProvider: React.FC<{
   };
 
   // Customer order history is a local receipt; customers cannot mutate store orders.
-  const updateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders(prev => prev.map(order => order.id === orderId ? { ...order, status } : order));
-  };
   const deleteOrderLocally = (orderId: string) => setOrders(prev => prev.filter(order => order.id !== orderId));
   const deleteOrder = (orderId: string) => deleteOrderLocally(orderId);
 
   return (
     <ShopContext.Provider
       value={{
-        language, products, cart, orders, currentView, selectedArticle,
+        language, products, cart, orders, orderStatusSync, refreshOrderStatuses, currentView, selectedArticle,
         activeCategory, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
         seoHeading,
         setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
         setActiveCategory: navigateToCategoryFn, setSearchQuery, verifyAge, addToCart, removeFromCart,
-        updateCartQuantity, clearCart, placeOrder, updateOrderStatus, deleteOrder,
+        updateCartQuantity, clearCart, placeOrder, deleteOrder,
         deleteOrderLocally, getCartTotal, getCartItemsCount, getDeliveryFee,
         navigateToProduct,
         addProduct, updateProduct, deleteProduct, fetchProductImages, fetchAllOrdersFromFirebase,

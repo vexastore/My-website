@@ -10,16 +10,17 @@ import React, { useState } from 'react';
 
   const STATUS_CONFIG: Record<Order['status'], {
     icon: React.ElementType; color: string; bg: string;
-    border: string; label: string; dot: string;
+    border: string; labelEn: string; labelAr: string; dot: string;
   }> = {
-    pending:   { icon: Clock,        color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/30',   label: 'قيد المراجعة', dot: 'bg-amber-400'   },
-    shipping:  { icon: Truck,        color: 'text-blue-400',    bg: 'bg-blue-500/10',    border: 'border-blue-500/30',    label: 'قيد الشحن',    dot: 'bg-blue-400'    },
-    delivered: { icon: CheckCircle,  color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', label: 'تم التوصيل',   dot: 'bg-emerald-400' },
-    cancelled: { icon: XCircle,      color: 'text-red-400',     bg: 'bg-red-500/10',     border: 'border-red-500/30',     label: 'ملغى',         dot: 'bg-red-400'     },
+    pending:   { icon: Clock,        color: 'text-amber-400',   bg: 'bg-amber-500/10',   border: 'border-amber-500/30',   labelEn: 'Pending', labelAr: 'قيد المراجعة', dot: 'bg-amber-400'   },
+    confirmed: { icon: CheckCircle,  color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', labelEn: 'Confirmed', labelAr: 'تم تأكيد الطلب', dot: 'bg-emerald-400' },
+    shipping:  { icon: Truck,        color: 'text-blue-400',    bg: 'bg-blue-500/10',    border: 'border-blue-500/30',    labelEn: 'Shipping', labelAr: 'قيد الشحن', dot: 'bg-blue-400'    },
+    delivered: { icon: CheckCircle,  color: 'text-emerald-400', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30', labelEn: 'Delivered', labelAr: 'تم التوصيل', dot: 'bg-emerald-400' },
+    cancelled: { icon: XCircle,      color: 'text-red-400',     bg: 'bg-red-500/10',     border: 'border-red-500/30',     labelEn: 'Cancelled', labelAr: 'ملغى', dot: 'bg-red-400'     },
   };
 
   export const MyOrders: React.FC = () => {
-    const { orders, setView, language, deleteOrderLocally } = useShop();
+    const { orders, orderStatusSync, refreshOrderStatuses, setView, language, deleteOrderLocally } = useShop();
     const isArabic = language === 'ar';
     const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -63,6 +64,9 @@ import React, { useState } from 'react';
           </div>
         </div>
 
+        {orderStatusSync === 'loading' && <p className="mb-4 text-xs text-white/50" role="status">{isArabic ? 'جارٍ تحديث حالة الطلبات…' : 'Checking order statuses…'}</p>}
+        {orderStatusSync === 'error' && <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200" role="alert"><span>{isArabic ? 'تعذر تحديث الحالات. قد تكون الحالات المعروضة قديمة.' : 'Could not refresh statuses. The statuses shown may be outdated.'}</span><button type="button" className="underline" onClick={() => void refreshOrderStatuses()}>{isArabic ? 'إعادة المحاولة' : 'Retry'}</button></div>}
+
         {/* Orders — all fully visible */}
         <div className="space-y-6">
           {orders.map(order => {
@@ -85,7 +89,7 @@ import React, { useState } from 'react';
                       <span className="text-sm font-black text-white font-mono tracking-wide">{order.id}</span>
                       <span className={`flex items-center gap-1 text-[11px] font-black px-2 py-0.5 rounded-full border ${cfg.bg} ${cfg.color} ${cfg.border}`}>
                         <span className={`h-1.5 w-1.5 rounded-full ${cfg.dot} animate-pulse`} />
-                        {cfg.label}
+                        {isArabic ? cfg.labelAr : cfg.labelEn}
                       </span>
                     </div>
                     <div className="flex items-center gap-3 text-[11px] text-white/40">

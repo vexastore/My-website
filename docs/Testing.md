@@ -1,9 +1,9 @@
 # Testing
 
-Run `node --test tests/whatsapp.test.mjs` for link encoding, order details, and optional fields. The storefront-wide TypeScript check now passes locally; a successful customer checkout transaction remains unverified after production release.
+Run `node --test tests/whatsapp.test.mjs` for link encoding, order details, and optional fields. The storefront-wide TypeScript check now passes locally; a real customer order has been observed confirmed in the live database.
 # Supabase cutover verification
 
-Run `node --test tests/*.test.mjs`, `npx tsc --noEmit`, and `npm run build`. On `localhost:3000`, check `/api/products` count and mappings, `/api/articles`, `/api/store-settings`, a product page, blog, cart, and checkout failure retention. `/api/orders` should return 403 for a foreign origin, 400 for malformed input, and 503 without its server-only secret. The order RPC, idempotency, stock, and option pricing passed a rollback-only database fixture. The owner should test one controlled real order; automated tests should not write to the live customer dataset.
+Run `node --test tests/*.test.mjs`, `npx tsc --noEmit`, and `npm run build`. On `localhost:3000`, check `/api/products` count and mappings, `/api/articles`, `/api/store-settings`, a product page, blog, cart, and checkout failure retention. `/api/orders` should return 403 for a foreign origin, 400 for malformed input, and 503 without its server-only secret. The order RPC, idempotency, stock, and option pricing passed a rollback-only database fixture. The owner completed a controlled real order; automated tests should not write to the live customer dataset.
 
 The 1.1.0 production dependency audit reports zero known findings.
 
@@ -14,3 +14,5 @@ For isolated checkout tests, create a Supabase branch, apply the option-pricing 
 For the 1.1.0 production smoke check, confirm catalog/article reads, image redirects, canonicals, sitemap, removed privileged routes returning 404, anonymous checkout rejection, and a valid-format order with a nonexistent product returning 409 without a write. The owner then places one real checkout, verifies its order in admin, and checks that WhatsApp opens with the prefilled message. Do not press Send during automated testing. Production dependency audit should report zero known findings.
 
 For 1.2.0, `node --test tests/*.test.mjs` compares complete English and Arabic WhatsApp drafts, including Lebanon date, size price, option SKU, public image link, missing notes, and totals. TypeScript and production build cover Supabase SKU selection and the optional committed-order metadata response. A real WhatsApp draft still needs owner browser verification; automated tests do not send customer messages.
+
+For 1.2.1, `node --test tests/*.test.mjs` covers confirmed-status updates, unrelated/invalid statuses, reference format, and checkout-phone matching. TypeScript and build checks cover the new route and client refresh. Local HTTP checks exercise 403 cross-origin, 400 invalid input, and 503 when no local server secret is configured. Production smoke checks must verify 200 with an unmatched synthetic receipt and no disclosed data, without creating an order; a headless browser test confirmed the navbar panel and full detail update with a mocked status response, and checked the failure warning. The owner should verify their real confirmed receipt in their browser.

@@ -8,3 +8,5 @@ The imported Supabase project currently supplies 109 published products, 22 cate
 Live order verification on 17 September 2026 returned five `source=import` rows and no `source=storefront` rows. The mock RPC used for browser tests writes to memory only. The variant validation and price-delta migration is applied to the live project.
 
 Use the synthetic seed at `admin-vexatoys/supabase/seeds/staging_checkout.sql` only on a disposable branch. It adds one published test product with required Size options, Small at $10 and Medium at $15, each with option stock. Do not apply this seed to production.
+
+On 17 September 2026, a read-only live check found one `source=storefront` order with status `confirmed`; no customer data was exported. The 1.2.1 status endpoint adds no table or policy changes and returns only a matched order status via a server-side service key.

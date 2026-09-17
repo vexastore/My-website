@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { Order } from '../types';
+import { selectedUnitPrice } from '../utils/pricing';
 import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, Package, Truck, CheckCircle2, XCircle, ClipboardList, Info } from 'lucide-react';
 
 const CATEGORY_SLUGS: Record<string, string> = {
@@ -37,7 +38,7 @@ export const Navbar: React.FC = () => {
   const {
     currentView, setView, activeCategory, setActiveCategory,
     getCartItemsCount, searchQuery, setSearchQuery, cart, orders,
-    language, toggleLanguage
+    language, toggleLanguage, orderStatusSync, refreshOrderStatuses
   } = useShop();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -116,6 +117,7 @@ export const Navbar: React.FC = () => {
   const getStatusInfo = (status: Order['status']) => {
     const map: Record<string, { icon: React.ReactNode; label: string; color: string }> = {
       pending:   { icon: <Package size={12} className="animate-pulse" />, label: isArabic ? 'قيد المراجعة' : 'Pending', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+      confirmed: { icon: <CheckCircle2 size={12} />, label: isArabic ? 'تم تأكيد الطلب' : 'Confirmed', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
       shipping:  { icon: <Truck size={12} />, label: isArabic ? 'قيد الشحن' : 'Shipped', color: 'bg-blue-50 text-blue-700 border-blue-200' },
       delivered: { icon: <CheckCircle2 size={12} />, label: isArabic ? 'تم الاستلام' : 'Delivered', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
       cancelled: { icon: <XCircle size={12} />, label: isArabic ? 'ملغي' : 'Cancelled', color: 'bg-red-50 text-red-600 border-red-200' },
@@ -287,6 +289,8 @@ export const Navbar: React.FC = () => {
               </button>
             </div>
             <div className="overflow-y-auto flex-1 px-4 py-4 space-y-3">
+              {orderStatusSync === 'loading' && <p className="text-xs text-white/50" role="status">{isArabic ? 'جارٍ تحديث حالة الطلبات…' : 'Checking order statuses…'}</p>}
+              {orderStatusSync === 'error' && <div className="flex items-center gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2 text-xs text-amber-200" role="alert"><span>{isArabic ? 'قد تكون الحالات المعروضة قديمة.' : 'Statuses may be outdated.'}</span><button type="button" className="underline" onClick={() => void refreshOrderStatuses()}>{isArabic ? 'إعادة المحاولة' : 'Retry'}</button></div>}
               {orders.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 gap-3 text-center">
                   <ClipboardList size={40} className="text-white/15" />
@@ -318,7 +322,7 @@ export const Navbar: React.FC = () => {
                             )}
                             <div className="flex-1 min-w-0">
                               <p className="text-xs font-bold text-white/80 truncate">{isArabic ? item.product.name : item.product.nameEn}</p>
-                              <p className="text-[11px] text-white/40">x{item.quantity} · ${(item.product.price * item.quantity).toFixed(2)}</p>
+                              <p className="text-[11px] text-white/40">x{item.quantity} · ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)}</p>
                             </div>
                           </div>
                         ))}
@@ -329,6 +333,7 @@ export const Navbar: React.FC = () => {
                 })
               )}
             </div>
+            {orders.length > 0 && <div className="border-t border-white/10 px-4 py-3"><button type="button" className="w-full rounded-xl border border-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10" onClick={() => { setIsOrdersOpen(false); setView('orders'); }}>{isArabic ? 'عرض تفاصيل الطلبات' : 'View order details'}</button></div>}
           </div>
         </div>
       )}

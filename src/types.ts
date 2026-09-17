@@ -64,7 +64,7 @@
     date: string;
     placedAt?: string;
     dateKey?: string;
-    status: 'pending' | 'shipping' | 'delivered' | 'cancelled';
+    status: 'pending' | 'confirmed' | 'shipping' | 'delivered' | 'cancelled';
   }
 
   export interface AdviceArticle {
