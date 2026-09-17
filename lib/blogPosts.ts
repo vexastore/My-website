@@ -26,6 +26,7 @@ export interface BlogCategory {
 }
 
 export const BLOG_CATEGORIES: BlogCategory[] = [
+  { slug: 'advice', name: 'Advice', nameAr: 'نصائح', description: 'Practical advice for couples and intimate wellness.', descriptionAr: 'نصائح عملية للأزواج', },
   {
     slug: 'guides',
     name: 'Product Guides',

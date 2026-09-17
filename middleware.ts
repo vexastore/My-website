@@ -53,6 +53,11 @@ export function middleware(req: NextRequest) {
   const host = req.headers.get('host') || '';
   const hostname = host.split(':')[0]; // strip port if present
 
+  // Both dev and local production-mode tests must stay on loopback.
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return NextResponse.next();
+  }
+
   // ── Canonical host ───────────────────────────────────────────────────────
   if (hostname === CANONICAL_HOST) {
     // Legacy category parameters are not indexable pages. Remove them from

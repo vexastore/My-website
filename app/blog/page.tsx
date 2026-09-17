@@ -1,6 +1,7 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { BLOG_POSTS, BLOG_CATEGORIES } from '@/lib/blogPosts';
+import { BLOG_CATEGORIES } from '@/lib/blogPosts';
+import { fetchBlogPostsServer } from '@/lib/fetchArticles';
 
 export const metadata: Metadata = {
   title: { absolute: 'Blog – Sex Toys & Intimacy Guides Lebanon | Vexa Store' },
@@ -35,8 +36,9 @@ const jsonLd = {
   },
 };
 
-export default function BlogIndex() {
-  const recentPosts = [...BLOG_POSTS].sort(
+export default async function BlogIndex() {
+  const posts = await fetchBlogPostsServer();
+  const recentPosts = [...posts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
 
@@ -63,7 +65,7 @@ export default function BlogIndex() {
             <h2 className="text-xs font-black uppercase tracking-[0.25em] text-stone-500 mb-4">Browse by Topic</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {BLOG_CATEGORIES.map(cat => {
-                const count = BLOG_POSTS.filter(p => p.categorySlug === cat.slug).length;
+                const count = posts.filter(p => p.categorySlug === cat.slug).length;
                 return (
                   <Link
                     key={cat.slug}

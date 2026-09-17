@@ -2,7 +2,9 @@
 import React, { useState, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { CustomerInfo, Order } from '../types';
+import { selectedUnitPrice } from '../utils/pricing';
 import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
+import { orderWhatsAppUrl } from '../utils/whatsapp';
 
 // Synchronous guard — prevents double-submissions caused by React's async state
 // batching. Two rapid taps can both see isSubmitting===false before the first
@@ -107,22 +109,6 @@ export const Checkout: React.FC = () => {
     try {
       const fullPhone = `${form.countryCode} ${form.phone}`.trim();
 
-      // ── 1. Escape chars that break Telegram's HTML parser ─────────────────
-      //    & < > must be replaced BEFORE building the message string.
-      const esc = (s: string) =>
-        (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-
-      // ── 2. Build Telegram message from cart NOW, before placeOrder clears it
-      const subtotal = getCartTotal();
-      const total = subtotal + deliveryFee;
-
-      const itemsString = cart.map(i => {
-        const varStr = i.selectedVariant && Object.keys(i.selectedVariant).length > 0
-          ? ' [' + Object.entries(i.selectedVariant).map(([k, val]) => `${esc(k)}:${esc(String(val))}`).join(', ') + ']'
-          : '';
-        return `${esc(i.product.name)} (x${i.quantity})${varStr} — $${(i.product.price * i.quantity).toFixed(2)}`;
-      }).join('\n');
-
       const customerInfo: CustomerInfo = {
         name: form.name,
         phone: fullPhone,
@@ -132,42 +118,18 @@ export const Checkout: React.FC = () => {
         notes: form.notes,
       };
 
-      // ── 3. Place order — saves to Firestore + localStorage, clears cart ───
-      const placed = placeOrder(customerInfo);
+      // The WhatsApp action is available only after Supabase confirms the order.
+      const placed = await placeOrder(customerInfo);
       if (!placed) return; // cart was empty — guard only, shouldn't happen
-
-      // ── 4. Build message with the REAL order ID returned by placeOrder ────
-      //    (previously two different IDs were generated; they never matched)
-      const msgText = [
-        '🛒 <b>طلب جديد — Vexa Store!</b>',
-        '',
-        `🆔 <b>رقم الطلب:</b> ${esc(placed.id)}`,
-        `📅 <b>التاريخ:</b> ${esc(new Date().toLocaleString('ar-LB'))}`,
-        '',
-        `👤 <b>الاسم:</b> ${esc(form.name)}`,
-        `📞 <b>الهاتف:</b> ${esc(fullPhone)}`,
-        `🏙️ <b>المدينة:</b> ${esc(form.city)}`,
-        `📍 <b>العنوان:</b> ${esc(form.address)}`,
-        `📝 <b>ملاحظات:</b> ${esc(form.notes) || '—'}`,
-        '',
-        `📦 <b>المنتجات:</b>\n${itemsString}`,
-        '',
-        `💵 <b>سعر المنتجات:</b> $${subtotal.toFixed(2)} USD`,
-        `🚚 <b>التوصيل:</b> $${deliveryFee.toFixed(2)} USD`,
-        `💰 <b>المجموع الكلي:</b> $${total.toFixed(2)} USD`,
-      ].join('\n');
-
-      // ── 5. Fire Telegram in background — do NOT await ────────────────────
-      //    Customer never waits on Telegram. Order is already saved.
-      fetch('/api/notify-order', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ msgText }),
-      }).catch(err => console.error('[Checkout] notify-order failed:', err));
-
-      // ── 6. Show success screen ────────────────────────────────────────────
       setOrderComplete(placed);
-
+      if (!placed.isTestOrder) {
+        try { window.location.assign(orderWhatsAppUrl(placed, language)); } catch { /* The fallback link stays on the receipt. */ }
+      }
+    } catch (error) {
+      console.error('[Checkout] order save failed:', error);
+      setValidationBanner(isArabic
+        ? 'تعذر حفظ الطلب. لم يتم إرسال رسالة. يرجى المحاولة مجدداً.'
+        : 'Could not save your order. No message was sent. Please try again.');
     } finally {
       // Guarantees spinner stops even if something throws unexpectedly.
       _submitting.current = false;
@@ -197,7 +159,7 @@ export const Checkout: React.FC = () => {
   }
 
   if (orderComplete) {
-    const subtotal = orderComplete.total - deliveryFee;
+    const subtotal = orderComplete.total - (orderComplete.deliveryFee ?? deliveryFee);
     return (
       <div className="mx-auto w-full max-w-2xl px-4 py-12 text-center sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
         <div className="bg-white border border-emerald-100 shadow-lg rounded-2xl p-6 sm:p-8">
@@ -205,11 +167,20 @@ export const Checkout: React.FC = () => {
             <CheckCircle2 size={36} />
           </div>
           <h2 className="text-xl sm:text-2xl font-black text-stone-800 mb-2">
-            {isArabic ? 'تم استلام طلبك بنجاح!' : 'Order placed successfully!'}
+            {orderComplete.isTestOrder ? (isArabic ? 'محاكاة طلب محلي' : 'Local checkout simulation') : (isArabic ? 'تم استلام طلبك بنجاح!' : 'Order placed successfully!')}
           </h2>
           <p className="text-emerald-700 font-medium text-sm mb-4 bg-emerald-50 py-1.5 px-3 rounded-full inline-block">
             {isArabic ? 'رقم الطلب:' : 'Order ID:'} {orderComplete.id}
           </p>
+          <p className="text-sm text-stone-600 mb-4" role={orderComplete.isTestOrder ? 'alert' : undefined}>
+            {orderComplete.isTestOrder
+              ? (isArabic ? 'هذا اختبار محلي فقط. لم يُحفظ الطلب في قاعدة البيانات، ولن يظهر في لوحة الإدارة أو يفتح واتساب. سلتك محفوظة.' : 'This was a local mock test. No order was saved in Supabase or the admin, WhatsApp will not open, and your cart is still available.')
+              : (isArabic ? 'تم حفظ الطلب. سيتم فتح واتساب برسالة جاهزة؛ اضغط إرسال داخل واتساب لمشاركتها مع المتجر.' : 'Your order is saved. WhatsApp will open with a prepared message; tap Send there to share it with the store.')}
+          </p>
+          {!orderComplete.isTestOrder && <a href={orderWhatsAppUrl(orderComplete, language)} target="_blank" rel="noopener noreferrer"
+            className="w-full mb-5 py-3.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 flex items-center justify-center gap-2">
+            {isArabic ? 'فتح واتساب مجدداً' : 'Open WhatsApp again'}
+          </a>}
 
           <div className="flex items-center justify-center gap-2 mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5 mx-auto max-w-xs">
             <Zap size={15} className="text-emerald-600 flex-shrink-0" />
@@ -230,7 +201,7 @@ export const Checkout: React.FC = () => {
                 </div>
                 <div className="flex-1 text-right">
                   <p className="text-sm font-bold text-stone-800">{isArabic ? item.product.name : (item.product.nameEn || item.product.name)}</p>
-                  <p className="text-xs text-stone-500">× {item.quantity} — ${(item.product.price * item.quantity).toFixed(2)} USD</p>
+                  <p className="text-xs text-stone-500">× {item.quantity} — ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)} USD</p>
                 </div>
               </div>
             ))}
@@ -315,21 +286,21 @@ export const Checkout: React.FC = () => {
                         {Object.entries(item.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(' | ')}
                       </p>
                     )}
-                    <div className="text-xs font-extrabold text-stone-700 mt-1">${item.product.price.toFixed(2)} USD</div>
+                    <div className="text-xs font-extrabold text-stone-700 mt-1">${selectedUnitPrice(item.product, item.selectedVariant).toFixed(2)} USD</div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center gap-2 flex-shrink-0">
                     <div className="flex items-center border border-stone-200 rounded-lg bg-stone-50">
-                      <button type="button" onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
+                      <button type="button" onClick={() => updateCartQuantity(item.product.id, item.quantity - 1, item.selectedVariant)}
                         className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-r-lg border-l border-stone-200 transition">
                         <Minus size={14} />
                       </button>
                       <span className="px-3 text-xs font-bold text-stone-800 min-w-6 text-center">{item.quantity}</span>
-                      <button type="button" onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
+                      <button type="button" onClick={() => updateCartQuantity(item.product.id, item.quantity + 1, item.selectedVariant)}
                         className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-l-lg border-r border-stone-200 transition">
                         <Plus size={14} />
                       </button>
                     </div>
-                    <button type="button" onClick={() => removeFromCart(item.product.id)}
+                    <button type="button" onClick={() => removeFromCart(item.product.id, item.selectedVariant)}
                       className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition">
                       <Trash2 size={16} />
                     </button>

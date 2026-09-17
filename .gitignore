@@ -1,3 +1,12 @@
 .next/
 node_modules/
 next-env.d.ts
+.env.local
+.env.*.local
+.vercel/
+audit/
+
+.vercel
+.env*
+
+!.env.staging.example

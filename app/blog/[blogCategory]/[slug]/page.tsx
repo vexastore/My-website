@@ -1,14 +1,15 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BLOG_POSTS, BLOG_CATEGORIES, getBlogPost, getBlogCategory } from '@/lib/blogPosts';
+import { BLOG_CATEGORIES, getBlogCategory } from '@/lib/blogPosts';
+import { fetchBlogPostsServer, fetchBlogPostServer } from '@/lib/fetchArticles';
 
 interface Props { params: Promise<{ blogCategory: string; slug: string }> }
 
-export const revalidate = 86400; // daily
+export const revalidate = 300;
 
 export function generateStaticParams() {
-  return BLOG_POSTS.map(p => ({ blogCategory: p.categorySlug, slug: p.slug }));
+  return []; // Dynamic Supabase articles are resolved at request time.
 }
 
 
@@ -24,7 +25,7 @@ function toSeoTitle(rawTitle: string): string {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { blogCategory, slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await fetchBlogPostServer(slug);
   if (!post || post.categorySlug !== blogCategory) return { title: { absolute: 'Blog | Vexa Store Lebanon' } };
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}/${slug}`;
@@ -195,7 +196,7 @@ function renderContent(md: string): React.ReactNode {
 
 export default async function BlogArticlePage({ params }: Props) {
   const { blogCategory, slug } = await params;
-  const post = getBlogPost(slug);
+  const post = await fetchBlogPostServer(slug);
   if (!post || post.categorySlug !== blogCategory) notFound();
 
   const cat = getBlogCategory(blogCategory);
@@ -203,7 +204,7 @@ export default async function BlogArticlePage({ params }: Props) {
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}/${slug}`;
 
   // Related posts from same category
-  const related = BLOG_POSTS
+  const related = (await fetchBlogPostsServer())
     .filter(p => p.categorySlug === blogCategory && p.slug !== slug)
     .slice(0, 3);
 

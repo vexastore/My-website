@@ -2,6 +2,9 @@ export interface ProductVariant {
     name: string;
     nameEn: string;
     options: string[];
+    isRequired?: boolean;
+    optionPriceDeltas?: Record<string, number>;
+    optionStock?: Record<string, number | null>;
   }
 
   export type CategoryId =
@@ -13,6 +16,7 @@ export interface ProductVariant {
     | 'Lubricants' | 'Poppers';
 
   export interface Product {
+    legacyId?: string;
     slug?: string;
     categorySlug?: string;
     link?: string;
@@ -50,9 +54,11 @@ export interface ProductVariant {
 
   export interface Order {
     id: string;
+    isTestOrder?: boolean;
     items: CartItem[];
     customer: CustomerInfo;
     total: number;
+    deliveryFee?: number;
     date: string;
     dateKey?: string;
     status: 'pending' | 'shipping' | 'delivered' | 'cancelled';
@@ -69,4 +75,4 @@ export interface ProductVariant {
     image: string;
     date: string;
   }
-  
+

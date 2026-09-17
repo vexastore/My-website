@@ -1431,7 +1431,6 @@ export const STATIC_PRODUCTS: Product[] = [
     "link": "https://vexatoys.com/sex-toys/luxury-lingerie-in-lebanon-lingerie-collection-vexa-store",
     "categorySlug": "sex-toys",
     "slug": "luxury-lingerie-in-lebanon-lingerie-collection-vexa-store",
-    "image": "",
     "category": "Sex Toys",
     "images": [],
     "price": 8,

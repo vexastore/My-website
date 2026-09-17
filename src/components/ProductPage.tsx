@@ -3,6 +3,7 @@ import { useShop } from '../context/ShopContext';
 import { Product, ProductVariant } from '../types';
 import { CATEGORIES, getProductCategories } from '../data/categories';
 import { canonicalProductPath } from '@/lib/productSeo';
+import { selectedUnitPrice } from '../utils/pricing';
 import {
   Star, ShoppingCart, Zap, ChevronLeft, ChevronRight, ArrowLeft,
   Truck, Lock, PackageCheck, Minus, Plus, Loader2, ShieldCheck, ChevronDown, X, Link2, Copy
@@ -34,9 +35,19 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const arT         = arTranslations[product.id];
   const displayName = isArabic ? (arT?.name || product.name || product.nameEn) : (product.nameEn || product.name);
   const displayDesc = isArabic ? (arT?.description || product.description || product.descriptionEn) : (product.descriptionEn || product.description);
-  const cartQty     = cart.find(i => i.product.id === product.id)?.quantity ?? 0;
-  const remaining   = product.stock - cartQty;
-  const oldPrice    = Math.round(product.price * 1.23);
+  const cartQty     = cart.filter(i => i.product.id === product.id).reduce((total, item) => total + item.quantity, 0);
+  const optionRemaining = (product.variants || []).reduce((available, variant) => {
+    const selected = variants[variant.nameEn];
+    const stock = selected ? variant.optionStock?.[selected] : null;
+    if (stock === null || stock === undefined) return available;
+    const inCart = cart.filter(item => item.product.id === product.id &&
+      (item.selectedVariant?.[variant.nameEn] ?? item.selectedVariant?.[variant.name]) === selected)
+      .reduce((total, item) => total + item.quantity, 0);
+    return Math.min(available, stock - inCart);
+  }, product.stock);
+  const remaining   = Math.min(product.stock - cartQty, optionRemaining);
+  const displayedPrice = selectedUnitPrice(product, variants);
+  const oldPrice    = Math.round(displayedPrice * 1.23);
 
   const productCats    = getProductCategories(product);
   const primaryCatId   = productCats[0] || product.category;
@@ -44,7 +55,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const productUrl     = canonicalProductPath(product);
 
   const allVariantsSelected = !product.variants?.length ||
-    product.variants.every((v: ProductVariant) => variants[v.name]);
+    product.variants.every((v: ProductVariant) => !v.isRequired || variants[v.nameEn]);
 
   useEffect(() => {
     // ── Canonical: always derive from the product's own categorySlug + slug
@@ -207,8 +218,8 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const waOrder = () => {
     const name = isArabic ? (product.name || product.nameEn) : (product.nameEn || product.name);
     const msg   = isArabic
-      ? `مرحباً متجر فيكسا، أريد الطلب:\n*${name}*\nالسعر: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com${productUrl}`
-      : `Hello Vexa Store, I want to order:\n*${name}*\nPrice: $${product.price.toFixed(2)} USD\nhttps://vexatoys.com${productUrl}`;
+      ? `مرحباً متجر فيكسا، لدي استفسار عن هذا المنتج:\n*${name}*\nhttps://vexatoys.com${productUrl}`
+      : `Hello Vexa Store, I have a question about this product:\n*${name}*\nhttps://vexatoys.com${productUrl}`;
     window.open('https://wa.me/96176730767?text=' + encodeURIComponent(msg), '_blank');
   };
 
@@ -325,11 +336,11 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
           {/* Price */}
           <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-4 flex items-baseline gap-2.5 flex-wrap">
-            <span className="text-3xl font-black text-white tracking-tight">${product.price.toFixed(2)}</span>
+            <span className="text-3xl font-black text-white tracking-tight">${displayedPrice.toFixed(2)}</span>
             <span className="text-sm font-bold text-stone-500 line-through">${oldPrice.toFixed(2)}</span>
             <span className="text-xs font-bold text-stone-400">USD</span>
             <span className="text-[10px] font-black bg-gradient-to-r from-rose-500 to-red-600 text-white px-2.5 py-1 rounded-full uppercase tracking-wider shadow-[0_4px_14px_-4px_rgba(225,29,72,0.6)]">
-              {isArabic ? `وفّر ${Math.round((1 - product.price / oldPrice) * 100)}٪` : `Save ${Math.round((1 - product.price / oldPrice) * 100)}%`}
+              {isArabic ? `وفّر ${Math.round((1 - displayedPrice / oldPrice) * 100)}٪` : `Save ${Math.round((1 - displayedPrice / oldPrice) * 100)}%`}
             </span>
           </div>
 
@@ -365,21 +376,22 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 
           {/* Variants */}
           {product.variants?.map((v: ProductVariant) => (
-            <div key={v.name}>
+            <div key={v.nameEn}>
               <p className="text-xs font-black text-stone-300 mb-2">
                 {isArabic ? v.name : (v.nameEn || v.name)}
-                {!variants[v.name] && variantError && (
+                {v.isRequired && !variants[v.nameEn] && variantError && (
                   <span className="text-red-400 ms-1">({isArabic ? 'مطلوب' : 'required'})</span>
                 )}
               </p>
               <div className="flex flex-wrap gap-2">
                 {v.options.map(opt => (
                   <button key={opt} type="button"
-                    onClick={() => { setVariants(prev => ({ ...prev, [v.name]: opt })); setVariantError(false); }}
+                    onClick={() => { setVariants(prev => ({ ...prev, [v.nameEn]: opt })); setVariantError(false); setQty(1); }}
+                    disabled={v.optionStock?.[opt] === 0}
                     className={`px-4 py-1.5 text-xs font-bold rounded-full border-2 transition ${
-                      variants[v.name] === opt ? 'bg-white text-black border-white' : 'border-white/20 text-white/70 hover:border-white'
+                      variants[v.nameEn] === opt ? 'bg-white text-black border-white' : 'border-white/20 text-white/70 hover:border-white'
                     }`}>
-                    {opt}
+                    {opt}{v.optionPriceDeltas?.[opt] ? ` (${v.optionPriceDeltas[opt] > 0 ? '+' : ''}$${v.optionPriceDeltas[opt].toFixed(2)})` : ''}
                   </button>
                 ))}
               </div>
@@ -436,7 +448,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
                 <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.845-1.587-5.921.003-6.556 5.338-11.891 11.893-11.891 3.176.001 6.165 1.236 8.413 3.484 2.248 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.916 3.21 1.399 4.909 1.4 5.424 0 9.835-4.411 9.838-9.835.002-2.628-1.021-5.1-2.88-6.958-1.859-1.859-4.331-2.88-6.955-2.881-5.423 0-9.835 4.412-9.838 9.836-.001 1.79.491 3.535 1.425 5.047l-1.012 3.7 3.784-.993zm11.458-7.228c-.312-.156-1.847-.91-2.132-1.014-.285-.104-.492-.156-.7.156-.207.312-.802 1.014-.983 1.221-.181.208-.363.234-.675.078-.312-.156-1.317-.485-2.51-1.549-.928-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.136-.636.141-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.207.052-.39-.026-.546-.078-.156-.7-1.688-.959-2.311-.253-.61-.51-.527-.7-.537-.182-.01-.39-.01-.597-.01-.208 0-.545.078-.83.39-.285.312-1.089 1.065-1.089 2.597 0 1.533 1.115 3.013 1.271 3.221.156.208 2.193 3.349 5.313 4.699.742.32 1.32.512 1.77.654.745.237 1.423.204 1.959.124.597-.089 1.847-.754 2.108-1.442.261-.689.261-1.274.182-1.39-.078-.118-.285-.182-.597-.338z"/>
               </svg>
-              {isArabic ? 'اطلب عبر واتساب' : 'Order via WhatsApp'}
+              {isArabic ? 'اسأل عبر واتساب' : 'Ask on WhatsApp'}
             </button>
 
             {/*    Shareable product link    */}

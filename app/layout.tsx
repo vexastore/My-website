@@ -106,10 +106,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="preconnect" href="https://firebasestorage.googleapis.com" />
-        <link rel="dns-prefetch" href="https://firebasestorage.googleapis.com" />
-        <link rel="preconnect" href="https://firestore.googleapis.com" />
-        <link rel="dns-prefetch" href="https://firestore.googleapis.com" />
+        {process.env.NEXT_PUBLIC_SUPABASE_URL ? <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} /> : null}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <script

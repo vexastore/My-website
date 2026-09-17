@@ -6,6 +6,7 @@ import React, { useState } from 'react';
     User, CalendarDays, ReceiptText, AlertTriangle
   } from 'lucide-react';
   import { Order } from '../types';
+  import { selectedUnitPrice } from '../utils/pricing';
 
   const STATUS_CONFIG: Record<Order['status'], {
     icon: React.ElementType; color: string; bg: string;
@@ -67,7 +68,8 @@ import React, { useState } from 'react';
           {orders.map(order => {
             const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
             const StatusIcon = cfg.icon;
-            const subtotal = order.total - 5;
+            const orderDeliveryFee = order.deliveryFee ?? 5;
+            const subtotal = order.total - orderDeliveryFee;
             const isConfirmingDelete = deletingId === order.id;
 
             return (
@@ -134,7 +136,7 @@ import React, { useState } from 'react';
                             الكمية: <span className="text-white/70">{item.quantity}</span>
                           </span>
                           <span className="text-base font-black text-white">
-                            ${(item.product.price * item.quantity).toFixed(2)}
+                            ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)}
                           </span>
                         </div>
                       </div>
@@ -151,7 +153,7 @@ import React, { useState } from 'react';
                     </div>
                     <div className="flex justify-between text-sm text-white/50">
                       <span className="flex items-center gap-1"><Truck size={13} /> رسوم التوصيل</span>
-                      <span>$5.00 USD</span>
+                      <span>${orderDeliveryFee.toFixed(2)} USD</span>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-white/10">
                       <span className="font-black text-white">المجموع الكلي</span>

@@ -1,18 +1,8 @@
 'use client';
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types';
-import { db, auth } from '../firebase';
-import { onAuthStateChanged, signInAnonymously } from 'firebase/auth';
-import {
-  collection,
-  doc,
-  getDocs,
-  getDoc,
-  setDoc,
-  deleteDoc,
-  writeBatch,
-} from 'firebase/firestore';
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
+import { cartItemKey, cartSubtotal } from '../utils/pricing';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
 
@@ -39,10 +29,10 @@ interface ShopContextType {
   setSearchQuery: (query: string) => void;
   verifyAge: () => void;
   addToCart: (product: Product, quantity?: number, selectedVariants?: Record<string, string>) => void;
-  removeFromCart: (productId: string) => void;
-  updateCartQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string, selectedVariants?: Record<string, string>) => void;
+  updateCartQuantity: (productId: string, quantity: number, selectedVariants?: Record<string, string>) => void;
   clearCart: () => void;
-  placeOrder: (customer: CustomerInfo) => Order | null;
+  placeOrder: (customer: CustomerInfo) => Promise<Order | null>;
   updateOrderStatus: (orderId: string, status: Order['status']) => void;
   deleteOrder: (orderId: string) => void;
   deleteOrderLocally: (orderId: string) => void;
@@ -113,10 +103,6 @@ function getInitialView(override?: string): ViewType {
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
 
-const PRODUCTS_COLLECTION = 'products';
-const ORDERS_COLLECTION = 'orders';
-const IMAGES_COLLECTION = 'product_images';
-const DELETED_PRODUCTS_COLLECTION = 'deleted_products';
 const DELIVERY_FEE = 5;
 
 export const ShopProvider: React.FC<{
@@ -129,6 +115,8 @@ export const ShopProvider: React.FC<{
 }> = ({ children, initialProducts, initialCategory, initialView: initialViewProp, initialProductSlug, seoHeading }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [deliveryFee, setDeliveryFee] = useState(DELIVERY_FEE);
+  const [cartHydrated, setCartHydrated] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [currentView, setViewState] = useState<ViewType>(() => getInitialView(initialViewProp));
   const [selectedArticle, setSelectedArticleState] = useState<AdviceArticle | null>(null);
@@ -161,163 +149,16 @@ export const ShopProvider: React.FC<{
     return null;
   });
 
-  // Load products from Firebase Firestore on mount
-    useEffect(() => {
-      // Fetch Firebase products once per session to get new/deleted products from admin
-        if (initialProducts && initialProducts.length > 0) {
-          const SESSION_KEY = 'vexa_fb_products_v2';
-          const SESSION_TS  = 'vexa_fb_products_v2_ts';
-          const TTL = 5 * 60 * 1000; // re-fetch every 5 min max
-
-          const cached = sessionStorage.getItem(SESSION_KEY);
-          const ts     = Number(sessionStorage.getItem(SESSION_TS) || 0);
-
-          // ⚠️ Firebase PRODUCTS_COLLECTION only holds admin-added/edited products —
-          // it is NOT a mirror of the full static catalog. Never use "missing from
-          // Firebase" as a signal that a static product was deleted (that broke
-          // direct product-page links from Google, which pass a single static
-          // product as initialProducts). Deletions are tracked explicitly instead.
-          const applyFirebase = (fbProds: Product[], deletedIds: string[]) => {
-            const staticIds = new Set(initialProducts.map((p: Product) => p.id));
-            const deletedSet = new Set(deletedIds);
-
-            const merged = [
-              ...initialProducts.filter((p: Product) => !deletedSet.has(p.id)),
-              ...fbProds.filter((p: Product) => !staticIds.has(p.id) && !deletedSet.has(p.id)),
-            ];
-            if (merged.length === 0) return;
-
-            // Use a functional update so we can read the CURRENT products state
-            // and preserve any images that were already loaded by the client-side
-            // image effect (loadAllImages) or embedded from SSR (fetchImages).
-            // The direct setProducts(merged) that was here before wiped images
-            // because `merged` is built from initialProducts (all image:""),
-            // clobbering whatever the parallel image fetch had applied.
-            setProducts(prev => {
-              const prevImages = new Map(
-                prev.map(p => [p.id, { image: p.image, images: p.images }])
-              );
-              return merged.map(p => {
-                const existing = prevImages.get(p.id);
-                if (existing && existing.image && existing.image.length > 5) {
-                  // Preserve the already-loaded image; use other fields from merged
-                  return { ...p, image: existing.image, images: existing.images };
-                }
-                return p;
-              });
-            });
-          };
-
-          if (cached && Date.now() - ts < TTL) {
-            try {
-              const { products: fbProds, deletedIds } = JSON.parse(cached);
-              applyFirebase(fbProds || [], deletedIds || []);
-            } catch (_) {}
-            return;
-          }
-
-          Promise.all([
-            getDocs(collection(db, PRODUCTS_COLLECTION)),
-            getDocs(collection(db, DELETED_PRODUCTS_COLLECTION)),
-          ]).then(([prodSnap, delSnap]) => {
-            const fbProds: Product[] = [];
-            prodSnap.forEach(docSnap => fbProds.push({ id: docSnap.id, ...docSnap.data() } as Product));
-            const deletedIds: string[] = [];
-            delSnap.forEach(docSnap => deletedIds.push(docSnap.id));
-            try {
-              sessionStorage.setItem(SESSION_KEY, JSON.stringify({ products: fbProds, deletedIds }));
-              sessionStorage.setItem(SESSION_TS, String(Date.now()));
-            } catch (_) {}
-            applyFirebase(fbProds, deletedIds);
-          }).catch(() => {});
-          return;
-        }
-
-      const CACHE_KEY = 'vexa_products_v2';
-      const CACHE_TS_KEY = 'vexa_products_v2_ts';
-      const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 ساعة بدل 5 دقائق
-      const cachedRaw = localStorage.getItem(CACHE_KEY);
-      const cachedTs = Number(localStorage.getItem(CACHE_TS_KEY) || 0);
-
-      if (cachedRaw) {
-        try {
-          const cached = JSON.parse(cachedRaw);
-          if (Array.isArray(cached) && cached.length > 0 && cached[0].slug) {
-            setProducts(cached);
-            setIsProductsLoading(false);
-            if (Date.now() - cachedTs < CACHE_TTL) return;
-          }
-        } catch (_) {
-          localStorage.removeItem(CACHE_KEY);
-        }
-      }
-
-      const fetchOnce = async (): Promise<Product[]> => {
-          const ctrl = new AbortController();
-          const t = setTimeout(() => ctrl.abort(), 15000);
-          try {
-            // يجيب المنتجات الحقيقية من Vercel CDN — ممنوع إظهار أي منتج وهمي أبداً
-            const resp = await fetch('/api/products', { signal: ctrl });
-            if (!resp.ok) throw new Error(`API error ${resp.status}`);
-            const products: Product[] = await resp.json();
-            if (!Array.isArray(products) || products.length === 0) {
-              throw new Error('Empty products response');
-            }
-            return products;
-          } finally {
-            clearTimeout(t);
-          }
-        };
-
-        const loadProducts = async (attempt = 1) => {
-          if (!cachedRaw) setIsProductsLoading(true);
-
-          try {
-            const products = await fetchOnce();
-
-            setProducts(products);
-            setIsProductsLoading(false);
-
-            try {
-              localStorage.setItem(CACHE_KEY, JSON.stringify(products));
-              localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
-            } catch (_) {}
-
-          } catch (err) {
-            if (process.env.NODE_ENV === 'development') console.error(`Products load error (attempt ${attempt}):`, err);
-
-            // أعد المحاولة حتى ينجح الطلب — ممنوع إظهار منتجات وهمية تحت أي ظرف
-            if (attempt < 5) {
-              const delay = Math.min(1000 * attempt, 4000);
-              setTimeout(() => loadProducts(attempt + 1), delay);
-            } else if (!cachedRaw) {
-              setTimeout(() => loadProducts(1), 5000);
-            }
-          }
-        };
-
-        loadProducts();
-    }, [])
-
-  // ─── Client-side image loading removed ───────────────────────────────────
-  //
-  // All product images in Firestore are stored as base64 data URIs (~50-200 KB
-  // each). Fetching them client-side via the Firebase SDK would cost 70 × 2 =
-  // 140 Firestore reads per visitor. The base64 values also exceed the 5 MB
-  // localStorage quota, so the localStorage cache write always silently fails —
-  // meaning every visitor triggers 140 fresh reads. With ~300 visitors/day this
-  // alone exhausts the Firestore free-tier limit (50,000 reads/day) by morning.
-  //
-  // Images are now served exclusively through the /api/img/{id} CDN proxy:
-  //   • The proxy authenticates anonymously, fetches the Firestore document
-  //     once, converts base64 → JPEG, and returns the image bytes.
-  //   • Vercel CDN caches the response for 24 hours (s-maxage=86400).
-  //   • After the first visitor triggers the CDN cold-fill, every subsequent
-  //     visitor gets the image from cache with ZERO Firestore reads.
-  //   • ProductCard retries up to 2× after CDN cold misses (65 s delay, which
-  //     clears the 60 s failure cache) so a first-visit 404 is not permanent.
-  //
-  // ──────────────────────────────────────────────────────────────────────────
+  // The server endpoint is backed by the Supabase catalog. Never merge in
+  // legacy Firebase/static rows after hydration.
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/products', { cache: 'no-store' })
+      .then(response => { if (!response.ok) throw new Error('Catalog unavailable'); return response.json(); })
+      .then((fresh: Product[]) => { if (!cancelled) { setProducts(fresh); setIsProductsLoading(false); } })
+      .catch(() => { if (!cancelled) setIsProductsLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   // Resolve initial product page from URL slug after products load
     useEffect(() => {
@@ -453,10 +294,11 @@ export const ShopProvider: React.FC<{
       const storedCart = localStorage.getItem('adult_store_cart');
       if (storedCart) setCart(JSON.parse(storedCart));
     } catch { setCart([]); }
+    setCartHydrated(true);
 
     try {
       const storedOrders = localStorage.getItem('adult_store_orders');
-      if (storedOrders) setOrders(JSON.parse(storedOrders));
+      if (storedOrders) setOrders((JSON.parse(storedOrders) as Order[]).filter(order => order.id !== 'VX-LOCALTEST' && !order.isTestOrder));
     } catch { setOrders([]); }
 
     const storedAgeVerify = localStorage.getItem('adult_store_age_verified');
@@ -480,8 +322,51 @@ export const ShopProvider: React.FC<{
   const toggleLanguage = () => setLanguage(language === 'ar' ? 'en' : 'ar');
 
   useEffect(() => {
-    localStorage.setItem('adult_store_cart', JSON.stringify(cart));
-  }, [cart]);
+    if (cartHydrated) localStorage.setItem('adult_store_cart', JSON.stringify(cart));
+  }, [cart, cartHydrated]);
+
+  useEffect(() => {
+    if (!cartHydrated || products.length === 0) return;
+    setCart(previous => {
+      const productUsed = new Map<string, number>();
+      const optionUsed = new Map<string, number>();
+      return previous.flatMap(item => {
+        const fresh = products.find(product => product.id === item.product.id || product.legacyId === item.product.id);
+        if (!fresh || fresh.stock <= 0) return [];
+        const selected = item.selectedVariant || {};
+        const valid = (fresh.variants || []).every(variant => {
+          const choice = selected[variant.nameEn] ?? selected[variant.name];
+          return (!variant.isRequired || !!choice) && (!choice || variant.options.includes(choice));
+        });
+        if (!valid) return [];
+        let available = fresh.stock - (productUsed.get(fresh.id) || 0);
+        for (const variant of fresh.variants || []) {
+          const choice = selected[variant.nameEn] ?? selected[variant.name];
+          const stock = choice ? variant.optionStock?.[choice] : null;
+          if (stock !== null && stock !== undefined) {
+            available = Math.min(available, stock - (optionUsed.get(`${fresh.id}:${variant.nameEn}:${choice}`) || 0));
+          }
+        }
+        const quantity = Math.min(item.quantity, Math.max(0, available));
+        if (quantity <= 0) return [];
+        productUsed.set(fresh.id, (productUsed.get(fresh.id) || 0) + quantity);
+        for (const variant of fresh.variants || []) {
+          const choice = selected[variant.nameEn] ?? selected[variant.name];
+          if (choice) {
+            const key = `${fresh.id}:${variant.nameEn}:${choice}`;
+            optionUsed.set(key, (optionUsed.get(key) || 0) + quantity);
+          }
+        }
+        return [{ ...item, product: fresh, quantity }];
+      });
+    });
+  }, [products, cartHydrated]);
+
+  useEffect(() => {
+    fetch('/api/store-settings').then(response => response.ok ? response.json() : null)
+      .then(settings => { if (settings) setDeliveryFee(Number(settings.delivery_fee)); })
+      .catch(() => {});
+  }, []);
 
   useEffect(() => {
     document.documentElement.lang = language;
@@ -492,167 +377,12 @@ export const ShopProvider: React.FC<{
     localStorage.setItem('adult_store_orders', JSON.stringify(orders));
   }, [orders]);
 
-  // ─── Firestore product operations ─────────────────────────────────────────
-
-  // ─── Cache invalidation after any product change ─────────────────────────
-  const revalidateAfterProductChange = async (opts: { categorySlug?: string; slug?: string } = {}) => {
-    try { localStorage.removeItem('vexa_products_v2'); localStorage.removeItem('vexa_products_v2_ts'); } catch (_) {}
-
-    // Wait for the server to invalidate its product/ISR cache. Previously this
-    // was fire-and-forget, so the admin showed success while the public site
-    // could continue serving stale prices and images.
-    // Cache refresh is best-effort: it must never make a successful
-    // Firestore product save look like a failed price/image update.
-    try {
-      const response = await fetch('/api/product-revalidate?secret=vexa-reval-2026', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(opts),
-      });
-      if (!response.ok) {
-        console.warn('[Shop] Product saved, but cache refresh returned', response.status);
-      }
-    } catch (error) {
-      console.warn('[Shop] Product saved, but cache refresh failed', error);
-    }
-
-    // Notify Bing + IndexNow members immediately — this is best-effort and
-    // must not make a successful Firestore save look like a failed save.
-    fetch('/api/indexnow', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ categorySlug: opts.categorySlug, slug: opts.slug }),
-    }).catch(() => {});
-  };
-
-    const addProduct = async (productData: Omit<Product, 'id'>) => {
-    const newId = 'prod-' + Math.random().toString(36).substr(2, 9).toUpperCase();
-    const toSlg = (s: string) => (s || '').toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60) || newId;
-    const CAT_SLUG: Record<string, string> = {
-      'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
-      'Dildos': 'dildos', 'Lingerie': 'lingerie', 'BDSM': 'bdsm',
-      'Holiday Collection': 'holiday-collection', 'New Arrivals': 'new-arrivals',
-      'Butt Plugs': 'butt-plugs', 'Anal Toys': 'anal-toys', 'Bondage': 'bondage',
-      'Sex Dolls': 'sex-dolls', 'Strap Ons': 'strap-ons', 'Kegel Balls': 'kegel-balls',
-      'Sexual Enhancers': 'sexual-enhancers', 'Penis Pumps': 'penis-pumps',
-      'Cock Rings': 'cock-rings', 'Masturbators': 'masturbators', 'Chastity': 'chastity',
-      'Sex Machines': 'sex-machines', 'Lubricants': 'lubricants', 'Poppers': 'poppers',
-    };
-    const slug = productData.slug || toSlg(productData.nameEn || productData.name || newId);
-    const categorySlug = productData.categorySlug || CAT_SLUG[productData.category] || toSlg(productData.category || 'sex-toys');
-    const newProduct: Product = { ...productData, id: newId, slug, categorySlug };
-    await setDoc(doc(db, PRODUCTS_COLLECTION, newId), newProduct);
-    setProducts(prev => [newProduct, ...prev]);
-    revalidateAfterProductChange({ categorySlug, slug });
-  };
-
-  const updateProduct = async (
-    id: string,
-    productData: Omit<Product, 'id'>,
-    imagesModifiedByUser = false,
-  ) => {
-    const toSlg = (s: string) => (s || '').toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
-      .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60) || id;
-    const CAT_SLUG_U: Record<string, string> = {
-      'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
-      'Dildos': 'dildos', 'Lingerie': 'lingerie', 'BDSM': 'bdsm',
-      'Holiday Collection': 'holiday-collection', 'New Arrivals': 'new-arrivals',
-      'Butt Plugs': 'butt-plugs', 'Anal Toys': 'anal-toys', 'Bondage': 'bondage',
-      'Sex Dolls': 'sex-dolls', 'Strap Ons': 'strap-ons', 'Kegel Balls': 'kegel-balls',
-      'Sexual Enhancers': 'sexual-enhancers', 'Penis Pumps': 'penis-pumps',
-      'Cock Rings': 'cock-rings', 'Masturbators': 'masturbators', 'Chastity': 'chastity',
-      'Sex Machines': 'sex-machines', 'Lubricants': 'lubricants', 'Poppers': 'poppers',
-    };
-    const slug = productData.slug || toSlg(productData.nameEn || productData.name || id);
-    const categorySlug = productData.categorySlug || CAT_SLUG_U[productData.category] || toSlg(productData.category || 'sex-toys');
-    const updated: Product = { ...productData, id, slug, categorySlug };
-    await setDoc(doc(db, PRODUCTS_COLLECTION, id), updated);
-
-    // product_images is the authoritative gallery source used by the public
-    // storefront. Keep it in sync only when the admin actually edited images;
-    // otherwise an info-only edit must not overwrite the existing gallery.
-    if (imagesModifiedByUser) {
-      await setDoc(
-        doc(db, IMAGES_COLLECTION, id),
-        { images: Array.isArray(productData.images) ? productData.images : [] },
-        { merge: true },
-      );
-    }
-
-    setProducts(prev => prev.map(p => p.id === id ? updated : p));
-    await revalidateAfterProductChange({ categorySlug, slug });
-  };
-
-  const deleteProduct = async (productId: string) => {
-    // Write an explicit tombstone so static (non-Firebase) products can be
-    // hidden too — absence from PRODUCTS_COLLECTION is NOT a delete signal.
-    await Promise.all([
-      deleteDoc(doc(db, PRODUCTS_COLLECTION, productId)).catch(() => {}),
-      deleteDoc(doc(db, IMAGES_COLLECTION, productId)).catch(() => {}),
-      setDoc(doc(db, DELETED_PRODUCTS_COLLECTION, productId), { deletedAt: Date.now() }),
-    ]);
-    setProducts(prev => prev.filter(p => p.id !== productId));
-    await revalidateAfterProductChange();
-  };
-
-  const fetchProductImages = async (productId: string): Promise<string[]> => {
-    try {
-      const [gallerySnap, productSnap] = await Promise.all([
-        getDoc(doc(db, IMAGES_COLLECTION, productId)),
-        getDoc(doc(db, PRODUCTS_COLLECTION, productId)),
-      ]);
-      const galleryImgs: string[] = gallerySnap.exists()
-        ? (gallerySnap.data().images as string[]) || []
-        : [];
-      const productData = productSnap.exists() ? productSnap.data() : null;
-      const productImgs: string[] = productData ? (productData.images as string[] || []) : [];
-      const bestImgs = galleryImgs.length >= productImgs.length ? galleryImgs : productImgs;
-      if (bestImgs.length > 0) return bestImgs;
-      return productData?.image ? [productData.image as string] : [];
-    } catch {
-      return [];
-    }
-  };
-
-  const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => {
-    // Wait for anonymous auth to be established before reading Firestore.
-    // signInAnonymously() is fire-and-forget at module init — this prevents
-    // a race condition where getDocs runs before auth resolves, causing
-    // "Missing or insufficient permissions" that is silently swallowed.
-    await new Promise<void>((resolve) => {
-      const unsubscribe = onAuthStateChanged(auth, () => {
-        unsubscribe();
-        resolve();
-      });
-    });
-
-    // Throws on permission errors so AdminPanel can surface them to the admin.
-    const snapshot = await getDocs(collection(db, ORDERS_COLLECTION));
-    if (!snapshot.empty) {
-      return snapshot.docs.map(docSnap => ({
-        ...(docSnap.data() as Omit<Order, 'id'>),
-        id: docSnap.id
-      }));
-    }
-    return [];
-  };
-
-  const updateStockInFirestore = async (updatedProducts: Product[]) => {
-    try {
-      const batch = writeBatch(db);
-      updatedProducts.forEach(product => {
-        batch.set(doc(db, PRODUCTS_COLLECTION, product.id), product);
-      });
-      await batch.commit();
-    } catch (error) {
-      if (process.env.NODE_ENV === 'development') console.error('Firestore stock error:', error);
-    }
-  };
-
-  // ──────────────────────────────────────────────────────────────────────────
+  // Product administration now lives on the separate, protected admin host.
+  const addProduct = async (_product: Omit<Product, 'id'>) => { throw new Error('Use admin.vexatoys.com'); };
+  const updateProduct = async (_id: string, _product: Omit<Product, 'id'>) => { throw new Error('Use admin.vexatoys.com'); };
+  const deleteProduct = async (_id: string) => { throw new Error('Use admin.vexatoys.com'); };
+  const fetchProductImages = async (id: string) => products.find(product => product.id === id)?.images || [];
+  const fetchAllOrdersFromFirebase = async (): Promise<Order[]> => [];
 
   const toSlugLocal = (n: string) => (n || '').toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-')
@@ -706,23 +436,30 @@ export const ShopProvider: React.FC<{
     localStorage.setItem('adult_store_age_verified', 'true');
   };
 
-  const getDeliveryFee = () => DELIVERY_FEE;
+  const getDeliveryFee = () => deliveryFee;
 
   const addToCart = (product: Product, quantity: number = 1, selectedVariants?: Record<string, string>) => {
     setCart(prevCart => {
-      const existingItemIndex = prevCart.findIndex(item => item.product.id === product.id);
-      const currentCartQty = existingItemIndex > -1 ? prevCart[existingItemIndex].quantity : 0;
-      if (currentCartQty + quantity > product.stock) {
+      const key = cartItemKey(product.id, selectedVariants);
+      const existingItemIndex = prevCart.findIndex(item => cartItemKey(item.product.id, item.selectedVariant) === key);
+      const currentProductQty = prevCart.filter(item => item.product.id === product.id)
+        .reduce((total, item) => total + item.quantity, 0);
+      const optionUnavailable = (product.variants || []).some(variant => {
+        const value = selectedVariants?.[variant.nameEn] ?? selectedVariants?.[variant.name];
+        const stock = value ? variant.optionStock?.[value] : null;
+        if (stock === null || stock === undefined) return false;
+        const used = prevCart.filter(item => item.product.id === product.id &&
+          (item.selectedVariant?.[variant.nameEn] ?? item.selectedVariant?.[variant.name]) === value)
+          .reduce((total, item) => total + item.quantity, 0);
+        return used + quantity > stock;
+      });
+      if (currentProductQty + quantity > product.stock || optionUnavailable) {
         alert(`عذراً، الكمية المطلوبة غير متوفرة حالياً. الكمية المتبقية: ${product.stock}`);
         return prevCart;
       }
       if (existingItemIndex > -1) {
-        const newCart = [...prevCart];
-        newCart[existingItemIndex].quantity += quantity;
-        if (selectedVariants && Object.keys(selectedVariants).length > 0) {
-          newCart[existingItemIndex].selectedVariant = selectedVariants;
-        }
-        return newCart;
+        return prevCart.map((item, index) => index === existingItemIndex
+          ? { ...item, quantity: item.quantity + quantity } : item);
       }
       return [...prevCart, {
         product, quantity,
@@ -731,16 +468,29 @@ export const ShopProvider: React.FC<{
     });
   };
 
-  const removeFromCart = (productId: string) => {
-    setCart(prevCart => prevCart.filter(item => item.product.id !== productId));
+  const removeFromCart = (productId: string, selectedVariants?: Record<string, string>) => {
+    const key = cartItemKey(productId, selectedVariants);
+    setCart(prevCart => prevCart.filter(item => cartItemKey(item.product.id, item.selectedVariant) !== key));
   };
 
-  const updateCartQuantity = (productId: string, quantity: number) => {
-    if (quantity <= 0) { removeFromCart(productId); return; }
+  const updateCartQuantity = (productId: string, quantity: number, selectedVariants?: Record<string, string>) => {
+    if (quantity <= 0) { removeFromCart(productId, selectedVariants); return; }
+    const key = cartItemKey(productId, selectedVariants);
     setCart(prevCart =>
       prevCart.map(item => {
-        if (item.product.id === productId) {
-          if (quantity > item.product.stock) {
+        if (cartItemKey(item.product.id, item.selectedVariant) === key) {
+          const otherProductQty = prevCart.filter(other => other !== item && other.product.id === productId)
+            .reduce((sum, other) => sum + other.quantity, 0);
+          const optionUnavailable = (item.product.variants || []).some(variant => {
+            const value = item.selectedVariant?.[variant.nameEn] ?? item.selectedVariant?.[variant.name];
+            const stock = value ? variant.optionStock?.[value] : null;
+            if (stock === null || stock === undefined) return false;
+            const otherOptionQty = prevCart.filter(other => other !== item && other.product.id === productId &&
+              (other.selectedVariant?.[variant.nameEn] ?? other.selectedVariant?.[variant.name]) === value)
+              .reduce((sum, other) => sum + other.quantity, 0);
+            return otherOptionQty + quantity > stock;
+          });
+          if (otherProductQty + quantity > item.product.stock || optionUnavailable) {
             alert(`عذراً، الكمية المتوفرة هي ${item.product.stock} فقط.`);
             return item;
           }
@@ -752,69 +502,48 @@ export const ShopProvider: React.FC<{
   };
 
   const clearCart = () => setCart([]);
-  const getCartTotal = () => cart.reduce((t, i) => t + i.product.price * i.quantity, 0);
+  const getCartTotal = () => cartSubtotal(cart);
   const getCartItemsCount = () => cart.reduce((c, i) => c + i.quantity, 0);
 
-  const placeOrder = (customer: CustomerInfo): Order | null => {
+  const placeOrder = async (customer: CustomerInfo): Promise<Order | null> => {
     if (cart.length === 0) return null;
-
-    const subtotal = cart.reduce((t, i) => t + i.product.price * i.quantity, 0);
-    const newOrder: Order = {
-      id: 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase(),
-      items: [...cart],
-      customer,
-      total: subtotal + DELIVERY_FEE,
-      date: new Date().toLocaleString('ar-EG'),
-      dateKey: new Date().toISOString().slice(0, 10),
-      status: 'pending'
+    const signature = JSON.stringify(cart.map(item => [item.product.id, item.quantity, item.selectedVariant || {}]));
+    const pending = JSON.parse(sessionStorage.getItem('vexa_pending_order') || 'null');
+    const idempotencyKey = pending?.signature === signature ? pending.key : crypto.randomUUID();
+    sessionStorage.setItem('vexa_pending_order', JSON.stringify({ signature, key: idempotencyKey }));
+    const response = await fetch('/api/orders', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idempotencyKey, customer, locale: language,
+        items: cart.map(item => ({ productId: item.product.id, quantity: item.quantity, selectedOptions: item.selectedVariant || {} })) }),
+    });
+    if (!response.ok) throw new Error(`Order save failed: ${response.status}`);
+    const saved = await response.json() as { id: string; reference: string; status: Order['status']; total: number; testMode?: boolean };
+    const order: Order = {
+      id: saved.reference, isTestOrder: saved.testMode === true, items: [...cart], customer, total: saved.total, deliveryFee,
+      date: new Date().toLocaleString(language === 'ar' ? 'ar-LB' : 'en-LB'),
+      dateKey: new Date().toISOString().slice(0, 10), status: saved.status,
     };
-
-    const updatedProducts = products.map(prod => {
-      const cartItem = cart.find(item => item.product.id === prod.id);
-      return cartItem ? { ...prod, stock: prod.stock - cartItem.quantity } : prod;
-    });
-
-    setProducts(updatedProducts);
-    updateStockInFirestore(updatedProducts);
-    setOrders(prev => [newOrder, ...prev]);
-    // Save order to Firestore. On permission error, re-authenticate anonymously and retry once.
-    (async () => {
-      try {
-        await setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder);
-      } catch (firstErr) {
-        console.error('[placeOrder] Firestore save failed — retrying after re-auth:', firstErr);
-        try {
-          await signInAnonymously(auth);
-          await setDoc(doc(db, ORDERS_COLLECTION, newOrder.id), newOrder);
-        } catch (retryErr) {
-          console.error('[placeOrder] Firestore save failed after re-auth:', retryErr);
-        }
-      }
-    })();
+    sessionStorage.removeItem('vexa_pending_order');
+    // Mock responses are only UI fixtures; they do not create admin orders or consume the cart.
+    if (order.isTestOrder) return order;
+    // Flush the receipt and cart before leaving for WhatsApp. React's effects may not run before navigation.
+    localStorage.setItem('adult_store_orders', JSON.stringify([order, ...orders]));
+    localStorage.setItem('adult_store_cart', '[]');
+    setProducts(prev => prev.map(product => {
+      const count = cart.filter(item => item.product.id === product.id).reduce((total, item) => total + item.quantity, 0);
+      return count ? { ...product, stock: Math.max(0, product.stock - count) } : product;
+    }));
+    setOrders(prev => [order, ...prev]);
     clearCart();
-    // Navigation handled by Checkout via setOrderComplete — do NOT call setView here.
-    return newOrder;
+    return order;
   };
 
+  // Customer order history is a local receipt; customers cannot mutate store orders.
   const updateOrderStatus = (orderId: string, status: Order['status']) => {
-    setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o));
-    setDoc(doc(db, ORDERS_COLLECTION, orderId), { status }, { merge: true }).catch(error => {
-      if (process.env.NODE_ENV === 'development') console.error('Firestore update order status error:', error);
-    });
+    setOrders(prev => prev.map(order => order.id === orderId ? { ...order, status } : order));
   };
-
-  const deleteOrderLocally = (orderId: string) => {
-    setOrders(prev => prev.filter(o => o.id !== orderId));
-    deleteDoc(doc(db, ORDERS_COLLECTION, orderId)).catch(error => {
-      if (process.env.NODE_ENV === 'development') console.error('Firestore delete order error:', error);
-    });
-  };
-
-  const deleteOrder = (orderId: string) => {
-    if (window.confirm('هل أنت متأكد من رغبتك في حذف هذا الطلب نهائياً؟')) {
-      deleteOrderLocally(orderId);
-    }
-  };
+  const deleteOrderLocally = (orderId: string) => setOrders(prev => prev.filter(order => order.id !== orderId));
+  const deleteOrder = (orderId: string) => deleteOrderLocally(orderId);
 
   return (
     <ShopContext.Provider

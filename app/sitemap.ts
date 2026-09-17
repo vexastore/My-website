@@ -15,7 +15,7 @@ const TODAY = new Date().toISOString().slice(0, 10);
 // Valid routed category slugs — only slugs in CATEGORY_META have real product pages.
 // /adult-toys is a STANDALONE page (app/adult-toys/page.tsx) — not in CATEGORY_META
 // to avoid duplicate id='Sex Toys' corruption. It IS added manually to staticPages below.
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Static pages ──────────────────────────────────────────────────────────

@@ -8,7 +8,7 @@ import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
 // and until now they had NO matching route at all -> hard 404.
 // This route 301-redirects them to the current canonical URL so Google
 // can finally resolve them in a single hop instead of erroring.
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export default async function LegacyProductRedirect({
   params,

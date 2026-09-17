@@ -16,7 +16,6 @@ import { getCategorySeoTab } from './data/categories';
 import { ProductPage } from './components/ProductPage';
 
 const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default: m.Checkout })));
-const AdminPanel = lazy(() => import('./components/AdminPanel').then(m => ({ default: m.AdminPanel })));
 const MyOrders = lazy(() => import('./components/MyOrders').then(m => ({ default: m.MyOrders })));
 const FloatingWhatsApp = lazy(() => import('./components/FloatingWhatsApp').then(m => ({ default: m.FloatingWhatsApp })));
 const VexaToast = lazy(() => import('./components/VexaToast').then(m => ({ default: m.VexaToast })));
@@ -168,7 +167,7 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
     switch (currentView) {
       case 'shop':     return <ProductList />;
       case 'checkout': return <Suspense fallback={<PageLoader />}><Checkout /></Suspense>;
-      case 'admin':    return <Suspense fallback={<PageLoader />}><AdminPanel /></Suspense>;
+      case 'admin':    return <a href="https://admin.vexatoys.com">Open administration</a>;
       case 'orders':   return <Suspense fallback={<PageLoader />}><MyOrders /></Suspense>;
       case 'about':    return <Suspense fallback={<PageLoader />}><About /></Suspense>;
       case 'product':  return <ProductPage />;

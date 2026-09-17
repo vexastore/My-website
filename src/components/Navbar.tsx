@@ -258,11 +258,11 @@ export const Navbar: React.FC = () => {
                   <Info size={24} strokeWidth={1.3} className="text-white/40" />
                 </a>
                 <div className="mt-8 border-t border-white/10 pt-8">
-                  <button
-                    onClick={() => { setView('admin'); setIsMenuOpen(false); }}
+                  <a
+                    href="https://admin.vexatoys.com"
                     className="flex w-full items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black transition">
                     <Lock size={15} /> {isArabic ? 'إدارة' : 'Admin'}
-                  </button>
+                  </a>
                 </div>
               </nav>
             )}

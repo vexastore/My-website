@@ -4,7 +4,7 @@ import { fetchProductsServer } from '@/lib/fetchProducts';
 import { CITY_META } from '@/lib/cityMeta';
 import { ShopApp } from '@/src/ShopApp';
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 const SITE_TITLE = 'Premium Intimate Wellness & Couples Care | Vexa Store Lebanon';
 const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. Rated 4.9/5 by 1,900+ clients. 100% discreet same-day delivery across Beirut & all Lebanon. Cash on delivery.';

@@ -261,7 +261,7 @@ export async function generateMetadata({
   };
 }
 
-export const revalidate = 3600;
+export const revalidate = 300;
 
 export function generateStaticParams(): Array<{
   category: string;

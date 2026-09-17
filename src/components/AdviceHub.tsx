@@ -1,28 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useShop } from '../context/ShopContext';
-import { MOCK_ARTICLES } from '../data/mockData';
 import { BookOpen, Calendar, Clock, ArrowRight, Sparkles, AlertCircle, Loader2 } from 'lucide-react';
 import { AdviceArticle } from '../types';
-import { db } from '../firebase';
-import { collection, getDocs } from 'firebase/firestore';
 
 export const AdviceHub: React.FC = () => {
   const { selectedArticle, setSelectedArticle } = useShop();
-  const [articles, setArticles] = useState<AdviceArticle[]>(MOCK_ARTICLES);
+  const [articles, setArticles] = useState<AdviceArticle[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchArticles = async () => {
       try {
-        const snap = await getDocs(collection(db, 'blogPosts'));
-        if (!snap.empty) {
-          const fetched: AdviceArticle[] = snap.docs.map(d => ({ id: d.id, ...d.data() } as AdviceArticle));
-          fetched.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
-          setArticles(fetched);
-        }
-        // If empty, keep MOCK_ARTICLES as fallback
+        const response = await fetch('/api/articles');
+        if (!response.ok) throw new Error('Articles unavailable');
+        setArticles(await response.json());
       } catch {
-        // On error, keep MOCK_ARTICLES
+        setArticles([]);
       } finally {
         setIsLoading(false);
       }

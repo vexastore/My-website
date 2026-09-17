@@ -1,7 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BLOG_POSTS, BLOG_CATEGORIES, getBlogCategory, getBlogPostsByCategory } from '@/lib/blogPosts';
+import { BLOG_CATEGORIES, getBlogCategory } from '@/lib/blogPosts';
+import { fetchBlogPostsServer } from '@/lib/fetchArticles';
 
 interface Props { params: Promise<{ blogCategory: string }> }
 
@@ -43,7 +44,7 @@ export default async function BlogCategoryPage({ params }: Props) {
   const cat = getBlogCategory(blogCategory);
   if (!cat) notFound();
 
-  const posts = getBlogPostsByCategory(blogCategory).sort(
+  const posts = (await fetchBlogPostsServer()).filter(post => post.categorySlug === blogCategory).sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
 
