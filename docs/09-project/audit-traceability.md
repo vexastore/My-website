@@ -93,4 +93,4 @@ verification, and Search Console validation are not yet complete.
 
 ## Notification-channel decision — 16 September 2026
 
-F-07 is now addressed by removing the public Telegram relay and test routes and offering a customer-sent WhatsApp link only after an acknowledged order write. No automated WhatsApp notification or delivery claim is made. The separate admin PWA Web Push outbox remains the automatic order alert. The current Firebase checkout implementation is local and still requires production deployment and browser verification; the Supabase cutover must preserve the same boundary.
+F-07 is now addressed by removing the public Telegram relay and test routes and offering a customer-sent WhatsApp link only after an acknowledged Supabase order write. No automated WhatsApp notification or delivery claim is made. The separate admin PWA Web Push outbox remains the automatic order alert. The Supabase storefront cutover and status refresh are live; owner verification of the full real-browser handoff remains.

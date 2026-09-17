@@ -5,6 +5,8 @@ The public checkout persists orders before showing the WhatsApp send link. Whats
 
 The Next.js storefront reads published catalog rows, article content, and public settings through Supabase's publishable key and RLS. `/api/orders` is the customer write boundary; it calls the transactional `create_order` RPC with a server-only secret. The client receives a receipt and WhatsApp handoff only after the RPC succeeds. `/admin` sends administrators to the separate admin application. This is the production cutover architecture. A real storefront order has since been observed confirmed in Supabase and admin.
 
+Category pages read guide text and ordered FAQs from the public-read, admin-write `category_editorial` table. The page reuses those FAQs for visible content and JSON-LD, caches for up to five minutes, and has no bundled guide fallback. Product image reads prefer Supabase Storage paths after verified migration and continue to accept existing Vercel Blob URLs during the rollback window.
+
 Legacy Firebase-backed Vercel functions under `api/`, the old local admin component, and the Firebase client package are retired in production. Historical standalone migration scripts remain under `scripts/`; they are not imported by the runtime. The two imported size-option sets have zero price delta today, but the live RPC validates options and calculates nonzero deltas when configured.
 
 A successful real RPC response is the only trigger for the browser to navigate to `wa.me`. Before leaving, the receipt and emptied cart are written to local storage. `LOCAL_CHECKOUT_MOCK=true` is a development-only marker for isolated UI tests; simulated orders do not alter local order history or reach the admin.

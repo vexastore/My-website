@@ -7,7 +7,7 @@ import {
   getCategoryMeta,
   SLUG_TO_CATEGORY,
 } from '@/lib/categoryMeta';
-import { CATEGORY_CONTENT } from '@/lib/categoryContent';
+import { fetchCategoryEditorial } from '@/lib/fetchCategoryEditorial';
 import { ShopApp } from '@/src/ShopApp';
 
 import {
@@ -288,6 +288,8 @@ export default async function CategoryPage({
 
   const meta = getCategoryMeta(slug);
 
+  const content = await fetchCategoryEditorial(slug);
+
   const allProducts = await fetchProductsServer();
 
   const productsWithImages = allProducts.map(
@@ -425,57 +427,16 @@ export default async function CategoryPage({
           ]
         : []),
 
-      {
+      ...(content?.faqs.length ? [{
         '@type': 'FAQPage',
-
-        mainEntity: [
-          {
-            '@type': 'Question',
-
-            name:
-              'Do you deliver discreetly in Lebanon?',
-
-            acceptedAnswer: {
-              '@type': 'Answer',
-
-              text:
-                'Yes. Plain sealed box, no logo, same-day delivery in Beirut.',
-            },
-          },
-
-          {
-            '@type': 'Question',
-
-            name:
-              'Can I pay cash on delivery?',
-
-            acceptedAnswer: {
-              '@type': 'Answer',
-
-              text:
-                'Yes. Cash on delivery (COD) is available. No online payment required.',
-            },
-          },
-
-          {
-            '@type': 'Question',
-
-            name:
-              'How fast is delivery?',
-
-            acceptedAnswer: {
-              '@type': 'Answer',
-
-              text:
-                'Same-day in Beirut, 48-72 hours for other regions.',
-            },
-          },
-        ],
-      },
+        mainEntity: content.faqs.map(({ q, a }) => ({
+          '@type': 'Question',
+          name: q,
+          acceptedAnswer: { '@type': 'Answer', text: a },
+        })),
+      }] : []),
     ],
   };
-
-  const content = CATEGORY_CONTENT[slug];
 
   return (
     <>

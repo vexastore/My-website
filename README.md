@@ -2,6 +2,8 @@
 
 The public storefront serves the catalog and checkout. The separate administrator app is maintained in `admin-vexatoys`.
 
+Category buying guides and FAQ lists now come from Supabase editorial rows rather than bundled source text. Administrators edit them under Content → Category guides & FAQs. The visible FAQ answers and FAQ structured data use the same records and refresh within about five minutes.
+
 ## Customer-sent WhatsApp orders
 
 The Supabase storefront uses the imported catalog, categories, media references, articles, and public store settings. Checkout opens a prepared WhatsApp chat only after the server confirms an order transaction. A failed write leaves the cart intact and shows an error. The customer must tap Send inside WhatsApp. The English or Arabic message includes the order reference, Lebanon time, customer details, size-aware lines, SKU when available, image links when public, and subtotal/delivery/total. WhatsApp opens a text draft with image URLs; it does not attach image files. Existing imported products currently have no SKU values, so the SKU line appears only after a SKU is entered in admin.
@@ -16,4 +18,5 @@ Copy `.env.staging.example` to `.env.staging.local`, fill the isolated branch UR
 
 My Orders refreshes saved receipt statuses from Supabase on load, on return to the tab, and every minute while open. Status lookups use the order reference plus the checkout phone; only a matching status is returned. The navbar order panel also links to the full My Orders detail. Receipts remain in this browser.
 
-Catalog pages refresh within about five minutes after admin changes. Unused public IndexNow and revalidation endpoints were removed. The first real order should be placed by the store owner; the release smoke check can verify invalid orders without creating one.
+Catalog pages refresh within about five minutes after admin changes. Unused public IndexNow and revalidation endpoints were removed. A real storefront order has already been confirmed in Supabase; safe release smoke checks use synthetic unmatched or invalid orders without creating another one.
+Imported product images continue to work from Vercel Blob while the one-time, checksum-verified Sharp-to-Supabase copy is completed. Each successful copy changes only its media reference and preserves the original URL for rollback.

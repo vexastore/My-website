@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-09-17
+
+### Changed
+
+- Read 23 category buying guides and FAQ lists from Supabase editorial rows instead of bundled storefront text; use the same answers in visible content and FAQ structured data.
+- Keep legacy Vercel Blob images readable while the separate admin migration verifies and switches each image to Supabase Storage.
+
 ## [1.2.1] - 2026-09-17
 
 ### Deployment

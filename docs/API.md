@@ -16,3 +16,7 @@ During local development only, `LOCAL_CHECKOUT_MOCK=true` causes `POST /api/orde
 In 1.2.0, successful `POST /api/orders` responses also include `deliveryFee` and `placedAt` from the committed order when the follow-up read succeeds. The existing `total` and order reference remain authoritative; the client falls back to its current delivery fee and confirmation time if those optional fields are unavailable. Public product reads include product and variant-option SKU values.
 
 `POST /api/orders/status` accepts a same-origin JSON body `{ "orders": [{ "reference": "VX-...", "phone": "..." }] }` with 1–20 receipts and a 4 KiB body limit. It uses the server-only Supabase key to find storefront orders, matches the checkout phone exactly, and responds `{ "orders": [{ "reference": "VX-...", "status": "confirmed" }] }` for matching rows only. Unknown or mismatched receipts are omitted. It returns 400 for invalid input, 403 for a foreign origin, 413 for oversized input, and 503 if status is unavailable. Responses are `no-store` and contain no customer or item data. The `GET` method is not offered.
+
+## Category editorial read
+
+Category pages query `category_editorial` through Supabase REST with the publishable key and anonymous RLS. They read one slug at a time, validate FAQ pairs, and cache the result for up to five minutes. Writes occur only in the separate admin app through an authenticated Server Action.

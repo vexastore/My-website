@@ -1,5 +1,18 @@
 # Admin remediation plan
 
+## Status update — 17 September 2026
+
+The separate admin 0.10.0 and storefront 1.2.1 are live on Vercel. The Firebase
+catalog/order snapshot, Supabase checkout cutover, size-option transaction,
+customer status refresh, and WhatsApp handoff code are deployed. Admin 0.11.0
+and storefront 1.3.0 add an editor and public read path for 23 category guides
+and FAQs. The 426 public Vercel Blob product images are being copied to
+Supabase Storage with checksum verification; original URLs remain for rollback.
+Remaining acceptance checks include a signed-in guide edit, real admin
+thumbnail/Sharp upload, subscribed-device Web Push, production checkout/status
+journey, image reconciliation, and Search Console validation. The implementation
+readiness list below records the original planning state, not the present one.
+
 ## Audit basis
 
 This plan is reconciled against `audit/AUDIT.md`, `audit/AUDIT-EVIDENCE.md`, and
@@ -113,10 +126,10 @@ Requires external access or configuration for completion:
   validation actions.
 - Production smoke tests, monitoring, backup/restore evidence, and rollback.
 
-The local host currently lacks Supabase CLI and Vercel CLI. Podman may provide a
-Docker-compatible runtime after explicit setup, but local Supabase database tests
-must be proven rather than assumed to work through it.
+The CLI availability statement was a 15 September planning snapshot. Vercel CLI
+and a cached Supabase CLI have since been used; database policy checks were
+executed against the live project in rollback-only transactions.
 
 ## Notification-channel revision — 16 September 2026
 
-The client selected the regular WhatsApp app rather than an outbound API provider. The customer opens a prefilled store chat after checkout persistence and presses Send. This supersedes the Telegram worker and bot-configuration tasks above; the automatic administrator alert remains the separate PWA Web Push flow. The current storefront code is not yet deployed.
+The client selected the regular WhatsApp app rather than an outbound API provider. The customer opens a prefilled store chat after checkout persistence and presses Send. This supersedes the Telegram worker and bot-configuration tasks above; the automatic administrator alert remains the separate PWA Web Push flow. This storefront code is deployed.
