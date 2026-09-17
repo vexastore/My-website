@@ -6,7 +6,7 @@ The public storefront serves the catalog and checkout. The separate administrato
 
 The Supabase storefront uses the imported catalog, categories, media references, articles, and public store settings. Checkout opens a prepared WhatsApp chat only after the server confirms an order transaction. A failed write leaves the cart intact and shows an error. The customer must tap Send inside WhatsApp.
 
-Production uses `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for catalog reads and a sensitive server-only `SUPABASE_SECRET_KEY` for checkout. Set the same names in `.env.local` for local tests; never prefix the secret with `NEXT_PUBLIC_`. The first real committed order, admin appearance, and WhatsApp handoff need production verification. The old Firebase-backed runtime endpoints and local admin component have been retired in this working tree; historical migration scripts remain under `scripts/`.
+Production uses `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` for catalog reads and a sensitive server-only `SUPABASE_SECRET_KEY` for checkout. Set the same names in `.env.local` for local tests; never prefix the secret with `NEXT_PUBLIC_`. The first real committed order, admin appearance, and WhatsApp handoff still need owner verification. The old Firebase-backed runtime endpoints and local admin component are retired in production; historical migration scripts remain under `scripts/`.
 
 The local checkout now opens a prefilled WhatsApp chat automatically after a real committed order. The customer still presses Send inside WhatsApp. Local mock checkout is explicitly labeled and does not create an admin order or open WhatsApp.
 

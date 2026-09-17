@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project follows
 
 ## [1.1.0] - 2026-09-17
 
+### Deployment
+
+- Deployed to `vexatoys.com` as Ready deployment `dpl_8g3gxnfiMydTGgGjiGNfHVt8TLuk`. Production catalog, article, settings, SEO, and safe checkout failure-path smoke checks passed; the first real customer transaction remains for the owner.
+
 ### Supabase storefront cutover
 
 - Read products, categories, media references, articles, and store settings from Supabase in the storefront. Route `/admin` to the separate admin site.
