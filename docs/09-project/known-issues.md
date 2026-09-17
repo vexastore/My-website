@@ -1,0 +1,7 @@
+# Known storefront/admin integration limits
+
+The admin and storefront share Supabase for published product base prices, names, descriptions, stock, categories, images, size-option deltas, articles, guide/FAQ rows, and core store settings. The storefront client refreshes the published catalog on load and tab return. Archived and draft products are intentionally omitted.
+
+The apps do not yet expose every admin field publicly. Product `compare_at_price`, `is_featured`, and per-product SEO title/description fields are saved in Supabase but are not consumed by the storefront product mapper or page metadata. The storefront settings route currently reads only currency, delivery fee, ordering status, and support phone, so the admin exchange rate, auto-conversion switch, rounding, tax, minimum order, and free-delivery threshold are not reflected in that public response or its client UI. Their server-side order handling needs a separate acceptance check. Product size options use stored price deltas; editing a base price changes their calculated total unless those options are edited too. Server-rendered HTML and metadata can take up to five minutes to regenerate even though the client product API reads fresh rows.
+
+A future integration pass should map each intended setting to the public UI and checkout RPC, then test the complete admin-save-to-public flow with an authenticated owner session.

@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project follows
 
 ## [1.3.1] - 2026-09-18
 
+### Deployment
+
+- Git-linked Vercel production deployment `dpl_2sLsxHQApwvMzmeCc4KTaKwiYZ5y` reached Ready; the live API returned `no-store`, 107 current published prices with zero mismatches, and excluded the archived sample product.
+
 ### Fixed
 
 - Make `/api/products` read current published Supabase rows without CDN or server catalog caching; keep the five-minute cache only for server-rendered SEO pages.
