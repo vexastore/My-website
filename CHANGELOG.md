@@ -5,6 +5,10 @@ All notable changes to this project are documented here. The project follows
 
 ## [1.2.1] - 2026-09-17
 
+### Deployment
+
+- Deployed to `vexatoys.com` as Ready deployment `dpl_Em8cjndz81hETTeAKNjvGho14soY`; live status lookup privacy and validation checks, home, and catalog passed.
+
 ### Fixed
 
 - Refresh browser-saved My Orders receipts from the confirmed Supabase status instead of keeping their initial pending state. Show confirmed distinctly in My Orders and the navbar order panel.
