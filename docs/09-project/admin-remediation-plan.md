@@ -2,15 +2,15 @@
 
 ## Status update — 17 September 2026
 
-The separate admin 0.10.0 and storefront 1.2.1 are live on Vercel. The Firebase
+The separate admin 0.11.0 and storefront 1.3.0 are live on Vercel. The Firebase
 catalog/order snapshot, Supabase checkout cutover, size-option transaction,
 customer status refresh, and WhatsApp handoff code are deployed. Admin 0.11.0
 and storefront 1.3.0 add an editor and public read path for 23 category guides
-and FAQs. The 426 public Vercel Blob product images are being copied to
+and FAQs. All 426 imported Vercel Blob product images were copied to
 Supabase Storage with checksum verification; original URLs remain for rollback.
 Remaining acceptance checks include a signed-in guide edit, real admin
 thumbnail/Sharp upload, subscribed-device Web Push, production checkout/status
-journey, image reconciliation, and Search Console validation. The implementation
+journey, and Search Console validation. The implementation
 readiness list below records the original planning state, not the present one.
 
 ## Audit basis

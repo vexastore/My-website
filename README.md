@@ -19,4 +19,4 @@ Copy `.env.staging.example` to `.env.staging.local`, fill the isolated branch UR
 My Orders refreshes saved receipt statuses from Supabase on load, on return to the tab, and every minute while open. Status lookups use the order reference plus the checkout phone; only a matching status is returned. The navbar order panel also links to the full My Orders detail. Receipts remain in this browser.
 
 Catalog pages refresh within about five minutes after admin changes. Unused public IndexNow and revalidation endpoints were removed. A real storefront order has already been confirmed in Supabase; safe release smoke checks use synthetic unmatched or invalid orders without creating another one.
-Imported product images continue to work from Vercel Blob while the one-time, checksum-verified Sharp-to-Supabase copy is completed. Each successful copy changes only its media reference and preserves the original URL for rollback.
+All 426 imported Vercel Blob product images now use checksum-verified, Sharp-processed Supabase Storage copies. Original Blob URLs remain recorded for rollback.

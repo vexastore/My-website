@@ -8,7 +8,7 @@ All notable changes to this project are documented here. The project follows
 ### Changed
 
 - Read 23 category buying guides and FAQ lists from Supabase editorial rows instead of bundled storefront text; use the same answers in visible content and FAQ structured data.
-- Keep legacy Vercel Blob images readable while the separate admin migration verifies and switches each image to Supabase Storage.
+- Read the 426 migrated product images from Supabase Storage after checksum-verified Sharp processing; retain original Blob URLs for rollback.
 
 ## [1.2.1] - 2026-09-17
 
