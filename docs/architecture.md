@@ -16,3 +16,7 @@ Staging runs the storefront and admin locally against one isolated Supabase bran
 The 1.2.0 order response reads the committed delivery fee and timestamp after `create_order`, so the browser receipt and WhatsApp draft use persisted values. Catalog reads include product and option SKUs; the WhatsApp image line is a link to existing public media, with no file upload or WhatsApp API.
 
 In 1.2.1, My Orders keeps the local receipt but refreshes its status through a server-only lookup. A same-origin POST supplies a bounded batch of saved reference and checkout-phone pairs; the server reads Supabase with its secret key and returns only status for exact matches. The browser checks on hydration, focus/visibility return, and once per minute while open. The lookup never returns addresses, line items, or customer details.
+
+## Catalog freshness
+
+The admin writes product rows to the same Supabase project the storefront reads. The public `GET /api/products` route reads published rows directly with a no-store response so a page load or tab return receives current values. The client replaces both its catalog and any selected product with the refreshed row, or clears a selected product that has been archived. Server-rendered category/product HTML and SEO metadata still use a five-minute incremental cache. No cross-repository push invalidation is installed.

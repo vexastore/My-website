@@ -155,15 +155,28 @@ export const ShopProvider: React.FC<{
     return null;
   });
 
-  // The server endpoint is backed by the Supabase catalog. Never merge in
-  // legacy Firebase/static rows after hydration.
+  // The server endpoint reads the current Supabase catalog. Refresh after a
+  // tab return so an already-open product page follows admin price edits.
   useEffect(() => {
     let cancelled = false;
-    fetch('/api/products', { cache: 'no-store' })
-      .then(response => { if (!response.ok) throw new Error('Catalog unavailable'); return response.json(); })
-      .then((fresh: Product[]) => { if (!cancelled) { setProducts(fresh); setIsProductsLoading(false); } })
-      .catch(() => { if (!cancelled) setIsProductsLoading(false); });
-    return () => { cancelled = true; };
+    let request: AbortController | null = null;
+    const refresh = () => {
+      if (document.visibilityState !== 'visible') return;
+      request?.abort();
+      request = new AbortController();
+      fetch('/api/products', { cache: 'no-store', signal: request.signal })
+        .then(response => { if (!response.ok) throw new Error('Catalog unavailable'); return response.json(); })
+        .then((fresh: Product[]) => {
+          if (cancelled) return;
+          setProducts(fresh);
+          setSelectedProduct(current => current ? fresh.find(product => product.id === current.id) ?? null : null);
+          setIsProductsLoading(false);
+        })
+        .catch(error => { if (!cancelled && error?.name !== 'AbortError') setIsProductsLoading(false); });
+    };
+    refresh();
+    document.addEventListener('visibilitychange', refresh);
+    return () => { cancelled = true; request?.abort(); document.removeEventListener('visibilitychange', refresh); };
   }, []);
 
   // Resolve initial product page from URL slug after products load

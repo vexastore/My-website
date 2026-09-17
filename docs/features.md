@@ -13,4 +13,6 @@ The English and Arabic WhatsApp drafts group order reference/date, customer, pro
 
 My Orders now displays the authoritative order status, including Confirmed, instead of retaining the status from checkout. It refreshes when the page opens, when the tab becomes active, and every minute while open. If the check fails, the customer sees a retry notice and the last known status. The navbar order panel has a button for the full order detail view.
 
+Published product prices and other catalog fields refresh from Supabase when the customer opens or returns to the tab; archived products are removed from the client catalog. Server-rendered HTML can take up to five minutes to regenerate.
+
 Category buying guides and FAQs are read from the RLS-protected Supabase `category_editorial` table, including `/adult-toys`. The admin editor owns the content. Visible FAQs and FAQ structured data use the same ordered pairs; category pages refresh within five minutes.

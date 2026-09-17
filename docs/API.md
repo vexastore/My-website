@@ -3,7 +3,7 @@
 The public Telegram `/api/notify-order` relay and `/api/test-telegram` diagnostic were removed. Unused public `/api/indexnow`, `/api/revalidate`, `/api/product-revalidate`, and `/revalidate` routes were also removed. WhatsApp uses a client-side `wa.me` link after an acknowledged order write; it has no server API.
 # Supabase storefront endpoints
 
-- `GET /api/products`: published products, categories, images, and options from Supabase public RLS.
+- `GET /api/products`: current published products, categories, images, and options from Supabase public RLS. This route reads directly and responds with `Cache-Control: private, no-store, max-age=0`; archived products are omitted.
 - `GET /api/articles`: published advice articles.
 - `GET /api/store-settings`: public currency, delivery fee, ordering status, and support number.
 - `GET /api/img/:id`: 307 redirect to the primary imported media URL for a published product.

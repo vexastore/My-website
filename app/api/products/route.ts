@@ -1,13 +1,15 @@
 import { NextResponse } from 'next/server';
-import { fetchProductsServer } from '@/lib/fetchProducts';
+import { fetchPublishedProducts } from '@/lib/fetchProducts';
 
-// Share the cached Supabase catalog with client-side navigation.
+// Client refreshes must read the latest published catalog, even while SEO pages
+// retain their five-minute server cache.
+export const dynamic = 'force-dynamic';
 export async function GET() {
   try {
-    const products = await fetchProductsServer();
+    const products = await fetchPublishedProducts();
     return NextResponse.json(products, {
       headers: {
-        'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600',
+        'Cache-Control': 'private, no-store, max-age=0',
       },
     });
   } catch {

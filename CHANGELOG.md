@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] - 2026-09-18
+
+### Fixed
+
+- Make `/api/products` read current published Supabase rows without CDN or server catalog caching; keep the five-minute cache only for server-rendered SEO pages.
+- Refresh an open product page with the latest catalog object on load and tab return, including price changes and removal of archived products.
+
 ## [1.3.0] - 2026-09-17
 
 ### Changed

@@ -63,7 +63,7 @@ export function mapProduct(row: Row, base: string): Product {
   };
 }
 
-async function fetchPublishedProducts(): Promise<Product[]> {
+export async function fetchPublishedProducts(): Promise<Product[]> {
   const { url, key } = config();
   const endpoint = new URL(`${url}/rest/v1/products`);
   endpoint.searchParams.set('select', select);
