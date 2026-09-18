@@ -9,8 +9,10 @@ import {
   SLUG_TO_CATEGORY,
 } from '@/lib/categoryMeta';
 import { fetchCategoryEditorial } from '@/lib/fetchCategoryEditorial';
+import { fetchCategoriesServer } from '@/lib/fetchCategories';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
+import { productMatchesCategory } from '@/src/data/categories';
 
 import {
   canonicalProductPath,
@@ -212,19 +214,26 @@ export async function generateMetadata({
   const { category: slug } = await params;
 
   const meta = getCategoryMeta(slug);
+  const category = (await fetchCategoriesServer()).find(item => item.slug === slug);
+  if (!SLUG_TO_CATEGORY[slug] || !category) return { robots: { index: false, follow: false } };
+  const title = (locale === 'ar' ? category.seoTitleAr : category.seoTitleEn) ||
+    (locale === 'ar' ? meta.titleAr : meta.titleEn);
+  const description = (locale === 'ar' ? category.seoDescriptionAr : category.seoDescriptionEn) ||
+    (locale === 'ar' ? category.descriptionAr : category.descriptionEn) ||
+    (locale === 'ar' ? meta.descAr : meta.descEn);
 
   const pageUrl = `${SITE_BASE_URL}/${slug}`;
 
   return {
     title: {
-      absolute: locale === 'ar' ? meta.titleAr : meta.titleEn,
+      absolute: title,
     },
 
-    description: (locale === 'ar' ? meta.descAr : meta.descEn).slice(0, 160),
+    description: description.slice(0, 300),
 
     openGraph: {
-      title: locale === 'ar' ? meta.titleAr : meta.titleEn,
-      description: locale === 'ar' ? meta.descAr : meta.descEn,
+      title,
+      description,
       url: pageUrl,
       siteName: 'Vexa Store Lebanon',
       locale: locale === 'ar' ? 'ar_LB' : 'en_US',
@@ -233,7 +242,7 @@ export async function generateMetadata({
       images: [
         {
           url: DEFAULT_OG_IMAGE,
-          alt: locale === 'ar' ? meta.titleAr : meta.titleEn,
+          alt: title,
           width: 1200,
           height: 630,
         },
@@ -243,15 +252,12 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       site: '@vexastore',
-      title: locale === 'ar' ? meta.titleAr : meta.titleEn,
-      description: locale === 'ar' ? meta.descAr : meta.descEn,
+      title,
+      description,
       images: [DEFAULT_OG_IMAGE],
     },
 
-    alternates: {
-      canonical: pageUrl,
-
-    },
+    alternates: { canonical: pageUrl },
 
     robots: {
       index: true,
@@ -285,6 +291,8 @@ export default async function CategoryPage({
   if (!categoryId) {
     notFound();
   }
+  const categoryRow = (await fetchCategoriesServer()).find(item => item.slug === slug);
+  if (!categoryRow) notFound();
 
   const meta = getCategoryMeta(slug);
 
@@ -321,8 +329,7 @@ export default async function CategoryPage({
   const categoryProducts = productsWithImages
     .filter(
       (product) =>
-        product.categorySlug === slug ||
-        product.category === categoryId
+        productMatchesCategory(product, categoryId)
     )
     .map((product) => {
       const canonicalCategorySlug =
@@ -356,9 +363,6 @@ export default async function CategoryPage({
    * Keep this limited to the first 8 products
    * to avoid unnecessarily large JSON-LD.
    */
-  const jsonLdProducts =
-    categoryProducts.slice(0, 8);
-
   const jsonLd = {
     '@context': 'https://schema.org',
 
@@ -377,7 +381,7 @@ export default async function CategoryPage({
           {
             '@type': 'ListItem',
             position: 2,
-            name: meta.titleEn
+            name: (locale === 'ar' ? meta.titleAr : meta.titleEn)
               .split('|')[0]
               .trim(),
             item: `${SITE_BASE_URL}/${slug}`,
@@ -388,9 +392,9 @@ export default async function CategoryPage({
       {
         '@type': 'CollectionPage',
 
-        name: meta.titleEn,
+        name: locale === 'ar' ? meta.titleAr : meta.titleEn,
 
-        description: meta.descEn,
+        description: locale === 'ar' ? meta.descAr : meta.descEn,
 
         url: `${SITE_BASE_URL}/${slug}`,
       },
@@ -400,7 +404,7 @@ export default async function CategoryPage({
             {
               '@type': 'ItemList',
 
-              name: meta.titleEn,
+              name: locale === 'ar' ? meta.titleAr : meta.titleEn,
 
               url: `${SITE_BASE_URL}/${slug}`,
 
@@ -419,8 +423,7 @@ export default async function CategoryPage({
                     )}`,
 
                     name:
-                      product.nameEn ||
-                      product.name,
+                      (locale === 'ar' ? product.name : product.nameEn) || product.name,
                   })
                 ),
             },

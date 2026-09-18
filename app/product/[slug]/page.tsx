@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation';
+import { permanentRedirect, notFound } from 'next/navigation';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
 
@@ -26,5 +26,5 @@ export default async function LegacyProductRedirect({
     notFound();
   }
 
-  redirect(canonicalProductPath(match));
+  permanentRedirect(canonicalProductPath(match));
 }

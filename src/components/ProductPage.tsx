@@ -257,7 +257,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           ) : selectedImg ? (
             <img
               src={selectedImg}
-              alt={isArabic ? `شراء ${displayName} في لبنان, متجر فيكسا` : `Buy ${displayName} in Lebanon, Vexa Store`}
+              alt={(isArabic ? product.imageAltsAr?.[imgIdx] : product.imageAltsEn?.[imgIdx]) || displayName}
               className="w-full h-full object-contain"
               loading="eager"
             />
@@ -304,7 +304,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
         {images.length > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 lg:mx-0 lg:px-0">
             {images.map((img, i) => (
-              <button key={i} onClick={() => setImgIdx(i)}
+              <button key={i} onClick={() => setImgIdx(i)} aria-label={`${isArabic ? 'عرض صورة' : 'Show image'} ${i + 1}`}
                 className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition ${i === imgIdx ? 'border-white' : 'border-white/10 opacity-60 hover:opacity-100'}`}>
                 <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
               </button>

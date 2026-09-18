@@ -6,7 +6,7 @@ import { OpenInBrowserBanner } from './components/OpenInBrowserBanner';
 
 import { ProductList } from './components/ProductList';
 import { ShieldCheck, Lock, Heart, Mail, Info } from 'lucide-react';
-import { getCategorySeoTab } from './data/categories';
+import { canonicalProductPath } from '@/lib/productSeo';
 // ProductPage is imported eagerly (not React.lazy) because it renders the
 // primary SEO/indexable content for product URLs. Lazy-loading it caused
 // Googlebot (and any client whose JS chunk load was slow/blocked) to get
@@ -70,42 +70,11 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
   const isArabic = language === 'ar';
 
   useEffect(() => {
-    const lang = isArabic ? 'ar' : 'en';
-    if (currentView === 'shop') {
-      if (searchQuery) {
-        document.title = isArabic
-          ? `نتائج البحث: ${searchQuery} | متجر فيكسا لبنان`
-          : `Search: ${searchQuery} | Vexa Store Lebanon`;
-      } else {
-        document.title = getCategorySeoTab(activeCategory, lang);
-      }
-    } else if (currentView === 'checkout') {
-      document.title = isArabic ? 'إتمام الطلب | متجر فيكسا لبنان' : 'Checkout | Vexa Store Lebanon';
-    } else if (currentView === 'about') {
-      document.title = isArabic
-        ? 'عن متجر فيكسا | ألعاب زوجية ولانجري في لبنان'
-        : 'About Vexa Store | Sex Toys & Lingerie Lebanon - Discreet Delivery';
-    } else if (currentView === 'orders') {
-      document.title = isArabic ? 'طلباتي | متجر فيكسا لبنان' : 'My Orders | Vexa Store Lebanon';
-    } else if (currentView === 'admin') {
-      document.title = 'Admin Panel | Vexa Store';
-    } else if (currentView === 'product' && selectedProduct) {
-      document.title = `${selectedProduct.nameEn || selectedProduct.name} | Vexa Store Lebanon`;
-    }
-  }, [currentView, activeCategory, searchQuery, isArabic]);
-
-  useEffect(() => {
     if (typeof window === 'undefined') return;
     if (currentView === 'about') {
       if (typeof window !== 'undefined') window.history.replaceState(null, '', '/about');
     } else if (currentView === 'product' && selectedProduct) {
-      const toSl = (s: string) => (s || '').toLowerCase()
-        .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-      const pSlug = (selectedProduct as typeof selectedProduct & { slug?: string }).slug || toSl(selectedProduct.nameEn || selectedProduct.name || '');
-      // Normalize categorySlug (Firestore may store "Male Toys" not "male-toys")
-      const rawCSlug = (selectedProduct as typeof selectedProduct & { categorySlug?: string }).categorySlug || toSl(selectedProduct.category || 'sex-toys');
-      const cSlug = rawCSlug.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim() || 'sex-toys';
-      const productPath = `/${cSlug}/${pSlug}`;
+      const productPath = canonicalProductPath(selectedProduct);
       if (location.pathname !== productPath) {
         if (typeof window !== 'undefined') window.history.replaceState(null, '', productPath);
       }

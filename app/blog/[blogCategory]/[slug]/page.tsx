@@ -16,31 +16,24 @@ export function generateStaticParams() {
 }
 
 
-/** Trim title to keep HTML <title> ≤60 chars. */
-function toSeoTitle(rawTitle: string): string {
-  const suffix = ' | Vexa Store Lebanon';
-  const max = 60 - suffix.length;
-  if (rawTitle.length <= max) return rawTitle + suffix;
-  const cut = rawTitle.slice(0, max);
-  const lastSpace = cut.lastIndexOf(' ');
-  return (lastSpace > 10 ? cut.slice(0, lastSpace) : cut) + suffix;
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ar = await getStoreLocale() === 'ar';
   const { blogCategory, slug } = await params;
   const post = await fetchBlogPostServer(slug);
-  if (!post || post.categorySlug !== blogCategory) return { title: { absolute: 'Blog | Vexa Store Lebanon' } };
+  if (!post || post.categorySlug !== blogCategory || !getBlogCategory(blogCategory)) return { robots: { index: false, follow: false } };
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}/${slug}`;
+  const title = (ar ? post.seoTitleAr : post.seoTitleEn) || `${ar ? post.titleAr || post.title : post.title} | ${ar ? 'متجر فيكسا' : 'Vexa Store Lebanon'}`;
+  const description = (ar ? post.seoDescriptionAr : post.seoDescriptionEn) || (ar ? post.excerptAr || post.excerpt : post.excerpt);
+  const image = post.image || 'https://vexatoys.com/opengraph.jpg';
   return {
-    title: { absolute: toSeoTitle(ar ? post.titleAr || post.title : post.title) },
-    description: ar ? post.excerptAr || post.excerpt : post.excerpt,
+    title: { absolute: title },
+    description,
     keywords: (ar ? post.keywordsAr : post.keywords)?.join(', '),
     alternates: { canonical: pageUrl },
     openGraph: {
-      title: ar ? post.titleAr || post.title : post.title,
-      description: ar ? post.excerptAr || post.excerpt : post.excerpt,
+      title,
+      description,
       locale: ar ? 'ar_LB' : 'en_US',
       url: pageUrl,
       siteName: 'Vexa Store Lebanon',
@@ -48,14 +41,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       publishedTime: new Date(post.publishedAt).toISOString(),
       modifiedTime: new Date(post.updatedAt || post.publishedAt).toISOString(),
       authors: [post.author],
-      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: post.title }],
+      images: [{ url: image, alt: ar ? post.titleAr || post.title : post.title }],
     },
     twitter: {
       card: 'summary_large_image',
       site: '@vexastore',
-      title: ar ? post.titleAr || post.title : post.title,
-      description: ar ? post.excerptAr || post.excerpt : post.excerpt,
-      images: ['https://vexatoys.com/opengraph.jpg'],
+      title,
+      description,
+      images: [image],
     },
     robots: { index: true, follow: true },
   };
@@ -223,18 +216,18 @@ export default async function BlogArticlePage({ params }: Props) {
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
           { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://vexatoys.com/blog' },
-          { '@type': 'ListItem', position: 3, name: cat.name, item: `https://vexatoys.com/blog/${blogCategory}` },
-          { '@type': 'ListItem', position: 4, name: post.title, item: pageUrl },
+          { '@type': 'ListItem', position: 3, name: ar ? cat.nameAr : cat.name, item: `https://vexatoys.com/blog/${blogCategory}` },
+          { '@type': 'ListItem', position: 4, name: ar ? post.titleAr || post.title : post.title, item: pageUrl },
         ],
       },
       {
         '@type': 'Article',
-        headline: post.title,
-        description: post.excerpt,
+        headline: ar ? post.titleAr || post.title : post.title,
+        description: ar ? post.excerptAr || post.excerpt : post.excerpt,
         url: pageUrl,
         datePublished: new Date(post.publishedAt).toISOString(),
         dateModified: new Date(post.updatedAt || post.publishedAt).toISOString(),
-        author: { '@type': 'Organization', name: post.author, url: 'https://vexatoys.com' },
+        author: { '@type': 'Organization', name: post.author },
         publisher: {
           '@type': 'Organization',
           name: 'Vexa Store Lebanon',
@@ -242,6 +235,7 @@ export default async function BlogArticlePage({ params }: Props) {
           logo: { '@type': 'ImageObject', url: 'https://vexatoys.com/vexa-logo.png' },
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
+        ...(post.image ? { image: post.image } : {}),
         keywords: post.keywords?.join(', '),
         inLanguage: locale,
         isPartOf: {

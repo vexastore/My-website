@@ -20,11 +20,11 @@ export const revalidate = 300;
 
 const baseMetadata: Metadata = {
   title: { absolute: 'Adult Toys in Lebanon | All Categories | Vexa Store' },
-  description: 'Shop 500+ adult toys in Lebanon. Discreet plain-box delivery, same-day Beirut, cash on delivery. العاب جنسيه في لبنان, تغليف سري بدون شعار.',
+  description: 'Shop adult toys in Lebanon across our current categories. Discreet packaging and cash on delivery.',
   alternates: { canonical: 'https://vexatoys.com/adult-toys' },
   openGraph: {
     title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
-    description: 'Shop all adult toys in Lebanon, 500+ products with 100% discreet delivery. Same-day Beirut delivery, cash on delivery.',
+    description: 'Shop adult toys in Lebanon across our current categories. Discreet packaging and cash on delivery.',
     url: 'https://vexatoys.com/adult-toys',
     siteName: 'Vexa Store Lebanon',
     locale: 'en_US',
@@ -35,7 +35,7 @@ const baseMetadata: Metadata = {
     card: 'summary_large_image',
     site: '@vexastore',
     title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
-    description: 'Shop all adult toys in Lebanon, 500+ products with 100% discreet delivery.',
+    description: 'Shop adult toys in Lebanon across our current categories.',
     images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true },
@@ -45,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
   if (await getStoreLocale() === 'en') return baseMetadata;
   const title = 'منتجات للكبار في لبنان | متجر فيكسا';
   const description = 'تصفح منتجات متجر فيكسا لجميع الفئات مع تغليف سري ودفع عند الاستلام في لبنان.';
-  return { ...baseMetadata, title: { absolute: title }, description, openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' } };
+  return { ...baseMetadata, title: { absolute: title }, description, openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' }, twitter: { ...baseMetadata.twitter, title, description } };
 }
 
 const jsonLd = {
@@ -61,7 +61,7 @@ const jsonLd = {
     {
       '@type': 'CollectionPage',
       name: 'Adult Toys in Lebanon, All Categories | Vexa Store',
-      description: 'Browse all 500+ adult toys in Lebanon across every category. 100% discreet delivery, cash on delivery.',
+      description: 'Browse adult toys in Lebanon across the currently published categories.',
       url: 'https://vexatoys.com/adult-toys',
     },
     {

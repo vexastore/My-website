@@ -1,5 +1,7 @@
 # Testing
 
+For SEO changes, run the full unit suite, TypeScript, lint, and production build. Start the production build locally, fetch every sitemap URL, and confirm each returns 200 with one self-canonical, one title/description, and one H1. Check representative English and Arabic HTML/JSON-LD, alias redirects, true 404s, checkout noindex, robots.txt, sitemap membership, and duplicate metadata. The technical checks do not establish that Google indexed any page; that requires Search Console URL Inspection and coverage evidence. See the [audit record](09-project/seo-remediation-2026-09-18.md).
+
 For 1.4.0 run `node --test tests/*.test.mjs`, `npx tsc --noEmit`, and `npm run build`. In a browser, check English and Arabic home catalog toolbar, Products submenu and menu transition, one homepage FAQ, blog index/category/article direction and header, quiz, about, and empty order history. With a `vexa_store_language=ar` request cookie, server HTML must render `lang="ar" dir="rtl"`; without it, HTML must render English/LTR. Verify product and article names containing stored em dashes render without them while stored database values remain unchanged. Do not submit checkout orders during UI regression testing.
 
 Run `node --test tests/whatsapp.test.mjs` for link encoding, order details, and optional fields. The storefront-wide TypeScript check now passes locally; a real customer order has been observed confirmed in the live database.

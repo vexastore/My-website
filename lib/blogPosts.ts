@@ -13,6 +13,10 @@ export interface BlogPost {
   author: string;
   readingTime: number; // minutes
   image?: string;
+  seoTitleEn?: string;
+  seoTitleAr?: string;
+  seoDescriptionEn?: string;
+  seoDescriptionAr?: string;
   keywords?: string[];
   keywordsAr?: string[];
 }

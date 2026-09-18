@@ -5,12 +5,12 @@ import { getStoreLocale } from '@/lib/storeLocale';
 import { CATEGORY_META as CATEGORIES } from '@/lib/categoryMeta';
 
 const baseMetadata: Metadata = {
-  title: 'About Vexa Store | #1 Sex Toys Lebanon',
-  description: 'About Vexa Store, Lebanon\'s #1 sex toy shop. 500+ discreet products. Same-day Beirut delivery, cash on delivery. Vibrators, dildos, lingerie, BDSM & more.',
+  title: 'About Vexa Store | Intimate Wellness Lebanon',
+  description: 'Learn about Vexa Store in Lebanon, its product categories, discreet packaging, and cash on delivery.',
   alternates: { canonical: 'https://vexatoys.com/about' },
   openGraph: {
-    title: 'About Vexa Store | #1 Sex Toys Lebanon',
-    description: 'The #1 Sex Toys store in Lebanon. 500+ discreet products. Same-day delivery in Beirut, cash on delivery.',
+    title: 'About Vexa Store | Intimate Wellness Lebanon',
+    description: 'Learn about Vexa Store in Lebanon, its product categories, discreet packaging, and cash on delivery.',
     url: 'https://vexatoys.com/about',
     siteName: 'Vexa Store Lebanon',
     type: 'website',
@@ -31,7 +31,7 @@ const jsonLd = {
   '@type': 'AboutPage',
   name: 'About Vexa Store Lebanon',
   url: 'https://vexatoys.com/about',
-  description: 'Vexa Store is Lebanon\'s #1 discreet adult toy store. 500+ body-safe products. Same-day delivery in Beirut. Cash on delivery.',
+  description: 'About Vexa Store in Lebanon, its product categories and ordering options.',
   breadcrumb: {
     '@type': 'BreadcrumbList',
     itemListElement: [

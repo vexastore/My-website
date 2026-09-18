@@ -23,6 +23,12 @@
     link?: string;
     id: string;
     sku?: string;
+    currency?: string;
+    updatedAt?: string;
+    seoTitleEn?: string;
+    seoTitleAr?: string;
+    seoDescriptionEn?: string;
+    seoDescriptionAr?: string;
     name: string;
     nameEn: string;
     description: string;
@@ -30,6 +36,8 @@
     price: number;
     image: string;
     images?: string[];
+    imageAltsEn?: string[];
+    imageAltsAr?: string[];
     category: CategoryId;
     categories?: CategoryId[];
     rating: number;

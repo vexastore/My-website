@@ -25,6 +25,11 @@ export function toProductSlug(value: string): string {
 export function canonicalProductSlug(product: Product): string {
   const storedSlug = (product.slug || toProductSlug(product.nameEn || product.name || product.id))
     .replace(/-+$/, '');
+  // A second published product reused the old redirected slug. Keep the
+  // historical redirect, but give that distinct product its own canonical URL.
+  if (storedSlug === 'premium-anal-cleansing-douche-easy-comfortable-cleaning-310') {
+    return 'premium-anal-cleansing-douche-easy-comfortable-cleaning-310-ml';
+  }
   return SLUG_REMAPS[storedSlug] ?? storedSlug;
 }
 

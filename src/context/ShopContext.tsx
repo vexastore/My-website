@@ -5,6 +5,7 @@ import { loadArCache, translateProducts, ArTranslation } from '../utils/translat
 import { cartItemKey, cartSubtotal } from '../utils/pricing';
 import { isStorefrontReference, mergeOrderStatuses } from '../utils/order-status';
 import { STORE_LOCALE_COOKIE, type StoreLocale } from '@/lib/storeLocaleShared';
+import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
 
@@ -148,11 +149,9 @@ export const ShopProvider: React.FC<{
       const toSl = (n: string) => (n || '').toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
         .replace(/-+/g, '-').replace(/^-+|-+$/, '').slice(0, 60);
-      return initialProducts.find(p =>
-        p.slug === initialProductSlug ||
-        p.id === initialProductSlug ||
-        toSl(p.nameEn || p.name || '') === initialProductSlug
-      ) || null;
+      return initialProducts.find(p => canonicalProductSlug(p) === initialProductSlug) ||
+        initialProducts.find(p => p.id === initialProductSlug) ||
+        initialProducts.find(p => toSl(p.nameEn || p.name || '') === initialProductSlug) || null;
     }
     return null;
   });
@@ -271,7 +270,7 @@ export const ShopProvider: React.FC<{
         if (parts.length === 2) {
           const slug = parts[1];
           const catSlug = parts[0];
-          const found = products.find(p => {
+          const found = products.find(p => canonicalProductPath(p) === path) || products.find(p => {
             const pSlug = (p as Product & { slug?: string }).slug || toSl(p.nameEn || p.name || '');
             const pCat = (p as Product & { categorySlug?: string }).categorySlug || toSl(p.category || '');
             return (pSlug === slug || toSl(p.nameEn || p.name || '') === slug || p.id === slug) && (!catSlug || pCat === catSlug);
@@ -457,16 +456,7 @@ export const ShopProvider: React.FC<{
     };
 
     const navigateToProduct = (product: Product) => {
-      // Strip trailing hyphens from the stored slug, legacy Firestore slugs may end
-      // with '-' (truncation artefact). Using the clean slug prevents window.history
-      // from pushing a redirect URL instead of the canonical 200 URL.
-      const rawSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
-      const pSlug = rawSlug.replace(/-+$/, '');
-      // Normalize categorySlug before building URL, raw Firestore value may have
-      // spaces or uppercase (e.g. "Male Toys") which would produce a broken URL.
-      const rawCat = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');
-      const catSlug = rawCat.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim() || 'sex-toys';
-      const productPath = `/${catSlug}/${pSlug}`;
+      const productPath = canonicalProductPath(product);
       // Save current scroll position so we can restore it when the user goes back
       try { sessionStorage.setItem('vexa_scroll_' + window.location.pathname, String(Math.round(window.scrollY))); } catch (_) {}
       window.history.pushState(null, '', productPath);

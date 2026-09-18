@@ -16,7 +16,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: [
           '/api/img/',
           '/admin',
-          '/checkout',
           '/revalidate',
           '/api/products',
           '/api/revalidate',

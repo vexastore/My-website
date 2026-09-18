@@ -1,5 +1,7 @@
 # Features
 
+SEO metadata for products, categories, and articles uses published admin overrides when populated, with localized content fallbacks. Canonical product links and the sitemap come from the current Supabase catalog; alternate URLs redirect permanently. Product image alt text uses the admin media fields with a product-name fallback. See the [SEO remediation record](09-project/seo-remediation-2026-09-18.md) for limits and validation.
+
 The public storefront defaults to English and offers Arabic through the EN/AR switch. The selection persists across catalog, product, checkout, orders, blog, about, and quiz views. Page direction and server-rendered copy follow the selected language. The catalog toolbar combines a category dropdown, search field, and filter action; the main navigation has a Products submenu and animated overlay. The homepage has one FAQ section.
 
 Checkout confirms database persistence before offering a customer-sent WhatsApp order summary. The customer sends it manually to the store and keeps a copy in the chat. See [flow](02-architecture/flows/whatsapp-checkout.md).

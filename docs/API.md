@@ -1,5 +1,7 @@
 # API
 
+The published `/api/products` response now includes locale-specific admin SEO title/description overrides, the product currency and update timestamp, and ordered `imageAltsEn`/`imageAltsAr` arrays paired with `images`. These are published catalog fields; private admin fields remain excluded. The article reader also maps published SEO overrides for server-rendered article metadata. No write endpoint or database schema changed in this SEO pass.
+
 The public Telegram `/api/notify-order` relay and `/api/test-telegram` diagnostic were removed. Unused public `/api/indexnow`, `/api/revalidate`, `/api/product-revalidate`, and `/revalidate` routes were also removed. WhatsApp uses a client-side `wa.me` link after an acknowledged order write; it has no server API.
 # Supabase storefront endpoints
 

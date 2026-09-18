@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 export const dynamic = 'force-dynamic';
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { SLUG_TO_CATEGORY, getCategoryMeta } from '@/lib/categoryMeta';
@@ -18,9 +18,6 @@ import {
 } from '@/lib/productSeo';
 
 const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
-
-const OFFER_VALID_FROM = '2026-01-01';
-const OFFER_PRICE_VALID_UNTIL = '2027-12-31';
 
 interface Props {
   params: Promise<{
@@ -70,23 +67,9 @@ function findProduct(
 
   const slug = remappedSlug.replace(/-+$/, '');
 
-  return products.find((product) => {
-    const storedSlug = canonicalProductSlug(product);
-
-    if (storedSlug && storedSlug === slug) {
-      return true;
-    }
-
-    const nameSlug = toProductSlug(
-      product.nameEn || product.name || ''
-    );
-
-    if (nameSlug === slug) {
-      return true;
-    }
-
-    return product.id === slug;
-  });
+  return products.find(product => canonicalProductSlug(product) === slug) ||
+    products.find(product => product.id === slug) ||
+    products.find(product => toProductSlug(product.nameEn || product.name || '') === slug);
 }
 
 /**
@@ -133,16 +116,16 @@ export async function generateMetadata({
     .split('|')[0]
     .trim();
 
-  const title = `${name} | ${categoryLabel} | ${locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Store Lebanon'}`;
+  const sameNameCount = products.filter(item => (locale === 'ar' ? item.name : item.nameEn) === name).length;
+  const priceLabel = `${product.price.toFixed(2)} ${product.currency || 'USD'}`;
+  const title = (locale === 'ar' ? product.seoTitleAr : product.seoTitleEn) ||
+    `${name}${sameNameCount > 1 ? ` (${priceLabel})` : ''} | ${categoryLabel} | ${locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Store Lebanon'}`;
 
-  const description = (
-    ((locale === 'ar' ? product.description : product.descriptionEn) ||
-      product.description ||
-      '')
-      .replace(/\s+/g, ' ')
-      .trim() ||
-    `Buy ${name} in Lebanon. Discreet same-day delivery in Beirut, cash on delivery.`
-  ).slice(0, 158);
+  const sourceDescription = ((locale === 'ar' ? product.description : product.descriptionEn) || product.description || '').replace(/\s+/g, ' ').trim();
+  const listingName = sameNameCount > 1 ? `${name} (${product.slug.replaceAll('-', ' ')})` : name;
+  const description = ((locale === 'ar' ? product.seoDescriptionAr : product.seoDescriptionEn) ||
+    (sourceDescription ? `${listingName}. ${sourceDescription}` : '') ||
+    (locale === 'ar' ? `تسوق ${name} في لبنان من متجر فيكسا.` : `Shop ${name} in Lebanon at Vexa Store.`)).slice(0, 300);
 
   const canonical = `${SITE_BASE_URL}${canonicalProductPath(
     product
@@ -182,10 +165,7 @@ export async function generateMetadata({
       images: [image],
     },
 
-    alternates: {
-      canonical,
-
-    },
+    alternates: { canonical },
 
     robots: {
       index: true,
@@ -255,16 +235,15 @@ export default async function ProductPage({
   }
 
   const name = (
-    product.nameEn ||
+    (locale === 'ar' ? product.name : product.nameEn) ||
     product.name ||
     ''
   ).trim();
 
   const canonicalPath = canonicalProductPath(product);
+  if (`/${category}/${slug}` !== canonicalPath) permanentRedirect(canonicalPath);
 
   const canonicalUrl = `${SITE_BASE_URL}${canonicalPath}`;
-
-  const image = productImage(product);
 
   /**
    * Resolve the real category from the product first.
@@ -276,12 +255,12 @@ export default async function ProductPage({
 
   const catMeta = getCategoryMeta(catSlug);
 
-  const categoryLabel = catMeta.titleEn
+  const categoryLabel = (locale === 'ar' ? catMeta.titleAr : catMeta.titleEn)
     .split('|')[0]
     .trim();
 
   const description = (
-    product.descriptionEn ||
+    (locale === 'ar' ? product.description : product.descriptionEn) ||
     product.description ||
     ''
   )
@@ -311,7 +290,7 @@ export default async function ProductPage({
     })
   );
 
-  const images = [image];
+  const images = [...new Set((product.images || []).filter(value => /^https:\/\//.test(value)))];
 
   const inStock = (product.stock ?? 0) > 0;
 
@@ -356,102 +335,27 @@ export default async function ProductPage({
 
         description,
 
-        image:
-          images.length > 0
-            ? images
-            : [DEFAULT_OG_IMAGE],
+        ...(images.length ? { image: images } : {}),
 
         url: canonicalUrl,
 
-        sku: product.id,
-
-        brand: {
-          '@type': 'Brand',
-          name: 'Vexa Store',
-        },
+        ...(product.sku ? { sku: product.sku } : {}),
 
         hasAdultConsideration:
           'https://schema.org/SexualContentConsideration',
-
-        ...(product.rating &&
-        product.reviewsCount
-          ? {
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: product.rating,
-                reviewCount: product.reviewsCount,
-              },
-            }
-          : {}),
 
         offers: {
           '@type': 'Offer',
 
           url: canonicalUrl,
 
-          priceCurrency: 'USD',
-
+          priceCurrency: product.currency || 'USD',
           price: product.price,
-
-          validFrom: OFFER_VALID_FROM,
-
-          priceValidUntil:
-            OFFER_PRICE_VALID_UNTIL,
 
           availability: inStock
             ? 'https://schema.org/InStock'
             : 'https://schema.org/OutOfStock',
 
-          itemCondition:
-            'https://schema.org/NewCondition',
-
-          shippingDetails: {
-            '@type': 'OfferShippingDetails',
-
-            shippingRate: {
-              '@type': 'MonetaryAmount',
-              value: 0,
-              currency: 'USD',
-            },
-
-            shippingDestination: {
-              '@type': 'DefinedRegion',
-              addressCountry: 'LB',
-            },
-
-            deliveryTime: {
-              '@type': 'ShippingDeliveryTime',
-
-              handlingTime: {
-                '@type': 'QuantitativeValue',
-                minValue: 0,
-                maxValue: 1,
-                unitCode: 'DAY',
-              },
-
-              transitTime: {
-                '@type': 'QuantitativeValue',
-                minValue: 1,
-                maxValue: 3,
-                unitCode: 'DAY',
-              },
-            },
-          },
-
-          hasMerchantReturnPolicy: {
-            '@type': 'MerchantReturnPolicy',
-
-            applicableCountry: 'LB',
-
-            returnPolicyCategory:
-              'https://schema.org/MerchantReturnNotPermitted',
-
-            merchantReturnMethod:
-              'https://schema.org/ReturnByMail',
-
-            returnFees:
-              'https://schema.org/ReturnShippingFees',
-          },
         },
       },
     ],
@@ -465,19 +369,6 @@ export default async function ProductPage({
           __html: JSON.stringify(jsonLd),
         }}
       />
-
-      <div className="sr-only">
-        <h1>{name}</h1>
-
-        <p>{description.slice(0, 300)}</p>
-
-        <p>
-          {categoryLabel}, ${product.price} -{' '}
-          {inStock ? 'In stock' : 'Out of stock'} -
-          Discreet delivery across Lebanon, cash on
-          delivery.
-        </p>
-      </div>
 
       <ShopApp
         initialLocale={locale}

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const CANONICAL_HOST = 'vexatoys.com';
+const DUPLICATE_PARAMS = new Set(['category', 'q', 'search', 'filter', 'sort', 'page']);
 const KNOWN_CATEGORY_SLUGS = new Set([
   'sex-toys', 'vibrators', 'male-toys', 'dildos', 'lingerie', 'bdsm',
   'anal-toys', 'butt-plugs', 'bondage', 'strap-ons', 'kegel-balls',
@@ -27,7 +28,7 @@ function buildCleanUrl(req: NextRequest, pathname: string) {
   // Keep useful campaign/search parameters, but never keep the legacy
   // category selector that created duplicate URLs in Search Console.
   for (const [key, value] of req.nextUrl.searchParams) {
-    if (key !== 'category') target.searchParams.append(key, value);
+    if (!DUPLICATE_PARAMS.has(key.toLowerCase())) target.searchParams.append(key, value);
   }
 
   return target;
@@ -63,7 +64,7 @@ export function middleware(req: NextRequest) {
     // Legacy category parameters are not indexable pages. Remove them from
     // every path so Google cannot keep a duplicate URL such as
     // /sex-toys?category=Sex%20Toys.
-    if (req.nextUrl.searchParams.has('category')) {
+    if ([...req.nextUrl.searchParams.keys()].some(key => DUPLICATE_PARAMS.has(key.toLowerCase()))) {
       return NextResponse.redirect(
         buildCleanUrl(
           req,

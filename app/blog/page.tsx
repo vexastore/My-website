@@ -29,7 +29,7 @@ export async function generateMetadata(): Promise<Metadata> {
   if (await getStoreLocale() === 'en') return baseMetadata;
   const title = 'المدونة والأدلة | متجر فيكسا لبنان';
   const description = 'أدلة ونصائح عن المنتجات والعلاقات والعناية الحميمة في لبنان.';
-  return { ...baseMetadata, title: { absolute: title }, description, openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' } };
+  return { ...baseMetadata, title: { absolute: title }, description, openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' }, twitter: { ...baseMetadata.twitter, title, description } };
 }
 
 const jsonLd = {
@@ -55,7 +55,7 @@ export default async function BlogIndex() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ar ? { ...jsonLd, name: 'مدونة متجر فيكسا', description: 'أدلة ونصائح عن المنتجات والعلاقات والعناية الحميمة في لبنان.' } : jsonLd) }} />
       <BlogHeader locale={locale} />
       <div className="min-h-screen bg-[#050101] text-white" dir={ar ? 'rtl' : 'ltr'}>
         {/* Hero */}

@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const ar = await getStoreLocale() === 'ar';
   const { blogCategory } = await params;
   const cat = getBlogCategory(blogCategory);
-  if (!cat) return { title: { absolute: 'Blog | Vexa Store Lebanon' } };
+  if (!cat) return { robots: { index: false, follow: false } };
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}`;
   return {
@@ -31,13 +31,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: pageUrl,
       siteName: 'Vexa Store Lebanon',
       type: 'website',
-      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: `${cat.name} – Vexa Store Lebanon Blog` }],
+      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: `${ar ? cat.nameAr : cat.name} | Vexa Store Lebanon Blog` }],
     },
     twitter: {
       card: 'summary_large_image',
       site: '@vexastore',
-      title: `${cat.name} | Vexa Store Lebanon Blog`,
-      description: cat.description,
+      title: `${ar ? cat.nameAr : cat.name} | ${ar ? 'مدونة فيكسا' : 'Vexa Store Lebanon Blog'}`,
+      description: ar ? cat.descriptionAr : cat.description,
       images: ['https://vexatoys.com/opengraph.jpg'],
     },
     robots: { index: true, follow: true },
@@ -58,15 +58,15 @@ export default async function BlogCategoryPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: `${cat.name} | Vexa Store Blog`,
+    name: `${ar ? cat.nameAr : cat.name} | Vexa Store Blog`,
     url: `https://vexatoys.com/blog/${blogCategory}`,
-    description: cat.description,
+    description: ar ? cat.descriptionAr : cat.description,
     breadcrumb: {
       '@type': 'BreadcrumbList',
       itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
-        { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://vexatoys.com/blog' },
-        { '@type': 'ListItem', position: 3, name: cat.name, item: `https://vexatoys.com/blog/${blogCategory}` },
+        { '@type': 'ListItem', position: 2, name: ar ? 'المدونة' : 'Blog', item: 'https://vexatoys.com/blog' },
+        { '@type': 'ListItem', position: 3, name: ar ? cat.nameAr : cat.name, item: `https://vexatoys.com/blog/${blogCategory}` },
       ],
     },
   };

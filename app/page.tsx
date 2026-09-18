@@ -8,7 +8,7 @@ import { getStoreLocale } from '@/lib/storeLocale';
 export const revalidate = 300;
 
 const SITE_TITLE = 'Premium Intimate Wellness & Couples Care | Vexa Store Lebanon';
-const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. Rated 4.9/5 by 1,900+ clients. 100% discreet same-day delivery across Beirut & all Lebanon. Cash on delivery.';
+const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. 100% discreet same-day delivery across Beirut & all Lebanon. Cash on delivery.';
 
 const baseMetadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
@@ -172,82 +172,17 @@ const REVIEWS = [
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': `${BASE}/#organization`,
-      name: 'Vexa Store Lebanon',
-      url: BASE,
-      logo: { '@type': 'ImageObject', url: `${BASE}/vexa-logo.png` },
-      contactPoint: { '@type': 'ContactPoint', telephone: '+96176730767', contactType: 'customer service', availableLanguage: ['Arabic', 'English'] },
-      sameAs: ['https://wa.me/96176730767'],
-      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
-      review: REVIEWS.slice(0, 5).map(r => ({
-        '@type': 'Review',
-        author: { '@type': 'Person', name: r.name },
-        reviewRating: { '@type': 'Rating', ratingValue: '5', bestRating: '5' },
-        reviewBody: r.text,
-      })),
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        reviewCount: '1900',
-        bestRating: '5',
-        worstRating: '1',
-      },
-    },
-    {
-      '@type': 'WebSite',
-      '@id': `${BASE}/#website`,
-      url: BASE,
-      name: 'Vexa Store Lebanon',
-      publisher: { '@id': `${BASE}/#organization` },
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: { '@type': 'EntryPoint', urlTemplate: `${BASE}/sex-toys?q={search_term_string}` },
-        'query-input': 'required name=search_term_string',
-      },
-    },
-    {
-      '@type': 'Store',
-      '@id': `${BASE}/#store`,
-      name: 'Vexa Store Lebanon',
-      url: BASE,
-      description: 'متجر فيكسا, الوجهة الفاخرة الأولى في لبنان لمنتجات العناية الحميمية وهدايا المتزوجين واللانجري. توصيل سري، دفع عند الاستلام، وتقييم 4.9/5 من أكثر من 1,900 عميل.',
-      priceRange: '$$',
-      currenciesAccepted: 'USD',
-      paymentAccepted: 'Cash',
-      openingHours: 'Mo-Su 08:00-22:00',
-      address: { '@type': 'PostalAddress', addressCountry: 'LB', addressLocality: 'Beirut' },
-      telephone: '+96176730767',
-      areaServed: { '@type': 'Country', name: 'Lebanon' },
-      aggregateRating: {
-        '@type': 'AggregateRating',
-        ratingValue: '4.9',
-        reviewCount: '1900',
-        bestRating: '5',
-        worstRating: '1',
-      },
-    },
-    {
-      '@type': 'FAQPage',
-      '@id': `${BASE}/#faq`,
-      mainEntity: FAQ_ITEMS.map(item => ({
-        '@type': 'Question',
-        name: item.q,
-        acceptedAnswer: { '@type': 'Answer', text: item.a },
-      })),
-    },
-  ],
+  '@type': 'FAQPage',
+  '@id': `${BASE}/#faq`,
+  mainEntity: FAQ_ITEMS.map(item => ({
+    '@type': 'Question', name: item.q,
+    acceptedAnswer: { '@type': 'Answer', text: item.a },
+  })),
 };
 
 export default async function HomePage() {
   const locale = await getStoreLocale();
-  const localizedJsonLd = JSON.parse(JSON.stringify(jsonLd));
-  if (locale === 'ar') {
-    const faq = localizedJsonLd['@graph'].find((item: { '@type': string }) => item['@type'] === 'FAQPage');
-    faq.mainEntity = FAQ_ITEMS.map(item => ({ '@type': 'Question', name: item.qAr, acceptedAnswer: { '@type': 'Answer', text: item.aAr } }));
-  }
+  const localizedJsonLd = locale === 'ar' ? { ...jsonLd, mainEntity: FAQ_ITEMS.map(item => ({ '@type': 'Question', name: item.qAr, acceptedAnswer: { '@type': 'Answer', text: item.aAr } })) } : jsonLd;
   let allProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
   try {
     allProducts = await fetchProductsServer();

@@ -1,12 +1,13 @@
 {
   "name": "vexa-store",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "dev:staging": "node --env-file=.env.staging.local scripts/dev-staging.mjs",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "lint": "eslint app lib src middleware.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.116.0",
@@ -23,6 +24,8 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.24",
     "postcss": "8.5.28",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.9.0"

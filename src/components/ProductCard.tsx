@@ -113,7 +113,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
               key={imgKey}
               ref={imgRef}
               src={imgSrc}
-              alt={isArabic ? product.name : (product.nameEn || product.name)}
+              alt={(isArabic ? product.imageAltsAr?.[0] : product.imageAltsEn?.[0]) || (isArabic ? product.name : (product.nameEn || product.name))}
               className={`absolute inset-0 h-full w-full object-cover transition-transform duration-500 ${
                 isOutOfStock ? 'grayscale opacity-40' : 'group-hover:scale-105'
               }`}
