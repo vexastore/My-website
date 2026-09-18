@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.2] - 2026-09-18
+
+### Changed
+
+- Remove the administrator link from the public storefront menu in English and Arabic. The separate admin application remains available directly at its own subdomain.
+
 ## [1.4.1] - 2026-09-18
 
 ### Fixed

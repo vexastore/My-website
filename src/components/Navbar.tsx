@@ -3,7 +3,7 @@ import { useShop } from '../context/ShopContext';
 import { Order } from '../types';
 import { selectedUnitPrice } from '../utils/pricing';
 import { CATEGORIES } from '../data/categories';
-import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, Package, Truck, CheckCircle2, XCircle, ClipboardList, Info } from 'lucide-react';
+import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Package, Truck, CheckCircle2, XCircle, ClipboardList, Info } from 'lucide-react';
 
 const CATEGORY_SLUGS: Record<string, string> = {
   'Sex Toys': 'sex-toys', 'Vibrators': 'vibrators', 'Male Toys': 'male-toys',
@@ -214,13 +214,6 @@ export const Navbar: React.FC = () => {
                   <span className="text-[24px] sm:text-3xl md:text-4xl">{isArabic ? 'عن المتجر' : 'About Us'}</span>
                   <Info size={24} strokeWidth={1.3} className="text-white/40" />
                 </a>
-                <div className="mt-8 border-t border-white/10 pt-8">
-                  <a
-                    href="https://admin.vexatoys.com"
-                    className="flex w-full items-center justify-center gap-2 border border-white/15 py-3 text-xs font-bold uppercase tracking-[0.25em] text-white/75 hover:bg-white hover:text-black transition">
-                    <Lock size={15} /> {isArabic ? 'إدارة' : 'Admin'}
-                  </a>
-                </div>
               </nav>
             )}
           </div>
