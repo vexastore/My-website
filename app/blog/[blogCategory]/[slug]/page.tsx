@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BLOG_CATEGORIES, getBlogCategory } from '@/lib/blogPosts';
 import { fetchBlogPostsServer, fetchBlogPostServer } from '@/lib/fetchArticles';
+import { getStoreLocale } from '@/lib/storeLocale';
+import { BlogHeader } from '@/src/components/BlogHeader';
 
 interface Props { params: Promise<{ blogCategory: string; slug: string }> }
 
@@ -24,19 +27,21 @@ function toSeoTitle(rawTitle: string): string {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const ar = await getStoreLocale() === 'ar';
   const { blogCategory, slug } = await params;
   const post = await fetchBlogPostServer(slug);
   if (!post || post.categorySlug !== blogCategory) return { title: { absolute: 'Blog | Vexa Store Lebanon' } };
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}/${slug}`;
   return {
-    title: { absolute: toSeoTitle(post.title) },
-    description: post.excerpt,
-    keywords: post.keywords?.join(', '),
+    title: { absolute: toSeoTitle(ar ? post.titleAr || post.title : post.title) },
+    description: ar ? post.excerptAr || post.excerpt : post.excerpt,
+    keywords: (ar ? post.keywordsAr : post.keywords)?.join(', '),
     alternates: { canonical: pageUrl },
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: ar ? post.titleAr || post.title : post.title,
+      description: ar ? post.excerptAr || post.excerpt : post.excerpt,
+      locale: ar ? 'ar_LB' : 'en_US',
       url: pageUrl,
       siteName: 'Vexa Store Lebanon',
       type: 'article',
@@ -48,8 +53,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     twitter: {
       card: 'summary_large_image',
       site: '@vexastore',
-      title: post.title,
-      description: post.excerpt,
+      title: ar ? post.titleAr || post.title : post.title,
+      description: ar ? post.excerptAr || post.excerpt : post.excerpt,
       images: ['https://vexatoys.com/opengraph.jpg'],
     },
     robots: { index: true, follow: true },
@@ -195,6 +200,8 @@ function renderContent(md: string): React.ReactNode {
 }
 
 export default async function BlogArticlePage({ params }: Props) {
+  const locale = await getStoreLocale();
+  const ar = locale === 'ar';
   const { blogCategory, slug } = await params;
   const post = await fetchBlogPostServer(slug);
   if (!post || post.categorySlug !== blogCategory) notFound();
@@ -236,7 +243,7 @@ export default async function BlogArticlePage({ params }: Props) {
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': pageUrl },
         keywords: post.keywords?.join(', '),
-        inLanguage: 'en',
+        inLanguage: locale,
         isPartOf: {
           '@type': 'Blog',
           name: 'Vexa Store Lebanon Blog',
@@ -249,43 +256,44 @@ export default async function BlogArticlePage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="min-h-screen bg-[#050101] text-white">
+      <BlogHeader locale={locale} />
+      <div className="min-h-screen bg-[#050101] text-white" dir={ar ? 'rtl' : 'ltr'}>
         {/* Header */}
         <div className="border-b border-white/10 bg-black/40">
           <div className="mx-auto max-w-3xl px-4 pt-8 pb-10">
             {/* Breadcrumb */}
             <nav className="flex items-center gap-1.5 text-[11px] text-stone-500 mb-6 flex-wrap">
-              <Link href="/" className="hover:text-white transition">Store</Link>
+              <Link href="/" className="hover:text-white transition">{ar ? 'المتجر' : 'Store'}</Link>
               <span>/</span>
-              <Link href="/blog" className="hover:text-white transition">Blog</Link>
+              <Link href="/blog" className="hover:text-white transition">{ar ? 'المدونة' : 'Blog'}</Link>
               <span>/</span>
-              <Link href={`/blog/${blogCategory}`} className="hover:text-white transition">{cat?.name}</Link>
+              <Link href={`/blog/${blogCategory}`} className="hover:text-white transition">{ar ? cat?.nameAr : cat?.name}</Link>
               <span>/</span>
-              <span className="text-stone-400 truncate max-w-[200px]">{post.title}</span>
+              <span className="text-stone-400 truncate max-w-[200px]">{ar ? post.titleAr || post.title : post.title}</span>
             </nav>
 
             {/* Category badge */}
             <span className="text-[9px] font-black uppercase tracking-[0.25em] text-purple-400 bg-purple-400/10 px-2.5 py-1 rounded-full">
-              {cat?.name}
+              {ar ? cat?.nameAr : cat?.name}
             </span>
 
             {/* Title */}
             <h1 className="text-2xl sm:text-3xl font-black text-white mt-4 mb-4 leading-tight">
-              {post.title}
+              {ar ? post.titleAr || post.title : post.title}
             </h1>
 
             {/* Meta */}
             <div className="flex items-center gap-3 text-[11px] text-stone-500 flex-wrap">
-              <span>By {post.author}</span>
+              <span>{ar ? 'بقلم' : 'By'} {post.author}</span>
               <span>·</span>
-              <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+              <span>{new Date(post.publishedAt).toLocaleDateString(ar ? 'ar-LB' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
               <span>·</span>
-              <span>{post.readingTime} min read</span>
+              <span>{post.readingTime} {ar ? 'دقائق قراءة' : 'min read'}</span>
             </div>
 
             {/* Excerpt */}
             <p className="mt-5 text-stone-400 text-sm leading-relaxed border-l-2 border-purple-500/40 pl-4">
-              {post.excerpt}
+              {ar ? post.excerptAr || post.excerpt : post.excerpt}
             </p>
           </div>
         </div>
@@ -293,48 +301,25 @@ export default async function BlogArticlePage({ params }: Props) {
         {/* Content */}
         <div className="mx-auto max-w-3xl px-4 py-10">
           <article className="prose-custom">
-            {renderContent(post.content)}
+            {renderContent(ar ? post.contentAr || post.content : post.content)}
           </article>
-
-          {/* Arabic version */}
-          <div className="mt-12 pt-8 border-t border-white/10">
-            <button
-              id="ar-toggle"
-              className="text-xs font-bold text-purple-400 hover:text-purple-300 border border-purple-400/30 hover:border-purple-400/60 px-4 py-2 rounded-full transition mb-6"
-              onClick={undefined}
-            >
-              عرض النسخة العربية ↓
-            </button>
-            <details className="group">
-              <summary className="list-none cursor-pointer text-xs font-bold text-purple-400 hover:text-purple-300 transition">
-                عرض النسخة العربية من المقال ↓
-              </summary>
-              <div className="mt-6 pt-6 border-t border-white/10" dir="rtl" lang="ar">
-                <h2 className="text-xl font-black text-white mb-4">{post.titleAr}</h2>
-                <p className="text-stone-400 text-sm leading-relaxed border-r-2 border-purple-500/40 pr-4 mb-6">{post.excerptAr}</p>
-                <article className="prose-custom">
-                  {renderContent(post.contentAr)}
-                </article>
-              </div>
-            </details>
-          </div>
 
           {/* CTA */}
           <div className="mt-12 rounded-2xl border border-purple-500/20 bg-purple-500/5 p-6 text-center">
-            <p className="font-black text-white mb-2">Ready to shop?</p>
-            <p className="text-stone-400 text-sm mb-4">Discreet delivery anywhere in Lebanon. Cash on delivery.</p>
+            <p className="font-black text-white mb-2">{ar ? 'جاهز للتسوق؟' : 'Ready to shop?'}</p>
+            <p className="text-stone-400 text-sm mb-4">{ar ? 'توصيل سري لكل لبنان مع الدفع عند الاستلام.' : 'Discreet delivery anywhere in Lebanon. Cash on delivery.'}</p>
             <Link
               href="/sex-toys"
               className="inline-flex items-center gap-2 bg-white text-black font-black text-sm px-6 py-2.5 rounded-xl hover:bg-stone-200 transition active:scale-[0.98]"
             >
-              Browse Products →
+              {ar ? 'تصفح المنتجات ←' : 'Browse Products →'}
             </Link>
           </div>
 
           {/* Related */}
           {related.length > 0 && (
             <div className="mt-12 pt-8 border-t border-white/10">
-              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-stone-500 mb-5">Related Articles</h2>
+              <h2 className="text-xs font-black uppercase tracking-[0.2em] text-stone-500 mb-5">{ar ? 'مقالات ذات صلة' : 'Related Articles'}</h2>
               <div className="space-y-3">
                 {related.map(p => (
                   <Link
@@ -343,8 +328,8 @@ export default async function BlogArticlePage({ params }: Props) {
                     className="group flex items-start gap-3 rounded-xl border border-white/10 bg-white/5 p-4 hover:border-purple-500/30 hover:bg-white/8 transition"
                   >
                     <div className="flex-1">
-                      <p className="font-black text-sm text-white group-hover:text-purple-200 transition leading-snug">{p.title}</p>
-                      <p className="text-xs text-stone-500 mt-1">{p.readingTime} min read</p>
+                      <p className="font-black text-sm text-white group-hover:text-purple-200 transition leading-snug">{ar ? p.titleAr || p.title : p.title}</p>
+                      <p className="text-xs text-stone-500 mt-1">{p.readingTime} {ar ? 'دقائق قراءة' : 'min read'}</p>
                     </div>
                     <span className="text-stone-600 group-hover:text-purple-400 transition text-xs shrink-0 mt-0.5">→</span>
                   </Link>
@@ -356,7 +341,7 @@ export default async function BlogArticlePage({ params }: Props) {
           {/* Back */}
           <div className="mt-10">
             <Link href="/blog" className="text-xs font-bold text-stone-500 hover:text-white transition">
-              ← Back to Blog
+              {ar ? 'العودة إلى المدونة' : 'Back to Blog'}
             </Link>
           </div>
         </div>

@@ -2,12 +2,13 @@ import type { Metadata } from 'next';
 import './globals.css';
 import MetaPixel from '@/src/components/MetaPixel';
 import { Analytics } from '@vercel/analytics/next';
+import { getStoreLocale } from '@/lib/storeLocale';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
   title: {
     default: 'Luxury Sex Toys in Lebanon | Vexa Store',
-    template: '%s | متجر فيكسا لبنان',
+    template: '%s | Vexa Store Lebanon',
   },
   description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
   keywords: 'luxury sex toys lebanon, sex toys in lebanon, premium vibrators lebanon, high-end adult toys lebanon, designer lingerie beirut, luxury intimacy lebanon, curated sex toys lebanon, premium dildos lebanon, vexa store, ألعاب جنسية فاخرة لبنان, لانجري فاخر بيروت',
@@ -15,13 +16,13 @@ export const metadata: Metadata = {
   creator: 'Vexa Store',
   openGraph: {
     type: 'website',
-    locale: 'ar_LB',
-    alternateLocale: 'en_US',
+    locale: 'en_US',
+    alternateLocale: 'ar_LB',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
     title: 'Luxury Sex Toys in Lebanon | Vexa Store',
     description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Rated 4.9/5. Discreet same-day delivery, cash on delivery.',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Sex Toys & Lingerie' }],
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon, Sex Toys & Lingerie' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -69,7 +70,7 @@ const jsonLd = {
       '@id': `${BASE}/#store`,
       name: 'Vexa Store Lebanon',
       url: BASE,
-      description: 'متجر فيكسا — رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
+      description: 'متجر فيكسا, رقم 1 في لبنان للألعاب الزوجية واللانجري. توصيل سري في بيروت.',
       priceRange: '$$',
       currenciesAccepted: 'USD',
       paymentAccepted: 'Cash, Credit Card',
@@ -99,9 +100,10 @@ const jsonLd = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getStoreLocale();
   return (
-    <html lang="ar" dir="rtl">
+    <html lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
       <head>
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

@@ -1,9 +1,11 @@
 import type { Metadata } from 'next';
+export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { SLUG_TO_CATEGORY, getCategoryMeta } from '@/lib/categoryMeta';
 import { ShopApp } from '@/src/ShopApp';
+import { getStoreLocale } from '@/lib/storeLocale';
 import type { Product } from '@/src/types';
 
 import {
@@ -97,6 +99,7 @@ function productImage(product: Product): string {
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
+  const locale = await getStoreLocale();
   const { category, slug } = await params;
 
   const products = await fetchProductsServer();
@@ -113,7 +116,7 @@ export async function generateMetadata({
   }
 
   const name = (
-    product.nameEn ||
+    (locale === 'ar' ? product.name : product.nameEn) ||
     product.name ||
     ''
   ).trim();
@@ -126,14 +129,14 @@ export async function generateMetadata({
 
   const catMeta = getCategoryMeta(productCategorySlug);
 
-  const categoryLabel = catMeta.titleEn
+  const categoryLabel = (locale === 'ar' ? catMeta.titleAr : catMeta.titleEn)
     .split('|')[0]
     .trim();
 
-  const title = `${name} | ${categoryLabel} | Vexa Store Lebanon`;
+  const title = `${name} | ${categoryLabel} | ${locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Store Lebanon'}`;
 
   const description = (
-    (product.descriptionEn ||
+    ((locale === 'ar' ? product.description : product.descriptionEn) ||
       product.description ||
       '')
       .replace(/\s+/g, ' ')
@@ -159,7 +162,7 @@ export async function generateMetadata({
       description,
       url: canonical,
       siteName: 'Vexa Store Lebanon',
-      locale: 'ar_LB',
+      locale: locale === 'ar' ? 'ar_LB' : 'en_US',
       type: 'website',
       images: [
         {
@@ -182,10 +185,6 @@ export async function generateMetadata({
     alternates: {
       canonical,
 
-      languages: {
-        'ar-LB': canonical,
-        'x-default': SITE_BASE_URL,
-      },
     },
 
     robots: {
@@ -237,6 +236,7 @@ export async function generateStaticParams(): Promise<
 export default async function ProductPage({
   params,
 }: Props) {
+  const locale = await getStoreLocale();
   const { category, slug } = await params;
 
   /**
@@ -472,14 +472,15 @@ export default async function ProductPage({
         <p>{description.slice(0, 300)}</p>
 
         <p>
-          {categoryLabel} — ${product.price} —{' '}
-          {inStock ? 'In stock' : 'Out of stock'} —
+          {categoryLabel}, ${product.price} -{' '}
+          {inStock ? 'In stock' : 'Out of stock'} -
           Discreet delivery across Lebanon, cash on
           delivery.
         </p>
       </div>
 
       <ShopApp
+        initialLocale={locale}
         initialProducts={productsWithImages}
         initialCategory={
           catMeta

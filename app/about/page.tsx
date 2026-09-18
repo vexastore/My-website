@@ -1,10 +1,12 @@
 import { Metadata } from 'next';
 import { ShopApp } from '@/src/ShopApp';
 import { fetchProductsServer } from '@/lib/fetchProducts';
+import { getStoreLocale } from '@/lib/storeLocale';
+import { CATEGORY_META as CATEGORIES } from '@/lib/categoryMeta';
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: 'About Vexa Store | #1 Sex Toys Lebanon',
-  description: 'About Vexa Store — Lebanon\'s #1 sex toy shop. 500+ discreet products. Same-day Beirut delivery, cash on delivery. Vibrators, dildos, lingerie, BDSM & more.',
+  description: 'About Vexa Store, Lebanon\'s #1 sex toy shop. 500+ discreet products. Same-day Beirut delivery, cash on delivery. Vibrators, dildos, lingerie, BDSM & more.',
   alternates: { canonical: 'https://vexatoys.com/about' },
   openGraph: {
     title: 'About Vexa Store | #1 Sex Toys Lebanon',
@@ -16,6 +18,13 @@ export const metadata: Metadata = {
   },
   robots: { index: true, follow: true },
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  if (await getStoreLocale() === 'en') return baseMetadata;
+  const title = 'عن متجر فيكسا لبنان';
+  const description = 'تعرف على متجر فيكسا للمنتجات الزوجية في لبنان. توصيل سري ودفع عند الاستلام.';
+  return { ...baseMetadata, title: { absolute: title }, description, openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' } };
+}
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -33,6 +42,7 @@ const jsonLd = {
 };
 
 export default async function AboutPage() {
+  const locale = await getStoreLocale();
   const allProducts = await fetchProductsServer();
 
   return (
@@ -40,145 +50,61 @@ export default async function AboutPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       {/* Client-side interactive app (user-facing) */}
-      <ShopApp initialProducts={allProducts} initialCategory="Sex Toys" initialView="about" />
+      <ShopApp initialLocale={locale} initialProducts={allProducts} initialCategory="Sex Toys" initialView="about" />
 
       {/*
        * ── Server-rendered SEO block ─────────────────────────────────────────
        * This section is rendered as static HTML, fully visible to Google in the
-       * initial response — no JavaScript required.
+       * initial response, no JavaScript required.
        * The ShopApp above handles the interactive UI for users; this block
        * ensures search engines can read the page content.
        */}
-      <article
-        aria-label="About Vexa Store Lebanon"
-        className="bg-[#070707] text-white border-t border-white/10"
-      >
+      <article aria-label={locale === 'ar' ? 'عن متجر فيكسا لبنان' : 'About Vexa Store Lebanon'} className="bg-[#070707] text-white border-t border-white/10" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
         <div className="mx-auto max-w-5xl px-4 py-14 space-y-12">
-
-          {/* About Hero */}
           <header className="space-y-4">
-            <h1 className="text-3xl font-black text-white">
-              Vexa Store Lebanon — متجر فيكسا لبنان
-            </h1>
-            <p className="text-stone-300 text-sm leading-relaxed max-w-3xl">
-              Vexa Store is Lebanon&apos;s #1 destination for adult toys, vibrators, dildos, lingerie, and BDSM products.
-              We ship 500+ products with 100% discreet packaging across Lebanon — plain sealed boxes, no logo, no indication of contents.
-              Same-day delivery in Beirut. Cash on delivery available everywhere.
-            </p>
-            <p className="text-stone-400 text-sm leading-relaxed max-w-3xl">
-              متجر فيكسا هو الوجهة الأولى في لبنان للألعاب الزوجية والهزازات والديلدو واللانجري ومنتجات BDSM.
-              نشحن أكثر من 500 منتج بتغليف سري 100% — صناديق مغلقة عادية بدون شعار أو أي إشارة للمحتوى.
-              توصيل في نفس اليوم في بيروت. دفع عند الاستلام متاح في كل لبنان.
+            <h1 className="text-3xl font-black">{locale === 'ar' ? 'عن متجر فيكسا لبنان' : 'About Vexa Store Lebanon'}</h1>
+            <p className="max-w-3xl text-sm leading-relaxed text-stone-300">
+              {locale === 'ar'
+                ? 'يوفر متجر فيكسا منتجات زوجية ولانجري ومنتجات عناية حميمية في لبنان مع تغليف سري، توصيل سريع، ودفع عند الاستلام.'
+                : 'Vexa Store offers couples products, lingerie, and intimate wellness essentials in Lebanon with discreet packaging, fast delivery, and cash on delivery.'}
             </p>
           </header>
-
-          {/* Why Vexa */}
           <section>
-            <h2 className="text-xl font-black text-white mb-6">
-              Why Choose Vexa Store? | لماذا تختار متجر فيكسا؟
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <h2 className="mb-6 text-xl font-black">{locale === 'ar' ? 'لماذا تختار متجر فيكسا؟' : 'Why Choose Vexa Store?'}</h2>
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
               {[
-                {
-                  title: '100% Discreet Packaging | تغليف سري 100%',
-                  body: 'Every order ships in a plain sealed box with zero indication of its contents or our store name. خصوصيتك مضمونة في متجر فيكسا لبنان.',
-                },
-                {
-                  title: 'Same-Day Delivery in Beirut | توصيل في نفس اليوم',
-                  body: 'Same-day delivery within Beirut and suburbs. 24–72 hours across all Lebanon. توصيل سريع لكل لبنان بسرية تامة.',
-                },
-                {
-                  title: 'Cash on Delivery | دفع عند الاستلام',
-                  body: 'No online payment needed. Pay in cash when your order arrives. ادفع نقداً عند استلام طلبك.',
-                },
-                {
-                  title: 'Body-Safe Products | منتجات آمنة طبياً',
-                  body: 'All products are made from certified medical-grade, body-safe materials. منتجات أصلية 100% آمنة طبياً.',
-                },
-                {
-                  title: "Lebanon's Widest Selection | أكبر تشكيلة في لبنان",
-                  body: '500+ sex toys, vibrators, dildos, lingerie, BDSM, and more. شيء لكل الأذواق في متجر فيكسا لبنان.',
-                },
-                {
-                  title: 'WhatsApp Support | دعم على واتساب',
-                  body: 'Private WhatsApp support for all questions. دعم خاص عبر واتساب للإجابة على كل استفساراتك بسرية تامة.',
-                },
-              ].map((item, i) => (
-                <div key={i} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
-                  <h3 className="font-black text-white text-sm mb-2">{item.title}</h3>
-                  <p className="text-stone-400 text-xs leading-relaxed">{item.body}</p>
-                </div>
-              ))}
+                { en: 'Discreet packaging', ar: 'تغليف سري', detailEn: 'Every order arrives in a plain sealed box without a store logo.', detailAr: 'يصل كل طلب في صندوق عادي مغلق دون شعار المتجر.' },
+                { en: 'Fast delivery', ar: 'توصيل سريع', detailEn: 'Same-day delivery in Beirut and delivery across Lebanon.', detailAr: 'توصيل في اليوم نفسه داخل بيروت وإلى جميع المناطق اللبنانية.' },
+                { en: 'Cash on delivery', ar: 'الدفع عند الاستلام', detailEn: 'Pay when your order arrives. No online payment is required.', detailAr: 'ادفع عند وصول طلبك دون الحاجة إلى الدفع عبر الإنترنت.' },
+                { en: 'Private support', ar: 'دعم بخصوصية تامة', detailEn: 'Our team can help you choose through WhatsApp.', detailAr: 'يمكن لفريقنا مساعدتك في الاختيار عبر واتساب.' },
+              ].map(item => <div key={item.en} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
+                <h3 className="mb-2 text-sm font-black">{locale === 'ar' ? item.ar : item.en}</h3>
+                <p className="text-xs leading-relaxed text-stone-400">{locale === 'ar' ? item.detailAr : item.detailEn}</p>
+              </div>)}
             </div>
           </section>
-
-          {/* Categories */}
           <section>
-            <h2 className="text-xl font-black text-white mb-4">
-              Shop by Category in Lebanon | تسوق حسب الفئة في لبنان
-            </h2>
-            <p className="text-stone-400 text-sm mb-6">
-              Vexa Store carries Lebanon&apos;s most complete collection of adult products, all available with discreet delivery.
-            </p>
-            <ul className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { en: 'Sex Toys Lebanon', slug: 'sex-toys' },
-                { en: 'Vibrators Lebanon', slug: 'vibrators' },
-                { en: 'Dildos Lebanon', slug: 'dildos' },
-                { en: 'Lingerie Lebanon', slug: 'lingerie' },
-                { en: 'BDSM Toys Lebanon', slug: 'bdsm' },
-                { en: 'Male Toys Lebanon', slug: 'male-toys' },
-                { en: 'Lubricants Lebanon', slug: 'lubricants' },
-                { en: 'Anal Toys Lebanon', slug: 'anal-toys' },
-              ].map((cat) => (
-                <li key={cat.slug}>
-                  <a
-                    href={`/${cat.slug}`}
-                    className="block rounded-lg border border-white/10 bg-white/[0.02] px-3 py-2 text-xs font-bold text-stone-300 hover:text-white hover:border-white/20 transition"
-                  >
-                    {cat.en}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {/* FAQ */}
-          <section>
-            <h2 className="text-xl font-black text-white mb-6">
-              Frequently Asked Questions | أسئلة شائعة
-            </h2>
-            <div className="space-y-5">
-              {[
-                {
-                  q: 'Do you deliver discreetly in Lebanon? | هل التوصيل سري في لبنان؟',
-                  a: 'Yes. Every order ships in a plain sealed box with no logo and no indication of contents. توصيل سري 100% في كل لبنان.',
-                },
-                {
-                  q: 'Can I pay cash on delivery in Lebanon? | هل يمكنني الدفع عند الاستلام؟',
-                  a: 'Yes. Cash on delivery (COD) is available across all Lebanon. No online payment required. دفع عند الاستلام متاح في كل لبنان.',
-                },
-                {
-                  q: 'How fast is delivery in Beirut? | كم يستغرق التوصيل في بيروت؟',
-                  a: 'Same-day delivery in Beirut and suburbs. 24–72 hours for other Lebanese regions. توصيل في نفس اليوم في بيروت.',
-                },
-                {
-                  q: 'Are your products body-safe? | هل المنتجات آمنة للجسم؟',
-                  a: 'Yes. All Vexa Store products are made from certified medical-grade, body-safe materials. كل منتجاتنا من مواد طبية آمنة ومعتمدة.',
-                },
-                {
-                  q: 'Do you ship outside Beirut? | هل تشحنون خارج بيروت؟',
-                  a: 'Yes. We ship to all regions of Lebanon including Tripoli, Sidon, Tyre, Zahle, and all other areas. نشحن لكل لبنان.',
-                },
-              ].map((faq, i) => (
-                <details key={i} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
-                  <summary className="font-black text-white text-sm cursor-pointer">{faq.q}</summary>
-                  <p className="text-stone-400 text-xs leading-relaxed mt-3">{faq.a}</p>
-                </details>
-              ))}
+            <h2 className="mb-4 text-xl font-black">{locale === 'ar' ? 'تسوق حسب الفئة' : 'Shop by Category'}</h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {['sex-toys', 'vibrators', 'dildos', 'lingerie', 'bdsm', 'male-toys', 'lubricants', 'anal-toys'].map(slug => {
+                const category = CATEGORIES.find(item => item.slug === slug);
+                return <a key={slug} href={`/${slug}`} className="rounded-lg border border-white/10 px-3 py-2 text-xs font-bold text-stone-300 hover:border-white/30 hover:text-white">{locale === 'ar' ? category?.titleAr.split('|')[0].trim() : category?.titleEn.split('|')[0].trim()}</a>;
+              })}
             </div>
           </section>
-
+          <section>
+            <h2 className="mb-6 text-xl font-black">{locale === 'ar' ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}</h2>
+            <div className="space-y-3">
+              {[
+                { en: 'Is delivery discreet?', ar: 'هل التوصيل سري؟', answerEn: 'Yes. Orders arrive in plain sealed boxes without a logo.', answerAr: 'نعم. تصل الطلبات في صناديق عادية مغلقة دون شعار.' },
+                { en: 'Can I pay on delivery?', ar: 'هل يمكنني الدفع عند الاستلام؟', answerEn: 'Yes. Cash on delivery is available across Lebanon.', answerAr: 'نعم. الدفع عند الاستلام متاح في جميع أنحاء لبنان.' },
+                { en: 'Do you deliver outside Beirut?', ar: 'هل توصلون خارج بيروت؟', answerEn: 'Yes. We deliver throughout Lebanon.', answerAr: 'نعم. نوصل إلى جميع المناطق اللبنانية.' },
+              ].map(item => <details key={item.en} className="rounded-xl border border-white/10 p-5">
+                <summary className="cursor-pointer text-sm font-black">{locale === 'ar' ? item.ar : item.en}</summary>
+                <p className="mt-3 text-xs leading-relaxed text-stone-400">{locale === 'ar' ? item.answerAr : item.answerEn}</p>
+              </details>)}
+            </div>
+          </section>
         </div>
       </article>
     </>

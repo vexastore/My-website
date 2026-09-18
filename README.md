@@ -1,5 +1,7 @@
 # Vexa Store storefront
 
+The public storefront defaults to English. Use the EN/AR switch in the shop header or blog header to change languages; the selection persists across pages. Catalog controls place the category dropdown, search, and filter together. The main menu groups product categories under Products, and the homepage has one FAQ section.
+
 The public storefront serves the catalog and checkout. The separate administrator app is maintained in `admin-vexatoys`.
 
 Category buying guides and FAQ lists now come from Supabase editorial rows rather than bundled source text. Administrators edit them under Content → Category guides & FAQs. The visible FAQ answers and FAQ structured data use the same records and refresh within about five minutes.

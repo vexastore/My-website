@@ -1,27 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from './ProductCard';
-import { SearchX, ShoppingBag, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
-import { CATEGORIES, getCategoryTitle, productMatchesCategory, getCategorySeoTab } from '../data/categories';
+import { Search, SearchX, ChevronLeft, ChevronRight, SlidersHorizontal, X } from 'lucide-react';
+import { CATEGORIES, getCategoryTitle, productMatchesCategory } from '../data/categories';
 
 export const ProductList: React.FC = () => {
   const { products, activeCategory, seoHeading, setActiveCategory, searchQuery, setSearchQuery, language, isProductsLoading } = useShop();
   const isArabic = language === 'ar';
-  // Dynamic title + meta description per category (SEO)
-  useEffect(() => {
-    const cat = CATEGORIES.find(c => c.id === activeCategory);
-    if (cat) {
-      document.title = cat.seoTab[isArabic ? 'ar' : 'en'];
-      const metaDesc = document.querySelector('meta[name="description"]');
-      if (metaDesc) {
-        const desc = isArabic
-          ? cat.titlePage.ar + ' - توصيل سري بنفس اليوم في بيروت. دفع عند الاستلام. تغليف سري 100%. متجر فيكسا لبنان.'
-          : cat.titlePage.en + ' - Same day discreet delivery in Beirut. Cash on delivery. 100% discreet packaging. Vexa Store Lebanon.';
-        metaDesc.setAttribute('content', desc);
-      }
-    }
-  }, [activeCategory, isArabic]);
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [openFilterSection, setOpenFilterSection] = useState<'availability' | 'price' | 'categories' | null>(null);
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'in-stock' | 'low-stock'>('all');
@@ -47,35 +32,8 @@ export const ProductList: React.FC = () => {
     return b.reviewsCount - a.reviewsCount;
   });
 
-  // Every matching product renders in one grid — no pagination, no "Load more" click.
+  // Every matching product renders in one grid, no pagination, no "Load more" click.
   const visibleProducts = filteredProducts;
-
-  const faqs = [
-    {
-      q: isArabic ? 'هل تقومون بتوصيل الطلبات بسرية؟' : 'Do you deliver orders discreetly?',
-      a: isArabic
-        ? 'نعم. كل الطلبات تصل داخل كرتون عادي مغلق بدون شعار المتجر أو اسم المنتج، حفاظاً على خصوصيتك.'
-        : 'Yes. Every order is delivered in a plain sealed box with no store logo or product name for full privacy.'
-    },
-    {
-      q: isArabic ? 'هل يمكنني الدفع عند الاستلام؟' : 'Can I pay cash on delivery?',
-      a: isArabic
-        ? 'نعم. الدفع عند الاستلام متاح. لا تحتاج للدفع أونلاين.'
-        : 'Yes. Cash on delivery is available. No online payment required.'
-    },
-    {
-      q: isArabic ? 'ما هي سياسة الإرجاع؟' : "What's your return policy?",
-      a: isArabic
-        ? 'راحتك وثقتك مهمة لنا. إذا وصلتك أي مشكلة في الطلب أو التغليف، تواصل معنا فوراً وسنساعدك.'
-        : 'Your comfort and trust matter to us. If there is any issue with your order, contact us right away and our team will help.'
-    },
-    {
-      q: isArabic ? 'هل المنتجات جديدة بالكامل؟' : 'Are your items brand new?',
-      a: isArabic
-        ? 'نعم، كل المنتجات جديدة بالكامل ومغلقة داخل عبواتها الأصلية.'
-        : 'Yes, all items are brand new and sealed in their original packaging.'
-    }
-  ];
 
   const availabilityOptions = [
     { id: 'all', label: isArabic ? 'الكل' : 'All' },
@@ -102,7 +60,7 @@ export const ProductList: React.FC = () => {
       </section>
 
       <section id="products-grid" className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-end justify-between border-b border-white/10 pb-5">
+        <div className="mb-6 border-b border-white/10 pb-5">
           <div>
             <p className="text-[10px] font-black uppercase tracking-[0.36em] text-white/35">
               {isArabic ? 'مجموعة متجر فيكسا' : 'Vexa Store Collection'}
@@ -117,41 +75,31 @@ export const ProductList: React.FC = () => {
                 : getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')}
             </h1>
           </div>
-          <button
-            onClick={() => setIsFilterOpen(true)}
-            aria-label={isArabic ? 'فتح قائمة الفلتر' : 'Open filter menu'}
-            className="inline-flex items-center gap-2 border border-white/20 px-4 py-2 text-[10px] font-black uppercase tracking-[0.22em] text-white/80 transition hover:bg-white hover:text-black"
-          >
-            <SlidersHorizontal size={14} />
-            {isArabic ? 'فلتر' : 'Filter'}
-          </button>
         </div>
 
-        {/* ── QUICK CATEGORY BAR — every category, one tap, no hamburger needed ── */}
-        <div className="mb-6 -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0 sm:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <button
-            onClick={() => { setActiveCategory(''); setSearchQuery(''); }}
-            className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] transition active:scale-95 ${
-              !searchQuery && activeCategory === ''
-                ? 'border-white bg-white text-black'
-                : 'border-white/15 bg-white/[0.03] text-white/60 hover:border-white/35 hover:text-white'
-            }`}
+        <div className="mb-6 grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_auto] items-center gap-2 sm:gap-3" dir="ltr">
+          <label className="sr-only" htmlFor="catalog-category">{isArabic ? 'اختر الفئة' : 'Choose a category'}</label>
+          <select
+            id="catalog-category"
+            value={activeCategory}
+            onChange={event => { setActiveCategory(event.target.value); setSearchQuery(''); }}
+            className="h-11 min-w-0 w-full rounded-none border border-white/20 bg-[#151515] px-2 text-xs font-bold text-white outline-none focus:border-white/60 sm:px-4 sm:text-sm"
+            dir={isArabic ? 'rtl' : 'ltr'}
           >
-            {isArabic ? 'الكل' : 'All'}
-          </button>
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat.id}
-              onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); }}
-              className={`shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[10px] font-black uppercase tracking-[0.16em] transition active:scale-95 ${
-                !searchQuery && activeCategory === cat.id
-                  ? 'border-white bg-white text-black'
-                  : 'border-white/15 bg-white/[0.03] text-white/60 hover:border-white/35 hover:text-white'
-              }`}
-            >
-              {isArabic ? cat.name.ar : cat.name.en}
-            </button>
-          ))}
+            <option value="">{isArabic ? 'كل الفئات' : 'All categories'}</option>
+            {CATEGORIES.map(cat => <option key={cat.id} value={cat.id}>{isArabic ? cat.name.ar : cat.name.en}</option>)}
+          </select>
+          <label className="flex h-11 min-w-0 items-center gap-2 border border-white/20 bg-white/[0.03] px-2 focus-within:border-white/60 sm:px-4" dir={isArabic ? 'rtl' : 'ltr'}>
+            <Search size={17} className="shrink-0 text-white/50" aria-hidden="true" />
+            <span className="sr-only">{isArabic ? 'بحث المنتجات' : 'Search products'}</span>
+            <input type="search" value={searchQuery} onChange={event => setSearchQuery(event.target.value)} placeholder={isArabic ? 'ابحث عن منتج' : 'Search products'} className="min-w-0 w-full bg-transparent text-xs text-white outline-none placeholder:text-white/40 sm:text-sm" />
+          </label>
+          <button
+            type="button"
+            onClick={() => setIsFilterOpen(true)}
+            aria-label={isArabic ? 'فتح قائمة الفلتر' : 'Open filter menu'}
+            className="inline-flex h-11 items-center justify-center gap-2 border border-white/20 px-3 text-[10px] font-black uppercase tracking-[0.12em] text-white/80 transition hover:bg-white hover:text-black sm:px-5 sm:tracking-[0.22em]"
+          ><SlidersHorizontal size={16} /> <span className="hidden sm:inline">{isArabic ? 'فلتر' : 'Filter'}</span></button>
         </div>
 
         <div className="mb-8 flex items-center justify-between text-[10px] font-black uppercase tracking-[0.25em] text-white/35">
@@ -208,15 +156,8 @@ export const ProductList: React.FC = () => {
         ) : (
           <div className="flex flex-col items-center justify-center border border-dashed border-white/15 bg-white/[0.03] px-4 py-20 text-center">
             <div className="mb-5 text-4xl">🔧</div>
-            <h3 className="mb-3 text-xl font-black text-white tracking-wide">
-              نعمل على تحسين المتجر
-            </h3>
-            <p className="mb-1 max-w-sm text-sm leading-relaxed text-white/60">
-              الموقع تحت الصيانة مؤقتاً. سنعود قريباً بتجربة أفضل.
-            </p>
-            <p className="mb-6 max-w-sm text-xs leading-relaxed text-white/40">
-              We're currently under maintenance. We'll be back shortly with a better experience.
-            </p>
+            <h3 className="mb-3 text-xl font-black text-white tracking-wide">{isArabic ? 'لا توجد منتجات في هذه الفئة' : 'No products in this category'}</h3>
+            <p className="mb-6 max-w-sm text-sm leading-relaxed text-white/60">{isArabic ? 'جرّب فئة أخرى أو تواصل معنا للمساعدة.' : 'Try another category or contact us for help.'}</p>
             <a
               href="https://wa.me/96176730767?text=مرحبا، متى سيعود المتجر؟"
               target="_blank"
@@ -226,7 +167,7 @@ export const ProductList: React.FC = () => {
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
                 <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
               </svg>
-              تواصل معنا / Contact Us
+              {isArabic ? 'تواصل معنا' : 'Contact us'}
             </a>
           </div>
         )}
@@ -260,30 +201,6 @@ export const ProductList: React.FC = () => {
               </>
             )}
           </h3>
-        </div>
-      </section>
-
-      <section className="bg-[#151515] py-10 text-white sm:py-14">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-7 text-2xl font-light tracking-[0.08em] sm:text-3xl">
-            {isArabic ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
-          </h2>
-          <div className="divide-y divide-white/10 border-y border-white/10">
-            {faqs.map((faq, index) => (
-              <div key={index}>
-                <button
-                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="flex w-full items-center justify-between py-4 text-right text-base font-black tracking-wide text-[#ffc21a] transition hover:text-[#ffd45c] sm:text-xl"
-                >
-                  <span>{faq.q}</span>
-                  <span className="text-lg text-white/40 sm:text-xl">{openFaq === index ? '-' : '+'}</span>
-                </button>
-                {openFaq === index && (
-                  <p className="pb-5 text-xs leading-6 text-white/65 sm:text-sm">{faq.a}</p>
-                )}
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 

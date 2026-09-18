@@ -3,13 +3,14 @@ import Link from 'next/link';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { CITY_META } from '@/lib/cityMeta';
 import { ShopApp } from '@/src/ShopApp';
+import { getStoreLocale } from '@/lib/storeLocale';
 
 export const revalidate = 300;
 
 const SITE_TITLE = 'Premium Intimate Wellness & Couples Care | Vexa Store Lebanon';
 const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. Rated 4.9/5 by 1,900+ clients. 100% discreet same-day delivery across Beirut & all Lebanon. Cash on delivery.';
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
   title: SITE_TITLE,
   description: SITE_DESC,
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
     'adult toys lebanon',
     'vibrators lebanon',
     'dildos lebanon',
-    // High-end legal euphemisms — safe, premium, brand-forward
+    // High-end legal euphemisms, safe, premium, brand-forward
     'intimate wellness lebanon',
     'luxury personal massagers beirut',
     'couples intimacy products',
@@ -38,12 +39,12 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://vexatoys.com' },
   openGraph: {
     type: 'website',
-    locale: 'ar_LB',
+    locale: 'en_US',
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
     title: SITE_TITLE,
     description: 'Discover luxury personal massagers, elegant lingerie, and couples essentials. 100% discreet same-day delivery and private packaging across Lebanon. Cash on delivery.',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon — Premium Intimate Wellness' }],
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon, Premium Intimate Wellness' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -60,75 +61,110 @@ export const metadata: Metadata = {
   },
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  if (await getStoreLocale() === 'en') return baseMetadata;
+  const title = 'متجر فيكسا لبنان | منتجات زوجية وتوصيل سري';
+  const description = 'تسوق منتجات العناية الحميمية واللانجري في لبنان بخصوصية تامة. توصيل سري ودفع عند الاستلام.';
+  return {
+    ...baseMetadata,
+    title,
+    description,
+    openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' },
+    twitter: { ...baseMetadata.twitter, title, description },
+  };
+}
+
 const BASE = 'https://vexatoys.com';
 
-// FAQ content — shown both as visible copy (below) and as FAQPage schema so
+// FAQ content, shown both as visible copy (below) and as FAQPage schema so
 // Google can surface these as expandable rich-result questions under the
-// homepage listing. Never mark up hidden-only text — this exact copy is
+// homepage listing. Never mark up hidden-only text, this exact copy is
 // rendered in the FAQ_ITEMS section further down the page.
 const FAQ_ITEMS = [
   {
     q: 'Is delivery really discreet?',
     a: 'Yes. Every order ships in a plain, sealed box with no logo, no branding, and no indication of contents. Even the courier doesn\u2019t know what\u2019s inside.',
+    qAr: 'هل التوصيل سري فعلاً؟',
+    aAr: 'نعم. يصل كل طلب في صندوق عادي مغلق بلا شعار أو اسم للمنتج حفاظاً على خصوصيتك.',
   },
   {
     q: 'Do you deliver sex toys across all of Lebanon?',
-    a: 'Yes — same-day delivery in Beirut, and 1-3 day delivery to Tripoli, Sidon, Zahle, Jounieh, and the rest of Lebanon.',
+    a: 'Yes, same-day delivery in Beirut, and 1-3 day delivery to Tripoli, Sidon, Zahle, Jounieh, and the rest of Lebanon.',
+    qAr: 'هل توصلون إلى كل لبنان؟',
+    aAr: 'نعم. نوصل في اليوم نفسه داخل بيروت، وخلال يوم إلى ثلاثة أيام إلى باقي المناطق اللبنانية.',
   },
   {
     q: 'Can I pay cash on delivery?',
     a: 'Yes, cash on delivery is available everywhere in Lebanon, alongside card payment options.',
+    qAr: 'هل يمكنني الدفع عند الاستلام؟',
+    aAr: 'نعم. الدفع عند الاستلام متاح في جميع أنحاء لبنان.',
   },
   {
     q: 'Are the products body-safe and good quality?',
     a: 'All products use body-safe silicone or medical-grade materials, and every item ships new and sealed.',
+    qAr: 'هل المنتجات آمنة وجديدة؟',
+    aAr: 'نعم. تُصنع المنتجات من مواد آمنة للجسم، وتصل جديدة ومغلقة.',
   },
   {
     q: 'How do I order?',
     a: 'Browse the site and check out directly, or message us on WhatsApp and our team will help you choose and confirm your order.',
+    qAr: 'كيف أطلب؟',
+    aAr: 'تصفح المنتجات وأكمل الطلب من الموقع، أو تواصل معنا عبر واتساب للمساعدة.',
   },
 ];
 
 const REVIEWS = [
   {
-    text: 'Placed my order in the morning and it arrived before dinner. Plain box, nothing on it. Product quality genuinely surprised me — better than expected.',
+    text: 'Placed my order in the morning and it arrived before dinner. Plain box, nothing on it. Product quality genuinely surprised me, better than expected.',
+    textAr: 'طلبت صباحاً ووصل طلبي قبل المساء في صندوق عادي. جودة المنتج كانت أفضل من المتوقع.',
     name: 'Dina M.',
     city: 'Beirut, Lebanon',
+    cityAr: 'بيروت، لبنان',
     initial: 'D',
     color: 'bg-purple-600',
   },
   {
     text: 'Was skeptical ordering something like this online in Lebanon, but Vexa proved me wrong. Discreet, professional, and the quality is actually great.',
+    textAr: 'كنت متردداً في الطلب عبر الإنترنت، لكن التجربة كانت سرية واحترافية والجودة ممتازة.',
     name: 'Georges K.',
     city: 'Jounieh, Lebanon',
+    cityAr: 'جونية، لبنان',
     initial: 'G',
     color: 'bg-rose-600',
   },
   {
-    text: 'Messaged them on WhatsApp before ordering — they answered fast and helped me pick the right product. Arrived in Tripoli in two days, completely plain box.',
+    text: 'Messaged them on WhatsApp before ordering, they answered fast and helped me pick the right product. Arrived in Tripoli in two days, completely plain box.',
+    textAr: 'تواصلت معهم عبر واتساب قبل الطلب، وساعدوني في الاختيار. وصل المنتج إلى طرابلس خلال يومين بصندوق عادي.',
     name: 'Tarek H.',
     city: 'Tripoli, Lebanon',
+    cityAr: 'طرابلس، لبنان',
     initial: 'T',
     color: 'bg-amber-600',
   },
   {
     text: 'Fast, private, and exactly what was advertised. Cash on delivery made everything easier. Already placed a second order.',
+    textAr: 'الخدمة سريعة وسرية والمنتج كما في الوصف. الدفع عند الاستلام سهّل الطلب، وقد طلبت مرة أخرى.',
     name: 'Lina B.',
     city: 'Sidon, Lebanon',
+    cityAr: 'صيدا، لبنان',
     initial: 'L',
     color: 'bg-teal-600',
   },
   {
     text: 'Delivery reached Zahle the next morning. I was a bit nervous about privacy but the packaging had absolutely nothing on it. Very impressed.',
+    textAr: 'وصل طلبي إلى زحلة في صباح اليوم التالي. كان التغليف خالياً تماماً من أي علامة تكشف المحتوى.',
     name: 'Jad R.',
     city: 'Zahle, Lebanon',
+    cityAr: 'زحلة، لبنان',
     initial: 'J',
     color: 'bg-indigo-600',
   },
   {
     text: 'No other store in Lebanon comes close. Fair prices, same-day delivery in Beirut, and genuinely discreet packaging every single time.',
+    textAr: 'أسعار مناسبة وتوصيل في اليوم نفسه داخل بيروت وتغليف سري في كل مرة.',
     name: 'Nadia S.',
     city: 'Beirut, Lebanon',
+    cityAr: 'بيروت، لبنان',
     initial: 'N',
     color: 'bg-sky-600',
   },
@@ -177,7 +213,7 @@ const jsonLd = {
       '@id': `${BASE}/#store`,
       name: 'Vexa Store Lebanon',
       url: BASE,
-      description: 'متجر فيكسا — الوجهة الفاخرة الأولى في لبنان لمنتجات العناية الحميمية وهدايا المتزوجين واللانجري. توصيل سري، دفع عند الاستلام، وتقييم 4.9/5 من أكثر من 1,900 عميل.',
+      description: 'متجر فيكسا, الوجهة الفاخرة الأولى في لبنان لمنتجات العناية الحميمية وهدايا المتزوجين واللانجري. توصيل سري، دفع عند الاستلام، وتقييم 4.9/5 من أكثر من 1,900 عميل.',
       priceRange: '$$',
       currenciesAccepted: 'USD',
       paymentAccepted: 'Cash',
@@ -206,12 +242,18 @@ const jsonLd = {
 };
 
 export default async function HomePage() {
+  const locale = await getStoreLocale();
+  const localizedJsonLd = JSON.parse(JSON.stringify(jsonLd));
+  if (locale === 'ar') {
+    const faq = localizedJsonLd['@graph'].find((item: { '@type': string }) => item['@type'] === 'FAQPage');
+    faq.mainEntity = FAQ_ITEMS.map(item => ({ '@type': 'Question', name: item.qAr, acceptedAnswer: { '@type': 'Answer', text: item.aAr } }));
+  }
   let allProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
   try {
     allProducts = await fetchProductsServer();
-  } catch { /* graceful fallback — shop renders empty, still functional */ }
+  } catch { /* graceful fallback, shop renders empty, still functional */ }
 
-  // Strip any base64 data-URIs before they ever reach the client bundle —
+  // Strip any base64 data-URIs before they ever reach the client bundle -
   // same normalization used by /adult-toys and /[category].
   const productsWithImages = allProducts.map(p => ({
     ...p,
@@ -221,21 +263,22 @@ export default async function HomePage() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localizedJsonLd) }} />
 
       {/* ── THE SHOP ITSELF ───────────────────────────────────────────────────
           This is the entire landing experience: navbar with search, cart,
           hamburger menu, an always-visible category bar, and the full
-          product grid — every category, every product, no "Load more"
+          product grid, every category, every product, no "Load more"
           click. This is what a visitor sees the instant they land on "/". */}
       <ShopApp
+        initialLocale={locale}
         initialProducts={productsWithImages}
         initialCategory=""
         initialView="shop"
-        seoHeading="Premium Intimate Wellness & Couples Care | Vexa Store Lebanon"
+        seoHeading={locale === 'ar' ? 'منتجات العناية الحميمية والأزواج | متجر فيكسا لبنان' : 'Premium Intimate Wellness & Couples Care | Vexa Store Lebanon'}
       />
 
-      <main className="bg-[#050101] text-white">
+      <main className="bg-[#050101] text-white" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
 
         {/* ── TRUST STRIP ───────────────────────────────────────────────────── */}
         <section className="border-y border-white/10 bg-white/[0.015]">
@@ -249,8 +292,7 @@ export default async function HomePage() {
               ].map((s, i) => (
                 <div key={i} className="py-2">
                   <p className="text-2xl font-black text-white">{s.value}</p>
-                  <p className="text-stone-400 text-xs mt-0.5">{s.label}</p>
-                  <p className="text-stone-600 text-[10px]">{s.labelAr}</p>
+                  <p className="text-stone-400 text-xs mt-0.5">{locale === 'ar' ? s.labelAr : s.label}</p>
                 </div>
               ))}
             </div>
@@ -261,10 +303,10 @@ export default async function HomePage() {
         <section className="border-t border-white/10">
           <div className="max-w-5xl mx-auto px-4 py-16">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
-              Why Thousands Choose Us
+              {locale === 'ar' ? 'لماذا يختارنا العملاء' : 'Why Thousands Choose Us'}
             </p>
             <h2 className="text-2xl font-black text-white text-center mb-12">
-              Why Choose Vexa Store?
+              {locale === 'ar' ? 'لماذا تختار متجر فيكسا؟' : 'Why Choose Vexa Store?'}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
@@ -273,43 +315,48 @@ export default async function HomePage() {
                   title: '100% Discreet Delivery',
                   titleAr: 'توصيل سري 100%',
                   body: 'Every order ships in a plain sealed box with no logo, no store name, and no indication of contents. Even the delivery rider doesn\'t know what\'s inside.',
+                  bodyAr: 'يصل كل طلب في صندوق عادي مغلق بلا شعار أو اسم للمتجر أو إشارة إلى محتوياته.',
                 },
                 {
                   icon: '💵',
                   title: 'Cash on Delivery',
                   titleAr: 'الدفع عند الاستلام',
-                  body: 'No credit card required. Pay in cash when your package arrives at your door — available across all of Lebanon.',
+                  body: 'No credit card required. Pay in cash when your package arrives at your door, available across all of Lebanon.',
+                  bodyAr: 'ادفع نقداً عند وصول طلبك. الخدمة متاحة في جميع أنحاء لبنان.',
                 },
                 {
                   icon: '⚡',
                   title: 'Same-Day in Beirut',
                   titleAr: 'توصيل في نفس اليوم',
                   body: 'Order before 2 PM and receive your package today in Beirut and suburbs. 24–72 hours for all other Lebanese regions.',
+                  bodyAr: 'اطلب قبل الساعة الثانية ظهراً ليصلك طلبك في اليوم نفسه داخل بيروت وضواحيها. التوصيل لباقي المناطق خلال 24 إلى 72 ساعة.',
                 },
                 {
                   icon: '🛡️',
                   title: 'Body-Safe Materials',
                   titleAr: 'مواد آمنة للجسم',
-                  body: 'All products are made from certified medical-grade materials — silicone, ABS plastic, borosilicate glass, and stainless steel. No jelly, no rubber.',
+                  body: 'All products are made from certified medical-grade materials, silicone, ABS plastic, borosilicate glass, and stainless steel. No jelly, no rubber.',
+                  bodyAr: 'نختار منتجات مصنوعة من مواد آمنة للجسم مثل السيليكون الطبي والزجاج والفولاذ المقاوم للصدأ.',
                 },
                 {
                   icon: '💬',
                   title: 'Private WhatsApp Support',
                   titleAr: 'دعم واتساب سري',
                   body: 'Our team is available daily for judgment-free product recommendations. First-time buyer? We\'ll guide you to exactly what you need.',
+                  bodyAr: 'فريقنا متاح يومياً عبر واتساب للإجابة عن أسئلتك ومساعدتك على اختيار المنتج المناسب بخصوصية تامة.',
                 },
                 {
                   icon: '⭐',
                   title: '4.9 / 5 Rating',
                   titleAr: '4.9 / 5 تقييم',
                   body: 'Rated 4.9 out of 5 across 350+ verified customer reviews from across Lebanon. Consistently Lebanon\'s highest-rated adult store.',
+                  bodyAr: 'حصل المتجر على تقييم 4.9 من 5 من مراجعات العملاء في لبنان.',
                 },
               ].map((item, i) => (
                 <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:border-white/20 transition">
                   <span className="text-2xl mb-4 block">{item.icon}</span>
-                  <p className="font-black text-white text-sm mb-1">{item.title}</p>
-                  <p className="text-stone-500 text-xs mb-3">{item.titleAr}</p>
-                  <p className="text-stone-400 text-sm leading-relaxed">{item.body}</p>
+                  <p className="font-black text-white text-sm mb-1">{locale === 'ar' ? item.titleAr : item.title}</p>
+                  <p className="text-stone-400 text-sm leading-relaxed">{locale === 'ar' ? item.bodyAr : item.body}</p>
                 </div>
               ))}
             </div>
@@ -322,13 +369,13 @@ export default async function HomePage() {
             {/* Header */}
             <div className="text-center mb-12">
               <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3">
-                Customer Reviews · آراء العملاء
+                {locale === 'ar' ? 'آراء العملاء' : 'Customer Reviews'}
               </p>
               <h2 className="text-2xl font-black text-white mb-4">
-                What customers say
+                {locale === 'ar' ? 'ماذا يقول عملاؤنا' : 'What customers say'}
               </h2>
               <p className="text-stone-500 text-sm mb-6">
-                Real reviews from customers across Beirut and Lebanon.
+                {locale === 'ar' ? 'آراء عملائنا من بيروت وجميع أنحاء لبنان.' : 'Real reviews from customers across Beirut and Lebanon.'}
               </p>
               {/* Aggregate score */}
               <div className="inline-flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-10 py-6">
@@ -337,7 +384,7 @@ export default async function HomePage() {
                   {'★'.repeat(5)}
                 </div>
                 <p className="text-stone-400 text-xs font-semibold tracking-wide">
-                  1,900+ happy customers
+                  {locale === 'ar' ? 'أكثر من 1,900 عميل راضٍ' : '1,900+ happy customers'}
                 </p>
               </div>
             </div>
@@ -355,7 +402,7 @@ export default async function HomePage() {
                   </div>
                   {/* Quote */}
                   <p className="text-stone-300 text-sm leading-relaxed flex-1">
-                    &ldquo;{r.text}&rdquo;
+                    &ldquo;{locale === 'ar' ? r.textAr : r.text}&rdquo;
                   </p>
                   {/* Reviewer */}
                   <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
@@ -364,9 +411,9 @@ export default async function HomePage() {
                     </div>
                     <div>
                       <p className="text-white text-xs font-bold">{r.name}</p>
-                      <p className="text-stone-500 text-[10px]">{r.city}</p>
+                      <p className="text-stone-500 text-[10px]">{locale === 'ar' ? r.cityAr : r.city}</p>
                     </div>
-                    <span className="ml-auto text-stone-600 text-[10px] font-semibold">Verified</span>
+                    <span className="ms-auto text-stone-600 text-[10px] font-semibold">{locale === 'ar' ? 'موثّق' : 'Verified'}</span>
                   </div>
                 </div>
               ))}
@@ -381,29 +428,29 @@ export default async function HomePage() {
 
           <div className="max-w-3xl mx-auto px-4 py-16 relative">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
-              Lebanon&apos;s #1 Rated Adult Store
+              {locale === 'ar' ? 'متجر فيكسا لبنان' : 'Lebanon\'s #1 Rated Adult Store'}
             </p>
             <h2 className="text-2xl sm:text-3xl font-black text-white text-center mb-6 tracking-tight">
-              متجر فيكسا — Vexa Store Lebanon
+              {locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Store Lebanon'}
             </h2>
 
-            <p className="text-stone-300 text-sm sm:text-base leading-relaxed mb-4">
+            {locale === 'en' && <><p className="text-stone-300 text-sm sm:text-base leading-relaxed mb-4">
               <strong className="text-white font-bold">Vexa Store</strong> is Lebanon&apos;s most trusted
-              destination for premium intimate wellness — serving 1,900+ clients across Beirut, Tripoli,
+              destination for premium intimate wellness, serving 1,900+ clients across Beirut, Tripoli,
               Sidon, Jounieh, Zahle, and every region in between. Our curated collection spans luxury personal
               massagers, elegant lingerie, couples essentials and more, every piece checked for body-safe
               materials and genuine quality before it ever reaches your door.
             </p>
             <p className="text-stone-400 text-sm sm:text-base leading-relaxed mb-4">
-              Every order ships in a plain, sealed box — no logo, no branding, no indication of what&apos;s
+              Every order ships in a plain, sealed box, no logo, no branding, no indication of what&apos;s
               inside, not even to the courier. Pair that with same-day delivery in Beirut, cash on delivery
               nationwide, and a private WhatsApp line for judgment-free advice, and it&apos;s easy to see why
               Vexa is rated <strong className="text-white font-bold">4.9 / 5</strong> by clients across Lebanon.
-            </p>
+            </p></>}
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 mb-8" dir="rtl">
+            {locale === 'ar' && <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 mb-8" dir="rtl">
               <p className="text-stone-300 text-sm sm:text-base leading-loose mb-3">
-                <strong className="text-white font-bold">متجر فيكسا</strong> — الوجهة الفاخرة الأولى في
+                <strong className="text-white font-bold">متجر فيكسا</strong>, الوجهة الفاخرة الأولى في
                 لبنان لمنتجات العناية الحميمية، بثقة أكثر من 1,900 عميل في بيروت وطرابلس وصيدا وجونية وزحلة
                 وكل المناطق اللبنانية. نوفّر منتجات زوجية فاخرة، لانجري أنيق وهدايا للمتزوجين، جميعها مصنوعة
                 من مواد آمنة ومضمونة الجودة.
@@ -413,10 +460,10 @@ export default async function HomePage() {
                 نفس اليوم داخل بيروت، ودعم واتساب خاص لمساعدتك باختيار الأنسب لك. تقييم 4.9 من 5 من عملائنا في
                 جميع أنحاء لبنان.
               </p>
-            </div>
+            </div>}
 
             <p className="text-stone-500 text-xs font-semibold uppercase tracking-widest text-center mb-4">
-              Discreet delivery across Lebanon
+              {locale === 'ar' ? 'توصيل سري إلى كل لبنان' : 'Discreet delivery across Lebanon'}
             </p>
             <div className="flex flex-wrap justify-center gap-2">
               {CITY_META.map(c => (
@@ -425,7 +472,7 @@ export default async function HomePage() {
                   href={`/city/${c.slug}`}
                   className="text-xs font-semibold text-stone-400 border border-white/10 rounded-full px-3.5 py-1.5 hover:border-rose-500/40 hover:text-white hover:bg-white/[0.04] transition"
                 >
-                  Intimate wellness in {c.nameEn}
+                  {locale === 'ar' ? `توصيل سري إلى ${c.nameAr || c.nameEn}` : `Intimate wellness in ${c.nameEn}`}
                 </Link>
               ))}
             </div>
@@ -437,10 +484,10 @@ export default async function HomePage() {
         <section className="border-t border-white/10">
           <div className="max-w-3xl mx-auto px-4 py-14">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
-              FAQ · الأسئلة الشائعة
+              {locale === 'ar' ? 'الأسئلة الشائعة' : 'FAQ'}
             </p>
             <h2 className="text-2xl font-black text-white mb-8 text-center">
-              Frequently asked questions
+              {locale === 'ar' ? 'أسئلة متكررة' : 'Frequently asked questions'}
             </h2>
             <div className="flex flex-col gap-3">
               {FAQ_ITEMS.map((item, i) => (
@@ -449,10 +496,10 @@ export default async function HomePage() {
                   className="group rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 open:bg-white/[0.05]"
                 >
                   <summary className="cursor-pointer list-none flex items-center justify-between gap-4 text-sm font-bold text-white">
-                    {item.q}
+                    {locale === 'ar' ? item.qAr : item.q}
                     <span className="shrink-0 text-stone-500 group-open:rotate-45 transition-transform text-lg leading-none">+</span>
                   </summary>
-                  <p className="mt-3 text-stone-400 text-sm leading-relaxed">{item.a}</p>
+                  <p className="mt-3 text-stone-400 text-sm leading-relaxed">{locale === 'ar' ? item.aAr : item.a}</p>
                 </details>
               ))}
             </div>

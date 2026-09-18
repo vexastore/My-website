@@ -14,8 +14,8 @@ export const About: React.FC = () => {
     },
     {
       icon: <Truck size={24} className="text-emerald-400" />,
-      ar: { title: 'توصيل سري في نفس اليوم — بيروت', body: 'نوصل طلبك في نفس اليوم داخل بيروت وضواحيها. خارج بيروت؟ نوصل لكل لبنان خلال 24 إلى 72 ساعة بسرية تامة.' },
-      en: { title: 'Same-Day Discreet Delivery — Beirut', body: 'We deliver your order the same day within Beirut and its suburbs. Outside Beirut? We ship all across Lebanon within 24 to 72 hours, fully discreet.' }
+      ar: { title: 'توصيل سري في نفس اليوم, بيروت', body: 'نوصل طلبك في نفس اليوم داخل بيروت وضواحيها. خارج بيروت؟ نوصل لكل لبنان خلال 24 إلى 72 ساعة بسرية تامة.' },
+      en: { title: 'Same-Day Discreet Delivery, Beirut', body: 'We deliver your order the same day within Beirut and its suburbs. Outside Beirut? We ship all across Lebanon within 24 to 72 hours, fully discreet.' }
     },
     {
       icon: <Package size={24} className="text-amber-400" />,
@@ -63,13 +63,13 @@ export const About: React.FC = () => {
           </p>
           <h2 className="text-3xl font-black uppercase tracking-[0.08em] text-white sm:text-5xl">
             {isArabic
-              ? 'متجر فيكسا — الوجهة الأولى للمنتجات الزوجية الفاخرة في لبنان'
-              : 'Vexa Store — Lebanon\'s #1 Destination for Discreet Adult Products'}
+              ? 'متجر فيكسا, الوجهة الأولى للمنتجات الزوجية الفاخرة في لبنان'
+              : 'Vexa Store, Lebanon\'s #1 Destination for Discreet Adult Products'}
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-white/55 sm:text-base">
             {isArabic
               ? 'متجر فيكسا هو المتجر الرائد والأكثر أماناً لشراء الألعاب الزوجية، الهزازات، اللانجري الفاخر، ومنتجات BDSM في لبنان. نوفر تجربة تسوق سرية 100% مع توصيل في نفس اليوم في بيروت وخلال 72 ساعة لكل المناطق اللبنانية.'
-              : 'Vexa Store is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. As a fully online sex shop in Lebanon and a discreet online adult store, we serve customers in Beirut and every Lebanese region — a 100% private shopping experience with same-day delivery in Beirut and within 72 hours nationwide, so you never need to visit a physical sex shop in Beirut to get what you want.'}
+              : 'Vexa Store is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. As a fully online sex shop in Lebanon and a discreet online adult store, we serve customers in Beirut and every Lebanese region, a 100% private shopping experience with same-day delivery in Beirut and within 72 hours nationwide, so you never need to visit a physical sex shop in Beirut to get what you want.'}
           </p>
           <button
             onClick={() => setView('shop')}
@@ -131,7 +131,7 @@ export const About: React.FC = () => {
                   نحن نؤمن أن كل شخص يستحق الوصول إلى منتجات زوجية فاخرة وآمنة طبياً دون الخوف من الحكم أو الإحراج. لذلك نضمن أن كل طلب يصل في كرتون مغلق عادي، ودفع عند الاستلام، وخدمة دعم سرية.
                 </p>
                 <p>
-                  من بيروت إلى طرابلس، من صيدا إلى زحلة — نوصل لكل لبنان. مجموعتنا تشمل أكثر من 200 منتج من أفضل الماركات العالمية، بما في ذلك الهزازات، الديلدو، اللانجري، منتجات BDSM، الألعاب الرجالية، وأكثر.
+                  من بيروت إلى طرابلس، من صيدا إلى زحلة, نوصل لكل لبنان. مجموعتنا تشمل أكثر من 200 منتج من أفضل الماركات العالمية، بما في ذلك الهزازات، الديلدو، اللانجري، منتجات BDSM، الألعاب الرجالية، وأكثر.
                 </p>
               </>
             ) : (
@@ -143,7 +143,7 @@ export const About: React.FC = () => {
                   We believe everyone deserves access to premium, body-safe adult products without fear of judgment or embarrassment. That's why we guarantee every order arrives in a plain sealed box, with cash on delivery, and a confidential support service.
                 </p>
                 <p>
-                  From Beirut to Tripoli, from Sidon to Zahle — we deliver across all of Lebanon. Our collection includes 200+ products from top international brands: vibrators, dildos, lingerie, BDSM gear, male toys, and much more.
+                  From Beirut to Tripoli, from Sidon to Zahle, we deliver across all of Lebanon. Our collection includes 200+ products from top international brands: vibrators, dildos, lingerie, BDSM gear, male toys, and much more.
                 </p>
               </>
             )}
@@ -191,8 +191,8 @@ export const About: React.FC = () => {
         <div className="mx-auto max-w-3xl">
           <h2 className="text-2xl font-black tracking-wide sm:text-3xl">
             {isArabic
-              ? 'توصيل سري لكل لبنان — ادفع عند الاستلام'
-              : 'Discreet Delivery Across Lebanon — Pay on Delivery'}
+              ? 'توصيل سري لكل لبنان, ادفع عند الاستلام'
+              : 'Discreet Delivery Across Lebanon, Pay on Delivery'}
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-sm leading-7">
             {isArabic

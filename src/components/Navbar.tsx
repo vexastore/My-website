@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { Order } from '../types';
 import { selectedUnitPrice } from '../utils/pricing';
+import { CATEGORIES } from '../data/categories';
 import { ShoppingBag, Search, Menu, X, ChevronRight, ChevronLeft, Lock, Package, Truck, CheckCircle2, XCircle, ClipboardList, Info } from 'lucide-react';
 
 const CATEGORY_SLUGS: Record<string, string> = {
@@ -24,7 +25,7 @@ const VexaLogo = () => (
   >
     <img
       src="/vexa-logo.png"
-      alt="متجر فيكسا - أفضل متجر ألعاب زوجية ولانجري في لبنان"
+      alt="Vexa Store logo"
       width={76}
       height={76}
       fetchPriority="high"
@@ -48,56 +49,19 @@ export const Navbar: React.FC = () => {
 
   const isArabic = language === 'ar';
 
-  const categories = [
-    { id: 'Sex Toys', name: isArabic ? 'ألعاب زوجية' : 'Sex Toys', hasSubmenu: true },
-    { id: 'Vibrators', name: isArabic ? 'هزازات' : 'Vibrators' },
-    { id: 'Male Toys', name: isArabic ? 'ألعاب رجالية' : 'Male Toys', hasSubmenu: true },
-    { id: 'Dildos', name: isArabic ? 'ديلدو' : 'Dildos' },
-    { id: 'Lingerie', name: isArabic ? 'لانجري' : 'Lingerie' },
-    { id: 'BDSM', name: isArabic ? 'ألعاب القوة' : 'BDSM' },
-    { id: 'Holiday Collection', name: isArabic ? 'مجموعة الأعياد' : 'Holiday Collection' },
-    { id: 'New Arrivals', name: isArabic ? 'وصل حديثاً' : 'New Arrivals' }
-  ];
-
-  const sexToysSubmenu = [
-    { ar: 'ديلدو', en: 'Dildos', category: 'Dildos' },
-    { ar: 'هزازات', en: 'Vibrators', category: 'Vibrators' },
-    { ar: 'سدادة شرجية', en: 'Butt Plugs', category: 'Butt Plugs' },
-    { ar: 'عبودية', en: 'Bondage', category: 'Bondage' },
-    { ar: 'دمى جنسية', en: 'Sex Dolls', category: 'Sex Dolls' },
-    { ar: 'ألعاب الشرج', en: 'Anal Toys', category: 'Anal Toys' },
-    { ar: 'أحزمة', en: 'Strap-ons', category: 'Strap Ons' },
-    { ar: 'كرات كيجل', en: 'Kegel Balls', category: 'Kegel Balls' },
-    { ar: 'معززات ومؤخرات جنسية', en: 'Sexual Enhancers & Delays', category: 'Sexual Enhancers' },
-    { ar: 'مضخات وأكمام القضيب', en: 'Penis Pumps & Sleeves', category: 'Penis Pumps' },
-    { ar: 'بوبرز', en: 'Poppers', category: 'Poppers' },
-    { ar: 'ماكينات الجنس', en: 'Sex Machines', category: 'Sex Machines' }
-  ];
-
-  const maleToysSubmenu = [
-    { ar: 'حلقات القضيب', en: 'Cock Rings', category: 'Cock Rings' },
-    { ar: 'مضخات القضيب والأكمام', en: 'Penis Pumps & Sleeves', category: 'Penis Pumps' },
-    { ar: 'دمى جنسية', en: 'Sex Dolls', category: 'Sex Dolls' },
-    { ar: 'أدوات الاستمناء', en: 'Masturbators', category: 'Masturbators' },
-    { ar: 'العفة', en: 'Chastity', category: 'Chastity' },
-    { ar: 'ألعاب الشرج', en: 'Anal Toys', category: 'Anal Toys' },
-    { ar: 'معززات ومؤخرات جنسية', en: 'Sexual Enhancers & Delays', category: 'Sexual Enhancers' },
-    { ar: 'ماكينات الجنس', en: 'Sex Machines', category: 'Sex Machines' },
-    { ar: 'مواد التشحيم', en: 'Lubricants', category: 'Lubricants' },
-    { ar: 'بوبرز', en: 'Poppers', category: 'Poppers' }
-  ];
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') { setIsMenuOpen(false); setActiveSubmenu(null); }
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => window.removeEventListener('keydown', closeOnEscape);
+  }, [isMenuOpen]);
 
   const openShopHome = (e: React.MouseEvent) => {
     e.preventDefault();
-    setView('shop'); setActiveCategory('Sex Toys');
+    setView('shop'); setActiveCategory('');
     setSearchQuery(''); setIsMenuOpen(false);
-  };
-
-  const handleCategoryClick = (e: React.MouseEvent, catId: string) => {
-    e.preventDefault();
-    if (catId === 'Sex Toys' || catId === 'Male Toys') { setActiveSubmenu(catId); return; }
-    setActiveCategory(catId); setSearchQuery(''); setView('shop');
-    setIsMenuOpen(false); setActiveSubmenu(null);
   };
 
   const handleSubmenuClick = (e: React.MouseEvent, category: string) => {
@@ -146,7 +110,7 @@ export const Navbar: React.FC = () => {
           </span>
         )}
       </button>
-      <button onClick={handleCartClick} className="relative text-white transition hover:text-white/70" aria-label="Cart">
+      <button onClick={handleCartClick} className="relative text-white transition hover:text-white/70" aria-label={isArabic ? 'السلة' : 'Cart'}>
         <ShoppingBag size={size} strokeWidth={1.35} />
         {getCartItemsCount() > 0 && (
           <span className="absolute -right-2 -top-2 flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1 text-[11px] font-black text-black">
@@ -185,8 +149,7 @@ export const Navbar: React.FC = () => {
         )}
       </div>
 
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-[10000] overflow-y-auto bg-[#050101] text-white" dir="ltr">
+      <div className={`fixed inset-0 z-[10000] overflow-y-auto bg-[#050101] text-white transition-[opacity,transform,visibility] duration-300 ease-out motion-reduce:transition-none ${isMenuOpen ? 'visible translate-y-0 opacity-100' : 'invisible pointer-events-none -translate-y-4 opacity-0'}`} dir={isArabic ? 'rtl' : 'ltr'} aria-hidden={!isMenuOpen} inert={!isMenuOpen}>
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <div className="grid h-[88px] grid-cols-[1fr_auto_1fr] items-center sm:h-[108px]">
               <button onClick={() => { activeSubmenu ? setActiveSubmenu(null) : setIsMenuOpen(false); }}
@@ -198,42 +161,34 @@ export const Navbar: React.FC = () => {
               <IconBar size={26} />
             </div>
 
-            {activeSubmenu === 'Sex Toys' || activeSubmenu === 'Male Toys' ? (
-              <nav className="mt-5 flex flex-col pb-20" aria-label={activeSubmenu}>
+            {activeSubmenu === 'Products' ? (
+              <nav className="mt-5 flex flex-col pb-20" aria-label={isArabic ? 'المنتجات' : 'Products'}>
                 <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-4">
                   <span className="flex items-center gap-3 text-[24px] font-light tracking-wide text-white sm:text-3xl">
-                    {activeSubmenu === 'Male Toys' && <span className="text-white/90">←</span>}
-                    {isArabic ? (activeSubmenu === 'Male Toys' ? 'ألعاب رجالية' : 'ألعاب زوجية') : activeSubmenu}
+                    {isArabic ? 'المنتجات' : 'Products'}
                   </span>
-                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/25">Collections</span>
+                  <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/25">{isArabic ? 'الفئات' : 'Categories'}</span>
                 </div>
-                <div className="flex flex-col divide-y divide-white/5">
-                  {(activeSubmenu === 'Male Toys' ? maleToysSubmenu : sexToysSubmenu).map(item => (
+                <div className="grid grid-cols-1 gap-x-8 divide-y divide-white/5 sm:grid-cols-2">
+                  {CATEGORIES.map(item => (
                     <a
-                      key={item.en}
-                      href={`/${catSlug(item.category)}`}
-                      onClick={(e) => handleSubmenuClick(e, item.category)}
-                      className="flex w-full items-center justify-between py-4 text-left text-[24px] font-light tracking-wide text-white transition hover:bg-white/[0.04] hover:text-white/70 sm:py-4.5 sm:text-3xl"
+                      key={item.id}
+                      href={`/${catSlug(item.id)}`}
+                      onClick={(e) => handleSubmenuClick(e, item.id)}
+                      className="flex w-full items-center justify-between py-3 text-start text-xl font-light tracking-wide text-white transition hover:bg-white/[0.04] hover:text-white/70 sm:text-2xl"
                     >
-                      <span>{isArabic ? item.ar : item.en}</span>
+                      <span>{isArabic ? item.name.ar : item.name.en}</span>
                       <ChevronRight size={24} strokeWidth={1.25} className="text-white/35" />
                     </a>
                   ))}
                 </div>
               </nav>
             ) : (
-              <nav className="mt-6 flex flex-col gap-5 pb-20 sm:gap-7" aria-label="Main categories">
-                {categories.map(cat => (
-                  <a
-                    key={cat.id}
-                    href={`/${catSlug(cat.id)}`}
-                    onClick={(e) => handleCategoryClick(e, cat.id)}
-                    className={`group flex w-full items-center justify-between text-left font-light tracking-wide text-white transition hover:text-white/70 ${currentView === 'shop' && activeCategory === cat.id ? 'text-white' : ''}`}
-                  >
-                    <span className="text-[24px] sm:text-3xl md:text-4xl">{cat.name}</span>
-                    {cat.hasSubmenu && <ChevronRight size={30} strokeWidth={1.3} className="opacity-95 transition group-hover:translate-x-2" />}
-                  </a>
-                ))}
+              <nav className="mt-6 flex flex-col gap-5 pb-20 sm:gap-7" aria-label={isArabic ? 'القائمة الرئيسية' : 'Main navigation'}>
+                <button type="button" onClick={() => setActiveSubmenu('Products')} className="group flex w-full items-center justify-between text-start font-light tracking-wide text-white transition hover:text-white/70">
+                  <span className="text-[24px] sm:text-3xl md:text-4xl">{isArabic ? 'المنتجات' : 'Products'}</span>
+                  <ChevronRight size={30} strokeWidth={1.3} className="opacity-95 transition group-hover:translate-x-2" />
+                </button>
                 <a
                   href="/quiz"
                   onClick={() => setIsMenuOpen(false)}
@@ -270,7 +225,6 @@ export const Navbar: React.FC = () => {
             )}
           </div>
         </div>
-      )}
 
       {isOrdersOpen && (
         <div className="fixed inset-0 z-[20000] flex items-end sm:items-center justify-center" dir={isArabic ? 'rtl' : 'ltr'}>

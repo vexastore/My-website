@@ -1,5 +1,7 @@
 # Architecture
 
+Storefront language is a preference stored in the `vexa_store_language` same-site cookie. Server components read it through `getStoreLocale`; the client provider receives `initialLocale`, and language controls update the cookie before reloading. English is the default. This keeps root `lang`/`dir`, rendered copy, and locale-specific metadata aligned. Category and blog detail routes resolve the cookie at request time while their data readers retain the existing five-minute Supabase cache. Locale choice does not change the URL, so canonical URLs stay unchanged and no hreflang alternate is advertised. Admin-managed category editorial currently has English-only guide/FAQ fields; Arabic category pages show Arabic category metadata and a general delivery answer until translated editorial fields are added.
+
 The public checkout persists orders before showing the WhatsApp send link. WhatsApp is a customer-initiated handoff; the admin PWA Web Push pipeline independently alerts subscribed staff about committed Supabase orders. See [flow](02-architecture/flows/whatsapp-checkout.md).
 # Supabase storefront production architecture (17 September 2026)
 

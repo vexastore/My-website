@@ -123,38 +123,6 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
     }
   }, [currentView, activeCategory, selectedProduct]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const catMeta: Record<string, string> = {
-      'Sex Toys': 'اشتر أفضل ألعاب زوجية في لبنان — هزازات، ديلدو، لانجري. توصيل سري في نفس اليوم في بيروت، دفع عند الاستلام. متجر فيكسا.',
-      'Vibrators': 'هزازات فاخرة في لبنان. اختر من أفضل الماركات — توصيل سري في نفس اليوم في بيروت، دفع عند الاستلام. متجر فيكسا.',
-      'Male Toys': 'ألعاب رجالية فاخرة في لبنان — توصيل سري وسريع في بيروت وجميع المناطق. دفع عند الاستلام. متجر فيكسا.',
-      'Dildos': 'ديلدو آمن مصنوع من السيليكون الطبي — توصيل سري في لبنان في نفس اليوم، دفع عند الاستلام. متجر فيكسا.',
-      'Lingerie': 'لانجري فاخر في لبنان — دانتيل، ساتان، وأطقم حميمية. توصيل سري وسريع في بيروت وكل لبنان. متجر فيكسا.',
-      'BDSM': 'ألعاب BDSM آمنة للمبتدئين في لبنان — قيود، ريش، عصابات عين. توصيل سري في بيروت. متجر فيكسا.',
-      'Holiday Collection': 'هدايا رومانسية وأطقم مميزة في لبنان — مثالية للمناسبات. توصيل سري في بيروت، دفع عند الاستلام. متجر فيكسا.',
-      'New Arrivals': 'أحدث منتجات متجر فيكسا في لبنان. توصيل سري في بيروت وجميع المناطق خلال 72 ساعة.',
-      'Butt Plugs': 'سدادة شرجية آمنة ومريحة في لبنان — توصيل سري في بيروت، دفع عند الاستلام. متجر فيكسا.',
-      'Anal Toys': 'ألعاب شرجية متنوعة في لبنان — توصيل سري في بيروت وكل لبنان. متجر فيكسا.',
-      'Lubricants': 'مواد تشحيم مائية آمنة على البشرة في لبنان — توصيل سري في بيروت، دفع عند الاستلام. متجر فيكسا.',
-      'Masturbators': 'أدوات استمناء رجالية فاخرة في لبنان — توصيل سري في بيروت. متجر فيكسا.',
-      'Cock Rings': 'حلقات قضيب سيليكون طبي في لبنان — توصيل سري في بيروت وكل لبنان. متجر فيكسا.',
-    };
-    const defaultDesc = 'أفضل متجر لشراء ألعاب زوجية، هزازات، ولانجري فاخر في لبنان. توصيل سري في نفس اليوم في بيروت وخلال 72 ساعة لكل لبنان. دفع عند الاستلام. تغليف سري 100%.';
-    const desc = currentView === 'about'
-      ? 'تعرف على متجر فيكسا — المتجر الأكثر أماناً وخصوصية للمنتجات الزوجية واللانجري في لبنان. توصيل سري في بيروت.'
-      : (catMeta[activeCategory] || defaultDesc);
-    document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
-    document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
-    document.querySelector('meta[property="og:url"]')?.setAttribute('content', window.location.origin + window.location.pathname);
-    const canonical = document.querySelector('link[rel="canonical"]');
-    if (canonical) canonical.setAttribute('href', window.location.origin + window.location.pathname);
-    // ── Dynamic og:title + twitter tags per category/view ──
-      const ogTitle = document.title;
-      document.querySelector('meta[property="og:title"]')?.setAttribute('content', ogTitle);
-      document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', ogTitle);
-      document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
-    }, [currentView, activeCategory, selectedProduct]);
 
   const handleCatLink = (e: React.MouseEvent, catId: string) => {
     e.preventDefault();
@@ -289,7 +257,7 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
 
         {/* ── Bottom Bar ── */}
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-t border-stone-800 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-500 font-medium">
-          <p>© {new Date().getFullYear()} Vexa Store Lebanon — <a href="/sitemap.xml" className="hover:text-stone-300 transition">Sitemap</a></p>
+          <p>© {new Date().getFullYear()} Vexa Store Lebanon, <a href="/sitemap.xml" className="hover:text-stone-300 transition">{isArabic ? 'خريطة الموقع' : 'Sitemap'}</a></p>
           <div className="flex items-center gap-4">
             <a
               href="/blog"
@@ -323,4 +291,3 @@ export default function App() {
     </ShopProvider>
   );
 }
-

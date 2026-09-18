@@ -1,5 +1,7 @@
 # Testing
 
+For 1.4.0 run `node --test tests/*.test.mjs`, `npx tsc --noEmit`, and `npm run build`. In a browser, check English and Arabic home catalog toolbar, Products submenu and menu transition, one homepage FAQ, blog index/category/article direction and header, quiz, about, and empty order history. With a `vexa_store_language=ar` request cookie, server HTML must render `lang="ar" dir="rtl"`; without it, HTML must render English/LTR. Verify product and article names containing stored em dashes render without them while stored database values remain unchanged. Do not submit checkout orders during UI regression testing.
+
 Run `node --test tests/whatsapp.test.mjs` for link encoding, order details, and optional fields. The storefront-wide TypeScript check now passes locally; a real customer order has been observed confirmed in the live database.
 # Supabase cutover verification
 

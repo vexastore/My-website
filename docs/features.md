@@ -1,5 +1,7 @@
 # Features
 
+The public storefront defaults to English and offers Arabic through the EN/AR switch. The selection persists across catalog, product, checkout, orders, blog, about, and quiz views. Page direction and server-rendered copy follow the selected language. The catalog toolbar combines a category dropdown, search field, and filter action; the main navigation has a Products submenu and animated overlay. The homepage has one FAQ section.
+
 Checkout confirms database persistence before offering a customer-sent WhatsApp order summary. The customer sends it manually to the store and keeps a copy in the chat. See [flow](02-architecture/flows/whatsapp-checkout.md).
 # Supabase storefront release 1.3.0
 

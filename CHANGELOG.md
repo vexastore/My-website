@@ -3,6 +3,24 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.0] - 2026-09-18
+
+### Added
+
+- English-default, Arabic-selectable storefront copy and document direction across the catalog, homepage, blog, about page, quiz, checkout, and order history. The language choice is stored in a same-site cookie so server-rendered sections and metadata agree after a switch.
+- A shared blog header with store links and language control.
+
+### Changed
+
+- Combine category selection, product search, and filtering into one catalog toolbar; collapse the long menu into a Products submenu and animate the hamburger overlay.
+- Keep one homepage FAQ and align its visible questions with structured data for the selected language.
+- Replace em dashes in authored storefront copy and normalize them in published product, article, and category editorial display without changing database records.
+- Remove invalid language alternates that pointed both locales at the same canonical URL.
+
+### Known limitations
+
+- Arabic currently uses the same page URLs via a locale cookie. Separate indexable Arabic URLs and translated admin-managed category guides remain future work.
+
 ## [1.3.1] - 2026-09-18
 
 ### Deployment

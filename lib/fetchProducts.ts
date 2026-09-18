@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import type { Product, ProductVariant } from '@/src/types';
+import { displayCopy } from './displayCopy';
 
 type Category = { slug: string; name_en: string };
 type Media = { source_url: string | null; storage_path: string | null; position: number; is_primary: boolean; is_active: boolean };
@@ -44,7 +45,7 @@ export function mapProduct(row: Row, base: string): Product {
       const options = item.product_variant_options.filter(option => option.is_active)
         .sort((a, b) => a.position - b.position);
       return {
-        name: item.name_ar, nameEn: item.name_en, isRequired: item.is_required,
+        name: displayCopy(item.name_ar), nameEn: displayCopy(item.name_en), isRequired: item.is_required,
         options: options.map(option => option.value_en),
         optionPriceDeltas: Object.fromEntries(options.map(option => [option.value_en, Number(option.price_delta)])),
         optionStock: Object.fromEntries(options.map(option => [option.value_en, option.stock])),
@@ -54,8 +55,8 @@ export function mapProduct(row: Row, base: string): Product {
   return {
     id: row.id, legacyId: row.legacy_id || undefined, slug: row.slug, sku: row.sku || undefined,
     categorySlug: row.canonical_category?.slug || '',
-    name: row.name_ar, nameEn: row.name_en,
-    description: row.description_ar, descriptionEn: row.description_en,
+    name: displayCopy(row.name_ar), nameEn: displayCopy(row.name_en),
+    description: displayCopy(row.description_ar), descriptionEn: displayCopy(row.description_en),
     price: Number(row.price), stock: row.stock, rating: Number(row.rating),
     reviewsCount: row.reviews_count, isNew: row.is_new,
     category: (row.canonical_category?.name_en || categories[0] || 'Sex Toys') as Product['category'],

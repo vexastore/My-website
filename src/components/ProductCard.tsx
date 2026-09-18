@@ -20,10 +20,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   const imgRef = useRef<HTMLImageElement>(null);
 
   // Image source priority:
-  //   1. product.image   — base64 or https URL embedded in SSR (from fetchProductsServer
+  //   1. product.image  , base64 or https URL embedded in SSR (from fetchProductsServer
   //                        gallery fetch) or applied by client-side loadAllImages after auth.
-  //   2. product.images[0] — fallback if image is empty but images[] is populated.
-  //   3. /api/img/{id}  — Vercel proxy: authenticates anonymously, reads base64 from
+  //   2. product.images[0], fallback if image is empty but images[] is populated.
+  //   3. /api/img/{id} , Vercel proxy: authenticates anonymously, reads base64 from
   //                       Firestore, serves as JPEG, CDN-cached 24h after first hit.
   const primaryImage = (product.image && product.image.length > 5) ? product.image
     : (product.images && product.images.length > 0 && product.images[0].length > 5) ? product.images[0]
@@ -70,7 +70,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   // navigation to the product page, no hover affordance.
   const isOutOfStock = product.stock <= 0;
 
-  // Strip trailing hyphens — legacy Firestore slugs sometimes end with '-' due
+  // Strip trailing hyphens, legacy Firestore slugs sometimes end with '-' due
   // to 60-char truncation. Using the clean slug as the href prevents 30+
   // internal links from pointing to redirect URLs instead of the canonical 200.
   const productUrl = canonicalProductPath(product);
@@ -80,7 +80,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
     navigateToProduct(product);
   };
 
-  // When sold out: no href (so it isn't a real link — not tabbable, not
+  // When sold out: no href (so it isn't a real link, not tabbable, not
   // clickable, can't be opened in a new tab), no onClick, and tabIndex -1
   // as a belt-and-braces measure. It's a static listing, not an action.
   const cardProps: React.AnchorHTMLAttributes<HTMLAnchorElement> = isOutOfStock
@@ -93,7 +93,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
       className={`group text-white block no-underline bg-[#050505] ${
         isOutOfStock ? 'cursor-not-allowed' : 'cursor-pointer'
       }`}
-      aria-label={`${isArabic ? product.name : product.nameEn}${isOutOfStock ? (isArabic ? ' — نفدت الكمية' : ' — Out of stock') : ''}`}
+      aria-label={`${isArabic ? product.name : product.nameEn}${isOutOfStock ? (isArabic ? ', نفدت الكمية' : ', Out of stock') : ''}`}
     >
       <div className="relative overflow-hidden rounded-md border border-white/5 bg-[#101010] p-0 shadow-[0_18px_45px_rgba(0,0,0,0.55)]">
         {isOutOfStock ? (
@@ -102,7 +102,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
           </span>
         ) : (
           <span className="absolute left-4 top-4 z-10 bg-white px-3 py-2 text-sm font-black uppercase text-black sm:text-base">
-            SALE
+            {isArabic ? 'عرض' : 'SALE'}
           </span>
         )}
 
@@ -121,7 +121,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
               decoding="async"
               onError={() => {
                 // /api/img/{id} CDN caches 404 for only 60 s (stale-while-revalidate=300).
-                // Don't permanently hide the image — retry up to 2 times so a cold CDN
+                // Don't permanently hide the image, retry up to 2 times so a cold CDN
                 // miss doesn't lock the gradient in place forever.
                 //
                 // Retry schedule:

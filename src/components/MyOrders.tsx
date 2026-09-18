@@ -31,33 +31,33 @@ import React, { useState } from 'react';
 
     if (orders.length === 0) {
       return (
-        <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center" dir="rtl">
+        <div className="min-h-[70vh] flex flex-col items-center justify-center px-4 text-center" dir={isArabic ? 'rtl' : 'ltr'}>
           <div className="h-24 w-24 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-6">
             <ShoppingBag size={40} className="text-white/20" />
           </div>
-          <h2 className="text-xl font-black text-white mb-2">لا يوجد طلبات بعد</h2>
-          <p className="text-white/40 text-sm mb-8 max-w-xs">طلباتك ستظهر هنا بعد إتمام أول عملية شراء.</p>
+          <h2 className="text-xl font-black text-white mb-2">{isArabic ? 'لا توجد طلبات بعد' : 'No orders yet'}</h2>
+          <p className="text-white/40 text-sm mb-8 max-w-xs">{isArabic ? 'ستظهر طلباتك هنا بعد إتمام أول عملية شراء.' : 'Your orders will appear here after your first purchase.'}</p>
           <button onClick={() => setView('shop')}
             className="px-8 py-3 bg-white text-black font-black rounded-xl hover:bg-stone-100 transition active:scale-95">
-            تصفح المنتجات
+            {isArabic ? 'تصفح المنتجات' : 'Browse products'}
           </button>
         </div>
       );
     }
 
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6" dir="rtl">
+      <div className="mx-auto w-full max-w-2xl px-4 py-8 sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => setView('shop')}
             className="flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-xl transition">
             <ArrowRight size={14} />
-            المتجر
+            {isArabic ? 'المتجر' : 'Store'}
           </button>
           <div className="flex items-center gap-2">
             <Package size={20} className="text-purple-400" />
-            <h1 className="text-xl font-black text-white">طلباتي</h1>
+            <h1 className="text-xl font-black text-white">{isArabic ? 'طلباتي' : 'My orders'}</h1>
             <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-black px-2 py-0.5 rounded-full">
               {orders.length}
             </span>
@@ -67,7 +67,7 @@ import React, { useState } from 'react';
         {orderStatusSync === 'loading' && <p className="mb-4 text-xs text-white/50" role="status">{isArabic ? 'جارٍ تحديث حالة الطلبات…' : 'Checking order statuses…'}</p>}
         {orderStatusSync === 'error' && <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200" role="alert"><span>{isArabic ? 'تعذر تحديث الحالات. قد تكون الحالات المعروضة قديمة.' : 'Could not refresh statuses. The statuses shown may be outdated.'}</span><button type="button" className="underline" onClick={() => void refreshOrderStatuses()}>{isArabic ? 'إعادة المحاولة' : 'Retry'}</button></div>}
 
-        {/* Orders — all fully visible */}
+        {/* Orders, all fully visible */}
         <div className="space-y-6">
           {orders.map(order => {
             const cfg = STATUS_CONFIG[order.status] ?? STATUS_CONFIG.pending;
@@ -95,17 +95,17 @@ import React, { useState } from 'react';
                     <div className="flex items-center gap-3 text-[11px] text-white/40">
                       <span className="flex items-center gap-1"><CalendarDays size={11} />{order.date}</span>
                       <span>•</span>
-                      <span>{order.items.length} منتج</span>
+                      <span>{order.items.length} {isArabic ? 'منتج' : 'items'}</span>
                       <span>•</span>
                       <span className="font-black text-white/60">${order.total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Products — always visible */}
+                {/* Products, always visible */}
                 <div className="border-t border-white/10 p-4 space-y-3">
                   <p className="text-[11px] font-black text-white/30 uppercase tracking-widest flex items-center gap-1.5">
-                    <ReceiptText size={12} /> المنتجات المطلوبة
+                    <ReceiptText size={12} /> {isArabic ? 'المنتجات المطلوبة' : 'Ordered products'}
                   </p>
 
                   {order.items.map((item, i) => (
@@ -137,7 +137,7 @@ import React, { useState } from 'react';
                         </div>
                         <div className="flex items-center justify-between mt-2">
                           <span className="text-xs text-white/40 font-bold">
-                            الكمية: <span className="text-white/70">{item.quantity}</span>
+                            {isArabic ? 'الكمية' : 'Quantity'}: <span className="text-white/70">{item.quantity}</span>
                           </span>
                           <span className="text-base font-black text-white">
                             ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)}
@@ -152,15 +152,15 @@ import React, { useState } from 'react';
                 <div className="px-4 pb-3">
                   <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-2">
                     <div className="flex justify-between text-sm text-white/50">
-                      <span>المنتجات</span>
+                      <span>{isArabic ? 'المنتجات' : 'Subtotal'}</span>
                       <span>${subtotal.toFixed(2)} USD</span>
                     </div>
                     <div className="flex justify-between text-sm text-white/50">
-                      <span className="flex items-center gap-1"><Truck size={13} /> رسوم التوصيل</span>
+                      <span className="flex items-center gap-1"><Truck size={13} /> {isArabic ? 'رسوم التوصيل' : 'Delivery fee'}</span>
                       <span>${orderDeliveryFee.toFixed(2)} USD</span>
                     </div>
                     <div className="flex justify-between pt-2 border-t border-white/10">
-                      <span className="font-black text-white">المجموع الكلي</span>
+                      <span className="font-black text-white">{isArabic ? 'المجموع الكلي' : 'Total'}</span>
                       <span className="text-lg font-black text-purple-300">${order.total.toFixed(2)} USD</span>
                     </div>
                   </div>
@@ -169,7 +169,7 @@ import React, { useState } from 'react';
                 {/* Delivery info */}
                 <div className="px-4 pb-3">
                   <div className="bg-white/[0.03] border border-white/[0.06] rounded-2xl p-4 space-y-2.5">
-                    <p className="text-[11px] font-black text-white/30 uppercase tracking-widest">معلومات التوصيل</p>
+                    <p className="text-[11px] font-black text-white/30 uppercase tracking-widest">{isArabic ? 'معلومات التوصيل' : 'Delivery details'}</p>
                     <div className="flex items-center gap-2 text-sm">
                       <User size={14} className="text-white/30 flex-shrink-0" />
                       <span className="font-bold text-white">{order.customer.name}</span>
@@ -180,7 +180,7 @@ import React, { useState } from 'react';
                     </div>
                     <div className="flex items-start gap-2 text-sm">
                       <MapPin size={14} className="text-white/30 flex-shrink-0 mt-0.5" />
-                      <span className="text-white/70">{order.customer.city} — {order.customer.address}</span>
+                      <span className="text-white/70">{order.customer.city}, {order.customer.address}</span>
                     </div>
                     {order.customer.notes && (
                       <p className="text-xs text-white/40 italic pr-5">{order.customer.notes}</p>
@@ -195,17 +195,17 @@ import React, { useState } from 'react';
                       <div className="bg-red-950/30 border border-red-500/30 rounded-2xl p-4 space-y-3">
                         <div className="flex items-center gap-2 text-red-400">
                           <AlertTriangle size={16} />
-                          <p className="text-sm font-black">هل تريد حذف هذا الطلب من سجلاتك؟</p>
+                          <p className="text-sm font-black">{isArabic ? 'هل تريد حذف هذا الطلب من سجلاتك؟' : 'Remove this order from your history?'}</p>
                         </div>
-                        <p className="text-xs text-white/40">سيُحذف الطلب من جهازك فقط. لن يؤثر هذا على طلبك الفعلي.</p>
+                        <p className="text-xs text-white/40">{isArabic ? 'سيُحذف الطلب من جهازك فقط. لن يؤثر هذا على طلبك الفعلي.' : 'This removes the receipt from this device only. Your actual order is unaffected.'}</p>
                         <div className="flex gap-2">
                           <button onClick={() => confirmDelete(order.id)}
                             className="flex-1 py-2 bg-red-600 hover:bg-red-500 text-white font-black rounded-xl text-xs transition active:scale-95">
-                            نعم، احذف
+                            {isArabic ? 'نعم، احذف' : 'Remove'}
                           </button>
                           <button onClick={() => setDeletingId(null)}
                             className="flex-1 py-2 border border-white/15 text-white/60 hover:text-white font-black rounded-xl text-xs transition">
-                            إلغاء
+                            {isArabic ? 'إلغاء' : 'Cancel'}
                           </button>
                         </div>
                       </div>
@@ -213,7 +213,7 @@ import React, { useState } from 'react';
                       <button onClick={() => setDeletingId(order.id)}
                         className="w-full flex items-center justify-center gap-2 border border-white/10 hover:border-red-500/30 text-white/30 hover:text-red-400 py-2.5 rounded-xl text-xs font-bold transition">
                         <Trash2 size={14} />
-                        حذف هذا الطلب من سجلاتي
+                        {isArabic ? 'حذف هذا الطلب من سجلاتي' : 'Remove from my history'}
                       </button>
                     )}
                   </div>
@@ -221,7 +221,7 @@ import React, { useState } from 'react';
                   <div className="px-4 pb-4">
                     <div className="flex items-center justify-center gap-2 text-white/20 text-xs py-2">
                       <Truck size={13} />
-                      <span>يمكن حذف الطلب بعد التوصيل</span>
+                      <span>{isArabic ? 'يمكن حذف الطلب بعد التوصيل' : 'You can remove this order after delivery'}</span>
                     </div>
                   </div>
                 ) : null}

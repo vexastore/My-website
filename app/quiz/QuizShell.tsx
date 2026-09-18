@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * QuizShell — thin client-side wrapper around QuizClient.
+ * QuizShell, thin client-side wrapper around QuizClient.
  *
  * This file exists so quiz/page.tsx (a Server Component) can import a
  * 'use client' boundary without any dynamic-import complexity.
@@ -9,7 +9,8 @@
  * evaluation of QuizClient ever happens, preventing build-time failures.
  */
 import { QuizClient } from './QuizClient';
+import type { StoreLocale } from '@/lib/storeLocaleShared';
 
-export default function QuizShell() {
-  return <QuizClient />;
+export default function QuizShell({ locale }: { locale: StoreLocale }) {
+  return <QuizClient locale={locale} />;
 }

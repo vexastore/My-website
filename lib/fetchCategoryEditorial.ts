@@ -1,5 +1,6 @@
 import { unstable_cache } from 'next/cache';
 import { parseCategoryEditorial, type CategoryEditorial } from '@/src/utils/category-editorial';
+import { displayCopy } from './displayCopy';
 
 async function fetchEditorial(slug: string): Promise<CategoryEditorial | null> {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -12,7 +13,8 @@ async function fetchEditorial(slug: string): Promise<CategoryEditorial | null> {
   const response = await fetch(url, { headers: { apikey: key }, cache: 'no-store' });
   if (!response.ok) throw new Error(`Category editorial read failed: ${response.status}`);
   const rows = await response.json() as unknown[];
-  return parseCategoryEditorial(rows[0]);
+  const editorial = parseCategoryEditorial(rows[0]);
+  return editorial ? { guide: displayCopy(editorial.guide), faqs: editorial.faqs.map(faq => ({ q: displayCopy(faq.q), a: displayCopy(faq.a) })) } : null;
 }
 
 export const fetchCategoryEditorial = unstable_cache(fetchEditorial, ['category-editorial-v1'], {

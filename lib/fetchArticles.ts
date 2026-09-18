@@ -1,6 +1,7 @@
 import { unstable_cache } from 'next/cache';
 import type { BlogPost } from './blogPosts';
 import type { AdviceArticle } from '@/src/types';
+import { displayCopy } from './displayCopy';
 
 type Row = {
   id: string; slug: string; title_en: string; title_ar: string;
@@ -33,10 +34,10 @@ async function readArticles(): Promise<BlogPost[]> {
   if (!response.ok) throw new Error(`Supabase article read failed: ${response.status}`);
   return ((await response.json()) as Row[]).map(row => ({
     id: row.id, slug: row.slug, categorySlug: categories[row.category_en] || 'advice',
-    title: row.title_en, titleAr: row.title_ar,
-    excerpt: row.excerpt_en || row.content_en.slice(0, 180),
-    excerptAr: row.excerpt_ar || row.content_ar.slice(0, 180),
-    content: row.content_en, contentAr: row.content_ar,
+    title: displayCopy(row.title_en), titleAr: displayCopy(row.title_ar),
+    excerpt: displayCopy(row.excerpt_en || row.content_en.slice(0, 180)),
+    excerptAr: displayCopy(row.excerpt_ar || row.content_ar.slice(0, 180)),
+    content: displayCopy(row.content_en), contentAr: displayCopy(row.content_ar),
     publishedAt: row.published_at || row.updated_at, updatedAt: row.updated_at,
     author: 'Vexa Store Team', readingTime: Math.max(1, Math.ceil(row.read_time_seconds / 60)),
     image: imageUrl(row, base),

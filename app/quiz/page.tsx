@@ -1,8 +1,11 @@
 import { Metadata } from 'next';
 import QuizShell from './QuizShell';
 import Link from 'next/link';
+import { getStoreLocale } from '@/lib/storeLocale';
+import { BlogHeader } from '@/src/components/BlogHeader';
+import { CATEGORY_META as STORE_CATEGORIES } from '@/lib/categoryMeta';
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: 'Find Your Perfect Toy | Vexa Store Lebanon',
   description: 'Answer 3 quick questions and get a personalised product recommendation from Vexa Store Lebanon. Same-day discreet delivery in Beirut. Cash on delivery.',
   alternates: { canonical: 'https://vexatoys.com/quiz' },
@@ -23,10 +26,17 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
+export async function generateMetadata(): Promise<Metadata> {
+  if (await getStoreLocale() === 'en') return baseMetadata;
+  const title = 'اعثر على المنتج المناسب لك | متجر فيكسا';
+  const description = 'أجب عن ثلاثة أسئلة قصيرة لتحصل على اقتراح مناسب من متجر فيكسا في لبنان.';
+  return { ...baseMetadata, title: { absolute: title }, description, openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' } };
+}
+
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: 'Find Your Perfect Toy — Vexa Store Lebanon',
+  name: 'Find Your Perfect Toy, Vexa Store Lebanon',
   description: 'Interactive product recommendation quiz. Answer 3 questions to get personalised sex toy recommendations delivered discreetly in Lebanon.',
   url: 'https://vexatoys.com/quiz',
   breadcrumb: {
@@ -53,45 +63,44 @@ const CATEGORIES = [
   { slug: 'kegel-balls',       label: 'Kegel Balls',       desc: 'Pelvic floor training & pleasure' },
 ];
 
-export default function QuizPage() {
+export default async function QuizPage() {
+  const locale = await getStoreLocale();
+  const ar = locale === 'ar';
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <BlogHeader locale={locale} />
 
       {/* ── Server-rendered H1 & intro (visible to Googlebot in static HTML) ── */}
-      <div className="bg-[#050101] pt-10 pb-2 px-4">
+      <div className="bg-[#050101] pt-10 pb-2 px-4" dir={ar ? 'rtl' : 'ltr'}>
         <div className="mx-auto max-w-2xl">
           <h1 className="text-2xl sm:text-3xl font-black text-white mb-3 text-center">
-            Find Your Perfect Toy
+            {ar ? 'اعثر على المنتج المناسب لك' : 'Find Your Perfect Toy'}
           </h1>
           <p className="text-stone-400 text-sm text-center leading-relaxed mb-2">
-            Not sure where to start? Answer 3 quick questions and get a personalised recommendation
-            from Lebanon&apos;s most complete adult store. All products ship in plain sealed packaging
-            — same-day delivery in Beirut, cash on delivery anywhere in Lebanon.
+            {ar ? 'لا تعرف من أين تبدأ؟ أجب عن ثلاثة أسئلة قصيرة لتحصل على اقتراح مناسب. توصيل سري ودفع عند الاستلام في جميع أنحاء لبنان.' : 'Not sure where to start? Answer 3 quick questions and get a personalised recommendation. All products ship in plain sealed packaging, with same-day delivery in Beirut and cash on delivery across Lebanon.'}
           </p>
         </div>
       </div>
 
       {/* ── Interactive quiz (client-side) ── */}
-      <QuizShell />
+      <QuizShell locale={locale} />
 
-      {/* ── Server-rendered category links — visible to Googlebot, gives Ahrefs
+      {/* ── Server-rendered category links, visible to Googlebot, gives Ahrefs
            "outgoing links" signal and adds meaningful word count to the page ── */}
-      <section className="bg-[#050101] border-t border-white/10">
+      <section className="bg-[#050101] border-t border-white/10" dir={ar ? 'rtl' : 'ltr'}>
         <div className="mx-auto max-w-5xl px-4 py-14">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-2">
-            Or Browse by Category
+            {ar ? 'أو تصفح حسب الفئة' : 'Or Browse by Category'}
           </p>
           <h2 className="text-xl font-black text-white mb-2">
-            Shop All Categories
+            {ar ? 'تسوق جميع الفئات' : 'Shop All Categories'}
           </h2>
           <p className="text-stone-400 text-sm mb-8 max-w-2xl">
-            Vexa Store Lebanon carries 500+ adult products across every category — vibrators, dildos,
-            male toys, BDSM gear, lingerie, anal toys, lubricants, and more. Every order ships
-            discreetly in a plain sealed box with no branding. Cash on delivery available across Lebanon.
+            {ar ? 'يقدم متجر فيكسا مجموعة واسعة من المنتجات في فئات متعددة. يصل كل طلب في صندوق عادي مغلق دون علامة تجارية، مع الدفع عند الاستلام في جميع أنحاء لبنان.' : 'Vexa Store Lebanon carries 500+ adult products across every category, including vibrators, dildos, male toys, lingerie, and more. Every order ships discreetly in a plain sealed box with no branding. Cash on delivery is available across Lebanon.'}
           </p>
 
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -102,9 +111,9 @@ export default function QuizPage() {
                   className="group flex flex-col gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-4 hover:border-purple-500/40 hover:bg-white/[0.06] transition"
                 >
                   <span className="font-black text-white text-sm group-hover:text-purple-200 transition">
-                    {cat.label} in Lebanon
+                    {ar ? STORE_CATEGORIES.find(c => c.slug === cat.slug)?.titleAr.split('|')[0].trim() || cat.label : `${cat.label} in Lebanon`}
                   </span>
-                  <span className="text-stone-500 text-xs">{cat.desc}</span>
+                  <span className="text-stone-500 text-xs">{ar ? 'تصفح المنتجات المتاحة في هذه الفئة' : cat.desc}</span>
                 </Link>
               </li>
             ))}
@@ -113,15 +122,15 @@ export default function QuizPage() {
           {/* Additional internal links for SEO */}
           <div className="mt-10 pt-8 border-t border-white/10">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-4">
-              Quick Links
+              {ar ? 'روابط سريعة' : 'Quick Links'}
             </p>
             <div className="flex flex-wrap gap-3 text-xs">
-              <Link href="/sex-toys"      className="text-stone-400 hover:text-white transition">All Sex Toys Lebanon</Link>
-              <Link href="/about"         className="text-stone-400 hover:text-white transition">About Vexa Store</Link>
-              <Link href="/blog"          className="text-stone-400 hover:text-white transition">Product Guides Blog</Link>
-              <Link href="/new-arrivals"  className="text-stone-400 hover:text-white transition">New Arrivals</Link>
-              <Link href="/blog/guides"   className="text-stone-400 hover:text-white transition">Buying Guides</Link>
-              <Link href="/blog/tips"     className="text-stone-400 hover:text-white transition">Tips &amp; Care</Link>
+              <Link href="/sex-toys"      className="text-stone-400 hover:text-white transition">{ar ? 'كل المنتجات' : 'All Sex Toys Lebanon'}</Link>
+              <Link href="/about"         className="text-stone-400 hover:text-white transition">{ar ? 'عن متجر فيكسا' : 'About Vexa Store'}</Link>
+              <Link href="/blog"          className="text-stone-400 hover:text-white transition">{ar ? 'المدونة' : 'Product Guides Blog'}</Link>
+              <Link href="/new-arrivals"  className="text-stone-400 hover:text-white transition">{ar ? 'وصل حديثاً' : 'New Arrivals'}</Link>
+              <Link href="/blog/guides"   className="text-stone-400 hover:text-white transition">{ar ? 'أدلة الشراء' : 'Buying Guides'}</Link>
+              <Link href="/blog/tips"     className="text-stone-400 hover:text-white transition">{ar ? 'نصائح وعناية' : 'Tips & Care'}</Link>
             </div>
           </div>
         </div>

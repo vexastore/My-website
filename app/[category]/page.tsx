@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+export const dynamic = 'force-dynamic';
 import { notFound } from 'next/navigation';
 
 import { fetchProductsServer } from '@/lib/fetchProducts';
@@ -9,6 +10,7 @@ import {
 } from '@/lib/categoryMeta';
 import { fetchCategoryEditorial } from '@/lib/fetchCategoryEditorial';
 import { ShopApp } from '@/src/ShopApp';
+import { getStoreLocale } from '@/lib/storeLocale';
 
 import {
   canonicalProductPath,
@@ -206,6 +208,7 @@ const RELATED_CATEGORIES: Record<
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
+  const locale = await getStoreLocale();
   const { category: slug } = await params;
 
   const meta = getCategoryMeta(slug);
@@ -214,23 +217,23 @@ export async function generateMetadata({
 
   return {
     title: {
-      absolute: meta.titleEn,
+      absolute: locale === 'ar' ? meta.titleAr : meta.titleEn,
     },
 
-    description: meta.descEn.slice(0, 160),
+    description: (locale === 'ar' ? meta.descAr : meta.descEn).slice(0, 160),
 
     openGraph: {
-      title: meta.titleEn,
-      description: meta.descEn,
+      title: locale === 'ar' ? meta.titleAr : meta.titleEn,
+      description: locale === 'ar' ? meta.descAr : meta.descEn,
       url: pageUrl,
       siteName: 'Vexa Store Lebanon',
-      locale: 'ar_LB',
+      locale: locale === 'ar' ? 'ar_LB' : 'en_US',
       type: 'website',
 
       images: [
         {
           url: DEFAULT_OG_IMAGE,
-          alt: meta.titleEn,
+          alt: locale === 'ar' ? meta.titleAr : meta.titleEn,
           width: 1200,
           height: 630,
         },
@@ -240,18 +243,14 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       site: '@vexastore',
-      title: meta.titleEn,
-      description: meta.descEn,
+      title: locale === 'ar' ? meta.titleAr : meta.titleEn,
+      description: locale === 'ar' ? meta.descAr : meta.descEn,
       images: [DEFAULT_OG_IMAGE],
     },
 
     alternates: {
       canonical: pageUrl,
 
-      languages: {
-        'ar-LB': pageUrl,
-        'x-default': SITE_BASE_URL,
-      },
     },
 
     robots: {
@@ -274,6 +273,7 @@ export function generateStaticParams(): Array<{
 export default async function CategoryPage({
   params,
 }: Props) {
+  const locale = await getStoreLocale();
   const { category: slug } = await params;
 
   if (RESERVED.has(slug)) {
@@ -427,7 +427,7 @@ export default async function CategoryPage({
           ]
         : []),
 
-      ...(content?.faqs.length ? [{
+      ...(locale === 'en' && content?.faqs.length ? [{
         '@type': 'FAQPage',
         mainEntity: content.faqs.map(({ q, a }) => ({
           '@type': 'Question',
@@ -448,17 +448,29 @@ export default async function CategoryPage({
       />
 
       <ShopApp
+        initialLocale={locale}
         initialProducts={productsWithImages}
         initialCategory={categoryId}
         initialView="shop"
-        seoHeading={slug === 'dildos'
+        seoHeading={locale === 'ar' ? meta.titleAr.split('|')[0].trim() : slug === 'dildos'
           ? 'Dildos in Lebanon | Premium Body-Safe Collection'
           : slug === 'sex-toys'
             ? 'Sex Toys in Lebanon | Vexa Store Collection'
             : undefined}
       />
 
-      {content && (
+      {locale === 'ar' && <section className="border-t border-white/10 bg-[#050101] text-white" dir="rtl">
+        <div className="mx-auto max-w-5xl space-y-6 px-4 py-14">
+          <h2 className="text-xl font-black">{meta.titleAr.split('|')[0].trim()}</h2>
+          <p className="text-sm leading-relaxed text-stone-300">{meta.descAr}</p>
+          <div className="rounded-xl border border-white/10 p-5">
+            <h3 className="mb-2 text-sm font-black">هل التوصيل سري؟</h3>
+            <p className="text-sm text-stone-400">نعم. يصل طلبك في صندوق عادي مغلق دون شعار، مع الدفع عند الاستلام في لبنان.</p>
+          </div>
+          <a href="/quiz" className="inline-flex bg-white px-5 py-2 text-sm font-bold text-black">ساعدني في اختيار المنتج</a>
+        </div>
+      </section>}
+      {locale === 'en' && content && (
         <section className="bg-[#050101] border-t border-white/10">
           <div className="mx-auto max-w-5xl px-4 py-14 space-y-10">
             <div>
@@ -525,14 +537,14 @@ export default async function CategoryPage({
 
       {categoryProducts.length > 0 && (
         <nav
-          aria-label={`All products in ${meta.titleEn
+          aria-label={`${locale === 'ar' ? 'كل المنتجات في' : 'All products in'} ${ (locale === 'ar' ? meta.titleAr : meta.titleEn)
             .split('|')[0]
             .trim()}`}
           className="bg-[#050101] border-t border-white/5"
         >
           <div className="mx-auto max-w-5xl px-4 py-8">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-4">
-              All Products
+              {locale === 'ar' ? 'كل المنتجات' : 'All Products'}
             </p>
 
             <ul className="flex flex-wrap gap-x-4 gap-y-2">
@@ -546,8 +558,8 @@ export default async function CategoryPage({
                       className="text-stone-500 hover:text-stone-300 text-xs transition-colors"
                     >
                       {(
+                        (locale === 'ar' ? product.name : product.nameEn) ||
                         product.nameEn ||
-                        product.name ||
                         ''
                       ).slice(0, 60)}
                     </a>
@@ -561,12 +573,12 @@ export default async function CategoryPage({
 
       {RELATED_CATEGORIES[slug] && (
         <nav
-          aria-label="Related categories"
+          aria-label={locale === 'ar' ? 'فئات ذات صلة' : 'Related categories'}
           className="bg-[#050101] border-t border-white/5"
         >
           <div className="mx-auto max-w-5xl px-4 py-6">
             <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-600 mb-3">
-              Related Categories
+              {locale === 'ar' ? 'فئات ذات صلة' : 'Related Categories'}
             </p>
 
             <ul className="flex flex-wrap gap-3">
@@ -579,7 +591,7 @@ export default async function CategoryPage({
                       href={`/${relatedCategory.slug}`}
                       className="text-xs font-bold text-stone-500 hover:text-stone-300 bg-white/[0.03] border border-white/10 px-3 py-1.5 rounded-full transition-colors"
                     >
-                      {relatedCategory.label}
+                      {locale === 'ar' ? getCategoryMeta(relatedCategory.slug).titleAr.split('|')[0].trim() : relatedCategory.label}
                     </a>
                   </li>
                 )

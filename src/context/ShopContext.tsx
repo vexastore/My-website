@@ -4,6 +4,7 @@ import { Product, CartItem, Order, CustomerInfo, AdviceArticle } from '../types'
 import { loadArCache, translateProducts, ArTranslation } from '../utils/translate';
 import { cartItemKey, cartSubtotal } from '../utils/pricing';
 import { isStorefrontReference, mergeOrderStatuses } from '../utils/order-status';
+import { STORE_LOCALE_COOKIE, type StoreLocale } from '@/lib/storeLocaleShared';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
 
@@ -68,9 +69,9 @@ const CATEGORY_TO_SLUG: Record<string, string> = Object.fromEntries(
 );
 
 function getInitialCategory(override?: string): string {
-  // NOTE: use `!== undefined` (not truthy) so an explicit "" override —
+  // NOTE: use `!== undefined` (not truthy) so an explicit "" override -
   // meaning "show every category" (used by full-catalog pages like the
-  // homepage and /adult-toys) — isn't silently discarded in favor of the
+  // homepage and /adult-toys), isn't silently discarded in favor of the
   // URL-based / default lookup below.
   if (override !== undefined) return override;
   try {
@@ -114,7 +115,8 @@ export const ShopProvider: React.FC<{
   initialView?: string;
   initialProductSlug?: string;
   seoHeading?: string;
-}> = ({ children, initialProducts, initialCategory, initialView: initialViewProp, initialProductSlug, seoHeading }) => {
+  initialLocale?: StoreLocale;
+}> = ({ children, initialProducts, initialCategory, initialView: initialViewProp, initialProductSlug, seoHeading, initialLocale = 'en' }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [deliveryFee, setDeliveryFee] = useState(DELIVERY_FEE);
@@ -134,7 +136,7 @@ export const ShopProvider: React.FC<{
         return localStorage.getItem('vexa_18plus') === 'true';
       } catch { return false; }
     });
-  const [language, setLanguageState] = useState<'en' | 'ar'>('en');
+  const [language, setLanguageState] = useState<'en' | 'ar'>(initialLocale);
   const [isProductsLoading, setIsProductsLoading] = useState(!initialProducts || initialProducts.length === 0);
   const [arTranslations, setArTranslations] = useState<Record<string, ArTranslation>>(() => loadArCache());
 
@@ -324,19 +326,15 @@ export const ShopProvider: React.FC<{
     const storedAgeVerify = localStorage.getItem('adult_store_age_verified');
     if (storedAgeVerify === 'true') setIs18PlusVerified(true);
 
-    const storedLanguage = localStorage.getItem('vexa_store_language') as 'en' | 'ar' | null;
-    if (storedLanguage === 'en' || storedLanguage === 'ar') {
-      setLanguageState(storedLanguage);
-    } else if (navigator.language?.startsWith('ar')) {
-      setLanguageState('ar');
-    }
   }, []);
 
   const setLanguage = (newLanguage: 'en' | 'ar') => {
     setLanguageState(newLanguage);
     localStorage.setItem('vexa_store_language', newLanguage);
+    document.cookie = `${STORE_LOCALE_COOKIE}=${newLanguage}; Path=/; Max-Age=31536000; SameSite=Lax`;
     document.documentElement.lang = newLanguage;
     document.documentElement.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
+    window.location.reload();
   };
 
   const toggleLanguage = () => setLanguage(language === 'ar' ? 'en' : 'ar');
@@ -459,12 +457,12 @@ export const ShopProvider: React.FC<{
     };
 
     const navigateToProduct = (product: Product) => {
-      // Strip trailing hyphens from the stored slug — legacy Firestore slugs may end
+      // Strip trailing hyphens from the stored slug, legacy Firestore slugs may end
       // with '-' (truncation artefact). Using the clean slug prevents window.history
       // from pushing a redirect URL instead of the canonical 200 URL.
       const rawSlug = (product as Product & { slug?: string }).slug || toSlugLocal(product.nameEn || product.name || '');
       const pSlug = rawSlug.replace(/-+$/, '');
-      // Normalize categorySlug before building URL — raw Firestore value may have
+      // Normalize categorySlug before building URL, raw Firestore value may have
       // spaces or uppercase (e.g. "Male Toys") which would produce a broken URL.
       const rawCat = (product as Product & { categorySlug?: string }).categorySlug || toSlugLocal(product.category || 'sex-toys');
       const catSlug = rawCat.toLowerCase().replace(/\s+/g, '-').replace(/_/g, '-').trim() || 'sex-toys';

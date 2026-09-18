@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, CheckCircle2, AlertCircle } from 'lucide-react';
+import { useShop } from '../context/ShopContext';
 
 interface ToastMessage {
   id: number;
@@ -8,6 +9,7 @@ interface ToastMessage {
 }
 
 export const VexaToast: React.FC = () => {
+  const { language } = useShop();
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
   useEffect(() => {
@@ -24,7 +26,7 @@ export const VexaToast: React.FC = () => {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-24 right-4 z-[99999] flex flex-col gap-2 sm:bottom-8 sm:right-6" dir="rtl">
+    <div className="fixed bottom-24 right-4 z-[99999] flex flex-col gap-2 sm:bottom-8 sm:right-6" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {toasts.map(toast => (
         <div
           key={toast.id}
@@ -44,7 +46,7 @@ export const VexaToast: React.FC = () => {
           <span className="flex-1 leading-snug">{toast.message}</span>
           <button
             onClick={() => setToasts(prev => prev.filter(t => t.id !== toast.id))}
-            aria-label="إغلاق"
+            aria-label={language === 'ar' ? 'إغلاق' : 'Close'}
             className="text-white/40 hover:text-white transition"
           >
             <X size={14} />

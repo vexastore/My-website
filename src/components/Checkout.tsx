@@ -6,7 +6,7 @@ import { selectedUnitPrice } from '../utils/pricing';
 import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
 import { orderWhatsAppUrl } from '../utils/whatsapp';
 
-// Synchronous guard — prevents double-submissions caused by React's async state
+// Synchronous guard, prevents double-submissions caused by React's async state
 // batching. Two rapid taps can both see isSubmitting===false before the first
 // setIsSubmitting(true) re-render lands, so we need a ref that updates instantly.
 const _submitting = { current: false };
@@ -120,7 +120,7 @@ export const Checkout: React.FC = () => {
 
       // The WhatsApp action is available only after Supabase confirms the order.
       const placed = await placeOrder(customerInfo);
-      if (!placed) return; // cart was empty — guard only, shouldn't happen
+      if (!placed) return; // cart was empty, guard only, shouldn't happen
       setOrderComplete(placed);
       if (!placed.isTestOrder) {
         try { window.location.assign(orderWhatsAppUrl(placed, language)); } catch { /* The fallback link stays on the receipt. */ }
@@ -201,7 +201,7 @@ export const Checkout: React.FC = () => {
                 </div>
                 <div className="flex-1 text-right">
                   <p className="text-sm font-bold text-stone-800">{isArabic ? item.product.name : (item.product.nameEn || item.product.name)}</p>
-                  <p className="text-xs text-stone-500">× {item.quantity} — ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)} USD</p>
+                  <p className="text-xs text-stone-500">× {item.quantity}, ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)} USD</p>
                 </div>
               </div>
             ))}
@@ -376,7 +376,7 @@ export const Checkout: React.FC = () => {
               <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'المدينة *' : 'City *'}</label>
               <select ref={cityRef} name="city" value={form.city} onChange={handleInputChange}
                 className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 bg-white ${errors.city ? 'border-red-400' : 'border-stone-200'}`}>
-                <option value="">{isArabic ? '— اختر المدينة —' : '— Select city —'}</option>
+                <option value="">{isArabic ? '- اختر المدينة -' : '- Select city -'}</option>
                 {(isArabic ? LEBANESE_CITIES_AR : LEBANESE_CITIES_EN).map((city, idx) => { const val = LEBANESE_CITIES_AR[idx]; return <option key={val} value={val}>{city}</option>; })}
                 <option value="أخرى">{isArabic ? 'أخرى...' : 'Other...'}</option>
               </select>
@@ -398,7 +398,7 @@ export const Checkout: React.FC = () => {
                 className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 resize-none" />
             </div>
 
-            {/* Validation banner — appears above the button when required fields are missing.
+            {/* Validation banner, appears above the button when required fields are missing.
                 This ensures mobile users who have scrolled down past the name/phone fields
                 get visible feedback right next to the button they just tapped. */}
             {validationBanner && (
@@ -411,11 +411,11 @@ export const Checkout: React.FC = () => {
               className="w-full py-4 bg-black text-white font-black text-sm rounded-xl hover:bg-stone-800 transition active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2">
               {isSubmitting
                 ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />{isArabic ? 'جاري الإرسال...' : 'Placing order...'}</>
-                : <>{isArabic ? `تأكيد الطلب — $${total.toFixed(2)} USD` : `Place order — $${total.toFixed(2)} USD`}</>}
+                : <>{isArabic ? `تأكيد الطلب, $${total.toFixed(2)} USD` : `Place order, $${total.toFixed(2)} USD`}</>}
             </button>
 
             <p className="text-center text-[10px] text-stone-400">
-              {isArabic ? 'الدفع عند الاستلام — تغليف سري ومحكم' : 'Cash on delivery — fully discreet packaging'}
+              {isArabic ? 'الدفع عند الاستلام, تغليف سري ومحكم' : 'Cash on delivery, fully discreet packaging'}
             </p>
           </form>
         </div>

@@ -16,7 +16,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   } = useShop();
   const isArabic = language === 'ar';
 
-  // Always start with a displayable image — store logo is the fallback for products
+  // Always start with a displayable image, store logo is the fallback for products
   // that have no real URL yet. This means imgsLoading is NEVER true on first render,
   // so users (and Googlebot) never see a spinner instead of product content.
   const PRODUCT_FALLBACK_IMG = 'https://vexatoys.com/vexa-logo.jpg';
@@ -68,7 +68,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     // ── Meta tags ──
     const title = `${productName} | Vexa Store Lebanon`;
     document.title = title;
-    const desc = `${productName} — ${product.price.toFixed(2)} USD — ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
+    const desc = `${productName}, ${product.price.toFixed(2)} USD, ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
@@ -167,9 +167,9 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     //    Use store logo as placeholder so there is never an empty/spinner state.
     setImages([getInitialImg(product.image)]);
     setImgIdx(0);
-    setImgsLoading(false); // no spinner — we always have something to show
+    setImgsLoading(false); // no spinner, we always have something to show
 
-    // ② Safety timeout — belt-and-suspenders in case Firebase hangs.
+    // ② Safety timeout, belt-and-suspenders in case Firebase hangs.
     const timeout = setTimeout(() => { if (!cancelled) setImgsLoading(false); }, 6000);
 
     // ③ Request guard: ignore responses that arrive after the product changed.
@@ -257,7 +257,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           ) : selectedImg ? (
             <img
               src={selectedImg}
-              alt={isArabic ? `شراء ${displayName} في لبنان — متجر فيكسا` : `Buy ${displayName} in Lebanon — Vexa Store`}
+              alt={isArabic ? `شراء ${displayName} في لبنان, متجر فيكسا` : `Buy ${displayName} in Lebanon, Vexa Store`}
               className="w-full h-full object-contain"
               loading="eager"
             />

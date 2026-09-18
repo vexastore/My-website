@@ -1,6 +1,8 @@
 'use client';
 import { useState } from 'react';
 import Link from 'next/link';
+import type { StoreLocale } from '@/lib/storeLocaleShared';
+import { CATEGORY_META as CATEGORIES } from '@/lib/categoryMeta';
 
 const STEPS = [
   {
@@ -17,7 +19,7 @@ const STEPS = [
     id: 'level',
     question: 'What is your experience level?',
     options: [
-      { emoji: '🌱', label: 'First time — never tried', value: 'beginner' },
+      { emoji: '🌱', label: 'First time, never tried', value: 'beginner' },
       { emoji: '⚡', label: 'Some experience', value: 'intermediate' },
       { emoji: '🔥', label: 'Very experienced', value: 'advanced' },
     ],
@@ -37,20 +39,20 @@ const STEPS = [
 type Answers = Record<string, string>;
 
 const CATEGORY_META: Record<string, { label: string; emoji: string; desc: string }> = {
-  vibrators: { label: 'Vibrators', emoji: '💜', desc: 'Bullet, wand, rabbit & G-spot styles — the most popular first choice' },
+  vibrators: { label: 'Vibrators', emoji: '💜', desc: 'Bullet, wand, rabbit & G-spot styles, the most popular first choice' },
   dildos: { label: 'Dildos', emoji: '💎', desc: 'Body-safe silicone & realistic options in every size' },
-  'male-toys': { label: 'Male Toys', emoji: '⚡', desc: 'Masturbators, cock rings, pumps — the full male pleasure range' },
+  'male-toys': { label: 'Male Toys', emoji: '⚡', desc: 'Masturbators, cock rings, pumps, the full male pleasure range' },
   masturbators: { label: 'Masturbators', emoji: '🎯', desc: 'Realistic texture, hands-free options, automatic models' },
-  'cock-rings': { label: 'Cock Rings', emoji: '💍', desc: 'Silicone, metal & vibrating — stronger erections, more pleasure for both' },
-  lubricants: { label: 'Lubricants', emoji: '💧', desc: 'Water-based & silicone — essential for comfort and sensation' },
-  'sex-toys': { label: 'Sex Toys', emoji: '🛍️', desc: '500+ products — browse everything in one place' },
-  lingerie: { label: 'Lingerie', emoji: '👙', desc: 'Lace, satin & mesh — beautiful intimate sets for all sizes' },
-  bdsm: { label: 'BDSM', emoji: '🔒', desc: 'Restraints, blindfolds, paddles — beginner kits included' },
-  bondage: { label: 'Bondage', emoji: '🪢', desc: 'Cuffs, rope, under-bed systems — for couples who love control' },
-  'sex-machines': { label: 'Sex Machines', emoji: '🤖', desc: 'Powerful thrusting & riding machines — hands-free, tireless' },
-  'strap-ons': { label: 'Strap-ons', emoji: '🔗', desc: 'Harnesses & dildos — popular for all genders and orientations' },
+  'cock-rings': { label: 'Cock Rings', emoji: '💍', desc: 'Silicone, metal & vibrating, stronger erections, more pleasure for both' },
+  lubricants: { label: 'Lubricants', emoji: '💧', desc: 'Water-based & silicone, essential for comfort and sensation' },
+  'sex-toys': { label: 'Sex Toys', emoji: '🛍️', desc: '500+ products, browse everything in one place' },
+  lingerie: { label: 'Lingerie', emoji: '👙', desc: 'Lace, satin & mesh, beautiful intimate sets for all sizes' },
+  bdsm: { label: 'BDSM', emoji: '🔒', desc: 'Restraints, blindfolds, paddles, beginner kits included' },
+  bondage: { label: 'Bondage', emoji: '🪢', desc: 'Cuffs, rope, under-bed systems, for couples who love control' },
+  'sex-machines': { label: 'Sex Machines', emoji: '🤖', desc: 'Powerful thrusting & riding machines, hands-free, tireless' },
+  'strap-ons': { label: 'Strap-ons', emoji: '🔗', desc: 'Harnesses & dildos, popular for all genders and orientations' },
   'kegel-balls': { label: 'Kegel Balls', emoji: '🔮', desc: 'Strengthen pelvic muscles and intensify orgasms over time' },
-  'butt-plugs': { label: 'Butt Plugs', emoji: '✨', desc: 'Silicone, metal & vibrating — beginner to advanced sizes' },
+  'butt-plugs': { label: 'Butt Plugs', emoji: '✨', desc: 'Silicone, metal & vibrating, beginner to advanced sizes' },
   'holiday-collection': { label: 'Gift Sets', emoji: '🎁', desc: 'Curated couples & romantic gift sets for any occasion' },
   'anal-toys': { label: 'Anal Toys', emoji: '🌟', desc: 'Beads, prostate massagers & anal vibrators for all levels' },
   chastity: { label: 'Chastity', emoji: '🗝️', desc: 'Plastic, silicone & metal cages for couples D/s dynamics' },
@@ -86,7 +88,15 @@ function getResults(answers: Answers): string[] {
     .map(([cat]) => cat);
 }
 
-export function QuizClient() {
+const AR_QUESTIONS = ['لمن تبحث عن المنتج؟', 'ما مستوى خبرتك؟', 'ما الأهم بالنسبة لك؟'];
+const AR_OPTIONS: Record<string, string> = {
+  female: 'لي (امرأة)', male: 'لي (رجل)', couple: 'لنا كزوجين', gift: 'هدية',
+  beginner: 'هذه أول تجربة', intermediate: 'لدي بعض الخبرة', advanced: 'لدي خبرة كبيرة',
+  pleasure: 'متعة وإحساس أقوى', simple: 'سهل الاستخدام', kinky: 'شيء جديد ومختلف', discreet: 'خصوصية تامة',
+};
+
+export function QuizClient({ locale = 'en' }: { locale?: StoreLocale }) {
+  const ar = locale === 'ar';
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [done, setDone] = useState(false);
@@ -119,11 +129,11 @@ export function QuizClient() {
 
   if (done) {
     return (
-      <div className="min-h-screen bg-[#050101] text-white flex flex-col items-center justify-center px-4 py-16">
+      <div className="min-h-screen bg-[#050101] text-white flex flex-col items-center justify-center px-4 py-16" dir={ar ? 'rtl' : 'ltr'}>
         <div className="w-full max-w-xl">
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-purple-400 mb-3 text-center">Your Results</p>
-          <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 text-center">Perfect picks for you</h2>
-          <p className="text-stone-400 text-sm text-center mb-10">Based on your answers, we recommend starting here:</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-purple-400 mb-3 text-center">{ar ? 'نتيجتك' : 'Your Results'}</p>
+          <h2 className="text-2xl sm:text-3xl font-black text-white mb-2 text-center">{ar ? 'خيارات تناسبك' : 'Perfect picks for you'}</h2>
+          <p className="text-stone-400 text-sm text-center mb-10">{ar ? 'بناءً على إجاباتك، ننصحك بالبدء هنا:' : 'Based on your answers, we recommend starting here:'}</p>
 
           <div className="space-y-4 mb-10">
             {results.map((slug, i) => {
@@ -141,11 +151,11 @@ export function QuizClient() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
                       {i === 0 && (
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded-full">Top Pick</span>
+                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded-full">{ar ? 'الخيار الأفضل' : 'Top Pick'}</span>
                       )}
-                      <p className="font-black text-white group-hover:text-purple-200 transition">{meta.label}</p>
+                      <p className="font-black text-white group-hover:text-purple-200 transition">{ar ? CATEGORIES.find(c => c.slug === slug)?.titleAr.split('|')[0].trim() || meta.label : meta.label}</p>
                     </div>
-                    <p className="text-xs text-stone-400 leading-relaxed">{meta.desc}</p>
+                    <p className="text-xs text-stone-400 leading-relaxed">{ar ? 'تصفح هذه الفئة واختر المنتج المناسب لك بخصوصية تامة.' : meta.desc}</p>
                   </div>
                   <span className="text-stone-600 group-hover:text-purple-400 transition font-bold shrink-0">→</span>
                 </Link>
@@ -154,15 +164,15 @@ export function QuizClient() {
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5 mb-6">
-            <p className="text-xs text-stone-400 text-center mb-1">Need help deciding?</p>
-            <p className="text-sm font-bold text-white text-center">Chat with us on WhatsApp — we reply instantly</p>
+            <p className="text-xs text-stone-400 text-center mb-1">{ar ? 'تحتاج إلى مساعدة في الاختيار؟' : 'Need help deciding?'}</p>
+            <p className="text-sm font-bold text-white text-center">{ar ? 'تواصل معنا عبر واتساب للمساعدة.' : 'Chat with us on WhatsApp, we reply instantly'}</p>
           </div>
 
           <button
             onClick={restart}
             className="w-full text-center text-xs text-stone-500 hover:text-white transition font-bold py-2"
           >
-            ↺ Start over
+            {ar ? '↺ ابدأ من جديد' : '↺ Start over'}
           </button>
         </div>
       </div>
@@ -170,7 +180,7 @@ export function QuizClient() {
   }
 
   return (
-    <div className="min-h-screen bg-[#050101] text-white flex flex-col items-center justify-center px-4 py-16">
+    <div className="min-h-screen bg-[#050101] text-white flex flex-col items-center justify-center px-4 py-16" dir={ar ? 'rtl' : 'ltr'}>
       <div className="w-full max-w-lg">
         {/* Progress */}
         <div className="flex items-center gap-3 mb-10">
@@ -187,10 +197,10 @@ export function QuizClient() {
 
         {/* Question */}
         <p className="text-[10px] font-black uppercase tracking-[0.35em] text-purple-400 mb-3">
-          Question {step + 1}
+          {ar ? 'السؤال' : 'Question'} {step + 1}
         </p>
         <h2 className="text-2xl sm:text-3xl font-black text-white mb-8 leading-tight">
-          {current.question}
+          {ar ? AR_QUESTIONS[step] : current.question}
         </h2>
 
         {/* Options */}
@@ -199,14 +209,14 @@ export function QuizClient() {
             <button
               key={opt.value}
               onClick={() => choose(opt.value)}
-              className={`w-full flex items-center gap-4 rounded-2xl border p-4 text-left transition
+              className={`w-full flex items-center gap-4 rounded-2xl border p-4 text-start transition
                 ${selected === opt.value
                   ? 'border-purple-500 bg-purple-500/15 scale-[0.98]'
                   : 'border-white/10 bg-white/5 hover:border-purple-500/40 hover:bg-white/10'
                 }`}
             >
               <span className="text-2xl shrink-0">{opt.emoji}</span>
-              <span className="font-bold text-white text-sm sm:text-base">{opt.label}</span>
+              <span className="font-bold text-white text-sm sm:text-base">{ar ? AR_OPTIONS[opt.value] : opt.label}</span>
             </button>
           ))}
         </div>
@@ -216,7 +226,7 @@ export function QuizClient() {
             onClick={() => setStep(step - 1)}
             className="mt-6 text-xs text-stone-600 hover:text-stone-400 transition font-bold"
           >
-            ← Back
+            {ar ? 'عودة →' : '← Back'}
           </button>
         )}
       </div>
