@@ -3,6 +3,8 @@ import { useShop } from '../context/ShopContext';
 import { Product, ProductVariant } from '../types';
 import { CATEGORIES, getProductCategories } from '../data/categories';
 import { canonicalProductPath } from '@/lib/productSeo';
+import { generateProductJsonLd } from '@/lib/productSchema';
+import { ProductReviews } from './ProductReviews';
 import { selectedUnitPrice } from '../utils/pricing';
 import {
   Star, ShoppingCart, Zap, ChevronLeft, ChevronRight, ArrowLeft,
@@ -83,82 +85,26 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
     document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', ogImg);
 
-    // ── JSON-LD: use @graph so BreadcrumbList is a separate top-level entity
-    // (nesting breadcrumb inside Product is non-standard and ignored by parsers).
-    const offerShipping = {
-      '@type': 'OfferShippingDetails',
-      shippingRate: { '@type': 'MonetaryAmount', value: '3.00', currency: 'USD' },
-      shippingDestination: { '@type': 'DefinedRegion', addressCountry: 'LB' },
-      deliveryTime: {
-        '@type': 'ShippingDeliveryTime',
-        handlingTime: { '@type': 'QuantitativeValue', minValue: 0, maxValue: 1, unitCode: 'DAY' },
-        transitTime:  { '@type': 'QuantitativeValue', minValue: 1, maxValue: 2, unitCode: 'DAY' },
-      },
-    };
-    const returnPolicy = {
-      '@type': 'MerchantReturnPolicy',
-      applicableCountry: 'LB',
-      returnPolicyCategory: 'https://schema.org/MerchantReturnFiniteReturnWindow',
-      merchantReturnDays: 7,
-      returnMethod: 'https://schema.org/ReturnByMail',
-      returnFees: 'https://schema.org/FreeReturn',
-    };
-    const productNode: Record<string, unknown> = {
-      '@type': 'Product',
+    // ── JSON-LD: structured data with aggregateRating and verified reviews
+    const jsonLd = generateProductJsonLd(product, {
+      locale: language,
+      canonicalUrl: canonical,
+      categoryLabel: primaryCatName,
+      catSlug: (product.categorySlug || primaryCatId || 'sex-toys').toLowerCase().replace(/\s+/g, '-'),
       name: productName,
-      alternateName: product.name || product.nameEn,
-      description: product.descriptionEn || product.description ||
-        `Buy ${productName} in Lebanon. Discreet delivery in Beirut. Cash on delivery.`,
-      image: [getInitialImg(product.image)],
-      sku: product.id,
-      brand: { '@type': 'Brand', name: 'Vexa Store Lebanon' },
-      offers: {
-        '@type': 'Offer',
-        price: product.price.toFixed(2),
-        priceCurrency: 'USD',
-        availability: product.stock > 0
-          ? 'https://schema.org/InStock'
-          : 'https://schema.org/OutOfStock',
-        url: canonical,
-        seller: { '@type': 'Organization', name: 'Vexa Store Lebanon', url: 'https://vexatoys.com' },
-        priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
-        shippingDetails: offerShipping,
-        hasMerchantReturnPolicy: returnPolicy,
-      },
-    };
-    if (product.reviewsCount > 0) {
-      productNode.aggregateRating = {
-        '@type': 'AggregateRating',
-        ratingValue: product.rating,
-        reviewCount: product.reviewsCount,
-        bestRating: 5,
-        worstRating: 1,
-      };
+      description: desc,
+      images: [getInitialImg(product.image)],
+    });
+
+    let script = document.getElementById('vexa-product-jsonld') as HTMLScriptElement | null;
+    if (!script) {
+      script = document.createElement('script');
+      script.id = 'vexa-product-jsonld';
+      script.type = 'application/ld+json';
+      document.head.appendChild(script);
     }
-    const jsonLd = {
-      '@context': 'https://schema.org',
-      '@graph': [
-        {
-          '@type': 'BreadcrumbList',
-          itemListElement: [
-            { '@type': 'ListItem', position: 1, name: 'Vexa Store Lebanon', item: 'https://vexatoys.com/' },
-            { '@type': 'ListItem', position: 2, name: productName, item: canonical },
-          ],
-        },
-        productNode,
-      ],
-    };
-
-    const existing = document.getElementById('vexa-product-jsonld');
-    if (existing) existing.remove();
-    const script = document.createElement('script');
-    script.id = 'vexa-product-jsonld';
-    script.type = 'application/ld+json';
     script.text = JSON.stringify(jsonLd);
-    document.head.appendChild(script);
-
-    return () => { document.getElementById('vexa-product-jsonld')?.remove(); };
-  }, [product]);
+  }, [product, language, primaryCatName, primaryCatId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -515,6 +461,10 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
             </div>
           )}
         </div>
+      </div>
+
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 pb-12">
+        <ProductReviews product={product} isArabic={isArabic} />
       </div>
     </div>
   );

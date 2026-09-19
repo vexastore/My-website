@@ -1,5 +1,5 @@
 import type { Product } from '@/src/types';
-import { CATEGORY_META, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
+import { CATEGORY_META, SLUG_TO_CATEGORY } from './categoryMeta.ts';
 
 export const SITE_BASE_URL = 'https://vexatoys.com';
 

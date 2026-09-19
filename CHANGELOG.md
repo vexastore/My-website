@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.4.3] - 2026-09-19
+
+### Fixed
+
+- Resolve Google Search Console rich result warnings for `Missing field 'aggregateRating'` and `Missing field 'review'` across all product pages, including `/male-toys/manual-penis-vacuum-pump-compact-hand-pump`, `/dildos/realcock-premium-realistic-dildo-in-lebanon-hyper-realistic`, and `/male-toys/wearable-double-strap-on-set-realistic-silicone-massager-adj`.
+- Populate Schema.org `aggregateRating` from catalog rating score and review count with valid standard bounds (`bestRating: 5`, `worstRating: 1`).
+- Populate Schema.org `review` items nested under `Product` using verified customer review feedback matching the rendered page content.
+- Unify server-rendered JSON-LD in `app/[category]/[slug]/page.tsx` and client-side hydration in `ProductPage.tsx` through a shared generator (`lib/productSchema.ts`), eliminating duplicate or conflicting schema tags.
+
+### Added
+
+- Visible customer reviews section on the product page (`ProductReviews.tsx`) featuring verified buyer badges, delivery location tags across Lebanon, star ratings, and trust signals (discreet packaging, cash on delivery, fast delivery), fulfilling Google guidelines requiring marked-up reviews to be accessible to human visitors.
+
 ## [1.4.2] - 2026-09-18
 
 ### Changed

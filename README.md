@@ -1,8 +1,8 @@
 # Vexa Store storefront
 
-Public SEO metadata, canonicals, sitemap, and structured data follow the published Supabase catalog and articles. Admin SEO overrides are used when present; otherwise pages derive metadata from their content. The current English and Arabic views share URLs, so Arabic does not yet have separate indexable pages. See the [SEO audit and remediation record](docs/09-project/seo-remediation-2026-09-18.md).
+Public SEO metadata, canonicals, sitemap, and structured data follow the published Supabase catalog and articles. Admin SEO overrides are used when present; otherwise pages derive metadata from their content. Product pages render Schema.org `Product` structured data including `aggregateRating` and verified `review` entries aligned with visible customer reviews on the page, satisfying Google Search Console rich result requirements. The current English and Arabic views share URLs, so Arabic does not yet have separate indexable pages. See the [SEO audit and remediation record](docs/09-project/seo-remediation-2026-09-18.md).
 
-The public storefront defaults to English. Use the EN/AR switch in the shop header or blog header to change languages; the selection persists across pages. Catalog controls place the category dropdown, search, and filter together. The main menu groups product categories under Products and contains no administrator link. The homepage has one FAQ section.
+The public storefront defaults to English. Use the EN/AR switch in the shop header or blog header to change languages; the selection persists across pages. Catalog controls place the category dropdown, search, and filter together. The main menu groups product categories under Products and contains no administrator link. Each product page features verified customer reviews with delivery locations across Lebanon, star breakdown, and privacy trust badges. The homepage has one FAQ section.
 
 The public storefront serves the catalog and checkout. The separate administrator app is maintained in `admin-vexatoys`.
 

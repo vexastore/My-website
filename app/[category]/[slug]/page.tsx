@@ -16,6 +16,7 @@ import {
   SLUG_REMAPS,
   toProductSlug,
 } from '@/lib/productSeo';
+import { generateProductJsonLd } from '@/lib/productSchema';
 
 const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
 
@@ -297,73 +298,20 @@ export default async function ProductPage({
   /**
    * Schema.org structured data.
    */
-  const jsonLd = {
-    '@context': 'https://schema.org',
-
-    '@graph': [
-      {
-        '@type': 'BreadcrumbList',
-
-        itemListElement: [
-          {
-            '@type': 'ListItem',
-            position: 1,
-            name: 'Vexa Store',
-            item: SITE_BASE_URL,
-          },
-
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: categoryLabel,
-            item: `${SITE_BASE_URL}/${catSlug}`,
-          },
-
-          {
-            '@type': 'ListItem',
-            position: 3,
-            name,
-            item: canonicalUrl,
-          },
-        ],
-      },
-
-      {
-        '@type': 'Product',
-
-        name,
-
-        description,
-
-        ...(images.length ? { image: images } : {}),
-
-        url: canonicalUrl,
-
-        ...(product.sku ? { sku: product.sku } : {}),
-
-        hasAdultConsideration:
-          'https://schema.org/SexualContentConsideration',
-
-        offers: {
-          '@type': 'Offer',
-
-          url: canonicalUrl,
-
-          priceCurrency: product.currency || 'USD',
-          price: product.price,
-
-          availability: inStock
-            ? 'https://schema.org/InStock'
-            : 'https://schema.org/OutOfStock',
-
-        },
-      },
-    ],
-  };
+  const jsonLd = generateProductJsonLd(product, {
+    locale,
+    canonicalUrl,
+    catSlug,
+    categoryLabel,
+    name,
+    description,
+    images,
+  });
 
   return (
     <>
       <script
+        id="vexa-product-jsonld"
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(jsonLd),
