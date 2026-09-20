@@ -4,6 +4,7 @@ import { fetchProductsServer } from '@/lib/fetchProducts';
 import { CITY_META } from '@/lib/cityMeta';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
+import { FAQ_DATA } from '@/src/data/faq';
 
 export const revalidate = 300;
 
@@ -15,21 +16,18 @@ const baseMetadata: Metadata = {
   title: SITE_TITLE,
   description: SITE_DESC,
   keywords: [
-    // Core high-volume search targets (kept in metadata only, never in visible body copy)
     'sex toys lebanon',
     'sex toys in lebanon',
     'adult store beirut',
     'adult toys lebanon',
     'vibrators lebanon',
     'dildos lebanon',
-    // High-end legal euphemisms, safe, premium, brand-forward
     'intimate wellness lebanon',
     'luxury personal massagers beirut',
     'couples intimacy products',
     'premium lingerie beirut',
     'vexa store',
     'vexa store lebanon',
-    // Culturally compliant Arabic keywords
     'ألعاب زوجية لبنان',
     'منتجات متزوجين بيروت',
     'هدايا للمتزوجين لبنان',
@@ -75,43 +73,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const BASE = 'https://vexatoys.com';
-
-// FAQ content, shown both as visible copy (below) and as FAQPage schema so
-// Google can surface these as expandable rich-result questions under the
-// homepage listing. Never mark up hidden-only text, this exact copy is
-// rendered in the FAQ_ITEMS section further down the page.
-const FAQ_ITEMS = [
-  {
-    q: 'Is delivery really discreet?',
-    a: 'Yes. Every order ships in a plain, sealed box with no logo, no branding, and no indication of contents. Even the courier doesn\u2019t know what\u2019s inside.',
-    qAr: 'هل التوصيل سري فعلاً؟',
-    aAr: 'نعم. يصل كل طلب في صندوق عادي مغلق بلا شعار أو اسم للمنتج حفاظاً على خصوصيتك.',
-  },
-  {
-    q: 'Do you deliver sex toys across all of Lebanon?',
-    a: 'Yes, same-day delivery in Beirut, and 1-3 day delivery to Tripoli, Sidon, Zahle, Jounieh, and the rest of Lebanon.',
-    qAr: 'هل توصلون إلى كل لبنان؟',
-    aAr: 'نعم. نوصل في اليوم نفسه داخل بيروت، وخلال يوم إلى ثلاثة أيام إلى باقي المناطق اللبنانية.',
-  },
-  {
-    q: 'Can I pay cash on delivery?',
-    a: 'Yes, cash on delivery is available everywhere in Lebanon, alongside card payment options.',
-    qAr: 'هل يمكنني الدفع عند الاستلام؟',
-    aAr: 'نعم. الدفع عند الاستلام متاح في جميع أنحاء لبنان.',
-  },
-  {
-    q: 'Are the products body-safe and good quality?',
-    a: 'All products use body-safe silicone or medical-grade materials, and every item ships new and sealed.',
-    qAr: 'هل المنتجات آمنة وجديدة؟',
-    aAr: 'نعم. تُصنع المنتجات من مواد آمنة للجسم، وتصل جديدة ومغلقة.',
-  },
-  {
-    q: 'How do I order?',
-    a: 'Browse the site and check out directly, or message us on WhatsApp and our team will help you choose and confirm your order.',
-    qAr: 'كيف أطلب؟',
-    aAr: 'تصفح المنتجات وأكمل الطلب من الموقع، أو تواصل معنا عبر واتساب للمساعدة.',
-  },
-];
 
 const REVIEWS = [
   {
@@ -174,7 +135,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   '@id': `${BASE}/#faq`,
-  mainEntity: FAQ_ITEMS.map(item => ({
+  mainEntity: FAQ_DATA.map(item => ({
     '@type': 'Question', name: item.q,
     acceptedAnswer: { '@type': 'Answer', text: item.a },
   })),
@@ -182,266 +143,118 @@ const jsonLd = {
 
 export default async function HomePage() {
   const locale = await getStoreLocale();
-  const localizedJsonLd = locale === 'ar' ? { ...jsonLd, mainEntity: FAQ_ITEMS.map(item => ({ '@type': 'Question', name: item.qAr, acceptedAnswer: { '@type': 'Answer', text: item.aAr } })) } : jsonLd;
+  const localizedJsonLd = locale === 'ar'
+    ? {
+        ...jsonLd,
+        mainEntity: FAQ_DATA.map(item => ({
+          '@type': 'Question',
+          name: item.qAr,
+          acceptedAnswer: { '@type': 'Answer', text: item.aAr },
+        })),
+      }
+    : jsonLd;
+
   let allProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
   try {
     allProducts = await fetchProductsServer();
-  } catch { /* graceful fallback, shop renders empty, still functional */ }
+  } catch {
+    // fallback
+  }
 
-  // Strip any base64 data-URIs before they ever reach the client bundle -
-  // same normalization used by /adult-toys and /[category].
   const productsWithImages = allProducts.map(p => ({
     ...p,
     image: (p.image && !p.image.startsWith('data:')) ? p.image : '',
     images: (p.images || []).filter((s: string) => s && !s.startsWith('data:')),
   }));
 
+  const isAr = locale === 'ar';
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localizedJsonLd) }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localizedJsonLd) }}
+      />
 
-      {/* ── THE SHOP ITSELF ───────────────────────────────────────────────────
-          This is the entire landing experience: navbar with search, cart,
-          hamburger menu, an always-visible category bar, and the full
-          product grid, every category, every product, no "Load more"
-          click. This is what a visitor sees the instant they land on "/". */}
       <ShopApp
         initialLocale={locale}
         initialProducts={productsWithImages}
         initialCategory=""
         initialView="shop"
-        seoHeading={locale === 'ar' ? 'منتجات العناية الحميمية والأزواج | متجر فيكسا لبنان' : 'Premium Intimate Wellness & Couples Care | Vexa Store Lebanon'}
-      />
-
-      <main className="bg-[#050101] text-white" dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-
-        {/* ── TRUST STRIP ───────────────────────────────────────────────────── */}
-        <section className="border-y border-white/10 bg-white/[0.015]">
-          <div className="max-w-5xl mx-auto px-4 py-5">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-              {[
-                { value: '600+', label: 'Products', labelAr: 'منتج' },
-                { value: '4.9★', label: 'Average Rating', labelAr: 'تقييم متوسط' },
-                { value: '1,900+', label: 'Happy Customers', labelAr: 'عميل سعيد' },
-                { value: '24h', label: 'Nationwide Delivery', labelAr: 'توصيل لكل لبنان' },
-              ].map((s, i) => (
-                <div key={i} className="py-2">
-                  <p className="text-2xl font-black text-white">{s.value}</p>
-                  <p className="text-stone-400 text-xs mt-0.5">{locale === 'ar' ? s.labelAr : s.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── WHY CHOOSE VEXA ───────────────────────────────────────────────── */}
-        <section className="border-t border-white/10">
-          <div className="max-w-5xl mx-auto px-4 py-16">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
-              {locale === 'ar' ? 'لماذا يختارنا العملاء' : 'Why Thousands Choose Us'}
-            </p>
-            <h2 className="text-2xl font-black text-white text-center mb-12">
-              {locale === 'ar' ? 'لماذا تختار متجر فيكسا؟' : 'Why Choose Vexa Store?'}
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[
-                {
-                  icon: '📦',
-                  title: '100% Discreet Delivery',
-                  titleAr: 'توصيل سري 100%',
-                  body: 'Every order ships in a plain sealed box with no logo, no store name, and no indication of contents. Even the delivery rider doesn\'t know what\'s inside.',
-                  bodyAr: 'يصل كل طلب في صندوق عادي مغلق بلا شعار أو اسم للمتجر أو إشارة إلى محتوياته.',
-                },
-                {
-                  icon: '💵',
-                  title: 'Cash on Delivery',
-                  titleAr: 'الدفع عند الاستلام',
-                  body: 'No credit card required. Pay in cash when your package arrives at your door, available across all of Lebanon.',
-                  bodyAr: 'ادفع نقداً عند وصول طلبك. الخدمة متاحة في جميع أنحاء لبنان.',
-                },
-                {
-                  icon: '⚡',
-                  title: 'Same-Day in Beirut',
-                  titleAr: 'توصيل في نفس اليوم',
-                  body: 'Order before 2 PM and receive your package today in Beirut and suburbs. 24–72 hours for all other Lebanese regions.',
-                  bodyAr: 'اطلب قبل الساعة الثانية ظهراً ليصلك طلبك في اليوم نفسه داخل بيروت وضواحيها. التوصيل لباقي المناطق خلال 24 إلى 72 ساعة.',
-                },
-                {
-                  icon: '🛡️',
-                  title: 'Body-Safe Materials',
-                  titleAr: 'مواد آمنة للجسم',
-                  body: 'All products are made from certified medical-grade materials, silicone, ABS plastic, borosilicate glass, and stainless steel. No jelly, no rubber.',
-                  bodyAr: 'نختار منتجات مصنوعة من مواد آمنة للجسم مثل السيليكون الطبي والزجاج والفولاذ المقاوم للصدأ.',
-                },
-                {
-                  icon: '💬',
-                  title: 'Private WhatsApp Support',
-                  titleAr: 'دعم واتساب سري',
-                  body: 'Our team is available daily for judgment-free product recommendations. First-time buyer? We\'ll guide you to exactly what you need.',
-                  bodyAr: 'فريقنا متاح يومياً عبر واتساب للإجابة عن أسئلتك ومساعدتك على اختيار المنتج المناسب بخصوصية تامة.',
-                },
-                {
-                  icon: '⭐',
-                  title: '4.9 / 5 Rating',
-                  titleAr: '4.9 / 5 تقييم',
-                  body: 'Rated 4.9 out of 5 across 350+ verified customer reviews from across Lebanon. Consistently Lebanon\'s highest-rated adult store.',
-                  bodyAr: 'حصل المتجر على تقييم 4.9 من 5 من مراجعات العملاء في لبنان.',
-                },
-              ].map((item, i) => (
-                <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 hover:border-white/20 transition">
-                  <span className="text-2xl mb-4 block">{item.icon}</span>
-                  <p className="font-black text-white text-sm mb-1">{locale === 'ar' ? item.titleAr : item.title}</p>
-                  <p className="text-stone-400 text-sm leading-relaxed">{locale === 'ar' ? item.bodyAr : item.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── CUSTOMER REVIEWS ──────────────────────────────────────────────── */}
-        <section className="border-t border-white/10">
-          <div className="max-w-5xl mx-auto px-4 py-16">
-            {/* Header */}
-            <div className="text-center mb-12">
-              <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3">
-                {locale === 'ar' ? 'آراء العملاء' : 'Customer Reviews'}
-              </p>
-              <h2 className="text-2xl font-black text-white mb-4">
-                {locale === 'ar' ? 'ماذا يقول عملاؤنا' : 'What customers say'}
-              </h2>
-              <p className="text-stone-500 text-sm mb-6">
-                {locale === 'ar' ? 'آراء عملائنا من بيروت وجميع أنحاء لبنان.' : 'Real reviews from customers across Beirut and Lebanon.'}
-              </p>
-              {/* Aggregate score */}
-              <div className="inline-flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.03] px-10 py-6">
-                <p className="text-5xl font-black text-white">4.9</p>
-                <div className="flex gap-0.5 text-amber-400 text-xl">
-                  {'★'.repeat(5)}
-                </div>
-                <p className="text-stone-400 text-xs font-semibold tracking-wide">
-                  {locale === 'ar' ? 'أكثر من 1,900 عميل راضٍ' : '1,900+ happy customers'}
-                </p>
-              </div>
-            </div>
-
-            {/* Review cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {REVIEWS.map((r, i) => (
-                <div
-                  key={i}
-                  className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 flex flex-col gap-4 hover:border-white/20 transition"
-                >
-                  {/* Stars */}
-                  <div className="flex gap-0.5 text-amber-400 text-sm">
-                    {'★'.repeat(5)}
-                  </div>
-                  {/* Quote */}
-                  <p className="text-stone-300 text-sm leading-relaxed flex-1">
-                    &ldquo;{locale === 'ar' ? r.textAr : r.text}&rdquo;
+        seoHeading={isAr ? 'ألعاب جنسية في لبنان | متجر فيكسا' : 'Sex Toys in Lebanon | Vexa Store'}
+        seoContent={
+          <div key="seo-content" className="bg-black text-white" dir={isAr ? 'rtl' : 'ltr'}>
+            {/* ── CUSTOMER REVIEWS ────────────────────────────────────── */}
+            <section className="border-t border-white/10 py-12 sm:py-16">
+              <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                <div className="text-center mb-10">
+                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#ff2d78] mb-2">
+                    {isAr ? 'آراء العملاء الموثقة' : 'Verified Reviews'}
                   </p>
-                  {/* Reviewer */}
-                  <div className="flex items-center gap-3 pt-2 border-t border-white/[0.06]">
-                    <div className={`${r.color} w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-black shrink-0`}>
-                      {r.initial}
-                    </div>
-                    <div>
-                      <p className="text-white text-xs font-bold">{r.name}</p>
-                      <p className="text-stone-500 text-[10px]">{locale === 'ar' ? r.cityAr : r.city}</p>
-                    </div>
-                    <span className="ms-auto text-stone-600 text-[10px] font-semibold">{locale === 'ar' ? 'موثّق' : 'Verified'}</span>
+                  <h2 className="text-xl sm:text-2xl font-black text-white mb-3">
+                    {isAr ? 'ماذا يقول عملاؤنا في لبنان' : 'What Our Customers Say'}
+                  </h2>
+                  <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 mt-2">
+                    <span className="text-xl font-black text-white">4.9</span>
+                    <div className="flex text-amber-400 text-sm">★★★★★</div>
+                    <span className="text-stone-400 text-xs">
+                      {isAr ? 'أكثر من ١,٩٠٠ عميل راضٍ' : '1,900+ Happy Clients'}
+                    </span>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+                  {REVIEWS.map((r, i) => (
+                    <div
+                      key={i}
+                      className="rounded-2xl border border-white/10 bg-[#0c0c0c] p-5 flex flex-col justify-between hover:border-white/20 transition"
+                    >
+                      <div>
+                        <div className="flex text-amber-400 text-xs mb-3">★★★★★</div>
+                        <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
+                          &ldquo;{isAr ? r.textAr : r.text}&rdquo;
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-3 pt-4 mt-4 border-t border-white/10">
+                        <div className={`${r.color} w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-black shrink-0`}>
+                          {r.initial}
+                        </div>
+                        <div>
+                          <p className="text-white text-xs font-bold">{r.name}</p>
+                          <p className="text-stone-500 text-[10px]">{isAr ? r.cityAr : r.city}</p>
+                        </div>
+                        <span className="ms-auto text-emerald-500 text-[10px] font-bold">
+                          {isAr ? '✓ موثّق' : '✓ Verified'}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </section>
+
+            {/* ── SEO CITY LINKS ──────────────────────────────────────── */}
+            <section className="border-t border-white/10 py-10 bg-black/50">
+              <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+                <p className="text-stone-500 text-xs font-bold uppercase tracking-wider mb-4">
+                  {isAr ? 'توصيل سري وسريع إلى جميع المناطق اللبنانية' : 'Discreet Same-Day Delivery Across All Lebanon'}
+                </p>
+                <div className="flex flex-wrap justify-center gap-2">
+                  {CITY_META.map(c => (
+                    <Link
+                      key={c.slug}
+                      href={`/city/${c.slug}`}
+                      className="text-xs font-medium text-stone-400 border border-white/10 rounded-full px-3 py-1 hover:border-[#ff2d78] hover:text-white transition"
+                    >
+                      {isAr ? `توصيل سري إلى ${c.nameAr || c.nameEn}` : `Intimate wellness in ${c.nameEn}`}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
           </div>
-        </section>
-
-        {/* ── SEO CONTENT ───────────────────────────────────────────────────── */}
-        <section className="border-t border-white/10 relative overflow-hidden">
-          {/* subtle ambient glow for a premium feel */}
-          <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-rose-600/10 blur-3xl" />
-
-          <div className="max-w-3xl mx-auto px-4 py-16 relative">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
-              {locale === 'ar' ? 'متجر فيكسا لبنان' : 'Lebanon\'s #1 Rated Adult Store'}
-            </p>
-            <h2 className="text-2xl sm:text-3xl font-black text-white text-center mb-6 tracking-tight">
-              {locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Store Lebanon'}
-            </h2>
-
-            {locale === 'en' && <><p className="text-stone-300 text-sm sm:text-base leading-relaxed mb-4">
-              <strong className="text-white font-bold">Vexa Store</strong> is Lebanon&apos;s most trusted
-              destination for premium intimate wellness, serving 1,900+ clients across Beirut, Tripoli,
-              Sidon, Jounieh, Zahle, and every region in between. Our curated collection spans luxury personal
-              massagers, elegant lingerie, couples essentials and more, every piece checked for body-safe
-              materials and genuine quality before it ever reaches your door.
-            </p>
-            <p className="text-stone-400 text-sm sm:text-base leading-relaxed mb-4">
-              Every order ships in a plain, sealed box, no logo, no branding, no indication of what&apos;s
-              inside, not even to the courier. Pair that with same-day delivery in Beirut, cash on delivery
-              nationwide, and a private WhatsApp line for judgment-free advice, and it&apos;s easy to see why
-              Vexa is rated <strong className="text-white font-bold">4.9 / 5</strong> by clients across Lebanon.
-            </p></>}
-
-            {locale === 'ar' && <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 mb-8" dir="rtl">
-              <p className="text-stone-300 text-sm sm:text-base leading-loose mb-3">
-                <strong className="text-white font-bold">متجر فيكسا</strong>, الوجهة الفاخرة الأولى في
-                لبنان لمنتجات العناية الحميمية، بثقة أكثر من 1,900 عميل في بيروت وطرابلس وصيدا وجونية وزحلة
-                وكل المناطق اللبنانية. نوفّر منتجات زوجية فاخرة، لانجري أنيق وهدايا للمتزوجين، جميعها مصنوعة
-                من مواد آمنة ومضمونة الجودة.
-              </p>
-              <p className="text-stone-400 text-sm sm:text-base leading-loose">
-                تسوّق بثقة وخصوصية تامة: تغليف سري بدون أي شعار، دفع عند الاستلام في كل لبنان، توصيل سريع في
-                نفس اليوم داخل بيروت، ودعم واتساب خاص لمساعدتك باختيار الأنسب لك. تقييم 4.9 من 5 من عملائنا في
-                جميع أنحاء لبنان.
-              </p>
-            </div>}
-
-            <p className="text-stone-500 text-xs font-semibold uppercase tracking-widest text-center mb-4">
-              {locale === 'ar' ? 'توصيل سري إلى كل لبنان' : 'Discreet delivery across Lebanon'}
-            </p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {CITY_META.map(c => (
-                <Link
-                  key={c.slug}
-                  href={`/city/${c.slug}`}
-                  className="text-xs font-semibold text-stone-400 border border-white/10 rounded-full px-3.5 py-1.5 hover:border-rose-500/40 hover:text-white hover:bg-white/[0.04] transition"
-                >
-                  {locale === 'ar' ? `توصيل سري إلى ${c.nameAr || c.nameEn}` : `Intimate wellness in ${c.nameEn}`}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── FAQ ───────────────────────────────────────────────────────────── */}
-        {/* This visible copy matches FAQ_ITEMS / the FAQPage schema above word-for-word. */}
-        <section className="border-t border-white/10">
-          <div className="max-w-3xl mx-auto px-4 py-14">
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-3 text-center">
-              {locale === 'ar' ? 'الأسئلة الشائعة' : 'FAQ'}
-            </p>
-            <h2 className="text-2xl font-black text-white mb-8 text-center">
-              {locale === 'ar' ? 'أسئلة متكررة' : 'Frequently asked questions'}
-            </h2>
-            <div className="flex flex-col gap-3">
-              {FAQ_ITEMS.map((item, i) => (
-                <details
-                  key={i}
-                  className="group rounded-2xl border border-white/10 bg-white/[0.03] px-5 py-4 open:bg-white/[0.05]"
-                >
-                  <summary className="cursor-pointer list-none flex items-center justify-between gap-4 text-sm font-bold text-white">
-                    {locale === 'ar' ? item.qAr : item.q}
-                    <span className="shrink-0 text-stone-500 group-open:rotate-45 transition-transform text-lg leading-none">+</span>
-                  </summary>
-                  <p className="mt-3 text-stone-400 text-sm leading-relaxed">{locale === 'ar' ? item.aAr : item.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        </section>
-
-      </main>
+        }
+      />
     </>
   );
 }

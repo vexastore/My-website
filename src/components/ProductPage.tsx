@@ -176,7 +176,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const selectedImg = images[imgIdx] || product.image || '';
 
   return (
-    <div className="min-h-screen bg-[#050101] text-white" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* ── Breadcrumb bar ── */}
       <nav className="sticky top-0 z-30 bg-black/80 backdrop-blur-xl border-b border-white/10 px-4 sm:px-6 py-3.5 flex items-center gap-3">
         <button
@@ -260,9 +260,9 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
         </div>
 
         {/* ── Product info ── */}
-        <div className="space-y-5 lg:rounded-3xl lg:border lg:border-white/10 lg:bg-white/[0.025] lg:p-8">
+        <div className="space-y-5 lg:rounded-3xl lg:border lg:border-white/10 lg:bg-white/[0.04] lg:p-8">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-rose-400 mb-2">{primaryCatName}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#ff2d78] mb-2">{primaryCatName}</p>
             {/* H1 for SEO */}
             <h1 className="text-2xl sm:text-3xl font-black leading-tight text-white tracking-tight">{displayName}</h1>
           </div>
@@ -309,9 +309,9 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
             {[
               { icon: <Lock size={17} />, ar: 'الدفع عند\nالاستلام', en: 'Cash on\nDelivery', color: 'text-emerald-400' },
               { icon: <PackageCheck size={17} />, ar: 'قابل\nللاسترجاع', en: 'Returnable', color: 'text-sky-400' },
-              { icon: <Truck size={17} />, ar: 'توصيل سري\nوسريع', en: 'Discreet &\nFast', color: 'text-rose-400' },
+              { icon: <Truck size={17} />, ar: 'توصيل سري\nوسريع', en: 'Discreet &\nFast', color: 'text-[#ff2d78]' },
             ].map((item, i) => (
-              <div key={i} className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 py-4 px-1 bg-white/[0.03] hover:border-white/20 transition">
+              <div key={i} className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 py-4 px-1 bg-white/[0.04] hover:border-white/20 transition">
                 <span className={`${item.color} flex items-center justify-center w-9 h-9 rounded-full bg-white/[0.06]`}>{item.icon}</span>
                 <span className="text-[9px] font-black uppercase tracking-wide text-stone-400 leading-tight whitespace-pre-line">
                   {isArabic ? item.ar : item.en}
@@ -335,7 +335,9 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
                     onClick={() => { setVariants(prev => ({ ...prev, [v.nameEn]: opt })); setVariantError(false); setQty(1); }}
                     disabled={v.optionStock?.[opt] === 0}
                     className={`px-4 py-1.5 text-xs font-bold rounded-full border-2 transition ${
-                      variants[v.nameEn] === opt ? 'bg-white text-black border-white' : 'border-white/20 text-white/70 hover:border-white'
+                      variants[v.nameEn] === opt
+                        ? 'bg-[#ff2d78] text-white border-[#ff2d78]'
+                        : 'border-white/20 text-white/70 hover:border-[#ff2d78]/60'
                     }`}>
                     {opt}{v.optionPriceDeltas?.[opt] ? ` (${v.optionPriceDeltas[opt] > 0 ? '+' : ''}$${v.optionPriceDeltas[opt].toFixed(2)})` : ''}
                   </button>
@@ -348,16 +350,16 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           {remaining > 0 && (
             <div className="flex items-center gap-4">
               <span className="text-sm font-black text-stone-300">{isArabic ? 'الكمية' : 'Quantity'}</span>
-              <div className="flex items-center border border-white/20 rounded-lg overflow-hidden">
+              <div className="flex items-center border border-white/20 rounded-xl overflow-hidden">
                 <button onClick={() => setQty(q => Math.max(1, q - 1))} disabled={qty <= 1}
                   aria-label={isArabic ? 'تقليل الكمية' : 'Decrease quantity'}
-                  className="px-3 py-2 text-stone-400 hover:bg-white/10 transition disabled:opacity-30">
+                  className="px-3 py-2 text-white/50 hover:text-white hover:bg-white/10 transition disabled:opacity-30">
                   <Minus size={14} />
                 </button>
                 <span className="px-4 py-2 font-black text-white min-w-[3rem] text-center">{qty}</span>
                 <button onClick={() => setQty(q => Math.min(remaining, q + 1))} disabled={qty >= remaining}
                   aria-label={isArabic ? 'زيادة الكمية' : 'Increase quantity'}
-                  className="px-3 py-2 text-stone-400 hover:bg-white/10 transition disabled:opacity-30">
+                  className="px-3 py-2 text-white/50 hover:text-white hover:bg-white/10 transition disabled:opacity-30">
                   <Plus size={14} />
                 </button>
               </div>
@@ -371,7 +373,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               className={`flex w-full items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-black transition active:scale-[0.98] ${
                 remaining <= 0 ? 'bg-white/10 text-stone-500 cursor-not-allowed'
                   : variantError ? 'bg-red-600 text-white'
-                  : 'bg-white text-black hover:bg-stone-200 shadow-[0_8px_24px_-8px_rgba(255,255,255,0.25)]'
+                  : 'bg-[#ff2d78] hover:bg-[#e11d48] text-white shadow-[0_8px_24px_-8px_rgba(255,45,120,0.5)]'
               }`}>
               <ShoppingCart size={17} />
               {remaining <= 0
@@ -397,8 +399,8 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               {isArabic ? 'اسأل عبر واتساب' : 'Ask on WhatsApp'}
             </button>
 
-            {/*    Shareable product link    */}
-            <div className="flex items-center gap-2 rounded-xl border border-white/10 px-3 py-2.5">
+            {/* 🔗 Shareable product link 🔗 */}
+            <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5">
               <Link2 size={13} className="shrink-0 text-stone-500" />
               <a
                 href={productFullLink}
@@ -424,11 +426,11 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
             <button type="button"
               onClick={() => setDeliveryOpen(v => !v)}
               className="flex w-full items-center justify-between py-2">
-              <span className="text-xs font-black uppercase tracking-[0.18em] text-stone-400 flex items-center gap-2">
+              <span className="text-xs font-black uppercase tracking-[0.18em] text-white/50 flex items-center gap-2">
                 <ShieldCheck size={13} />
                 {isArabic ? 'معلومات التوصيل' : 'DELIVERY INFO'}
               </span>
-              <ChevronDown size={15} className={`text-stone-400 transition-transform ${deliveryOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown size={15} className={`text-white/50 transition-transform ${deliveryOpen ? 'rotate-180' : ''}`} />
             </button>
             {deliveryOpen && (
               <div className="pt-2 pb-4 space-y-3 text-sm text-stone-400 leading-relaxed">

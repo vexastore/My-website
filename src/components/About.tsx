@@ -39,26 +39,30 @@ export const About: React.FC = () => {
     },
   ];
 
-  const categories = [
-    { ar: 'ألعاب زوجية', en: 'Sex Toys in Lebanon', id: 'Sex Toys' },
-    { ar: 'هزازات', en: 'Vibrators in Beirut', id: 'Vibrators' },
-    { ar: 'لانجري', en: 'Lingerie Lebanon', id: 'Lingerie' },
-    { ar: 'ديلدو', en: 'Dildos in Lebanon', id: 'Dildos' },
-    { ar: 'ألعاب القوة BDSM', en: 'BDSM Lebanon', id: 'BDSM' },
-    { ar: 'ألعاب رجالية', en: 'Male Toys Lebanon', id: 'Male Toys' },
-    { ar: 'مضخات القضيب', en: 'Penis Pumps Lebanon', id: 'Penis Pumps' },
-    { ar: 'مواد التشحيم', en: 'Lubricants Lebanon', id: 'Lubricants' },
-  ];
-
   return (
-    <article className="min-h-screen bg-[#070707] text-white" dir={isArabic ? 'rtl' : 'ltr'}>
+    <article className="min-h-screen bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
 
       {/* ── Hero ── */}
-      <header className="relative overflow-hidden bg-gradient-to-b from-[#0f0f0f] to-[#070707] px-5 py-20 text-center sm:py-28">
-        <div className="absolute inset-0 opacity-5"
-          style={{ backgroundImage: 'radial-gradient(circle at 50% 50%, #a855f7 0%, transparent 60%)' }} />
-        <div className="relative mx-auto max-w-3xl">
-          <p className="mb-4 text-[10px] font-black uppercase tracking-[0.4em] text-white/40">
+      <header className="relative overflow-hidden bg-black border-b border-white/10 px-5 py-24 text-center sm:py-36">
+        {/* Full-bleed Beirut city-lights background */}
+        <div className="pointer-events-none absolute inset-0 z-0">
+          <img
+            src="/images/mockup/about-hero-bg.webp"
+            alt=""
+            aria-hidden="true"
+            className="h-full w-full object-cover object-center"
+            loading="eager"
+            fetchPriority="high"
+            decoding="async"
+          />
+          {/* Dark overlay so text stays fully legible */}
+          <div className="absolute inset-0 bg-black/65" />
+          {/* Pink glow from top */}
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(ellipse at 50% 0%, #ff2d78 0%, transparent 55%)' }} />
+        </div>
+
+        <div className="relative z-10 mx-auto max-w-3xl">
+          <p className="mb-4 text-[10px] font-black uppercase tracking-[0.4em] text-[#ff2d78]">
             {isArabic ? 'عن متجر فيكسا' : 'About Vexa Store Lebanon'}
           </p>
           <h2 className="text-3xl font-black uppercase tracking-[0.08em] text-white sm:text-5xl">
@@ -66,14 +70,14 @@ export const About: React.FC = () => {
               ? 'متجر فيكسا, الوجهة الأولى للمنتجات الزوجية الفاخرة في لبنان'
               : 'Vexa Store, Lebanon\'s #1 Destination for Discreet Adult Products'}
           </h2>
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-white/55 sm:text-base">
+          <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-stone-300 sm:text-base">
             {isArabic
               ? 'متجر فيكسا هو المتجر الرائد والأكثر أماناً لشراء الألعاب الزوجية، الهزازات، اللانجري الفاخر، ومنتجات BDSM في لبنان. نوفر تجربة تسوق سرية 100% مع توصيل في نفس اليوم في بيروت وخلال 72 ساعة لكل المناطق اللبنانية.'
               : 'Vexa Store is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. As a fully online sex shop in Lebanon and a discreet online adult store, we serve customers in Beirut and every Lebanese region, a 100% private shopping experience with same-day delivery in Beirut and within 72 hours nationwide, so you never need to visit a physical sex shop in Beirut to get what you want.'}
           </p>
           <button
             onClick={() => setView('shop')}
-            className="mt-8 inline-flex items-center gap-2 bg-white px-8 py-3.5 text-xs font-black uppercase tracking-[0.2em] text-black transition hover:bg-white/90 active:scale-[0.98]"
+            className="mt-8 inline-flex items-center gap-2 bg-[#ff2d78] hover:bg-white text-black font-black rounded-full px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-[#ff2d78]/25"
           >
             <Zap size={14} />
             {isArabic ? 'تسوق الآن' : 'Shop Now'}
@@ -81,10 +85,11 @@ export const About: React.FC = () => {
         </div>
       </header>
 
+
       {/* ── Why Vexa ── */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
         <div className="mb-12 text-center">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-white/35">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-[#ff2d78]">
             {isArabic ? 'لماذا تختار متجر فيكسا؟' : 'Why Choose Vexa Store Lebanon?'}
           </p>
           <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white sm:text-3xl">
@@ -95,14 +100,14 @@ export const About: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
-            <div key={i} className="rounded-2xl border border-white/8 bg-white/[0.03] p-6 space-y-3 hover:border-white/15 transition">
-              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5">
+            <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-3 hover:border-[#ff2d78]/40 transition">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 border border-white/10">
                 {f.icon}
               </div>
               <h3 className="text-sm font-black uppercase tracking-wide text-white">
                 {isArabic ? f.ar.title : f.en.title}
               </h3>
-              <p className="text-xs leading-6 text-white/50">
+              <p className="text-xs leading-6 text-stone-400">
                 {isArabic ? f.ar.body : f.en.body}
               </p>
             </div>
@@ -111,9 +116,9 @@ export const About: React.FC = () => {
       </section>
 
       {/* ── Our Story ── */}
-      <section className="border-y border-white/8 bg-[#0d0d0d] px-5 py-16 sm:px-8 sm:py-20">
+      <section className="bg-[#0a0a0a] border-y border-white/10 px-5 py-16 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-3xl">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-white/35">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-[#ff2d78]">
             {isArabic ? 'قصتنا' : 'Our Story'}
           </p>
           <h2 className="mb-6 text-2xl font-black uppercase tracking-[0.1em] text-white sm:text-3xl">
@@ -121,7 +126,7 @@ export const About: React.FC = () => {
               ? 'كيف بدأ متجر فيكسا في لبنان؟'
               : 'How Vexa Store Started in Lebanon'}
           </h2>
-          <div className="space-y-4 text-sm leading-8 text-white/55">
+          <div className="space-y-4 text-sm leading-8 text-stone-400">
             {isArabic ? (
               <>
                 <p>
@@ -151,57 +156,24 @@ export const About: React.FC = () => {
         </div>
       </section>
 
-      {/* ── Browse Categories ── */}
-      <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
-        <div className="mb-10 text-center">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-white/35">
-            {isArabic ? 'تصفح المنتجات' : 'Browse Our Categories'}
-          </p>
-          <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white sm:text-3xl">
-            {isArabic
-              ? 'أكبر تشكيلة من منتجات البالغين في لبنان'
-              : 'Lebanon\'s Largest Adult Products Collection'}
-          </h2>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => { setView('shop'); }}
-              className="group flex flex-col items-center justify-center gap-2 rounded-xl border border-white/8 bg-white/[0.03] px-4 py-5 text-center transition hover:border-white/20 hover:bg-white/[0.06] active:scale-[0.97]"
-            >
-              <span className="text-xs font-black uppercase tracking-[0.15em] text-white">
-                {isArabic ? cat.ar : cat.en}
-              </span>
-            </button>
-          ))}
-        </div>
-        <div className="mt-10 text-center">
-          <button
-            onClick={() => setView('shop')}
-            className="border border-white/20 px-10 py-3.5 text-[11px] font-black uppercase tracking-[0.22em] text-white/80 transition hover:bg-white hover:text-black active:scale-[0.98]"
-          >
-            {isArabic ? 'عرض جميع المنتجات' : 'View All Products'}
-          </button>
-        </div>
-      </section>
+
 
       {/* ── Delivery Info ── */}
-      <section className="bg-[#ff8f96] px-5 py-12 text-center text-black sm:py-16">
+      <section className="bg-[#ff2d78]/10 border-y border-[#ff2d78]/30 px-5 py-12 text-center sm:py-16">
         <div className="mx-auto max-w-3xl">
-          <h2 className="text-2xl font-black tracking-wide sm:text-3xl">
+          <h2 className="text-2xl font-black tracking-wide text-white sm:text-3xl">
             {isArabic
               ? 'توصيل سري لكل لبنان, ادفع عند الاستلام'
               : 'Discreet Delivery Across Lebanon, Pay on Delivery'}
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-sm leading-7">
+          <p className="mx-auto mt-4 max-w-xl text-sm leading-7 text-stone-300">
             {isArabic
               ? 'بيروت: توصيل في نفس اليوم. كل لبنان: خلال 24 إلى 72 ساعة. كل الطلبات تصل بتغليف سري محكم.'
               : 'Beirut: Same-day delivery. All Lebanon: within 24 to 72 hours. Every order arrives in fully discreet packaging.'}
           </p>
           <button
             onClick={() => setView('shop')}
-            className="mt-7 inline-flex items-center gap-2 bg-black px-8 py-3.5 text-xs font-black uppercase tracking-[0.2em] text-white transition hover:bg-black/80"
+            className="mt-7 inline-flex items-center gap-2 bg-[#ff2d78] hover:bg-white text-black rounded-full font-black px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-[#ff2d78]/25"
           >
             <ShieldCheck size={14} />
             {isArabic ? 'اطلب الآن بأمان' : 'Shop Now Safely'}

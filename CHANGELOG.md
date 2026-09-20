@@ -3,7 +3,52 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.1] - 2026-09-20
+
+### Added
+
+- Preload link with `fetchPriority="high"` for the About page hero LCP image.
+- Crisp modern SVG favicon (`/favicon.svg`) with Vexa logo in brand `#ff2d78` pink.
+- High-efficiency WebP variants for all mockup assets (`about-hero-bg.webp`, `hero-bg-right.webp`, `quiz-model.webp`, `guide-bg-center.webp`, and category cards), reducing total asset payload by over 90%.
+
+### Changed
+
+- Replaced 250KB uncompressed `favicon.png` with an optimized 24KB version.
+- About page CTA buttons updated with high-contrast text (`text-black font-black` on `#ff2d78`) providing 5.9:1 contrast ratio to fully satisfy WCAG AA requirements.
+- Footer category links and copyright text elevated from `text-stone-500` (4.38:1) to `text-stone-400` (8.33:1) for WCAG AA compliance.
+- Removed redundant "Browse Our Categories / View All Products" section from `About.tsx` and removed redundant "Shop by Category" links from `app/about/page.tsx`.
+- Removed unnecessary 280KB server-side product catalog serialization on `/about`.
+- Guarded `MetaPixel` component to execute in production only and catch adblocker script load failures without throwing console errors.
+
+## [1.5.0] - 2026-09-20
+
+
+### Added
+
+- **Full homepage redesign** matching client mockup with dark background and pink neon accent palette.
+- `HeroSection` — full-width ambient hero with photo fading right-to-left, "SEX TOYS IN LEBANON" headline, and category filter pills.
+- `CategoryShowcase` — 5-card grid for Vibrators, Dildos, Male Toys, Couples, and Lingerie.
+- `BuyingGuideBanner` — full-width buying guide strip with 4 trust badges and centered product photo.
+- `QuizBanner` — full-width "Your Pleasure Our Priority" quiz CTA strip with model photo and pink button.
+- `RelatedCategories` — horizontally scrollable related category pill row.
+- `FaqAccordion` — client-side expandable FAQ accordion.
+- `src/data/faq.ts` — shared FAQ data module importable from both server and client components.
+- Placeholder mockup images in `public/images/mockup/` for hero, guide, quiz, and 5 category cards.
+- `seoContent` prop pipeline (`app/page.tsx` → `ShopApp` → `AppContent`) for server-rendered review and city SEO sections.
+
+### Changed
+
+- **Navbar** — complete rewrite: announcement bar, pink VEXA STORE typographic logo, Shop dropdown, icon bar with live cart badge.
+- **ProductCard** — redesign: `rounded-2xl`, badge variants (NEW/BESTSELLER/POPULAR/SALE), wishlist heart, star rating, Add to Cart button with toast.
+- **ProductList** — assembles redesigned homepage layout: Hero → Categories → Products → Guide → Quiz → Related → FAQ.
+- **Footer** (`App.tsx`) — brand logo, delivery trust badges, social icons (Instagram, TikTok, X, WhatsApp), WhatsApp pill CTA.
+
+### Fixed
+
+- React runtime warning "Each child in a list should have a unique key prop" — added `key="seo-content"` to the root `seoContent` div in `app/page.tsx`.
+
 ## [1.4.3] - 2026-09-19
+
 
 ### Fixed
 

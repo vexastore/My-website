@@ -5,14 +5,8 @@ import { Navbar } from './components/Navbar';
 import { OpenInBrowserBanner } from './components/OpenInBrowserBanner';
 
 import { ProductList } from './components/ProductList';
-import { ShieldCheck, Lock, Heart, Mail, Info } from 'lucide-react';
+import { ShieldCheck, Truck, Clock, Heart, Mail, Info, Lock } from 'lucide-react';
 import { canonicalProductPath } from '@/lib/productSeo';
-// ProductPage is imported eagerly (not React.lazy) because it renders the
-// primary SEO/indexable content for product URLs. Lazy-loading it caused
-// Googlebot (and any client whose JS chunk load was slow/blocked) to get
-// stuck on the generic <PageLoader/> spinner forever on indexed product
-// pages, since the SSR HTML only contained the Suspense fallback until the
-// lazy chunk resolved client-side.
 import { ProductPage } from './components/ProductPage';
 
 const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default: m.Checkout })));
@@ -63,23 +57,20 @@ const PageLoader = () => (
   </div>
 );
 
-  // Reads /:categorySlug/:productSlug URL params, finds product, renders ProductPage
-
 export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoContent }) => {
-  const { currentView, language, activeCategory, searchQuery, setView, setActiveCategory, selectedProduct } = useShop();
+  const { currentView, language, activeCategory, setView, setActiveCategory, selectedProduct } = useShop();
   const isArabic = language === 'ar';
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (currentView === 'about') {
-      if (typeof window !== 'undefined') window.history.replaceState(null, '', '/about');
+      window.history.replaceState(null, '', '/about');
     } else if (currentView === 'product' && selectedProduct) {
       const productPath = canonicalProductPath(selectedProduct);
       if (location.pathname !== productPath) {
-        if (typeof window !== 'undefined') window.history.replaceState(null, '', productPath);
+        window.history.replaceState(null, '', productPath);
       }
     } else if (currentView === 'shop') {
-      // Don't revert URL if we're on a /:catSlug/:pSlug product path
       const pts = window.location.pathname.split('/').filter(Boolean);
       const SINGLE = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml', 'products', 'product'];
       const onProductPath = (pts.length === 2 && !SINGLE.includes(pts[0]))
@@ -87,11 +78,10 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
         || window.location.pathname.startsWith('/product/');
       if (!onProductPath) {
         const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
-        if (typeof window !== 'undefined') window.history.replaceState(null, '', '/' + slug);
+        window.history.replaceState(null, '', '/' + slug);
       }
     }
   }, [currentView, activeCategory, selectedProduct]);
-
 
   const handleCatLink = (e: React.MouseEvent, catId: string) => {
     e.preventDefault();
@@ -113,7 +103,7 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
   };
 
   return (
-    <div className="min-h-screen bg-[#050101] text-stone-900 flex flex-col font-sans" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="min-h-screen bg-black text-white flex flex-col font-sans" dir={isArabic ? 'rtl' : 'ltr'}>
       <OpenInBrowserBanner />
       <Navbar />
       <Suspense fallback={null}><FloatingWhatsApp /></Suspense>
@@ -122,130 +112,173 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
 
       {seoContent}
 
-      <footer className="bg-stone-900 text-stone-300 border-t border-stone-800 mt-auto">
-
-        {/* ── Category Sitemap (SEO Internal Links) ── */}
-        <nav aria-label={isArabic ? 'التصنيفات' : 'Product Categories'}
-          className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 border-b border-stone-800">
-          <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-stone-500 mb-4">
-            {isArabic ? 'تصفح التصنيفات' : 'Browse Categories'}
-          </h2>
-          <div className="flex flex-wrap gap-x-4 gap-y-2">
-            {FOOTER_CATEGORIES.map(cat => (
-              <a
-                key={cat.slug}
-                href={`/${cat.slug}`}
-                onClick={(e) => handleCatLink(e, cat.id)}
-                className="text-xs text-stone-400 hover:text-white transition-colors"
-              >
-                {isArabic ? cat.ar : cat.en}
+      {/* ── FOOTER MATCHING CLIENT MOCKUP ──────────────────────────────────── */}
+      <footer className="bg-black text-stone-300 border-t border-white/10 mt-auto" dir={isArabic ? 'rtl' : 'ltr'}>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+          {/* Main Footer Row */}
+          <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 pb-10 border-b border-white/10 text-center lg:text-start">
+            {/* Left: Brand Identity */}
+            <div className="flex flex-col items-center lg:items-start">
+              <a href="/" onClick={(e) => { e.preventDefault(); setView('shop'); setActiveCategory(''); }} className="flex flex-col select-none group">
+                <span className="text-2xl font-black tracking-wider text-[#ff2d78] group-hover:brightness-110 transition leading-none">
+                  VEXA
+                </span>
+                <span className="text-[10px] font-bold tracking-[0.32em] text-[#ff2d78] group-hover:brightness-110 transition mt-0.5 leading-none">
+                  STORE
+                </span>
               </a>
-            ))}
-          </div>
-        </nav>
+              <p className="text-xs text-stone-400 mt-3 font-medium">
+                {isArabic ? 'متجر العناية الحميمية لبنان' : 'Intimate Wellness Store Lebanon'}
+              </p>
+            </div>
 
-        {/* ── Main Footer Grid ── */}
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="space-y-4">
-            <h3 className="text-xl font-black tracking-wider bg-gradient-to-r from-indigo-400 via-purple-400 to-rose-300 bg-clip-text text-transparent">
-              VEXA STORE
-            </h3>
-            <p className="text-xs text-stone-400 leading-relaxed font-medium">
-              {isArabic
-                ? 'متجر فيكسا (Vexa Store) هو المتجر الرائد والأكثر أماناً للمنتجات الزوجية، اللانجري، ومستلزمات السعادة الرومانسية الفاخرة. نحن نصنع تجربة تسوق فريدة ومثيرة في بيئة آمنة تضمن الخصوصية المطلقة.'
-                : 'Vexa Store is a discreet premium destination for couples products, lingerie, and romantic essentials. We create a private, secure, and elevated shopping experience with absolute confidentiality.'}
-            </p>
-            <div className="flex items-center gap-2 text-indigo-400 font-bold text-xs bg-stone-800/50 p-2.5 rounded-lg border border-stone-800 shadow-inner">
-              <ShieldCheck size={18} className="text-indigo-400" />
-              <span>{isArabic ? 'خصوصية كاملة وتغليف سري محكم 100%' : 'Full privacy and 100% discreet packaging'}</span>
+            {/* Center: 3 Trust & Delivery Badges */}
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+              <div className="flex items-center gap-2.5 text-xs text-stone-300">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 border border-white/10">
+                  <Clock size={16} className="text-[#ff2d78]" />
+                </div>
+                <div className="flex flex-col text-start leading-tight">
+                  <span className="font-bold text-white">{isArabic ? 'توصيل في نفس اليوم' : 'Same Day Delivery'}</span>
+                  <span className="text-stone-400 text-[11px]">{isArabic ? 'بيروت وضواحيها' : 'Beirut'}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 text-xs text-stone-300">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 border border-white/10">
+                  <Truck size={16} className="text-[#ff2d78]" />
+                </div>
+                <div className="flex flex-col text-start leading-tight">
+                  <span className="font-bold text-white">{isArabic ? '٢٤-٧٢ ساعة' : '24-72h'}</span>
+                  <span className="text-stone-400 text-[11px]">{isArabic ? 'جميع مناطق لبنان' : 'All Lebanon'}</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2.5 text-xs text-stone-300">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 border border-white/10">
+                  <ShieldCheck size={16} className="text-[#ff2d78]" />
+                </div>
+                <div className="flex flex-col text-start leading-tight">
+                  <span className="font-bold text-white">{isArabic ? 'تغليف سري ومحكم' : 'Discreet'}</span>
+                  <span className="text-stone-400 text-[11px]">{isArabic ? '١٠٠% خصوصية تامة' : 'Packaging'}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: Social Icons + WhatsApp Direct Button */}
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              <div className="flex flex-col items-center sm:items-start gap-1.5">
+                <span className="text-[11px] font-semibold text-stone-400">{isArabic ? 'تابعنا' : 'Follow Us'}</span>
+                <div className="flex items-center gap-2.5">
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-stone-300 hover:border-[#ff2d78] hover:text-[#ff2d78] transition"
+                  >
+                    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                    </svg>
+                  </a>
+                  <a
+                    href="https://tiktok.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="TikTok"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-stone-300 hover:border-[#ff2d78] hover:text-[#ff2d78] transition"
+                  >
+                    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.24 1.07-.14 1.61.24 1.64 1.82 2.89 3.5 2.77 1.81-.04 3.28-1.51 3.34-3.32.05-2.8.02-5.61.03-8.41.01-3.46.01-6.92.01-10.38z"/>
+                    </svg>
+                  </a>
+                  <a
+                    href="https://x.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="X (Twitter)"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-stone-300 hover:border-[#ff2d78] hover:text-[#ff2d78] transition"
+                  >
+                    <svg className="h-3 w-3 fill-current" viewBox="0 0 24 24">
+                      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                    </svg>
+                  </a>
+                  <a
+                    href="https://wa.me/96176730767"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="WhatsApp"
+                    className="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-stone-300 hover:border-[#25D366] hover:text-[#25D366] transition"
+                  >
+                    <svg className="h-3.5 w-3.5 fill-current" viewBox="0 0 24 24">
+                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.845-1.587-5.921.003-6.556 5.338-11.891 11.893-11.891 3.176.001 6.165 1.236 8.413 3.484 2.248 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.916 3.21 1.399 4.909 1.4 5.424 0 9.835-4.411 9.838-9.835.002-2.628-1.021-5.1-2.88-6.958-1.859-1.859-4.331-2.88-6.955-2.881-5.423 0-9.835 4.412-9.838 9.836-.001 1.79.491 3.535 1.425 5.047l-1.012 3.7 3.784-.993zm11.458-7.228c-.312-.156-1.847-.91-2.132-1.014-.285-.104-.492-.156-.7.156-.207.312-.802 1.014-.983 1.221-.181.208-.363.234-.675.078-.312-.156-1.317-.485-2.51-1.549-.928-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.136-.636.141-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.207.052-.39-.026-.546-.078-.156-.7-1.688-.959-2.311-.253-.61-.51-.527-.7-.537-.182-.01-.39-.01-.597-.01-.208 0-.545.078-.83.39-.285.312-1.089 1.065-1.089 2.597 0 1.533 1.115 3.013 1.271 3.221.156.208 2.193 3.349 5.313 4.699.742.32 1.32.512 1.77.654.745.237 1.423.204 1.959.124.597-.089 1.847-.754 2.108-1.442.261-.689.261-1.274.182-1.39-.078-.118-.285-.182-.597-.338z"/>
+                    </svg>
+                  </a>
+                </div>
+              </div>
+
+              {/* WhatsApp Only Pill Button matching mockup */}
+              <a
+                href="https://wa.me/96176730767"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 bg-[#25D366] hover:bg-[#20bd5a] text-black px-4 py-2.5 rounded-full transition-all shadow-lg active:scale-95"
+              >
+                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20">
+                  <svg className="h-4 w-4 fill-black" viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.845-1.587-5.921.003-6.556 5.338-11.891 11.893-11.891 3.176.001 6.165 1.236 8.413 3.484 2.248 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.916 3.21 1.399 4.909 1.4 5.424 0 9.835-4.411 9.838-9.835.002-2.628-1.021-5.1-2.88-6.958-1.859-1.859-4.331-2.88-6.955-2.881-5.423 0-9.835 4.412-9.838 9.836-.001 1.79.491 3.535 1.425 5.047l-1.012 3.7 3.784-.993zm11.458-7.228c-.312-.156-1.847-.91-2.132-1.014-.285-.104-.492-.156-.7.156-.207.312-.802 1.014-.983 1.221-.181.208-.363.234-.675.078-.312-.156-1.317-.485-2.51-1.549-.928-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.136-.636.141-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.207.052-.39-.026-.546-.078-.156-.7-1.688-.959-2.311-.253-.61-.51-.527-.7-.537-.182-.01-.39-.01-.597-.01-.208 0-.545.078-.83.39-.285.312-1.089 1.065-1.089 2.597 0 1.533 1.115 3.013 1.271 3.221.156.208 2.193 3.349 5.313 4.699.742.32 1.32.512 1.77.654.745.237 1.423.204 1.959.124.597-.089 1.847-.754 2.108-1.442.261-.689.261-1.274.182-1.39-.078-.118-.285-.182-.597-.338z"/>
+                  </svg>
+                </div>
+                <div className="flex flex-col text-start leading-tight">
+                  <span className="text-[10px] font-bold text-black/80">{isArabic ? 'واتساب فقط' : 'WhatsApp Only'}</span>
+                  <span className="text-xs font-black text-black" dir="ltr">+961 76 730 767</span>
+                </div>
+              </a>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white flex items-center gap-1.5 border-b border-stone-800 pb-2">
-              <Heart size={14} className="text-rose-500" /> {isArabic ? 'معلومات تهمك' : 'Important Info'}
-            </h4>
-            <ul className="text-xs text-stone-400 space-y-2 font-medium">
-              <li>{isArabic ? '• التوصيل للمنزل خلال 24 - 48 ساعة كحد أقصى.' : '• Home delivery within 24 - 48 hours maximum.'}</li>
-              <li>{isArabic ? '• الدفع نقداً أو بالشبكة عند استلام طلبك (COD).' : '• Cash or card payment on delivery (COD).'}</li>
-              <li>{isArabic ? '• كرتون سري مغلق بالكامل لا يحتوي على اسم المحتوى أو المتجر.' : '• Plain sealed box with no product or store name.'}</li>
-              <li>{isArabic ? '• منتجات أصلية 100% ومصنوعة من مواد طبية آمنة على البشرة.' : '• Original products made from body-safe materials.'}</li>
-            </ul>
+          {/* Category Internal Links (for SEO) */}
+          <div className="py-6 border-b border-white/5">
+            <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[11px] text-stone-400">
+              {FOOTER_CATEGORIES.map(cat => (
+                <a
+                  key={cat.slug}
+                  href={`/${cat.slug}`}
+                  onClick={(e) => handleCatLink(e, cat.id)}
+                  className="hover:text-white transition-colors"
+                >
+                  {isArabic ? cat.ar : cat.en}
+                </a>
+              ))}
+            </div>
           </div>
 
-          <div className="space-y-4">
-            {(() => {
-              const waText = isArabic
-                ? encodeURIComponent('مرحباً متجر فيكسا، أرغب في الاستفسار عن المنتجات أو المساعدة في طلبي بكل خصوصية.')
-                : encodeURIComponent('Hello Vexa Store, I would like to inquire about products or need assistance with an order with full privacy.');
-              return (
-                <>
-                  <h4 className="text-sm font-bold text-white flex items-center gap-1.5 border-b border-stone-800 pb-2">
-                    <Mail size={14} className="text-purple-400" />
-                    {isArabic ? 'خدمة الدعم الفني 📞' : 'Customer Support 📞'}
-                  </h4>
-                  <p className="text-xs text-stone-400 leading-relaxed font-medium">
-                    {isArabic
-                      ? 'فريق الدعم الفني في متجر فيكسا متواجد لمساعدتكم والإجابة على أي استفسارات تتعلق بالمنتجات، الطلبات، أو الشحن بسرية تامة.'
-                      : 'Vexa Store support team is available to assist you with any inquiries regarding products, orders, or shipping with absolute privacy.'}
-                  </p>
-                  <div className="bg-stone-800/40 border border-stone-800 p-3 rounded-xl space-y-1">
-                    <span className="text-[11px] font-bold text-indigo-400 block">
-                      {isArabic ? 'ساعات العمل:' : 'Working Hours:'}
-                    </span>
-                    <span className="text-xs font-bold text-stone-200 block" dir={isArabic ? 'rtl' : 'ltr'}>
-                      {isArabic ? 'الإثنين إلى السبت، ٨:٠٠ صباحاً - ٦:٠٠ مساءً' : 'Monday - Saturday, 8:00 AM - 6:00 PM'}
-                    </span>
-                  </div>
-                  <a
-                    href={`https://wa.me/96176730767?text=${waText}`}
-                    target="_blank" rel="noopener noreferrer"
-                    className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl text-center text-xs flex items-center justify-center gap-2 transition active:scale-[0.98] shadow-md border border-emerald-500/20"
-                    dir={isArabic ? 'rtl' : 'ltr'}
-                  >
-                    <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
-                      <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.845-1.587-5.921.003-6.556 5.338-11.891 11.893-11.891 3.176.001 6.165 1.236 8.413 3.484 2.248 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.652zm6.599-3.835c1.544.916 3.21 1.399 4.909 1.4 5.424 0 9.835-4.411 9.838-9.835.002-2.628-1.021-5.1-2.88-6.958-1.859-1.859-4.331-2.88-6.955-2.881-5.423 0-9.835 4.412-9.838 9.836-.001 1.79.491 3.535 1.425 5.047l-1.012 3.7 3.784-.993zm11.458-7.228c-.312-.156-1.847-.91-2.132-1.014-.285-.104-.492-.156-.7.156-.207.312-.802 1.014-.983 1.221-.181.208-.363.234-.675.078-.312-.156-1.317-.485-2.51-1.549-.928-.827-1.554-1.849-1.736-2.161-.182-.312-.02-.481.136-.636.141-.14.312-.364.468-.546.156-.182.208-.312.312-.52.104-.207.052-.39-.026-.546-.078-.156-.7-1.688-.959-2.311-.253-.61-.51-.527-.7-.537-.182-.01-.39-.01-.597-.01-.208 0-.545.078-.83.39-.285.312-1.089 1.065-1.089 2.597 0 1.533 1.115 3.013 1.271 3.221.156.208 2.193 3.349 5.313 4.699.742.32 1.32.512 1.77.654.745.237 1.423.204 1.959.124.597-.089 1.847-.754 2.108-1.442.261-.689.261-1.274.182-1.39-.078-.118-.285-.182-.597-.338z" />
-                    </svg>
-                    {isArabic ? 'الدعم الفني عبر واتساب' : 'WhatsApp Live Chat'}
-                  </a>
-                  <div className="flex flex-col gap-1 pt-1 text-xs">
-                    <a href="mailto:Vexastore72@gmail.com" className="hover:text-indigo-400 font-bold flex items-center gap-1 underline" dir="ltr">
-                      Vexastore72@gmail.com
-                    </a>
-                    <span className="text-[10px] text-stone-500 block">
-                      {isArabic
-                        ? 'تنبيه: هذا الموقع للأزواج والبالغين فقط. استخدامك للموقع يمثل موافقتك على شروط الخصوصية التامة.'
-                        : 'Notice: This website is strictly for couples and adults (+18) only. Your use implies full agreement to our privacy terms.'}
-                    </span>
-                  </div>
-                </>
-              );
-            })()}
-          </div>
-        </div>
-
-        {/* ── Bottom Bar ── */}
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 border-t border-stone-800 py-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-500 font-medium">
-          <p>© {new Date().getFullYear()} Vexa Store Lebanon, <a href="/sitemap.xml" className="hover:text-stone-300 transition">{isArabic ? 'خريطة الموقع' : 'Sitemap'}</a></p>
-          <div className="flex items-center gap-4">
-            <a
-              href="/blog"
-              className="flex items-center gap-1 hover:text-stone-300 transition"
-            >
-              {isArabic ? 'المدونة' : 'Blog'}
-            </a>
-            <a
-              href="/about"
-              onClick={(e) => { e.preventDefault(); setView('about'); window.scrollTo({ top: 0 }); }}
-              className="flex items-center gap-1 hover:text-stone-300 transition"
-            >
-              <Info size={12} />
-              {isArabic ? 'عن المتجر' : 'About Us'}
-            </a>
-            <span className="flex items-center gap-1">
-              <Lock size={12} /> {isArabic ? 'سياسة الخصوصية السرية' : 'Privacy Policy'}
-            </span>
-            <span>{isArabic ? 'شروط الاستخدام' : 'Terms'}</span>
+          {/* Bottom Copyright & Legal Links */}
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-400">
+            <p>© {new Date().getFullYear()} Vexa Store Lebanon. All rights reserved.</p>
+            <div className="flex items-center gap-5 font-medium">
+              <a
+                href="/about"
+                onClick={(e) => { e.preventDefault(); setView('about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className="hover:text-white transition"
+              >
+                {isArabic ? 'عن المتجر' : 'About'}
+              </a>
+              <a
+                href="https://wa.me/96176730767"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition"
+              >
+                {isArabic ? 'اتصل بنا' : 'Contact'}
+              </a>
+              <span className="hover:text-white transition cursor-default">
+                {isArabic ? 'سياسة الخصوصية' : 'Privacy Policy'}
+              </span>
+              <span className="hover:text-white transition cursor-default">
+                {isArabic ? 'الشروط والأحكام' : 'Terms'}
+              </span>
+            </div>
           </div>
         </div>
       </footer>

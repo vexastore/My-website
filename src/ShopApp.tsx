@@ -1,4 +1,5 @@
 'use client';
+import React from 'react';
 import { ShopProvider } from './context/ShopContext';
 import { AppContent } from './App';
 import { Product } from './types';
@@ -11,9 +12,18 @@ interface ShopAppProps {
   initialProductSlug?: string;
   seoHeading?: string;
   initialLocale?: StoreLocale;
+  seoContent?: React.ReactNode;
 }
 
-export function ShopApp({ initialProducts, initialCategory, initialView, initialProductSlug, seoHeading, initialLocale }: ShopAppProps) {
+export function ShopApp({
+  initialProducts,
+  initialCategory,
+  initialView,
+  initialProductSlug,
+  seoHeading,
+  initialLocale,
+  seoContent,
+}: ShopAppProps) {
   return (
     <ShopProvider
       initialProducts={initialProducts}
@@ -23,7 +33,7 @@ export function ShopApp({ initialProducts, initialCategory, initialView, initial
       seoHeading={seoHeading}
       initialLocale={initialLocale}
     >
-      <AppContent />
+      <AppContent seoContent={seoContent} />
     </ShopProvider>
   );
 }

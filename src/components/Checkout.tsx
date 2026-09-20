@@ -145,13 +145,13 @@ export const Checkout: React.FC = () => {
 
   if (cart.length === 0 && !orderComplete) {
     return (
-      <div className="mx-auto w-full max-w-7xl px-4 py-14 text-center sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
-        <div className="h-20 w-20 bg-stone-100 rounded-full flex items-center justify-center mx-auto mb-6 border border-stone-200 text-stone-400">
+      <div className="bg-black text-white mx-auto w-full max-w-7xl px-4 py-14 text-center sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
+        <div className="h-20 w-20 bg-white/5 border border-white/10 rounded-full flex items-center justify-center mx-auto mb-6 text-white/30">
           <ShoppingBag size={32} />
         </div>
-        <h2 className="text-xl font-bold text-stone-800 mb-2">{isArabic ? 'سلتك فارغة!' : 'Your cart is empty!'}</h2>
-        <p className="text-stone-500 text-sm max-w-sm mx-auto mb-8">{isArabic ? 'لم تضف أي منتجات بعد.' : 'You have not added any products yet.'}</p>
-        <button onClick={() => setView('shop')} className="px-6 py-3 bg-black text-white font-bold rounded-xl transition hover:bg-stone-800">
+        <h2 className="text-xl font-bold text-white mb-2">{isArabic ? 'سلتك فارغة!' : 'Your cart is empty!'}</h2>
+        <p className="text-white/50 text-sm max-w-sm mx-auto mb-8">{isArabic ? 'لم تضف أي منتجات بعد.' : 'You have not added any products yet.'}</p>
+        <button onClick={() => setView('shop')} className="px-6 py-3 bg-[#ff2d78] text-white font-black rounded-xl transition hover:bg-[#e11d48]">
           {isArabic ? 'تصفح المنتجات' : 'Browse products'}
         </button>
       </div>
@@ -161,69 +161,69 @@ export const Checkout: React.FC = () => {
   if (orderComplete) {
     const subtotal = orderComplete.total - (orderComplete.deliveryFee ?? deliveryFee);
     return (
-      <div className="mx-auto w-full max-w-2xl px-4 py-12 text-center sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
-        <div className="bg-white border border-emerald-100 shadow-lg rounded-2xl p-6 sm:p-8">
-          <div className="h-16 w-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+      <div className="bg-black text-white mx-auto w-full max-w-2xl px-4 py-12 text-center sm:px-6" dir={isArabic ? 'rtl' : 'ltr'}>
+        <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-6 sm:p-8">
+          <div className="h-16 w-16 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 size={36} />
           </div>
-          <h2 className="text-xl sm:text-2xl font-black text-stone-800 mb-2">
+          <h2 className="text-xl sm:text-2xl font-black text-white mb-2">
             {orderComplete.isTestOrder ? (isArabic ? 'محاكاة طلب محلي' : 'Local checkout simulation') : (isArabic ? 'تم استلام طلبك بنجاح!' : 'Order placed successfully!')}
           </h2>
-          <p className="text-emerald-700 font-medium text-sm mb-4 bg-emerald-50 py-1.5 px-3 rounded-full inline-block">
+          <p className="text-emerald-400 font-medium text-sm mb-4 bg-emerald-500/10 border border-emerald-500/30 py-1.5 px-3 rounded-full inline-block">
             {isArabic ? 'رقم الطلب:' : 'Order ID:'} {orderComplete.id}
           </p>
-          <p className="text-sm text-stone-600 mb-4" role={orderComplete.isTestOrder ? 'alert' : undefined}>
+          <p className="text-sm text-white/60 mb-4" role={orderComplete.isTestOrder ? 'alert' : undefined}>
             {orderComplete.isTestOrder
               ? (isArabic ? 'هذا اختبار محلي فقط. لم يُحفظ الطلب في قاعدة البيانات، ولن يظهر في لوحة الإدارة أو يفتح واتساب. سلتك محفوظة.' : 'This was a local mock test. No order was saved in Supabase or the admin, WhatsApp will not open, and your cart is still available.')
               : (isArabic ? 'تم حفظ الطلب. سيتم فتح واتساب برسالة جاهزة؛ اضغط إرسال داخل واتساب لمشاركتها مع المتجر.' : 'Your order is saved. WhatsApp will open with a prepared message; tap Send there to share it with the store.')}
           </p>
           {!orderComplete.isTestOrder && <a href={orderWhatsAppUrl(orderComplete, language)} target="_blank" rel="noopener noreferrer"
-            className="w-full mb-5 py-3.5 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 flex items-center justify-center gap-2">
+            className="w-full mb-5 py-3.5 bg-[#25D366] hover:bg-[#1ebe5d] text-white font-bold rounded-xl flex items-center justify-center gap-2">
             {isArabic ? 'فتح واتساب مجدداً' : 'Open WhatsApp again'}
           </a>}
 
-          <div className="flex items-center justify-center gap-2 mb-4 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5 mx-auto max-w-xs">
-            <Zap size={15} className="text-emerald-600 flex-shrink-0" />
-            <p className="text-xs font-black text-emerald-700">
+          <div className="flex items-center justify-center gap-2 mb-4 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 mx-auto max-w-xs">
+            <Zap size={15} className="text-emerald-400 flex-shrink-0" />
+            <p className="text-xs font-black text-emerald-300">
               {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
             </p>
           </div>
 
 
-          <div className="text-right border-t border-b border-stone-100 py-4 mb-6 space-y-3">
+          <div className="text-right border-t border-b border-white/10 py-4 mb-6 space-y-3">
             {orderComplete.items.map((item, i) => (
               <div key={i} className="flex items-center gap-3">
-                <div className="h-14 w-14 rounded-xl overflow-hidden bg-stone-100 flex-shrink-0 border border-stone-200">
+                <div className="h-14 w-14 rounded-xl overflow-hidden bg-white/5 flex-shrink-0 border border-white/10">
                   {item.product.image
                     ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                     : <div className="h-full w-full bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center text-white text-xs font-black">V</div>
                   }
                 </div>
                 <div className="flex-1 text-right">
-                  <p className="text-sm font-bold text-stone-800">{isArabic ? item.product.name : (item.product.nameEn || item.product.name)}</p>
-                  <p className="text-xs text-stone-500">× {item.quantity}, ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)} USD</p>
+                  <p className="text-sm font-bold text-white">{isArabic ? item.product.name : (item.product.nameEn || item.product.name)}</p>
+                  <p className="text-xs text-white/50">× {item.quantity}, ${(selectedUnitPrice(item.product, item.selectedVariant) * item.quantity).toFixed(2)} USD</p>
                 </div>
               </div>
             ))}
-            <div className="space-y-1.5 pt-3 border-t border-stone-100">
+            <div className="space-y-1.5 pt-3 border-t border-white/10">
               <div className="flex justify-between text-sm">
-                <span className="text-stone-500">{isArabic ? 'سعر المنتجات' : 'Products'}</span>
-                <span className="font-bold">${subtotal.toFixed(2)} USD</span>
+                <span className="text-white/50">{isArabic ? 'سعر المنتجات' : 'Products'}</span>
+                <span className="font-bold text-white">${subtotal.toFixed(2)} USD</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-stone-500">{isArabic ? 'رسوم التوصيل' : 'Delivery'}</span>
-                <span className="font-bold">${deliveryFee.toFixed(2)} USD</span>
+                <span className="text-white/50">{isArabic ? 'رسوم التوصيل' : 'Delivery'}</span>
+                <span className="font-bold text-white">${deliveryFee.toFixed(2)} USD</span>
               </div>
-              <div className="flex justify-between pt-2 border-t border-dashed border-stone-200">
-                <span className="font-black text-stone-700">{isArabic ? 'المجموع:' : 'Total:'}</span>
-                <span className="font-extrabold text-purple-700 text-lg">${orderComplete.total.toFixed(2)} USD</span>
+              <div className="flex justify-between pt-2 border-t border-dashed border-white/10">
+                <span className="font-black text-white/50">{isArabic ? 'المجموع:' : 'Total:'}</span>
+                <span className="font-black text-[#ff2d78] text-lg">${orderComplete.total.toFixed(2)} USD</span>
               </div>
             </div>
           </div>
 
-          <div className="bg-stone-50 rounded-xl p-4 mb-6 flex items-start gap-3 border border-stone-200 text-right">
-            <Truck className="text-purple-600 h-5 w-5 mt-0.5 flex-shrink-0" />
-            <p className="text-[11px] text-stone-500 leading-relaxed">
+          <div className="bg-white/[0.03] border border-white/10 rounded-xl p-4 mb-6 flex items-start gap-3 text-right">
+            <Truck className="text-white/50 h-5 w-5 mt-0.5 flex-shrink-0" />
+            <p className="text-[11px] text-white/50 leading-relaxed">
               {isArabic
                 ? 'سيتواصل معك فريقنا خلال ساعات لتنسيق التوصيل. تغليف سري بالكامل وبدون اسم المحتوى.'
                 : 'Our team will contact you within hours to coordinate delivery. Fully discreet packaging.'}
@@ -231,7 +231,7 @@ export const Checkout: React.FC = () => {
           </div>
 
           <button onClick={() => { setOrderComplete(null); setView('shop'); }}
-            className="w-full py-3.5 bg-black text-white font-bold rounded-xl hover:bg-stone-800 flex items-center justify-center gap-2 active:scale-[0.98] transition">
+            className="w-full py-3.5 bg-white text-black font-black rounded-xl hover:bg-stone-100 flex items-center justify-center gap-2 active:scale-[0.98] transition">
             <ArrowRight size={16} />
             {isArabic ? 'العودة للمتجر' : 'Back to shop'}
           </button>
@@ -245,63 +245,63 @@ export const Checkout: React.FC = () => {
   const selectedCountry = COUNTRY_CODES.find(c => c.code === form.countryCode) || COUNTRY_CODES[0];
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8" dir={isArabic ? 'rtl' : 'ltr'}>
+    <div className="bg-black text-white mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8" dir={isArabic ? 'rtl' : 'ltr'}>
       <div className="mb-6">
         <button onClick={() => setView('shop')}
-          className="text-xs font-bold text-stone-500 hover:text-stone-800 flex items-center gap-1 bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-lg transition">
+          className="text-xs font-bold text-white/60 hover:text-white flex items-center gap-1 bg-white/5 border border-white/10 hover:bg-white/10 px-3 py-1.5 rounded-xl transition">
           <ArrowRight size={14} className={isArabic ? '' : 'rotate-180'} />
           {isArabic ? 'العودة للتسوق' : 'Continue shopping'}
         </button>
       </div>
 
-      <div className="flex items-center gap-2 mb-5 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2.5">
-        <Zap size={15} className="text-emerald-600 flex-shrink-0" />
-        <p className="text-xs font-black text-emerald-700">
+      <div className="flex items-center gap-2 mb-5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5">
+        <Zap size={15} className="text-emerald-400 flex-shrink-0" />
+        <p className="text-xs font-black text-emerald-400">
           {isArabic ? 'توصيل في نفس اليوم في بيروت' : 'Same day delivery in Beirut'}
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         <div className="lg:col-span-7 space-y-4">
-          <div className="bg-white border border-stone-200 rounded-xl p-4 sm:p-6 shadow-sm">
-            <h2 className="text-lg font-black text-stone-800 mb-4 pb-3 border-b border-stone-100 flex items-center gap-2">
-              <ShoppingBag className="text-purple-600 h-5 w-5" />
+          <div className="bg-white/[0.04] border border-white/10 rounded-2xl p-4 sm:p-6">
+            <h2 className="text-lg font-black text-white mb-4 pb-3 border-b border-white/10 flex items-center gap-2">
+              <ShoppingBag className="text-white h-5 w-5" />
               {isArabic ? `السلة (${getCartItemsCount()})` : `Cart (${getCartItemsCount()})`}
             </h2>
-            <div className="divide-y divide-stone-100">
+            <div className="divide-y divide-white/10">
               {cart.map(item => (
                 <div key={item.product.id + JSON.stringify(item.selectedVariant)} className="py-4 flex items-center gap-4 first:pt-0">
-                  <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg overflow-hidden bg-stone-100 border flex-shrink-0">
+                  <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-lg overflow-hidden bg-white/5 border border-white/10 flex-shrink-0">
                     {item.product.image
                       ? <img src={item.product.image} alt={item.product.name} className="h-full w-full object-cover" />
                       : <div className="h-full w-full bg-gradient-to-br from-purple-600 to-rose-600 flex items-center justify-center text-white font-black text-sm">V</div>
                     }
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-bold text-stone-800 text-xs sm:text-sm line-clamp-2">
+                    <h4 className="font-bold text-white text-xs sm:text-sm line-clamp-2">
                       {isArabic ? item.product.name : (item.product.nameEn || item.product.name)}
                     </h4>
                     {item.selectedVariant && Object.keys(item.selectedVariant).length > 0 && (
-                      <p className="text-[10px] font-bold text-purple-600 mt-0.5">
+                      <p className="text-[10px] font-bold text-[#ff2d78] mt-0.5">
                         {Object.entries(item.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(' | ')}
                       </p>
                     )}
-                    <div className="text-xs font-extrabold text-stone-700 mt-1">${selectedUnitPrice(item.product, item.selectedVariant).toFixed(2)} USD</div>
+                    <div className="text-xs font-extrabold text-white/80 mt-1">${selectedUnitPrice(item.product, item.selectedVariant).toFixed(2)} USD</div>
                   </div>
                   <div className="flex flex-col sm:flex-row items-center gap-2 flex-shrink-0">
-                    <div className="flex items-center border border-stone-200 rounded-lg bg-stone-50">
+                    <div className="flex items-center border border-white/20 rounded-lg bg-transparent">
                       <button type="button" onClick={() => updateCartQuantity(item.product.id, item.quantity - 1, item.selectedVariant)}
-                        className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-r-lg border-l border-stone-200 transition">
+                        className="p-1.5 text-white/60 hover:text-white hover:bg-white/10 rounded-r-lg border-l border-white/20 transition">
                         <Minus size={14} />
                       </button>
-                      <span className="px-3 text-xs font-bold text-stone-800 min-w-6 text-center">{item.quantity}</span>
+                      <span className="px-3 text-xs font-bold text-white min-w-6 text-center">{item.quantity}</span>
                       <button type="button" onClick={() => updateCartQuantity(item.product.id, item.quantity + 1, item.selectedVariant)}
-                        className="p-1.5 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-l-lg border-r border-stone-200 transition">
+                        className="p-1.5 text-white/60 hover:text-white hover:bg-white/10 rounded-l-lg border-r border-white/20 transition">
                         <Plus size={14} />
                       </button>
                     </div>
                     <button type="button" onClick={() => removeFromCart(item.product.id, item.selectedVariant)}
-                      className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition">
+                      className="p-1.5 text-red-400 hover:bg-red-500/10 rounded-lg transition">
                       <Trash2 size={16} />
                     </button>
                   </div>
@@ -309,50 +309,50 @@ export const Checkout: React.FC = () => {
               ))}
             </div>
 
-            <div className="border-t border-stone-200 mt-4 pt-4 space-y-2">
+            <div className="border-t border-white/10 mt-4 pt-4 space-y-2">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-stone-500">{isArabic ? 'سعر المنتجات:' : 'Products:'}</span>
-                <span className="text-sm font-bold text-stone-700">${subtotal.toFixed(2)} USD</span>
+                <span className="text-sm text-white/50">{isArabic ? 'سعر المنتجات:' : 'Products:'}</span>
+                <span className="text-sm font-bold text-white">${subtotal.toFixed(2)} USD</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-stone-500 flex items-center gap-1">
-                  <Truck size={13} className="text-purple-500" />
+                <span className="text-sm text-white/50 flex items-center gap-1">
+                  <Truck size={13} className="text-white/50" />
                   {isArabic ? 'رسوم التوصيل:' : 'Delivery:'}
                 </span>
-                <span className="text-sm font-bold text-stone-700">${deliveryFee.toFixed(2)} USD</span>
+                <span className="text-sm font-bold text-white">${deliveryFee.toFixed(2)} USD</span>
               </div>
-              <div className="flex items-center justify-between pt-2 border-t border-stone-200">
-                <span className="text-base font-black text-stone-800">{isArabic ? 'المجموع:' : 'Total:'}</span>
-                <span className="text-xl font-black text-stone-900">${total.toFixed(2)} USD</span>
+              <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                <span className="text-base font-black text-white/50">{isArabic ? 'المجموع:' : 'Total:'}</span>
+                <span className="text-2xl font-black text-white">${total.toFixed(2)} USD</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="lg:col-span-5">
-          <form onSubmit={handleSubmit} className="bg-white border border-stone-200 rounded-xl p-4 sm:p-6 shadow-sm space-y-4">
-            <h3 className="text-lg font-black text-stone-800 flex items-center gap-2 pb-3 border-b border-stone-100">
-              <Truck className="text-purple-600 h-5 w-5" />
+          <form onSubmit={handleSubmit} className="bg-white/[0.04] border border-white/10 rounded-2xl p-4 sm:p-6 space-y-4">
+            <h3 className="text-lg font-black text-white flex items-center gap-2 pb-3 border-b border-white/10">
+              <Truck className="text-white h-5 w-5" />
               {isArabic ? 'بيانات الشحن' : 'Delivery details'}
             </h3>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'الاسم الكامل *' : 'Full name *'}</label>
+              <label className="block text-xs font-bold text-white/70 mb-1">{isArabic ? 'الاسم الكامل *' : 'Full name *'}</label>
               <input ref={nameRef} type="text" name="name" value={form.name} onChange={handleInputChange}
                 placeholder={isArabic ? 'اسمك الكامل' : 'Your full name'}
-                className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.name ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
-              {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
+                className={`w-full border rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] transition ${errors.name ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'}`} />
+              {errors.name && <p className="text-xs text-red-400 mt-1">{errors.name}</p>}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'رقم الهاتف *' : 'Phone number *'}</label>
+              <label className="block text-xs font-bold text-white/70 mb-1">{isArabic ? 'رقم الهاتف *' : 'Phone number *'}</label>
               <div className="flex gap-2">
                 <div className="relative">
                   <select
                     name="countryCode"
                     value={form.countryCode}
                     onChange={handleInputChange}
-                    className="appearance-none h-full border border-stone-200 rounded-xl pl-3 pr-7 py-3 text-sm text-stone-800 bg-stone-50 outline-none focus:ring-2 focus:ring-purple-300 min-w-[90px] cursor-pointer"
+                    className="appearance-none h-full border border-white/15 rounded-xl pl-3 pr-7 py-3 text-sm text-white bg-white/5 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] min-w-[90px] cursor-pointer transition"
                   >
                     {COUNTRY_CODES.map(c => (
                       <option key={c.code} value={c.code}>
@@ -360,61 +360,61 @@ export const Checkout: React.FC = () => {
                       </option>
                     ))}
                   </select>
-                  <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                  <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
                 </div>
                 <input ref={phoneRef} type="tel" name="phone" value={form.phone} onChange={handleInputChange} dir="ltr"
                   placeholder={form.countryCode === '+961' ? '03 123 456' : '555 1234'}
-                  className={`flex-1 border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.phone ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
+                  className={`flex-1 border rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] transition ${errors.phone ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'}`} />
               </div>
-              <p className="text-[10px] text-stone-400 mt-1">
+              <p className="text-[10px] text-white/40 mt-1">
                 {isArabic ? `الرقم الكامل: ${selectedCountry.flag} ${form.countryCode} ${form.phone}` : `Full number: ${selectedCountry.flag} ${form.countryCode} ${form.phone}`}
               </p>
-              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+              {errors.phone && <p className="text-xs text-red-400 mt-1">{errors.phone}</p>}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'المدينة *' : 'City *'}</label>
+              <label className="block text-xs font-bold text-white/70 mb-1">{isArabic ? 'المدينة *' : 'City *'}</label>
               <select ref={cityRef} name="city" value={form.city} onChange={handleInputChange}
-                className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 bg-white ${errors.city ? 'border-red-400' : 'border-stone-200'}`}>
+                className={`appearance-none w-full border rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] transition ${errors.city ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'}`}>
                 <option value="">{isArabic ? '- اختر المدينة -' : '- Select city -'}</option>
                 {(isArabic ? LEBANESE_CITIES_AR : LEBANESE_CITIES_EN).map((city, idx) => { const val = LEBANESE_CITIES_AR[idx]; return <option key={val} value={val}>{city}</option>; })}
                 <option value="أخرى">{isArabic ? 'أخرى...' : 'Other...'}</option>
               </select>
-              {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
+              {errors.city && <p className="text-xs text-red-400 mt-1">{errors.city}</p>}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'العنوان بالتفصيل *' : 'Full address *'}</label>
+              <label className="block text-xs font-bold text-white/70 mb-1">{isArabic ? 'العنوان بالتفصيل *' : 'Full address *'}</label>
               <input ref={addressRef} type="text" name="address" value={form.address} onChange={handleInputChange}
                 placeholder={isArabic ? 'الحي، الشارع، رقم المبنى...' : 'Street, building, floor...'}
-                className={`w-full border rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 ${errors.address ? 'border-red-400 bg-red-50' : 'border-stone-200'}`} />
-              {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
+                className={`w-full border rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] transition ${errors.address ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'}`} />
+              {errors.address && <p className="text-xs text-red-400 mt-1">{errors.address}</p>}
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-stone-700 mb-1">{isArabic ? 'ملاحظات (اختياري)' : 'Notes (optional)'}</label>
+              <label className="block text-xs font-bold text-white/70 mb-1">{isArabic ? 'ملاحظات (اختياري)' : 'Notes (optional)'}</label>
               <textarea name="notes" value={form.notes} onChange={handleInputChange} rows={2}
                 placeholder={isArabic ? 'أي تعليمات للتوصيل...' : 'Any delivery instructions...'}
-                className="w-full border border-stone-200 rounded-xl px-4 py-3 text-sm text-stone-800 outline-none focus:ring-2 focus:ring-purple-300 resize-none" />
+                className="w-full border border-white/15 bg-white/5 rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] resize-none transition" />
             </div>
 
             {/* Validation banner, appears above the button when required fields are missing.
                 This ensures mobile users who have scrolled down past the name/phone fields
                 get visible feedback right next to the button they just tapped. */}
             {validationBanner && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold text-red-700 text-center">
+              <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-xs font-semibold text-red-300 text-center">
                 {validationBanner}
               </div>
             )}
 
             <button type="submit" disabled={isSubmitting}
-              className="w-full py-4 bg-black text-white font-black text-sm rounded-xl hover:bg-stone-800 transition active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2">
+              className="w-full py-4 bg-[#ff2d78] hover:bg-[#e11d48] text-white font-black text-sm rounded-xl transition active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2">
               {isSubmitting
                 ? <><span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />{isArabic ? 'جاري الإرسال...' : 'Placing order...'}</>
                 : <>{isArabic ? `تأكيد الطلب, $${total.toFixed(2)} USD` : `Place order, $${total.toFixed(2)} USD`}</>}
             </button>
 
-            <p className="text-center text-[10px] text-stone-400">
+            <p className="text-center text-[10px] text-white/30">
               {isArabic ? 'الدفع عند الاستلام, تغليف سري ومحكم' : 'Cash on delivery, fully discreet packaging'}
             </p>
           </form>

@@ -51,14 +51,14 @@ import React, { useState } from 'react';
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <button onClick={() => setView('shop')}
-            className="flex items-center gap-1.5 text-xs font-bold text-white/50 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 px-3 py-2 rounded-xl transition">
+            className="flex items-center gap-1.5 text-xs font-bold border border-white/15 text-white/60 hover:border-[#ff2d78] hover:text-[#ff2d78] px-3 py-2 rounded-xl transition">
             <ArrowRight size={14} />
             {isArabic ? 'المتجر' : 'Store'}
           </button>
           <div className="flex items-center gap-2">
-            <Package size={20} className="text-purple-400" />
+            <Package size={20} className="text-[#ff2d78]" />
             <h1 className="text-xl font-black text-white">{isArabic ? 'طلباتي' : 'My orders'}</h1>
-            <span className="bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-black px-2 py-0.5 rounded-full">
+            <span className="bg-[#ff2d78]/10 text-[#ff2d78] border border-[#ff2d78]/30 text-xs font-black px-2 py-0.5 rounded-full">
               {orders.length}
             </span>
           </div>
@@ -130,7 +130,7 @@ import React, { useState } from 'react';
                             </p>
                           )}
                           {item.selectedVariant && Object.keys(item.selectedVariant).length > 0 && (
-                            <p className="text-[11px] text-purple-400 font-bold">
+                            <p className="text-[11px] text-[#ff2d78] font-bold">
                               {Object.entries(item.selectedVariant).map(([k, v]) => `${k}: ${v}`).join(' | ')}
                             </p>
                           )}
@@ -161,7 +161,7 @@ import React, { useState } from 'react';
                     </div>
                     <div className="flex justify-between pt-2 border-t border-white/10">
                       <span className="font-black text-white">{isArabic ? 'المجموع الكلي' : 'Total'}</span>
-                      <span className="text-lg font-black text-purple-300">${order.total.toFixed(2)} USD</span>
+                      <span className="text-lg font-black text-[#ff2d78]">${order.total.toFixed(2)} USD</span>
                     </div>
                   </div>
                 </div>
