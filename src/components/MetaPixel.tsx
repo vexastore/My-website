@@ -8,7 +8,7 @@ import Script from "next/script";
     return (
       <>
         {/* Meta Pixel Code */}
-        <Script id="meta-pixel" strategy="afterInteractive" onError={() => {}}>
+        <Script id="meta-pixel" strategy="afterInteractive">
           {`
             !function(f,b,e,v,n,t,s)
             {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
@@ -37,4 +37,3 @@ import Script from "next/script";
       </>
     );
   }
-  

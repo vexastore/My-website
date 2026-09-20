@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.2] - 2026-09-20
+
+### Fixed
+
+- Restore production storefront rendering by removing the `MetaPixel` event-handler prop that crossed the React Server Component boundary and caused HTTP 500 responses.
+- Add a regression test that prevents JSX event handlers from being reintroduced into the server-rendered tracking component.
+
 ## [1.5.1] - 2026-09-20
 
 ### Added
