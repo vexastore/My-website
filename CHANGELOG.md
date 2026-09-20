@@ -8,8 +8,9 @@ All notable changes to this project are documented here. The project follows
 ### Added
 
 - Preload link with `fetchPriority="high"` for the About page hero LCP image.
-- Crisp modern SVG favicon (`/favicon.svg`) with Vexa logo in brand `#ff2d78` pink.
+- Static multi-size `public/favicon.ico` and crisp modern SVG favicon (`/favicon.svg`) with Vexa logo in brand `#ff2d78` pink.
 - High-efficiency WebP variants for all mockup assets (`about-hero-bg.webp`, `hero-bg-right.webp`, `quiz-model.webp`, `guide-bg-center.webp`, and category cards), reducing total asset payload by over 90%.
+- Replaced root `AGENTS.md` local symlink with a regular file to resolve Vercel deployment build failures.
 
 ### Changed
 

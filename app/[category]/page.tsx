@@ -212,6 +212,7 @@ export async function generateMetadata({
 }: Props): Promise<Metadata> {
   const locale = await getStoreLocale();
   const { category: slug } = await params;
+  if (slug.includes('.') || RESERVED.has(slug)) return { robots: { index: false, follow: false } };
 
   const meta = getCategoryMeta(slug);
   const category = (await fetchCategoriesServer()).find(item => item.slug === slug);
@@ -282,7 +283,7 @@ export default async function CategoryPage({
   const locale = await getStoreLocale();
   const { category: slug } = await params;
 
-  if (RESERVED.has(slug)) {
+  if (slug.includes('.') || RESERVED.has(slug)) {
     notFound();
   }
 
