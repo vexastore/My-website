@@ -21,6 +21,15 @@ const nextConfig = {
   typescript: { ignoreBuildErrors: true },
   // Strict mode for better React hydration consistency (prevents CLS from mismatches)
   reactStrictMode: true,
+  async redirects() {
+    return [
+      {
+        source: '/terms-and-conditions',
+        destination: '/terms',
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

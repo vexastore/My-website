@@ -1,7 +1,5 @@
 import { Metadata } from 'next';
-import Link from 'next/link';
 import { fetchProductsServer } from '@/lib/fetchProducts';
-import { CITY_META } from '@/lib/cityMeta';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 import { FAQ_DATA } from '@/src/data/faq';
@@ -9,7 +7,7 @@ import { FAQ_DATA } from '@/src/data/faq';
 export const revalidate = 300;
 
 const SITE_TITLE = 'Premium Intimate Wellness & Couples Care | Vexa Store Lebanon';
-const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. 100% discreet same-day delivery across Beirut & all Lebanon. Cash on delivery.';
+const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. Discreet delivery across Beirut & all Lebanon. Cash on delivery.';
 
 const baseMetadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
@@ -41,7 +39,7 @@ const baseMetadata: Metadata = {
     url: 'https://vexatoys.com',
     siteName: 'Vexa Store Lebanon',
     title: SITE_TITLE,
-    description: 'Discover luxury personal massagers, elegant lingerie, and couples essentials. 100% discreet same-day delivery and private packaging across Lebanon. Cash on delivery.',
+    description: 'Discover luxury personal massagers, elegant lingerie, and couples essentials. Discreet delivery and private packaging across Lebanon. Cash on delivery.',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon, Premium Intimate Wellness' }],
   },
   twitter: {
@@ -121,7 +119,7 @@ const REVIEWS = [
     color: 'bg-indigo-600',
   },
   {
-    text: 'No other store in Lebanon comes close. Fair prices, same-day delivery in Beirut, and genuinely discreet packaging every single time.',
+    text: 'No other store in Lebanon comes close. Fair prices, fast delivery in Beirut, and genuinely discreet packaging every single time.',
     textAr: 'أسعار مناسبة وتوصيل في اليوم نفسه داخل بيروت وتغليف سري في كل مرة.',
     name: 'Nadia S.',
     city: 'Beirut, Lebanon',
@@ -233,25 +231,6 @@ export default async function HomePage() {
               </div>
             </section>
 
-            {/* ── SEO CITY LINKS ──────────────────────────────────────── */}
-            <section className="border-t border-white/10 py-10 bg-black/50">
-              <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-                <p className="text-stone-500 text-xs font-bold uppercase tracking-wider mb-4">
-                  {isAr ? 'توصيل سري وسريع إلى جميع المناطق اللبنانية' : 'Discreet Same-Day Delivery Across All Lebanon'}
-                </p>
-                <div className="flex flex-wrap justify-center gap-2">
-                  {CITY_META.map(c => (
-                    <Link
-                      key={c.slug}
-                      href={`/city/${c.slug}`}
-                      className="text-xs font-medium text-stone-400 border border-white/10 rounded-full px-3 py-1 hover:border-[#ff2d78] hover:text-white transition"
-                    >
-                      {isAr ? `توصيل سري إلى ${c.nameAr || c.nameEn}` : `Intimate wellness in ${c.nameEn}`}
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </section>
           </div>
         }
       />

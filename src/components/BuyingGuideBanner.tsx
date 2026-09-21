@@ -1,7 +1,7 @@
 'use client';
 import React from 'react';
 import { useShop } from '../context/ShopContext';
-import { ShieldCheck, Package, Truck, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
+import { ShieldCheck, Lock, ArrowRight, ArrowLeft } from 'lucide-react';
 
 interface BuyingGuideBannerProps {
   onReadGuide?: () => void;
@@ -16,16 +16,6 @@ export const BuyingGuideBanner: React.FC<BuyingGuideBannerProps> = ({ onReadGuid
       icon: <ShieldCheck size={22} className="text-[#ff2d78] shrink-0" strokeWidth={1.5} />,
       titleEn: 'Safe & Body-Safe Materials',
       titleAr: 'مواد آمنة وطبية للجسم',
-    },
-    {
-      icon: <Package size={22} className="text-[#ff2d78] shrink-0" strokeWidth={1.5} />,
-      titleEn: 'Discreet Packaging',
-      titleAr: 'تغليف سري ومحكم بدون أي علامات',
-    },
-    {
-      icon: <Truck size={22} className="text-[#ff2d78] shrink-0" strokeWidth={1.5} />,
-      titleEn: 'Fast Delivery Across Lebanon',
-      titleAr: 'توصيل سريع لجميع مناطق لبنان',
     },
     {
       icon: <Lock size={22} className="text-[#ff2d78] shrink-0" strokeWidth={1.5} />,

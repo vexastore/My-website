@@ -82,7 +82,7 @@ export const ProductList: React.FC = () => {
   return (
     <div className="bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* ── 1. HERO SECTION ────────────────────────────────────────── */}
-      <HeroSection onSelectCategory={handleSelectCategory} />
+      <HeroSection />
 
       {/* ── 2. SHOP BY CATEGORY (5 CARDS) ──────────────────────────── */}
       <CategoryShowcase

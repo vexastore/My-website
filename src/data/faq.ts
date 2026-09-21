@@ -33,8 +33,8 @@ export const FAQ_DATA: FaqItem[] = [
   {
     q: 'How fast is delivery in Lebanon?',
     qAr: 'ما هي سرعة التوصيل في لبنان؟',
-    a: 'We offer Same-Day delivery in Beirut and immediate suburbs for orders placed before 2 PM. For the rest of Lebanon (Tripoli, Sidon, Zahle, Jounieh, Nabatieh, etc.), delivery takes 24 to 72 hours.',
-    aAr: 'نوفر خدمة التوصيل في نفس اليوم داخل بيروت وضواحيها للطلبات قبل الساعة ٢ ظهراً. وخلال ٢٤ إلى ٧٢ ساعة لباقي المناطق اللبنانية (طرابلس، صيدا، زحلة، جونية، وغيرها).',
+    a: 'We offer discreet delivery in Beirut and across Lebanon. Delivery timing depends on the destination and is confirmed when you place your order.',
+    aAr: 'نوفر توصيلاً سرياً في بيروت وجميع أنحاء لبنان. تختلف مدة التوصيل حسب المنطقة ويتم تأكيدها عند تسجيل الطلب.',
   },
   {
     q: 'Are the products body-safe and medical grade?',

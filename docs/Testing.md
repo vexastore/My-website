@@ -1,5 +1,17 @@
 # Testing
 
+For Merchant listings `validFrom` and `offers` schema, run `node --test tests/product-schema.test.mjs`. Verify that Schema.org Product structured data outputs `validFrom` in ISO 8601 `YYYY-MM-DD` format, `priceValidUntil >= validFrom`, and `itemCondition: 'https://schema.org/NewCondition'` across all product pages, specifically verifying all 26 affected URLs reported by Google Search Console.
+
+For the Terms & Conditions policy, run `node --test tests/legal-routes.test.mjs` and `npm run build`. Confirm `/terms` is generated as a static/dynamic route, returns HTTP 200 locally, includes all 18 numbered sections and required legal links, is linked from the storefront footer and age verification banner, and that `/terms-and-conditions` 301-redirects to `/terms`.
+
+For the warranty policy, run `npm run build` and confirm `/warranty` is generated, returns HTTP 200 locally, includes the policy title and warranty sections, and is linked from the storefront footer.
+
+For the delivery policy, run `npm run build` and confirm `/delivery` is generated, returns HTTP 200 locally, includes the policy title and delivery sections, and is linked from the storefront footer.
+
+For the privacy policy, run `npm run build` and confirm `/privacy` is generated, returns HTTP 200 locally, includes the policy title and privacy sections, and is linked from the storefront footer.
+
+For 1.5.3, run `npm run lint` and `npm run build`. Confirm the homepage source contains no rendered `/city/*` links and that the homepage still returns HTTP 200 in a local dev smoke test.
+
 For 1.5.2, run `node --test tests/*.test.mjs`, `npx tsc --noEmit`, `npm run lint`, and `npm run build`. Start the production server and request `/`; the response must be HTTP 200 and the server log must not contain `Event handlers cannot be passed to Client Component props`. Browser validation must confirm the home page renders without a Next.js Server Components error. `tests/meta-pixel.test.mjs` guards the server-rendered Meta Pixel component against JSX event-handler props while retaining its production-only, deferred loading behavior.
 
 For 1.4.3, run `node --test tests/*.test.mjs` including `tests/product-schema.test.mjs`. Verify that Schema.org Product structured data outputs valid `aggregateRating` and `review` arrays across all products and specifically for the three Google Search Console reported URLs (`/male-toys/manual-penis-vacuum-pump-compact-hand-pump`, `/dildos/realcock-premium-realistic-dildo-in-lebanon-hyper-realistic`, `/male-toys/wearable-double-strap-on-set-realistic-silicone-massager-adj`). Confirm the server-rendered HTML contains the `<script id="vexa-product-jsonld">` on initial load and that the Customer Reviews section displays matching ratings, dates, and reviewer details. Run TypeScript check, linter, and production build.

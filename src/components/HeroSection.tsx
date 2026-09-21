@@ -3,21 +3,8 @@ import React from 'react';
 import { useShop } from '../context/ShopContext';
 import { Sparkles } from 'lucide-react';
 
-interface HeroSectionProps {
-  onSelectCategory: (category: string) => void;
-}
-
-const HERO_PILLS = [
-  { id: '', en: 'All', ar: 'الكل' },
-  { id: 'Vibrators', en: 'Vibrators', ar: 'هزازات' },
-  { id: 'Dildos', en: 'Dildos', ar: 'ديلدو' },
-  { id: 'Male Toys', en: 'Male Toys', ar: 'ألعاب رجالية' },
-  { id: 'Sex Toys', en: 'Couples', ar: 'ألعاب زوجية' },
-  { id: 'Lingerie', en: 'Lingerie', ar: 'لانجري' },
-];
-
-export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectCategory }) => {
-  const { language, activeCategory } = useShop();
+export const HeroSection: React.FC = () => {
+  const { language } = useShop();
   const isArabic = language === 'ar';
 
   return (
@@ -70,26 +57,6 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onSelectCategory }) =>
               : 'Explore a wide selection of premium adult toys, with discreet packaging and fast delivery across Lebanon.'}
           </p>
 
-          {/* Horizontal Filter Pills */}
-          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 pt-2">
-            {HERO_PILLS.map(pill => {
-              const isActive = activeCategory === pill.id;
-              return (
-                <button
-                  key={pill.id || 'all'}
-                  type="button"
-                  onClick={() => onSelectCategory(pill.id)}
-                  className={`rounded-full px-5 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
-                    isActive
-                      ? 'bg-[#ff2d78] text-white shadow-lg shadow-[#ff2d78]/30 scale-105'
-                      : 'border border-white/25 bg-black/60 text-stone-200 hover:border-white/50 hover:text-white hover:bg-white/10'
-                  }`}
-                >
-                  {isArabic ? pill.ar : pill.en}
-                </button>
-              );
-            })}
-          </div>
         </div>
       </div>
     </section>

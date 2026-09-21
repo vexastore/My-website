@@ -3,6 +3,30 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.3] - 2026-09-21
+
+### Fixed
+
+- Resolve Google Search Console Merchant listings warning ("Missing field 'validFrom' (in 'offers')") by generating ISO 8601 'validFrom' and 'itemCondition' in Schema.org Offer structured data across all product pages.
+- Add the `/terms` Terms & Conditions page with 18 comprehensive sections, agreement, and SEO metadata.
+- Add a working Terms & Conditions link to the storefront footer and interactive links in the AgeVerification prompt.
+- Add 301 permanent redirect from `/terms-and-conditions` to `/terms` in `next.config.mjs`.
+- Add `/terms`, `/privacy`, `/delivery`, and `/warranty` to `sitemap.xml`.
+- Add interconnected legal policy quick links navigation bar across all legal pages.
+- Add the `/warranty` policy page with warranty coverage, exclusions, claim steps, replacement terms, contact information, and SEO metadata.
+- Add a working Warranty link to the storefront footer.
+- Add the `/delivery` policy page with delivery areas, timing, guarantee, fees, order processing, delays, and discreet packaging terms.
+- Add a working Delivery link to the storefront footer.
+- Add the `/privacy` policy page with discreet-shopping commitments, data collection, use, sharing, retention, security, rights, and effective-date terms.
+- Add a working Privacy Policy link to the storefront footer.
+- Rename visible storefront logos from VEXA STORE to VEXA TOYS across the navbar, footer, mobile menu, and blog header.
+- Update the blog header to match the current storefront navigation and responsive layout.
+- Remove the homepage hero category pill controls (`All`, `Vibrators`, `Male Toys`, `Couples`, and `Lingerie`).
+- Remove the homepage delivery heading and city links that pointed to unimplemented `/city/*` routes and returned 404 responses.
+- Remove remaining homepage same-day delivery claims from metadata, reviews, navigation, and footer copy.
+- Remove the navbar and Buying Guide delivery/packaging trust strips from the homepage.
+- Keep the reserved city metadata documented as inactive until dedicated city pages exist.
+
 ## [1.5.2] - 2026-09-20
 
 ### Fixed

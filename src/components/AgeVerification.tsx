@@ -51,8 +51,32 @@ export const AgeVerification: React.FC = () => {
           </a>
         </div>
         
-        <p className="text-[10px] text-stone-600 mt-6 leading-none">
-          {isArabic ? 'بدخولك للموقع أنت توافق على شروط الاستخدام وسياسة الخصوصية الخاصة بالمتجر.' : 'By entering this website, you agree to our terms of use and privacy policy.'}
+        <p className="text-[10px] text-stone-500 mt-6 leading-relaxed">
+          {isArabic ? (
+            <>
+              بدخولك للموقع أنت توافق على{' '}
+              <a href="/terms" className="underline hover:text-stone-300">
+                شروط الاستخدام
+              </a>{' '}
+              و{' '}
+              <a href="/privacy" className="underline hover:text-stone-300">
+                سياسة الخصوصية
+              </a>{' '}
+              الخاصة بالمتجر.
+            </>
+          ) : (
+            <>
+              By entering this website, you agree to our{' '}
+              <a href="/terms" className="underline hover:text-stone-300">
+                terms of use
+              </a>{' '}
+              and{' '}
+              <a href="/privacy" className="underline hover:text-stone-300">
+                privacy policy
+              </a>
+              .
+            </>
+          )}
         </p>
       </div>
     </div>

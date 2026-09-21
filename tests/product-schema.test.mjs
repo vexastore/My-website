@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { generateProductJsonLd } from '../lib/productSchema.ts';
+import { generateProductJsonLd, getOfferValidFrom } from '../lib/productSchema.ts';
 import { getProductReviews, getAggregateRating } from '../lib/productReviews.ts';
 import { STATIC_PRODUCTS } from '../lib/staticProducts.ts';
 
@@ -93,6 +93,22 @@ test('generateProductJsonLd contains valid aggregateRating and review for GSC co
   assert.equal(productEntity.offers.priceCurrency, 'USD');
   assert.equal(productEntity.offers.price, '29.99');
   assert.equal(productEntity.offers.availability, 'https://schema.org/InStock');
+  assert.ok(productEntity.offers.validFrom, 'validFrom must be present in offers');
+  assert.match(productEntity.offers.validFrom, /^\d{4}-\d{2}-\d{2}$/, 'validFrom must be formatted YYYY-MM-DD');
+  assert.equal(productEntity.offers.itemCondition, 'https://schema.org/NewCondition');
+  assert.ok(productEntity.offers.priceValidUntil >= productEntity.offers.validFrom, 'priceValidUntil must be >= validFrom');
+});
+
+test('getOfferValidFrom calculates valid ISO dates from product timestamps or fallback', () => {
+  const fromUpdated = getOfferValidFrom({ updatedAt: '2026-06-15T12:00:00Z' });
+  assert.equal(fromUpdated, '2026-06-15');
+
+  const fallback = getOfferValidFrom({});
+  assert.match(fallback, /^\d{4}-01-01$/);
+
+  const future = getOfferValidFrom({ updatedAt: '2099-01-01T00:00:00Z' });
+  assert.match(future, /^\d{4}-\d{2}-\d{2}$/);
+  assert.ok(new Date(future).getTime() <= Date.now());
 });
 
 test('Google Search Console affected URLs pass aggregateRating and review verification', () => {
@@ -130,5 +146,58 @@ test('Google Search Console affected URLs pass aggregateRating and review verifi
     assert.ok(productEntity.review[0].reviewRating.ratingValue >= 1);
     assert.ok(productEntity.review[0].author.name.length > 0);
     assert.ok(productEntity.review[0].reviewBody.length > 0);
+  }
+});
+
+test('Google Search Console 26 Merchant listings affected URLs pass validFrom verification in offers', () => {
+  const merchantListingSlugs = [
+    'strap-on-harness-kit-with-silicone-dildo',
+    '10-mode-dual-arm-clitoral-orgasm-stimulator-pink-silicone-g',
+    'wearable-double-strap-on-set-realistic-silicone-massager-adj',
+    'realcock-premium-realistic-dildo-in-lebanon-hyper-realistic',
+    'manual-penis-vacuum-pump-compact-hand-pump',
+    'detachable-door-swing-restraint-set-adjustable-padded-design',
+    'thrusting-heating-dildo-vibrator-with-remote-control-realist',
+    'coocfan-realistic-giant-dildo-in-lebanon-dual-layer-silicone',
+    'auxfun-thrusting-machine-6-attachments-adjustable-angles',
+    'silktouch-flex-silicone-dildo-in-lebanon',
+    'luxecurve-silicone-dildo-in-lebanon',
+    'silicone-diamond-anal-plug-medical-silicone',
+    'cock-ring-manual-ultra-grip-textured-dildo',
+    'app-control-wearable-egg-vibrator-g-spot-remote-panty-toy-10',
+    'ventilated-ball-gag-silicone-mouth-ball-with-air-holes',
+    'silicone-lips-open-mouth-gag-adjustable-bondage-strap',
+    'rabbit-thrusting-clitoral-licking-vibrator-in-lebanon-3-in-1',
+    'leather-whip-paddle-premium-quality-impact-toy',
+    'dolphin-suckling-female-adult-sex',
+    'bdsm-plush-leopard-handcuffs-set-adjustable-furry-wrist-ankl',
+    'beaded-dual-penetrator-vibrating-silicone-toy',
+    'dildo-in-lebanon-premium-silicone-dildo',
+    '2026-upgraded-realistic-dildo-thrusting-intimate',
+    '7-in-1-male-stroker-thrusting-rotating-vibrating-suction-lic',
+    'textured-stretch-silicone-couples-enhancement-ring',
+  ];
+
+  for (const slug of merchantListingSlugs) {
+    const product = STATIC_PRODUCTS.find((p) => p.slug === slug || (p.link && p.link.includes(slug)));
+    if (!product) continue;
+
+    const jsonLd = generateProductJsonLd(product, {
+      locale: 'en',
+    });
+
+    const productEntity = jsonLd['@graph'].find((e) => e['@type'] === 'Product');
+    assert.ok(productEntity, `Product entity for ${slug} must exist`);
+    assert.ok(productEntity.offers, `Offers must exist for ${slug}`);
+    assert.ok(productEntity.offers.validFrom, `validFrom must exist in offers for ${slug}`);
+    assert.match(
+      productEntity.offers.validFrom,
+      /^\d{4}-\d{2}-\d{2}$/,
+      `validFrom on ${slug} must match YYYY-MM-DD`
+    );
+    assert.ok(
+      productEntity.offers.priceValidUntil >= productEntity.offers.validFrom,
+      `priceValidUntil (${productEntity.offers.priceValidUntil}) must be >= validFrom (${productEntity.offers.validFrom}) on ${slug}`
+    );
   }
 });

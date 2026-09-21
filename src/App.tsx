@@ -5,7 +5,7 @@ import { Navbar } from './components/Navbar';
 import { OpenInBrowserBanner } from './components/OpenInBrowserBanner';
 
 import { ProductList } from './components/ProductList';
-import { ShieldCheck, Truck, Clock, Heart, Mail, Info, Lock } from 'lucide-react';
+import { Heart, Mail, Info, Lock } from 'lucide-react';
 import { canonicalProductPath } from '@/lib/productSeo';
 import { ProductPage } from './components/ProductPage';
 
@@ -124,45 +124,12 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
                   VEXA
                 </span>
                 <span className="text-[10px] font-bold tracking-[0.32em] text-[#ff2d78] group-hover:brightness-110 transition mt-0.5 leading-none">
-                  STORE
+                  TOYS
                 </span>
               </a>
               <p className="text-xs text-stone-400 mt-3 font-medium">
                 {isArabic ? 'متجر العناية الحميمية لبنان' : 'Intimate Wellness Store Lebanon'}
               </p>
-            </div>
-
-            {/* Center: 3 Trust & Delivery Badges */}
-            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10">
-              <div className="flex items-center gap-2.5 text-xs text-stone-300">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 border border-white/10">
-                  <Clock size={16} className="text-[#ff2d78]" />
-                </div>
-                <div className="flex flex-col text-start leading-tight">
-                  <span className="font-bold text-white">{isArabic ? 'توصيل في نفس اليوم' : 'Same Day Delivery'}</span>
-                  <span className="text-stone-400 text-[11px]">{isArabic ? 'بيروت وضواحيها' : 'Beirut'}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 text-xs text-stone-300">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 border border-white/10">
-                  <Truck size={16} className="text-[#ff2d78]" />
-                </div>
-                <div className="flex flex-col text-start leading-tight">
-                  <span className="font-bold text-white">{isArabic ? '٢٤-٧٢ ساعة' : '24-72h'}</span>
-                  <span className="text-stone-400 text-[11px]">{isArabic ? 'جميع مناطق لبنان' : 'All Lebanon'}</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2.5 text-xs text-stone-300">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/5 border border-white/10">
-                  <ShieldCheck size={16} className="text-[#ff2d78]" />
-                </div>
-                <div className="flex flex-col text-start leading-tight">
-                  <span className="font-bold text-white">{isArabic ? 'تغليف سري ومحكم' : 'Discreet'}</span>
-                  <span className="text-stone-400 text-[11px]">{isArabic ? '١٠٠% خصوصية تامة' : 'Packaging'}</span>
-                </div>
-              </div>
             </div>
 
             {/* Right: Social Icons + WhatsApp Direct Button */}
@@ -272,12 +239,30 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
               >
                 {isArabic ? 'اتصل بنا' : 'Contact'}
               </a>
-              <span className="hover:text-white transition cursor-default">
+              <a
+                href="/privacy"
+                className="hover:text-white transition"
+              >
                 {isArabic ? 'سياسة الخصوصية' : 'Privacy Policy'}
-              </span>
-              <span className="hover:text-white transition cursor-default">
+              </a>
+              <a
+                href="/terms"
+                className="hover:text-white transition"
+              >
                 {isArabic ? 'الشروط والأحكام' : 'Terms'}
-              </span>
+              </a>
+              <a
+                href="/warranty"
+                className="hover:text-white transition"
+              >
+                {isArabic ? 'الضمان' : 'Warranty'}
+              </a>
+              <a
+                href="/delivery"
+                className="hover:text-white transition"
+              >
+                {isArabic ? 'التوصيل' : 'Delivery'}
+              </a>
             </div>
           </div>
         </div>

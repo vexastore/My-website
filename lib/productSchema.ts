@@ -12,6 +12,18 @@ export interface GenerateProductJsonLdParams {
   images?: string[];
 }
 
+export function getOfferValidFrom(product: { updatedAt?: string }): string {
+  if (product.updatedAt) {
+    const parsed = new Date(product.updatedAt);
+    if (!isNaN(parsed.getTime())) {
+      const validDate = parsed.getTime() > Date.now() ? new Date() : parsed;
+      return validDate.toISOString().slice(0, 10);
+    }
+  }
+  const currentYear = new Date().getUTCFullYear();
+  return `${currentYear}-01-01`;
+}
+
 export function generateProductJsonLd(
   product: Product,
   params: GenerateProductJsonLdParams = {}
@@ -96,7 +108,9 @@ export function generateProductJsonLd(
       url: canonicalUrl,
       priceCurrency: product.currency || 'USD',
       price: product.price.toFixed(2),
+      validFrom: getOfferValidFrom(product),
       priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+      itemCondition: 'https://schema.org/NewCondition',
       availability: inStock
         ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',

@@ -14,12 +14,10 @@ import {
   User,
   Package,
   Truck,
-  ShieldCheck,
   CheckCircle2,
   XCircle,
   ClipboardList,
   Info,
-  Clock,
 } from 'lucide-react';
 
 const CATEGORY_SLUGS: Record<string, string> = {
@@ -112,21 +110,7 @@ export const Navbar: React.FC = () => {
       {/* ── TOP ANNOUNCEMENT BAR ────────────────────────────────────── */}
       <div className="border-b border-white/10 bg-black text-stone-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-[11px] sm:px-6">
-          {/* Left delivery & discretion badges */}
-          <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto scrollbar-none py-0.5">
-            <div className="flex items-center gap-1.5 whitespace-nowrap text-stone-300">
-              <Clock size={13} className="text-stone-400 shrink-0" />
-              <span>{isArabic ? 'توصيل في نفس اليوم داخل بيروت' : 'Same Day Delivery in Beirut'}</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-1.5 whitespace-nowrap text-stone-300">
-              <Truck size={13} className="text-stone-400 shrink-0" />
-              <span>{isArabic ? '٢٤-٧٢ ساعة لكل لبنان' : '24-72h All Lebanon'}</span>
-            </div>
-            <div className="hidden md:flex items-center gap-1.5 whitespace-nowrap text-stone-300">
-              <ShieldCheck size={13} className="text-stone-400 shrink-0" />
-              <span>{isArabic ? 'تغليف سري ومحكم 100%' : 'Discreet Packaging'}</span>
-            </div>
-          </div>
+          <div />
 
           {/* Right language toggle */}
           <button
@@ -164,7 +148,7 @@ export const Navbar: React.FC = () => {
                 VEXA
               </span>
               <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.32em] text-[#ff2d78] group-hover:brightness-110 transition mt-0.5 leading-none">
-                STORE
+                TOYS
               </span>
             </a>
           </div>
@@ -354,7 +338,7 @@ export const Navbar: React.FC = () => {
 
             <a href="/" onClick={openShopHome} className="flex flex-col select-none">
               <span className="text-xl font-black tracking-wider text-[#ff2d78]">VEXA</span>
-              <span className="text-[9px] font-bold tracking-[0.32em] text-[#ff2d78] -mt-1">STORE</span>
+              <span className="text-[9px] font-bold tracking-[0.32em] text-[#ff2d78] -mt-1">TOYS</span>
             </a>
 
             <button

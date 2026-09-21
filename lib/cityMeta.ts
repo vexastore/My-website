@@ -9,18 +9,15 @@ export interface CityMeta {
 }
 
 /**
- * CITY_META, canonical list of Lebanese cities/regions used for internal
- * SEO links on the homepage ("Sex toys in Beirut" -> /city/beirut) and,
- * once built, for dedicated city landing pages at app/city/[slug]/page.tsx.
+ * CITY_META, canonical list of Lebanese cities/regions reserved for future
+ * dedicated city landing pages at app/city/[slug]/page.tsx.
  *
  * Each entry carries full bilingual SEO copy (title + meta description) in
  * the same high-end tone as CATEGORY_META, so city pages can reuse this
  * data for <title>, <meta description>, and OpenGraph tags without any
  * extra copywriting pass.
  *
- * NOTE: app/city/[slug]/page.tsx does not exist yet, the links on the
- * homepage currently point to /city/<slug>, which will 404 until that
- * route is added.
+ * No public links are rendered from this data until the city route exists.
  */
 export const CITY_META: CityMeta[] = [
   {

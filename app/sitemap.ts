@@ -22,6 +22,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/adult-toys`, lastModified: latest(products.map(product => product.updatedAt)) },
     { url: `${BASE}/about` },
     { url: `${BASE}/quiz` },
+    { url: `${BASE}/terms` },
+    { url: `${BASE}/privacy` },
+    { url: `${BASE}/delivery` },
+    { url: `${BASE}/warranty` },
     ...categories.filter(category => knownCategories.has(category.slug)).map(category => ({
       url: `${BASE}/${category.slug}`,
       lastModified: latest([category.updatedAt, ...products.filter(product =>
