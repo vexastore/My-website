@@ -30,6 +30,38 @@ const nextConfig = {
       },
     ];
   },
+  async headers() {
+    return [
+      {
+        // Prevent browsers & intermediate proxies from caching HTML documents; guarantees fresh renders on reload
+        source: '/((?!_next/static|_next/image|favicon|.*\\.(?:jpg|jpeg|gif|png|svg|ico|webp)$).*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+          },
+          {
+            key: 'Pragma',
+            value: 'no-cache',
+          },
+          {
+            key: 'Expires',
+            value: '0',
+          },
+        ],
+      },
+      {
+        // Content-hashed static JavaScript and CSS chunks can safely be cached immutably
+        source: '/_next/static/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

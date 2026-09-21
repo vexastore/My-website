@@ -6,6 +6,7 @@ import { cartItemKey, cartSubtotal } from '../utils/pricing';
 import { isStorefrontReference, mergeOrderStatuses } from '../utils/order-status';
 import { STORE_LOCALE_COOKIE, type StoreLocale } from '@/lib/storeLocaleShared';
 import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
+import { CACHE_VERSION } from '@/lib/cacheVersion';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
 
@@ -19,6 +20,7 @@ interface ShopContextType {
   currentView: ViewType;
   selectedArticle: AdviceArticle | null;
   activeCategory: string;
+  initialCategorySlug?: string;
   seoHeading?: string;
   searchQuery: string;
   is18PlusVerified: boolean;
@@ -113,11 +115,12 @@ export const ShopProvider: React.FC<{
   children: React.ReactNode;
   initialProducts?: Product[];
   initialCategory?: string;
+  initialCategorySlug?: string;
   initialView?: string;
   initialProductSlug?: string;
   seoHeading?: string;
   initialLocale?: StoreLocale;
-}> = ({ children, initialProducts, initialCategory, initialView: initialViewProp, initialProductSlug, seoHeading, initialLocale = 'en' }) => {
+}> = ({ children, initialProducts, initialCategory, initialCategorySlug, initialView: initialViewProp, initialProductSlug, seoHeading, initialLocale = 'en' }) => {
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [deliveryFee, setDeliveryFee] = useState(DELIVERY_FEE);
@@ -157,15 +160,15 @@ export const ShopProvider: React.FC<{
   });
 
   // The server endpoint reads the current Supabase catalog. Refresh after a
-  // tab return so an already-open product page follows admin price edits.
+  // tab return, bfcache restore, or window focus so product state is always fresh.
   useEffect(() => {
     let cancelled = false;
     let request: AbortController | null = null;
     const refresh = () => {
-      if (document.visibilityState !== 'visible') return;
+      if (typeof document !== 'undefined' && document.visibilityState !== 'visible') return;
       request?.abort();
       request = new AbortController();
-      fetch('/api/products', { cache: 'no-store', signal: request.signal })
+      fetch(`/api/products?_t=${Date.now()}&_v=${CACHE_VERSION}`, { cache: 'no-store', signal: request.signal })
         .then(response => { if (!response.ok) throw new Error('Catalog unavailable'); return response.json(); })
         .then((fresh: Product[]) => {
           if (cancelled) return;
@@ -177,7 +180,36 @@ export const ShopProvider: React.FC<{
     };
     refresh();
     document.addEventListener('visibilitychange', refresh);
-    return () => { cancelled = true; request?.abort(); document.removeEventListener('visibilitychange', refresh); };
+    const handlePageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) refresh();
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => {
+      cancelled = true;
+      request?.abort();
+      document.removeEventListener('visibilitychange', refresh);
+      window.removeEventListener('pageshow', handlePageShow);
+    };
+  }, []);
+
+  // Evict obsolete localStorage caches whenever CACHE_VERSION changes
+  useEffect(() => {
+    try {
+      const storedVersion = localStorage.getItem('vexa_cache_version');
+      if (storedVersion !== CACHE_VERSION) {
+        for (let i = localStorage.length - 1; i >= 0; i--) {
+          const key = localStorage.key(i);
+          if (
+            key &&
+            (key.startsWith('vexa_ar_translations_') || key.startsWith('vexa_cache_')) &&
+            !key.includes(CACHE_VERSION)
+          ) {
+            localStorage.removeItem(key);
+          }
+        }
+        localStorage.setItem('vexa_cache_version', CACHE_VERSION);
+      }
+    } catch {}
   }, []);
 
   // Resolve initial product page from URL slug after products load
@@ -599,7 +631,7 @@ export const ShopProvider: React.FC<{
     <ShopContext.Provider
       value={{
         language, products, cart, orders, orderStatusSync, refreshOrderStatuses, currentView, selectedArticle,
-        activeCategory, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
+        activeCategory, initialCategorySlug, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
         seoHeading,
         setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
         setActiveCategory: navigateToCategoryFn, setSearchQuery, verifyAge, addToCart, removeFromCart,

@@ -12,6 +12,7 @@
  */
 import { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
+import { fetchCategoryEditorial } from '@/lib/fetchCategoryEditorial';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 
@@ -69,6 +70,25 @@ const jsonLd = {
 
 export default async function AdultToysPage() {
   const locale = await getStoreLocale();
+  const content = await fetchCategoryEditorial('adult-toys');
+  const localizedJsonLd = {
+    ...jsonLd,
+    '@graph': [
+      ...jsonLd['@graph'],
+      ...(locale === 'en' && content?.faqs.length
+        ? [
+            {
+              '@type': 'FAQPage',
+              mainEntity: content.faqs.map(({ q, a }) => ({
+                '@type': 'Question',
+                name: q,
+                acceptedAnswer: { '@type': 'Answer', text: a },
+              })),
+            },
+          ]
+        : []),
+    ],
+  };
   const allProducts = await fetchProductsServer();
 
   // /adult-toys shows products from all categories EXCEPT the core 'Sex Toys' category.
@@ -100,13 +120,14 @@ export default async function AdultToysPage() {
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localizedJsonLd) }} />
 
       {/* Interactive shop, all categories, no pre-filter */}
       <ShopApp
         initialLocale={locale}
         initialProducts={productsWithImages}
         initialCategory=""
+        initialCategorySlug="adult-toys"
         initialView="shop"
         seoHeading={locale === 'ar' ? 'منتجات للكبار في لبنان | كل الفئات' : 'Adult Toys in Lebanon | All Categories'}
       />

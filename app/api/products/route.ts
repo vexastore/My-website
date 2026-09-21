@@ -9,7 +9,9 @@ export async function GET() {
     const products = await fetchPublishedProducts();
     return NextResponse.json(products, {
       headers: {
-        'Cache-Control': 'private, no-store, max-age=0',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
       },
     });
   } catch {

@@ -9,6 +9,7 @@ import {
   SLUG_TO_CATEGORY,
 } from '@/lib/categoryMeta';
 import { fetchCategoriesServer } from '@/lib/fetchCategories';
+import { fetchCategoryEditorial } from '@/lib/fetchCategoryEditorial';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 import { productMatchesCategory } from '@/src/data/categories';
@@ -131,6 +132,7 @@ export default async function CategoryPage({
   if (!categoryRow) notFound();
 
   const meta = getCategoryMeta(slug);
+  const content = await fetchCategoryEditorial(slug);
 
   const allProducts = await fetchProductsServer();
 
@@ -263,6 +265,19 @@ export default async function CategoryPage({
             },
           ]
         : []),
+
+      ...(locale === 'en' && content?.faqs.length
+        ? [
+            {
+              '@type': 'FAQPage',
+              mainEntity: content.faqs.map(({ q, a }) => ({
+                '@type': 'Question',
+                name: q,
+                acceptedAnswer: { '@type': 'Answer', text: a },
+              })),
+            },
+          ]
+        : []),
     ],
   };
 
@@ -279,6 +294,7 @@ export default async function CategoryPage({
         initialLocale={locale}
         initialProducts={productsWithImages}
         initialCategory={categoryId}
+        initialCategorySlug={slug}
         initialView="shop"
       />
     </>

@@ -27,3 +27,29 @@ test('getCacheKey generates custom keys with version stamp', () => {
   const customKey = getCacheKey('custom-prefix');
   assert.equal(customKey, `custom-prefix-${CACHE_VERSION}`);
 });
+
+test('nextConfig defines anti-caching headers for HTML and immutable headers for static chunks', async () => {
+  const nextConfigModule = await import('../next.config.mjs');
+  const nextConfig = nextConfigModule.default;
+  assert.equal(typeof nextConfig.headers, 'function');
+  const headersList = await nextConfig.headers();
+  assert.ok(Array.isArray(headersList));
+  assert.ok(headersList.length >= 2);
+
+  // Rule 1: No-cache for HTML/pages
+  const htmlRule = headersList[0];
+  assert.ok(htmlRule.source.includes('?!_next/static'));
+  const cacheControlHeader = htmlRule.headers.find(h => h.key === 'Cache-Control');
+  assert.ok(cacheControlHeader);
+  assert.ok(cacheControlHeader.value.includes('no-store'));
+  assert.ok(cacheControlHeader.value.includes('no-cache'));
+  assert.ok(cacheControlHeader.value.includes('max-age=0'));
+
+  // Rule 2: Immutable for static chunks
+  const staticRule = headersList.find(h => h.source === '/_next/static/:path*');
+  assert.ok(staticRule);
+  const staticCacheHeader = staticRule.headers.find(h => h.key === 'Cache-Control');
+  assert.ok(staticCacheHeader);
+  assert.ok(staticCacheHeader.value.includes('immutable'));
+});
+

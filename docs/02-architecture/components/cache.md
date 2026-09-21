@@ -15,7 +15,7 @@ All cache keys are centralized and versioned in `lib/cacheVersion.ts`.
 Instead of hardcoded string literals scattered across data fetchers, all cache keys and tags derive from the centralized module:
 
 ```typescript
-export const CACHE_VERSION = 'v1.5.4';
+export const CACHE_VERSION = 'v1.5.8';
 
 export const CACHE_KEYS = {
   PRODUCTS: `supabase-products-${CACHE_VERSION}`,
@@ -59,6 +59,23 @@ Whenever an agent or developer modifies:
 
 ### How to bump the cache:
 1. Open `lib/cacheVersion.ts`.
-2. Update `CACHE_VERSION` (e.g. `'v1.5.4'` $\to$ `'v1.5.5'`) or bump individual keys in `CACHE_KEYS`.
+2. Update `CACHE_VERSION` (e.g. `'v1.5.7'` $\to$ `'v1.5.8'`) or bump individual keys in `CACHE_KEYS`.
 3. Run `npm run test` to verify `tests/cache-version.test.mjs`.
 4. Document the cache bump in `CHANGELOG.md` and the current day's worklog.
+
+---
+
+## Reload & Browser Caching Invalidation (v1.5.8+)
+
+To prevent mobile and desktop browsers from serving stale HTML or cached API responses on page reload:
+
+1. **HTTP Anti-Caching Headers (`next.config.mjs`)**:
+   - HTML documents & API routes: `Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0`, `Pragma: no-cache`, `Expires: 0`.
+   - Content-hashed assets (`/_next/static/*`): `Cache-Control: public, max-age=31536000, immutable`.
+2. **Catalog Fetch Cache-Buster (`src/context/ShopContext.tsx`)**:
+   - Client catalog requests append timestamp and version parameters: `/api/products?_t=${Date.now()}&_v=${CACHE_VERSION}`, bypassing iOS Safari GET request caching.
+3. **Back-Forward Cache (bfcache) Listener**:
+   - Listens to `pageshow` with `event.persisted` to immediately refresh catalog and state when mobile Safari/Chrome wakes up a cached tab.
+4. **Automated `localStorage` Cleanup**:
+   - On application mount, compares `localStorage.getItem('vexa_cache_version')` against `CACHE_VERSION`. Any stale translation or temporary keys from older versions are evicted while customer cart items and orders are preserved.
+

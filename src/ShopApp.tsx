@@ -8,6 +8,7 @@ import type { StoreLocale } from '@/lib/storeLocaleShared';
 interface ShopAppProps {
   initialProducts?: Product[];
   initialCategory?: string;
+  initialCategorySlug?: string;
   initialView?: 'shop' | 'checkout' | 'admin' | 'orders' | 'about' | 'product';
   initialProductSlug?: string;
   seoHeading?: string;
@@ -18,6 +19,7 @@ interface ShopAppProps {
 export function ShopApp({
   initialProducts,
   initialCategory,
+  initialCategorySlug,
   initialView,
   initialProductSlug,
   seoHeading,
@@ -28,6 +30,7 @@ export function ShopApp({
     <ShopProvider
       initialProducts={initialProducts}
       initialCategory={initialCategory}
+      initialCategorySlug={initialCategorySlug}
       initialView={initialView}
       initialProductSlug={initialProductSlug}
       seoHeading={seoHeading}

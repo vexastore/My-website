@@ -7,6 +7,7 @@ import { BuyingGuideBanner } from './BuyingGuideBanner';
 import { QuizBanner } from './QuizBanner';
 import { RelatedCategories } from './RelatedCategories';
 import { FaqAccordion } from './FaqAccordion';
+import { CategoryGuideSection } from './CategoryGuideSection';
 import { Search, SearchX, SlidersHorizontal, X, ChevronRight } from 'lucide-react';
 import { CATEGORIES, getCategoryTitle, productMatchesCategory } from '../data/categories';
 
@@ -14,6 +15,7 @@ export const ProductList: React.FC = () => {
   const {
     products,
     activeCategory,
+    initialCategorySlug,
     seoHeading,
     setActiveCategory,
     searchQuery,
@@ -249,20 +251,23 @@ export const ProductList: React.FC = () => {
         )}
       </section>
 
-      {/* ── 4. BUYING GUIDE BANNER ─────────────────────────────────── */}
-      <BuyingGuideBanner />
-
-      {/* ── 5. QUIZ CALLOUT BANNER ─────────────────────────────────── */}
-      <QuizBanner />
-
-      {/* ── 6. RELATED CATEGORIES ──────────────────────────────────── */}
-      <RelatedCategories
-        onSelectCategory={handleSelectCategory}
-        onViewAllCategories={scrollToProducts}
-      />
-
-      {/* ── 7. FREQUENTLY ASKED QUESTIONS ─────────────────────────── */}
-      <FaqAccordion onViewAllFaqs={scrollToProducts} />
+      {/* ── 4. DYNAMIC CATEGORY GUIDE & FAQS (OR HOMEPAGE SHOWCASE) ── */}
+      {activeCategory || initialCategorySlug ? (
+        <CategoryGuideSection
+          onSelectCategory={handleSelectCategory}
+          onViewAllCategories={scrollToProducts}
+        />
+      ) : (
+        <>
+          <BuyingGuideBanner />
+          <QuizBanner />
+          <RelatedCategories
+            onSelectCategory={handleSelectCategory}
+            onViewAllCategories={scrollToProducts}
+          />
+          <FaqAccordion onViewAllFaqs={scrollToProducts} />
+        </>
+      )}
 
       {/* ── FILTER SLIDE-IN DRAWER ─────────────────────────────────── */}
       {isFilterOpen && (

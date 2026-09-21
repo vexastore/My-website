@@ -3,6 +3,33 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.8] - 2026-09-22
+
+### Added
+
+- **Zero-Cache HTTP Headers in `next.config.mjs`**: Configured explicit `Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0`, `Pragma: no-cache`, and `Expires: 0` headers for all HTML document routes and dynamic pages. Guarantees that mobile browsers (iOS Safari, Android Chrome) and desktop browsers fetch the newest deployment on reload instead of serving stale disk or proxy caches.
+- **Client Cache Busting on `/api/products`**: Added timestamp and version query parameters (`_t` and `_v`) to client catalog requests in `ShopContext.tsx` to completely circumvent aggressive iOS Safari GET request caching.
+- **Back-Forward Cache (bfcache) Auto-Refresh**: Added a `pageshow` event listener detecting `event.persisted` in `ShopContext.tsx` to immediately refresh store catalog and UI whenever mobile Safari or Chrome restores the page from bfcache.
+- **Automatic Stale `localStorage` Eviction**: Added version mismatch detection on client boot in `ShopContext.tsx` that cleans up legacy cached keys while preserving active cart items and customer orders.
+- **Cache Header Unit Tests**: Added unit tests in `tests/cache-version.test.mjs` validating anti-caching headers for HTML routes and immutable caching for static chunks.
+
+### Changed
+
+- **Cache Version Invalidation**: Bumped `CACHE_VERSION` to `v1.5.8` in `lib/cacheVersion.ts` and updated `package.json` to `1.5.8` per Rule 8 in `AGENTS.md`.
+
+## [1.5.7] - 2026-09-22
+
+### Added
+
+- **Dynamic Category Buying Guide & FAQ Component**: Implemented `CategoryGuideSection` in `src/components/CategoryGuideSection.tsx` which renders the category-specific Buying Guide, Frequently Asked Questions, and interactive quiz teaser. The section dynamically changes in real time whenever the user switches categories via pills, drawer, or showcase cards without requiring a full page refresh.
+- **Preloaded Category Editorial Store**: Created `src/data/categoryEditorial.ts` containing all 23 sanitized category guides and FAQ sets for instantaneous client-side rendering with zero network latency, backed by live Supabase `category_editorial` table queries and Next.js `unstable_cache`.
+- **Integrated FAQPage Schema.org Structured Data**: Restored compliant `FAQPage` JSON-LD schema on `app/[category]/page.tsx` and `app/adult-toys/page.tsx` that directly matches the visibly rendered FAQs on the page for Google Search Console compliance.
+- **Automated Tests**: Expanded `tests/category-editorial.test.mjs` to test all 23 category guides, dynamic switching between categories, FAQ formatting, and complete removal of legacy unbranded text.
+
+### Changed
+
+- **Cache Version Invalidation**: Bumped `CACHE_VERSION` to `v1.5.7` in `lib/cacheVersion.ts` and updated `package.json` to `1.5.7` per Rule 8 in `AGENTS.md`.
+
 ## [1.5.6] - 2026-09-21
 
 ### Removed
