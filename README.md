@@ -1,6 +1,6 @@
-# Vexa Store storefront
+# Vexa Toys storefront
 
-Version 1.5.3 uses the VEXA TOYS brand in the visible storefront logo, includes comprehensive legal policies at `/terms`, `/warranty`, `/delivery`, and `/privacy`, provides a 301 redirect from `/terms-and-conditions` to `/terms`, includes all policy routes in the XML sitemap, removes homepage links to the not-yet-implemented `/city/*` routes, and prevents customers from reaching 404 pages. Version 1.5.2 restored production page rendering after the Meta Pixel integration passed a browser event handler through a React Server Component boundary. The pixel remains production-only and deferred until after hydration.
+Version 1.5.4 fully unifies brand identity under Vexa Toys / Vexa Toys Lebanon across all customer-facing surfaces, page metadata, OpenGraph/Twitter cards, Schema.org structured data, category and city metadata, blog posts, static fallback products, customer-sent WhatsApp templates, static generators, and test suites. Version 1.5.3 unified legal policies at `/terms`, `/warranty`, `/delivery`, and `/privacy`, provided a 301 redirect from `/terms-and-conditions` to `/terms`, and ensured clean navigation paths. Version 1.5.2 restored production page rendering after the Meta Pixel integration passed a browser event handler through a React Server Component boundary.
 
 Public SEO metadata, canonicals, sitemap, and structured data follow the published Supabase catalog and articles. Admin SEO overrides are used when present; otherwise pages derive metadata from their content. Product pages render Schema.org `Product` structured data including `aggregateRating`, verified `review` entries, and full `Offer` properties (`validFrom`, `priceValidUntil`, `itemCondition`, `shippingDetails`, `hasMerchantReturnPolicy`), satisfying Google Search Console rich result and Merchant listings requirements. The current English and Arabic views share URLs, so Arabic does not yet have separate indexable pages. See the [SEO audit and remediation record](docs/09-project/seo-remediation-2026-09-18.md).
 
@@ -9,6 +9,10 @@ The public storefront defaults to English. Use the EN/AR switch in the shop head
 The public storefront serves the catalog and checkout. The separate administrator app is maintained in `admin-vexatoys`.
 
 Category buying guides and FAQ lists now come from Supabase editorial rows rather than bundled source text. Administrators edit them under Content → Category guides & FAQs. The visible FAQ answers and FAQ structured data use the same records and refresh within about five minutes.
+
+## Caching & Cache Versioning
+
+Server responses from Supabase (products, categories, editorial FAQs, and blog articles) are cached via Next.js `unstable_cache` with a 5-minute TTL and on-demand revalidation tags. Cache keys across both server fetchers and client translation storage are centralized and versioned in `lib/cacheVersion.ts`. Whenever data models, queries, or static definitions change, bump `CACHE_VERSION` in `lib/cacheVersion.ts` to instantly invalidate stale cached payloads. See the [Caching architecture guide](docs/02-architecture/components/cache.md).
 
 ## Customer-sent WhatsApp orders
 

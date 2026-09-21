@@ -21,22 +21,22 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}`;
   return {
-    title: { absolute: `${ar ? cat.nameAr : cat.name} | ${ar ? 'مدونة فيكسا' : 'Vexa Store Lebanon Blog'}` },
-    description: ar ? cat.descriptionAr : cat.description + '. Vexa Store Lebanon.',
+    title: { absolute: `${ar ? cat.nameAr : cat.name} | ${ar ? 'مدونة فيكسا' : 'Vexa Toys Lebanon Blog'}` },
+    description: ar ? cat.descriptionAr : cat.description + '. Vexa Toys Lebanon.',
     alternates: { canonical: pageUrl },
     openGraph: {
-      title: `${ar ? cat.nameAr : cat.name} | ${ar ? 'مدونة فيكسا' : 'Vexa Store Lebanon Blog'}`,
-      description: ar ? cat.descriptionAr : cat.description + '. Vexa Store Lebanon.',
+      title: `${ar ? cat.nameAr : cat.name} | ${ar ? 'مدونة فيكسا' : 'Vexa Toys Lebanon Blog'}`,
+      description: ar ? cat.descriptionAr : cat.description + '. Vexa Toys Lebanon.',
       locale: ar ? 'ar_LB' : 'en_US',
       url: pageUrl,
-      siteName: 'Vexa Store Lebanon',
+      siteName: 'Vexa Toys Lebanon',
       type: 'website',
-      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: `${ar ? cat.nameAr : cat.name} | Vexa Store Lebanon Blog` }],
+      images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: `${ar ? cat.nameAr : cat.name} | Vexa Toys Lebanon Blog` }],
     },
     twitter: {
       card: 'summary_large_image',
-      site: '@vexastore',
-      title: `${ar ? cat.nameAr : cat.name} | ${ar ? 'مدونة فيكسا' : 'Vexa Store Lebanon Blog'}`,
+      site: '@vexatoys',
+      title: `${ar ? cat.nameAr : cat.name} | ${ar ? 'مدونة فيكسا' : 'Vexa Toys Lebanon Blog'}`,
       description: ar ? cat.descriptionAr : cat.description,
       images: ['https://vexatoys.com/opengraph.jpg'],
     },
@@ -58,13 +58,13 @@ export default async function BlogCategoryPage({ params }: Props) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: `${ar ? cat.nameAr : cat.name} | Vexa Store Blog`,
+    name: `${ar ? cat.nameAr : cat.name} | Vexa Toys Blog`,
     url: `https://vexatoys.com/blog/${blogCategory}`,
     description: ar ? cat.descriptionAr : cat.description,
     breadcrumb: {
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
+        { '@type': 'ListItem', position: 1, name: 'Vexa Toys', item: 'https://vexatoys.com' },
         { '@type': 'ListItem', position: 2, name: ar ? 'المدونة' : 'Blog', item: 'https://vexatoys.com/blog' },
         { '@type': 'ListItem', position: 3, name: ar ? cat.nameAr : cat.name, item: `https://vexatoys.com/blog/${blogCategory}` },
       ],

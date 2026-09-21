@@ -19,22 +19,22 @@ import { CATEGORY_META as CATEGORIES } from '@/lib/categoryMeta';
 export const revalidate = 300;
 
 const baseMetadata: Metadata = {
-  title: { absolute: 'Adult Toys in Lebanon | All Categories | Vexa Store' },
+  title: { absolute: 'Adult Toys in Lebanon | All Categories | Vexa Toys' },
   description: 'Shop adult toys in Lebanon across our current categories. Discreet packaging and cash on delivery.',
   alternates: { canonical: 'https://vexatoys.com/adult-toys' },
   openGraph: {
-    title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
+    title: 'Adult Toys in Lebanon | All Categories | Vexa Toys',
     description: 'Shop adult toys in Lebanon across our current categories. Discreet packaging and cash on delivery.',
     url: 'https://vexatoys.com/adult-toys',
-    siteName: 'Vexa Store Lebanon',
+    siteName: 'Vexa Toys Lebanon',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Adult Toys Lebanon, Vexa Store' }],
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Adult Toys Lebanon, Vexa Toys' }],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@vexastore',
-    title: 'Adult Toys in Lebanon | All Categories | Vexa Store',
+    site: '@vexatoys',
+    title: 'Adult Toys in Lebanon | All Categories | Vexa Toys',
     description: 'Shop adult toys in Lebanon across our current categories.',
     images: ['https://vexatoys.com/opengraph.jpg'],
   },
@@ -54,13 +54,13 @@ const jsonLd = {
     {
       '@type': 'BreadcrumbList',
       itemListElement: [
-        { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
+        { '@type': 'ListItem', position: 1, name: 'Vexa Toys', item: 'https://vexatoys.com' },
         { '@type': 'ListItem', position: 2, name: 'Adult Toys Lebanon', item: 'https://vexatoys.com/adult-toys' },
       ],
     },
     {
       '@type': 'CollectionPage',
-      name: 'Adult Toys in Lebanon, All Categories | Vexa Store',
+      name: 'Adult Toys in Lebanon, All Categories | Vexa Toys',
       description: 'Browse adult toys in Lebanon across the currently published categories.',
       url: 'https://vexatoys.com/adult-toys',
     },
@@ -69,7 +69,7 @@ const jsonLd = {
       mainEntity: [
         { '@type': 'Question', name: 'Do you deliver adult toys discreetly in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Every order ships in a plain sealed box, no logo, no branding. Same-day delivery in Beirut. Cash on delivery available.' } },
         { '@type': 'Question', name: 'هل توصلون ألعاب للكبار بشكل سري في لبنان؟', acceptedAnswer: { '@type': 'Answer', text: 'نعم. كل طلب يُشحن في صندوق مغلق عادي بدون شعار. توصيل في نفس اليوم في بيروت. دفع عند الاستلام.' } },
-        { '@type': 'Question', name: 'What adult toys are available in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Vexa Store carries 500+ adult toys in Lebanon across all categories: vibrators, dildos, male masturbators, BDSM kits, lingerie, anal toys, butt plugs, cock rings, lubricants, sex machines, and more. All shipped discreetly.' } },
+        { '@type': 'Question', name: 'What adult toys are available in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Vexa Toys carries 500+ adult toys in Lebanon across all categories: vibrators, dildos, male masturbators, BDSM kits, lingerie, anal toys, butt plugs, cock rings, lubricants, sex machines, and more. All shipped discreetly.' } },
         { '@type': 'Question', name: 'Is cash on delivery available for adult toys in Lebanon?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Cash on delivery (COD) is available for all adult toy orders across Lebanon. No credit card or online payment required.' } },
       ],
     },
@@ -139,7 +139,7 @@ export default async function AdultToysPage() {
             <p className="max-w-3xl text-sm leading-relaxed text-stone-300">
               {locale === 'ar'
                 ? 'تصفح منتجات متجر فيكسا للفئات المختلفة. تصل الطلبات في صناديق عادية مغلقة دون شعار، مع توصيل سريع ودفع عند الاستلام في جميع أنحاء لبنان.'
-                : 'Explore Vexa Store products across every category. Orders arrive in plain sealed boxes without a logo, with fast delivery and cash on delivery across Lebanon.'}
+                : 'Explore Vexa Toys products across every category. Orders arrive in plain sealed boxes without a logo, with fast delivery and cash on delivery across Lebanon.'}
             </p>
           </header>
           <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 sm:p-8">

@@ -3,6 +3,21 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.4] - 2026-09-21
+
+### Changed
+
+- Complete comprehensive rebrand from "Vexa Store" to "Vexa Toys" / "Vexa Toys Lebanon" across the entire codebase.
+- **Root & Layout Metadata**: Update site default title, template (`%s | Vexa Toys Lebanon`), creator, authors, openGraph `siteName` and `images.alt`, and Schema.org `Organization` / `WebSite` structured data names.
+- **Pages & Routes**: Update page titles, headings, metadata, Twitter cards, OpenGraph, JSON-LD schemas, and breadcrumbs across `/`, `/about`, `/adult-toys`, `/checkout`, `/quiz`, `/[category]`, `/[category]/[slug]`, `/blog`, `/blog/[blogCategory]`, and `/blog/[blogCategory]/[slug]`.
+- **Twitter Handles**: Update Twitter card handle from `@vexastore` to `@vexatoys` across all routes and runtime meta tags.
+- **Product & Category Meta**: Update `productSchema.ts` brand name, seller organization name, and breadcrumb list. Update all 22 category titles and descriptions in `lib/categoryMeta.ts`, all city titles in `lib/cityMeta.ts`, and all fallback static products in `lib/staticProducts.ts`.
+- **Blog & Content**: Update author name to `Vexa Toys Team` in `lib/fetchArticles.ts` and all blog post entries in `lib/blogPosts.ts`. Update in-article body copy and FAQs.
+- **UI Components**: Update navbar accessibility labels, product page title logic, About page story and headers, floating WhatsApp default inquiry message, product card placeholder image, and footer copyright.
+- **Order & WhatsApp**: Update WhatsApp checkout summary order headers to `New Order — Vexa Toys` (EN) and `طلب جديد — Vexa Toys` (AR).
+- **Cache Versioning & Invalidation**: Centralize server (`unstable_cache`) and client (`localStorage`) cache keys into `lib/cacheVersion.ts` (`CACHE_VERSION`, `CACHE_KEYS`, `CACHE_TAGS`). Add automated cache tests (`tests/cache-version.test.mjs`), architecture documentation (`docs/02-architecture/components/cache.md`), and mandatory agent guidelines in `AGENTS.md` to bump cache versions on any data-fetching or schema changes.
+- **Tests & Documentation**: Update test assertions in `tests/product-schema.test.mjs` and `tests/whatsapp.test.mjs`. Update `README.md`, `docs/index.md`, and `docs/backlinks-strategy.md`.
+
 ## [1.5.3] - 2026-09-21
 
 ### Fixed

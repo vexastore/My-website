@@ -113,7 +113,7 @@ async function swapAndClean(docPath, newImageUrl, newImageUrls) {
 }
 
 async function main() {
-  log('info', `=== Vexa Store Base64 Cleanup${DRY_RUN ? ' [DRY RUN]' : ''} ===`);
+  log('info', `=== Vexa Toys Base64 Cleanup${DRY_RUN ? ' [DRY RUN]' : ''} ===`);
   log('info', `Report: ${reportArg}`);
 
   const report = JSON.parse(fs.readFileSync(reportArg, 'utf8'));

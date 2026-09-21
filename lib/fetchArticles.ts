@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache';
+import { CACHE_KEYS, CACHE_TAGS } from './cacheVersion';
 import type { BlogPost } from './blogPosts';
 import type { AdviceArticle } from '@/src/types';
 import { displayCopy } from './displayCopy';
@@ -51,7 +52,7 @@ async function readArticles(): Promise<BlogPost[]> {
       excerptAr: displayCopy(row.excerpt_ar || row.content_ar.slice(0, 180)),
       content: displayCopy(row.content_en), contentAr: displayCopy(row.content_ar),
       publishedAt: row.published_at || row.updated_at, updatedAt: row.updated_at,
-      author: 'Vexa Store Team', readingTime: Math.max(1, Math.ceil(row.read_time_seconds / 60)),
+      author: 'Vexa Toys Team', readingTime: Math.max(1, Math.ceil(row.read_time_seconds / 60)),
       image: imageUrl(row, base),
       seoTitleEn: row.seo_title_en?.trim() || undefined, seoTitleAr: row.seo_title_ar?.trim() || undefined,
       seoDescriptionEn: row.seo_description_en?.trim() || undefined, seoDescriptionAr: row.seo_description_ar?.trim() || undefined,
@@ -62,8 +63,8 @@ async function readArticles(): Promise<BlogPost[]> {
   }
 }
 
-export const fetchBlogPostsServer = unstable_cache(readArticles, ['supabase-articles-v1'], {
-  revalidate: 300, tags: ['vexa-articles'],
+export const fetchBlogPostsServer = unstable_cache(readArticles, [CACHE_KEYS.ARTICLES], {
+  revalidate: 300, tags: [CACHE_TAGS.ARTICLES],
 });
 
 

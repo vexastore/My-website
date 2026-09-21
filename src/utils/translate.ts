@@ -1,4 +1,6 @@
-const LS_KEY = 'vexa_ar_translations_v1';
+import { CACHE_KEYS } from '@/lib/cacheVersion';
+
+const LS_KEY = CACHE_KEYS.AR_TRANSLATIONS;
 
 export interface ArTranslation {
   name: string;

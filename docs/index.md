@@ -1,8 +1,9 @@
-# Vexa Store documentation
+# Vexa Toys documentation
 
 ## Architecture
 
 - [Admin panel architecture and remediation map](02-architecture/components/admin-panel.md)
+- [Caching architecture and versioning](02-architecture/components/cache.md)
 
 ## Project planning
 

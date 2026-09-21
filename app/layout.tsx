@@ -7,26 +7,26 @@ import { getStoreLocale } from '@/lib/storeLocale';
 export const metadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
   title: {
-    default: 'Luxury Sex Toys in Lebanon | Vexa Store',
-    template: '%s | Vexa Store Lebanon',
+    default: 'Luxury Sex Toys in Lebanon | Vexa Toys',
+    template: '%s | Vexa Toys Lebanon',
   },
   description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Discreet same-day delivery, cash on delivery.',
-  keywords: 'luxury sex toys lebanon, sex toys in lebanon, premium vibrators lebanon, high-end adult toys lebanon, designer lingerie beirut, luxury intimacy lebanon, curated sex toys lebanon, premium dildos lebanon, vexa store, ألعاب جنسية فاخرة لبنان, لانجري فاخر بيروت',
-  authors: [{ name: 'Vexa Store Lebanon' }],
-  creator: 'Vexa Store',
+  keywords: 'luxury sex toys lebanon, sex toys in lebanon, premium vibrators lebanon, high-end adult toys lebanon, designer lingerie beirut, luxury intimacy lebanon, curated sex toys lebanon, premium dildos lebanon, vexa toys, ألعاب جنسية فاخرة لبنان, لانجري فاخر بيروت',
+  authors: [{ name: 'Vexa Toys Lebanon' }],
+  creator: 'Vexa Toys',
   openGraph: {
     type: 'website',
     locale: 'en_US',
     alternateLocale: 'ar_LB',
     url: 'https://vexatoys.com',
-    siteName: 'Vexa Store Lebanon',
-    title: 'Luxury Sex Toys in Lebanon | Vexa Store',
+    siteName: 'Vexa Toys Lebanon',
+    title: 'Luxury Sex Toys in Lebanon | Vexa Toys',
     description: 'Luxury sex toys in Lebanon, curated for quality. Premium vibrators, dildos & lingerie. Discreet same-day delivery, cash on delivery.',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon, Sex Toys & Lingerie' }],
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Toys Lebanon, Sex Toys & Lingerie' }],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@vexastore',
+    site: '@vexatoys',
     images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
@@ -38,9 +38,9 @@ const BASE = 'https://vexatoys.com';
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'Organization', '@id': `${BASE}/#organization`, name: 'Vexa Store Lebanon', url: BASE,
+    { '@type': 'Organization', '@id': `${BASE}/#organization`, name: 'Vexa Toys Lebanon', url: BASE,
       logo: `${BASE}/vexa-logo.png` },
-    { '@type': 'WebSite', '@id': `${BASE}/#website`, name: 'Vexa Store Lebanon', url: BASE,
+    { '@type': 'WebSite', '@id': `${BASE}/#website`, name: 'Vexa Toys Lebanon', url: BASE,
       publisher: { '@id': `${BASE}/#organization` } },
   ],
 };

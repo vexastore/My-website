@@ -6,20 +6,20 @@ import { getStoreLocale } from '@/lib/storeLocale';
 import { BlogHeader } from '@/src/components/BlogHeader';
 
 const baseMetadata: Metadata = {
-  title: { absolute: 'Blog – Sex Toys & Intimacy Guides Lebanon | Vexa Store' },
-  description: 'Expert guides, tips, and advice on intimate products, relationships, and sexual wellness in Lebanon. Vexa Store Blog.',
+  title: { absolute: 'Blog – Sex Toys & Intimacy Guides Lebanon | Vexa Toys' },
+  description: 'Expert guides, tips, and advice on intimate products, relationships, and sexual wellness in Lebanon. Vexa Toys Blog.',
   alternates: { canonical: 'https://vexatoys.com/blog' },
   openGraph: {
-    title: 'Blog – Intimacy Guides Lebanon | Vexa Store',
+    title: 'Blog – Intimacy Guides Lebanon | Vexa Toys',
     description: 'Expert guides on intimate products, relationships, and sexual wellness in Lebanon.',
     url: 'https://vexatoys.com/blog',
-    siteName: 'Vexa Store Lebanon',
+    siteName: 'Vexa Toys Lebanon',
     type: 'website',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Store Lebanon Blog' }],
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Toys Lebanon Blog' }],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@vexastore',
+    site: '@vexatoys',
     images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true },
@@ -35,12 +35,12 @@ export async function generateMetadata(): Promise<Metadata> {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Blog',
-  name: 'Vexa Store Lebanon Blog',
+  name: 'Vexa Toys Lebanon Blog',
   url: 'https://vexatoys.com/blog',
   description: 'Expert guides, tips, and advice on intimate products, relationships, and sexual wellness in Lebanon.',
   publisher: {
     '@type': 'Organization',
-    name: 'Vexa Store Lebanon',
+    name: 'Vexa Toys Lebanon',
     url: 'https://vexatoys.com',
   },
 };
@@ -61,7 +61,7 @@ export default async function BlogIndex() {
         {/* Hero */}
         <div className="border-b border-white/10 bg-black/40">
           <div className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-purple-400 mb-3">Vexa Store</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-purple-400 mb-3">Vexa Toys</p>
             <h1 className="text-3xl sm:text-4xl font-black text-white mb-4">
               {ar ? 'المدونة والأدلة' : 'Blog & Guides'}
             </h1>

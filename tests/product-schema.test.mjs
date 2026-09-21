@@ -87,7 +87,7 @@ test('generateProductJsonLd contains valid aggregateRating and review for GSC co
   }
 
   // Brand & offers checks
-  assert.deepEqual(productEntity.brand, { '@type': 'Brand', name: 'Vexa Store Lebanon' });
+  assert.deepEqual(productEntity.brand, { '@type': 'Brand', name: 'Vexa Toys Lebanon' });
   assert.ok(productEntity.offers);
   assert.equal(productEntity.offers['@type'], 'Offer');
   assert.equal(productEntity.offers.priceCurrency, 'USD');

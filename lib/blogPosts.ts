@@ -106,7 +106,7 @@ When choosing a vibrator, always look for body-safe materials:
 
 ## Buying in Lebanon: What to Expect
 
-At Vexa Store Lebanon, all vibrators are:
+At Vexa Toys Lebanon, all vibrators are:
 - 100% body-safe and certified
 - Shipped in plain, unmarked boxes
 - Available with cash on delivery
@@ -164,7 +164,7 @@ Start with a mid-range option if you're a beginner, and don't hesitate to contac
 - توصيل في نفس اليوم في بيروت
     `,
     publishedAt: '2025-01-15',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 6,
     keywords: ['vibrator guide', 'vibrators lebanon', 'sex toys guide', 'buy vibrator lebanon'],
     keywordsAr: ['دليل الهزازات', 'هزازات في لبنان', 'ألعاب زوجية', 'شراء هزاز في لبنان'],
@@ -274,7 +274,7 @@ Small, consistent actions build the deepest intimacy. Start with one item from t
 الأفعال الصغيرة والمتسقة تبني أعمق الروابط. ابدأ بعنصر واحد من هذه القائمة اليوم.
     `,
     publishedAt: '2025-02-10',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 5,
     keywords: ['couples intimacy', 'relationship tips lebanon', 'deepen connection couple'],
     keywordsAr: ['حميمية الأزواج', 'نصائح العلاقات لبنان', 'تعميق الارتباط'],
@@ -422,7 +422,7 @@ Proper storage extends the life of your products significantly:
 - **بعد التخزين (إذا تم تخزينه لفترة طويلة)**: موصى به
     `,
     publishedAt: '2025-03-01',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 5,
     keywords: ['clean sex toys', 'intimate products care', 'toy cleaning guide lebanon'],
     keywordsAr: ['تنظيف ألعاب جنسية', 'العناية بالمنتجات الحميمة', 'دليل تنظيف الألعاب لبنان'],
@@ -509,7 +509,7 @@ When evaluating lingerie quality, check:
 
 ## Shopping in Lebanon
 
-At Vexa Store Lebanon, all lingerie is:
+At Vexa Toys Lebanon, all lingerie is:
 - Shipped in completely plain packaging
 - Available in multiple sizes
 - Delivered same-day in Beirut
@@ -588,7 +588,7 @@ At Vexa Store Lebanon, all lingerie is:
 - الدفع عند الاستلام (لا حاجة للدفع الإلكتروني)
     `,
     publishedAt: '2025-03-20',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 6,
     keywords: ['lingerie guide', 'buy lingerie lebanon', 'lingerie sizes beirut'],
     keywordsAr: ['دليل اللانجري', 'شراء لانجري في لبنان', 'مقاسات اللانجري بيروت'],
@@ -776,7 +776,7 @@ Always patch test a new lubricant on your inner wrist before use.
 5. تحقق من تواريخ انتهاء الصلاحية, مواد التشحيم المنتهية يمكن أن تسبب التهابات
     `,
     publishedAt: '2025-04-05',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 7,
     keywords: ['lubricant guide', 'lube types', 'water based lubricant lebanon', 'safe lubricant'],
     keywordsAr: ['دليل المزلقات', 'أنواع المزلقات', 'مزلق مائي في لبنان', 'مزلق آمن'],
@@ -868,7 +868,7 @@ For beginners, start with:
 - **Massage candles**: Warm wax play with low-temp candles specifically designed for this
 - **Light paddle or flogger**: For those curious about impact play
 
-All available at Vexa Store Lebanon with discreet delivery.
+All available at Vexa Toys Lebanon with discreet delivery.
     `,
     contentAr: `
 ## ما هو BDSM؟
@@ -951,7 +951,7 @@ BDSM اختصار لـ Bondage & Discipline, Dominance & Submission, Sadism & Ma
 جميعها متوفرة في متجر فيكسا لبنان مع توصيل سري.
     `,
     publishedAt: '2025-04-15',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 8,
     keywords: ['bdsm beginners guide', 'bdsm safe', 'bdsm lebanon', 'bondage guide'],
     keywordsAr: ['دليل BDSM للمبتدئين', 'BDSM آمن', 'BDSM في لبنان', 'دليل التقييد'],
@@ -969,7 +969,7 @@ BDSM اختصار لـ Bondage & Discipline, Dominance & Submission, Sadism & Ma
     content: `
 ## Why Intimate Gifts Are the Best Couples Gifts
 
-Giving your partner something personal and intimate tells them you care about your shared life, not just the surface. In Lebanon, where discretion matters, Vexa Store ships everything in plain sealed boxes with no branding, making it easy to surprise your partner without anyone knowing.
+Giving your partner something personal and intimate tells them you care about your shared life, not just the surface. In Lebanon, where discretion matters, Vexa Toys ships everything in plain sealed boxes with no branding, making it easy to surprise your partner without anyone knowing.
 
 ## Top 15 Couples Gift Ideas in Lebanon
 
@@ -982,7 +982,7 @@ Start simple. A quality massage oil sets the mood and requires nothing but your 
 Elegant and versatile. A silk blindfold adds an element of surprise to any evening. Lightweight, packable, and very easy to use.
 
 **3. Mini Bullet Vibrator**
-Compact, quiet, and beginner-friendly. A mini bullet vibrator is one of the most popular first-time purchases at Vexa Store Lebanon, and for good reason.
+Compact, quiet, and beginner-friendly. A mini bullet vibrator is one of the most popular first-time purchases at Vexa Toys Lebanon, and for good reason.
 
 ### Budget: 50,000–150,000 LBP
 
@@ -1015,7 +1015,7 @@ Body-safe, realistic, and elegant. A premium silicone dildo is a lasting gift, t
 High-tech couples toys connect via Bluetooth to a smartphone app. Partner controls vibration intensity, patterns, and timing. Ideal for tech-savvy couples or long-distance partners.
 
 **12. Full Lingerie + Toy Bundle**
-Combine a luxury lingerie set with a matching intimate toy for a complete experience. Vexa Store can suggest pairings based on your preferences, contact us on WhatsApp.
+Combine a luxury lingerie set with a matching intimate toy for a complete experience. Vexa Toys can suggest pairings based on your preferences, contact us on WhatsApp.
 
 **13. Bondage Furniture Set**
 For couples who are ready to invest in their bedroom experience: padded restraint sets and positioning gear that add a new dimension to intimacy.
@@ -1024,7 +1024,7 @@ For couples who are ready to invest in their bedroom experience: padded restrain
 Designed to be worn during intimacy and controlled by either partner. Hands-free, rechargeable, and discreet enough to wear in other settings too.
 
 **15. Premium Couples Experience Box**
-Vexa Store's curated luxury boxes include five or more premium products, lubricants, vibrator, restraints, lingerie voucher, and more. The ultimate couples gift.
+Vexa Toys's curated luxury boxes include five or more premium products, lubricants, vibrator, restraints, lingerie voucher, and more. The ultimate couples gift.
 
 ## How to Order Discreetly in Lebanon
 
@@ -1117,7 +1117,7 @@ We offer exchange on unopened products within 7 days. Contact our WhatsApp suppo
 `,
     publishedAt: '2026-07-15',
     updatedAt: '2026-08-02',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 7,
     keywords: ['couples gift lebanon', 'gift ideas beirut', 'intimate gifts lebanon', 'couples toys gift', 'lingerie gift lebanon', 'valentines gift beirut'],
     keywordsAr: ['هدايا للأزواج لبنان', 'هدايا رومانسية بيروت', 'هدايا حميمية لبنان', 'أفكار هدايا للأزواج', 'هدية مميزة للزوجة'],
@@ -1137,15 +1137,15 @@ We offer exchange on unopened products within 7 days. Contact our WhatsApp suppo
 
 Lebanon's close-knit social culture makes privacy a genuine concern for many shoppers. Whether you live with family, in a shared apartment, or simply value discretion, buying adult products privately is entirely possible when you know how.
 
-This guide explains exactly what happens from checkout to doorstep at Vexa Store Lebanon.
+This guide explains exactly what happens from checkout to doorstep at Vexa Toys Lebanon.
 
 ## The Packaging: What the Box Looks Like
 
 **Outside the box:**
 - Plain brown or white cardboard, no logos, no branding
 - No text indicating the contents
-- No "Vexa Store" or any adult-related text on the label
-- Sender name on the waybill is a generic business name, not "Vexa Store"
+- No "Vexa Toys" or any adult-related text on the label
+- Sender name on the waybill is a generic business name, not "Vexa Toys"
 - Completely sealed with tape on all sides
 
 **Inside the box:**
@@ -1167,7 +1167,7 @@ The transaction takes under two minutes. The rider has no knowledge of the box c
 
 ## Payment: Cash Only, No Traces
 
-All orders at Vexa Store Lebanon are cash on delivery. This means:
+All orders at Vexa Toys Lebanon are cash on delivery. This means:
 
 - **No bank statement record** of an adult purchase
 - **No credit card history** showing the transaction
@@ -1180,7 +1180,7 @@ For those who share bank accounts or live with partners who check statements, CO
 
 - **WhatsApp conversation**: Standard WhatsApp messages. Delete them after ordering if preferred.
 - **Order confirmation**: Sent to your phone number. No personal account is created unless you register.
-- **Vexa Store does not share customer data** with any third party, government body, or partner company.
+- **Vexa Toys does not share customer data** with any third party, government body, or partner company.
 
 ## Tips for Maximum Discretion
 
@@ -1194,14 +1194,14 @@ Office, car park, friend's address, delivery can go anywhere in Lebanon. Just sp
 The waybill only needs a delivery name and phone number. Using a nickname or first name is fine.
 
 **Tip 4: Delete WhatsApp chat after delivery**
-WhatsApp chats are stored locally on your device. You can delete the Vexa Store conversation thread after your order arrives.
+WhatsApp chats are stored locally on your device. You can delete the Vexa Toys conversation thread after your order arrives.
 
 **Tip 5: Guest checkout**
 You do not need to create an account. Guest checkout leaves no login trail.
 
 ## Frequently Asked Questions
 
-**Will Vexa Store appear on my phone bill?**
+**Will Vexa Toys appear on my phone bill?**
 Phone calls and WhatsApp messages are standard communication, your telecom provider records the number but not the nature of the conversation. WhatsApp messages are end-to-end encrypted.
 
 **Can I pick up in person instead of delivery?**
@@ -1225,7 +1225,7 @@ Only for the duration of the order. Guest checkout data is not permanently store
 **من الخارج:**
 - كرتون بني أو أبيض عادي, بدون شعارات أو علامات تجارية
 - لا نص يدل على المحتويات
-- لا "Vexa Store" أو أي نص للبالغين على البطاقة
+- لا "Vexa Toys" أو أي نص للبالغين على البطاقة
 - اسم المُرسل على بوليصة الشحن اسم تجاري عام
 - مُحكم الإغلاق بالشريط من جميع الجوانب
 
@@ -1274,7 +1274,7 @@ Only for the duration of the order. Guest checkout data is not permanently store
 `,
     publishedAt: '2026-07-20',
     updatedAt: '2026-08-02',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 6,
     keywords: ['buy adult toys privately lebanon', 'discreet delivery lebanon', 'privacy online shopping lebanon', 'discreet packaging beirut', 'anonymous adult toy delivery'],
     keywordsAr: ['شراء ألعاب بالغين بسرية لبنان', 'توصيل سري لبنان', 'خصوصية التسوق الإلكتروني لبنان', 'تغليف سري بيروت'],
@@ -1370,7 +1370,7 @@ The environment sets the conditions. Conditions shape the experience.
 
 Research published in the Journal of Sexual Medicine found that couples who use intimate products together report significantly higher relationship satisfaction, better communication about physical needs, and greater physical confidence.
 
-At Vexa Store Lebanon, all products are available for discreet delivery, no account required, cash on delivery, plain packaging. Starting small (a couples massage oil or a single vibrator) is entirely sufficient.
+At Vexa Toys Lebanon, all products are available for discreet delivery, no account required, cash on delivery, plain packaging. Starting small (a couples massage oil or a single vibrator) is entirely sufficient.
 
 ## When to Seek Professional Support
 
@@ -1451,7 +1451,7 @@ If changes in intimacy are accompanied by emotional disconnection, resentment, o
 `,
     publishedAt: '2026-07-25',
     updatedAt: '2026-08-02',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 8,
     keywords: ['improve intimacy relationship', 'couples intimacy tips', 'relationship advice lebanon', 'intimacy long term relationship', 'couples connection tips'],
     keywordsAr: ['تحسين الحميمية في العلاقة', 'نصائح للأزواج', 'علاقة زوجية أفضل', 'حميمية في الزواج', 'نصائح العلاقة الزوجية'],
@@ -1492,7 +1492,7 @@ The conversation removes the element of surprise, which can land anywhere from d
 Zero barrier to entry. Enhances what you already do. Requires no explanation or instruction. Available from LBP 30,000.
 
 **Second choice: Small vibrator (bullet or egg)**
-The most purchased beginner item at Vexa Store Lebanon. Small, quiet, simple to use, and immediately clear in its purpose. Non-threatening size. Available from LBP 60,000.
+The most purchased beginner item at Vexa Toys Lebanon. Small, quiet, simple to use, and immediately clear in its purpose. Non-threatening size. Available from LBP 60,000.
 
 **Third choice: Couples dice or card game**
 For couples who want structure and novelty without a physical product. Prompts spontaneous activity in a low-pressure format.
@@ -1513,7 +1513,7 @@ Save realistic dildos and large insertables for after you've established comfort
 Bondage, restraints, and impact play require established trust, communication, and agreed boundaries. Not a starting point.
 
 **Avoid: Cheap materials**
-Products made from jelly, rubber, latex, or PVC are porous, they cannot be fully cleaned and harbor bacteria. Always buy silicone, ABS plastic, glass, or stainless steel. At Vexa Store, all products meet this standard.
+Products made from jelly, rubber, latex, or PVC are porous, they cannot be fully cleaned and harbor bacteria. Always buy silicone, ABS plastic, glass, or stainless steel. At Vexa Toys, all products meet this standard.
 
 **Avoid: Buying based on size alone**
 Bigger is not better, especially for beginners. Sensation comes from vibration pattern, material, and correct use, not size.
@@ -1545,7 +1545,7 @@ Store in a clean cloth pouch or the original box. Keep away from other materials
 
 ## Step 6: Ordering in Lebanon
 
-At Vexa Store Lebanon:
+At Vexa Toys Lebanon:
 - No account required, guest checkout available
 - All prices shown in USD, payable in Lebanese pounds at current rate
 - Cash on delivery, no credit card
@@ -1562,7 +1562,7 @@ Yes, completely. Awkward is almost universal. The awkwardness passes quickly, us
 Exchange unopened products within 7 days. For opened products, contact our WhatsApp team, we will find a solution.
 
 **Are the products really discreet?**
-Yes. The packaging, delivery, and payment process are designed specifically for the Lebanese context. Many Vexa Store customers live with family. Discretion is not an afterthought, it is the core service.
+Yes. The packaging, delivery, and payment process are designed specifically for the Lebanese context. Many Vexa Toys customers live with family. Discretion is not an afterthought, it is the core service.
 `,
     contentAr: `
 ## البداية: أهم شيء أولاً
@@ -1639,7 +1639,7 @@ Yes. The packaging, delivery, and payment process are designed specifically for 
 `,
     publishedAt: '2026-08-01',
     updatedAt: '2026-08-02',
-    author: 'Vexa Store Team',
+    author: 'Vexa Toys Team',
     readingTime: 9,
     keywords: ['beginner adult toys couples', 'first adult toy lebanon', 'couples toys guide beginners', 'how to start using sex toys', 'adult toys beginners guide lebanon'],
     keywordsAr: ['ألعاب زوجية للمبتدئين لبنان', 'أول لعبة للبالغين', 'دليل المبتدئين ألعاب زوجية', 'كيف أبدأ مع ألعاب البالغين', 'ألعاب زوجية بيروت'],

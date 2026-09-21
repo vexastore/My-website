@@ -51,7 +51,7 @@ export function generateProductJsonLd(
     (isArabic ? product.description : product.descriptionEn) ||
     product.description ||
     product.descriptionEn ||
-    `Shop ${productName} in Lebanon at Vexa Store. Discreet packaging & cash on delivery.`
+    `Shop ${productName} in Lebanon at Vexa Toys. Discreet packaging & cash on delivery.`
   )
     .replace(/\s+/g, ' ')
     .trim()
@@ -80,7 +80,7 @@ export function generateProductJsonLd(
     ...(sku ? { sku } : {}),
     brand: {
       '@type': 'Brand',
-      name: 'Vexa Store Lebanon',
+      name: 'Vexa Toys Lebanon',
     },
     hasAdultConsideration: 'https://schema.org/SexualContentConsideration',
     ...(aggregateRating ? { aggregateRating } : {}),
@@ -116,7 +116,7 @@ export function generateProductJsonLd(
         : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
-        name: 'Vexa Store Lebanon',
+        name: 'Vexa Toys Lebanon',
         url: SITE_BASE_URL,
       },
       shippingDetails: {
@@ -166,7 +166,7 @@ export function generateProductJsonLd(
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Vexa Store',
+            name: 'Vexa Toys',
             item: SITE_BASE_URL,
           },
           {

@@ -145,7 +145,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "reviewsCount": 4
   },
   {
-    "descriptionEn": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Store.",
+    "descriptionEn": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Toys.",
     "link": "https://vexatoys.com/sexual-enhancers/viagra50mg",
     "images": [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-3NRRJJDJU/img-0-zUK7weFJ130xQmGzzHAAyUlqOovoku.jpg",
@@ -161,7 +161,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "isNew": true,
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-3NRRJJDJU/img-0-zUK7weFJ130xQmGzzHAAyUlqOovoku.jpg",
     "categorySlug": "sexual-enhancers",
-    "description": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Store.",
+    "description": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Toys.",
     "reviewsCount": 4,
     "id": "prod-3NRRJJDJU",
     "name": "Viagra_50mg",
@@ -206,14 +206,14 @@ export const STATIC_PRODUCTS: Product[] = [
     ]
   },
   {
-    "nameEn": "Lubricants in Lebanon | Intimate Lubricant Collection - Vexa Store",
+    "nameEn": "Lubricants in Lebanon | Intimate Lubricant Collection - Vexa Toys",
     "rating": 5,
     "slug": "lubricants-in-lebanon-intimate-lubricant-collection-vexa-sto",
-    "name": "Lubricants in Lebanon | Intimate Lubricant Collection - Vexa Store",
+    "name": "Lubricants in Lebanon | Intimate Lubricant Collection - Vexa Toys",
     "id": "prod-4N38Z446F",
     "categorySlug": "sex-toys",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-4N38Z446F/img-0-1EtN2WyO1vuvQJwA6WTRMYQseiyqXk.jpg",
-    "description": "High-quality intimate lubricants in Lebanon for smooth and comfortable experience. Safe, body-friendly formulas with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Store.",
+    "description": "High-quality intimate lubricants in Lebanon for smooth and comfortable experience. Safe, body-friendly formulas with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Toys.",
     "reviewsCount": 8,
     "isNew": true,
     "price": 7,
@@ -227,7 +227,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "Sex Toys",
       "Lubricants"
     ],
-    "descriptionEn": "High-quality intimate lubricants in Lebanon for smooth and comfortable experience. Safe, body-friendly formulas with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Store.",
+    "descriptionEn": "High-quality intimate lubricants in Lebanon for smooth and comfortable experience. Safe, body-friendly formulas with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Toys.",
     "link": "https://vexatoys.com/sex-toys/lubricants-in-lebanon-intimate-lubricant-collection-vexa-sto"
   },
   {
@@ -344,14 +344,14 @@ export const STATIC_PRODUCTS: Product[] = [
   },
   {
     "rating": 5,
-    "nameEn": "Men’s Wellness & Vitality Products in Lebanon | Vexa Store",
+    "nameEn": "Men’s Wellness & Vitality Products in Lebanon | Vexa Toys",
     "slug": "mens-wellness-vitality-products-in-lebanon-vexa-store",
     "id": "prod-8A6OWLC96",
-    "name": "Men’s Wellness & Vitality Products in Lebanon | Vexa Store",
+    "name": "Men’s Wellness & Vitality Products in Lebanon | Vexa Toys",
     "image": "",
     "categorySlug": "sex-toys",
     "reviewsCount": 5,
-    "description": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Store.",
+    "description": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Toys.",
     "isNew": true,
     "price": 10,
     "category": "Sex Toys",
@@ -362,7 +362,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "Sex Toys",
       "Sexual Enhancers"
     ],
-    "descriptionEn": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Store.",
+    "descriptionEn": "Discover men’s wellness and vitality products in Lebanon designed to support confidence, energy, and intimate wellbeing. Discreet packaging with fast delivery across Beirut and all regions. Shop privately at Vexa Toys.",
     "link": "https://vexatoys.com/sex-toys/mens-wellness-vitality-products-in-lebanon-vexa-store"
   },
   {
@@ -674,7 +674,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "reviewsCount": 10,
     "price": 45,
     "variants": [],
-    "name": "Poppers in Lebanon | Intimate Relaxation Products - Vexa Store",
+    "name": "Poppers in Lebanon | Intimate Relaxation Products - Vexa Toys",
     "slug": "poppers-in-lebanon-intimate-relaxation-products-vexa-store",
     "category": "Poppers",
     "stock": 0,
@@ -685,13 +685,13 @@ export const STATIC_PRODUCTS: Product[] = [
     "categories": [
       "Poppers"
     ],
-    "description": "High-quality poppers in Lebanon for enhanced intimate experience and relaxation. Discreet packaging with fast delivery in Beirut and all regions. Shop safely and privately at Vexa Store.",
-    "descriptionEn": "High-quality poppers in Lebanon for enhanced intimate experience and relaxation. Discreet packaging with fast delivery in Beirut and all regions. Shop safely and privately at Vexa Store.",
+    "description": "High-quality poppers in Lebanon for enhanced intimate experience and relaxation. Discreet packaging with fast delivery in Beirut and all regions. Shop safely and privately at Vexa Toys.",
+    "descriptionEn": "High-quality poppers in Lebanon for enhanced intimate experience and relaxation. Discreet packaging with fast delivery in Beirut and all regions. Shop safely and privately at Vexa Toys.",
     "images": [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-D056P0QP3/img-0-u5Ecop2IZYFnVc8ZG1xE4tXZzMU8OT.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-D056P0QP3/img-1-I9fqqk8Ds2KcKfJwwgU9END3MFcN7u.jpg"
     ],
-    "nameEn": "Poppers in Lebanon | Intimate Relaxation Products - Vexa Store",
+    "nameEn": "Poppers in Lebanon | Intimate Relaxation Products - Vexa Toys",
     "rating": 5,
     "categorySlug": "poppers"
   },
@@ -1427,7 +1427,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "description": "Premium realistic dildo designed with ultra-detailed anatomy, lifelike texture, and natural shape for an authentic feel. Made from high-quality body-safe silicone with a firm yet flexible structure for comfortable and controlled use.\nEngineered for realism and durability, it features a smooth surface, detailed contours, and a weighted feel to enhance natural motion and sensation. Suitable for solo use or strap-on harness compatibility, offering a more immersive and realistic experience for advanced pleasure exploration."
   },
   {
-    "name": "Luxury Lingerie in Lebanon | Lingerie Collection - Vexa Store",
+    "name": "Luxury Lingerie in Lebanon | Lingerie Collection - Vexa Toys",
     "link": "https://vexatoys.com/sex-toys/luxury-lingerie-in-lebanon-lingerie-collection-vexa-store",
     "categorySlug": "sex-toys",
     "slug": "luxury-lingerie-in-lebanon-lingerie-collection-vexa-store",
@@ -1436,15 +1436,15 @@ export const STATIC_PRODUCTS: Product[] = [
     "price": 8,
     "isNew": true,
     "variants": [],
-    "description": "Luxury and elegant lingerie in Lebanon with stylish and comfortable designs. A wide collection for every taste with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Store",
+    "description": "Luxury and elegant lingerie in Lebanon with stylish and comfortable designs. A wide collection for every taste with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Toys",
     "categories": [
       "Sex Toys",
       "Lingerie"
     ],
-    "descriptionEn": "Luxury and elegant lingerie in Lebanon with stylish and comfortable designs. A wide collection for every taste with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Store",
+    "descriptionEn": "Luxury and elegant lingerie in Lebanon with stylish and comfortable designs. A wide collection for every taste with discreet and fast delivery in Beirut and all regions. Shop now at Vexa Toys",
     "reviewsCount": 10,
     "stock": 0,
-    "nameEn": "Luxury Lingerie in Lebanon | Lingerie Collection - Vexa Store",
+    "nameEn": "Luxury Lingerie in Lebanon | Lingerie Collection - Vexa Toys",
     "rating": 5,
     "image": "https://vexatoys.com/opengraph.jpg",
     "id": "prod-P1DIVLKTJ"

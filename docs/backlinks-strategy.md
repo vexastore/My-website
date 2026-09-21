@@ -1,4 +1,4 @@
-# دليل الـ Backlinks — Vexa Store Lebanon
+# دليل الـ Backlinks — Vexa Toys Lebanon
 # Backlink Outreach Strategy — vexatoys.com
 
 > آخر تحديث: أغسطس 2026 | تم إنشاؤه تلقائياً بناءً على تحليل الموقع
@@ -51,7 +51,7 @@
 | Laha Magazine (لها) | مرأة عربية | مقال عن الصحة الزوجية والعلاقات |
 | Sayidaty (سيدتي) | مرأة عربية | مقال عن الحياة الزوجية |
 | Huffington Post Arabia | عربي واسع | تحقيق عن التجارة الإلكترونية في الشرق الأوسط |
-| Entrepreneur Arabic | رواد أعمال عرب | قصة نجاح Vexa Store |
+| Entrepreneur Arabic | رواد أعمال عرب | قصة نجاح Vexa Toys |
 
 **قالب رسالة Guest Post (عربي):**
 ```
@@ -106,11 +106,11 @@
 
 **قالب طلب المراجعة (إنجليزي):**
 ```
-Subject: Press Inquiry — Vexa Store Lebanon (Adult Toy Retailer)
+Subject: Press Inquiry — Vexa Toys Lebanon (Adult Toy Retailer)
 
 Hi [Name],
 
-Vexa Store (vexatoys.com) is Lebanon's leading adult toy retailer —
+Vexa Toys (vexatoys.com) is Lebanon's leading adult toy retailer —
 1,900+ customers, same-day discreet delivery, cash on delivery.
 
 We're the first established adult store serving Lebanon's 6M+ population
@@ -124,7 +124,7 @@ We'd love to be featured in your [section name]. Happy to provide:
 Would you be open to a 15-minute intro call?
 
 Best,
-Vexa Store Team
+Vexa Toys Team
 ```
 
 ---
@@ -133,7 +133,7 @@ Vexa Store Team
 
 ### ✅ Google My Business (أهم واحد — مجاني — DA عالي جداً)
 1. اذهب لـ https://business.google.com
-2. أضف "Vexa Store Lebanon" كنشاط تجاري
+2. أضف "Vexa Toys Lebanon" كنشاط تجاري
 3. اختر فئة: "Adult Store" أو "Online Retailer"
 4. أضف العنوان في بيروت + رقم الهاتف + الموقع
 5. اطلب من العملاء تقييمات Google
@@ -154,7 +154,7 @@ Vexa Store Team
 - Instagram backlink = DA 93
 
 ### ✅ LinkedIn Company Page
-- أنشئ صفحة شركة Vexa Store
+- أنشئ صفحة شركة Vexa Toys
 - LinkedIn backlink = DA 98
 
 ---
@@ -176,7 +176,7 @@ Vexa Store Team
 - ❌ شراء backlinks من مواقع spam
 - ❌ Link exchanges مع مواقع غير ذات صلة
 - ❌ إضافة موقعك لـ 50 directory في يوم واحد (Google يلاحظ)
-- ❌ نص anchor مكرر (استخدم تنويع: "vexatoys.com"، "متجر فيكسا"، "Vexa Store Lebanon"، "هنا")
+- ❌ نص anchor مكرر (استخدم تنويع: "vexatoys.com"، "متجر فيكسا"، "Vexa Toys Lebanon"، "هنا")
 
 ---
 

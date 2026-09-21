@@ -6,7 +6,7 @@ export const FloatingWhatsApp: React.FC = () => {
   const text = encodeURIComponent(
     language === 'ar'
       ? 'مرحباً متجر فيكسا، أحتاج مساعدة بخصوص طلب أو منتج.'
-      : 'Hello Vexa Store, I need help with an order or product inquiry.'
+      : 'Hello Vexa Toys, I need help with an order or product inquiry.'
   );
 
   return (

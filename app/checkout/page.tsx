@@ -3,7 +3,7 @@ import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 
 export const metadata: Metadata = {
-  title: 'Checkout | Vexa Store',
+  title: 'Checkout | Vexa Toys',
   robots: { index: false, follow: false },
 };
 

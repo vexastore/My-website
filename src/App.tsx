@@ -222,7 +222,7 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
 
           {/* Bottom Copyright & Legal Links */}
           <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-stone-400">
-            <p>© {new Date().getFullYear()} Vexa Store Lebanon. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Vexa Toys Lebanon. All rights reserved.</p>
             <div className="flex items-center gap-5 font-medium">
               <a
                 href="/about"

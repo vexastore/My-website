@@ -3,14 +3,14 @@ import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 
 const baseMetadata: Metadata = {
-  title: 'About Vexa Store | Intimate Wellness Lebanon',
-  description: 'Learn about Vexa Store in Lebanon, its product categories, discreet packaging, and cash on delivery.',
+  title: 'About Vexa Toys | Intimate Wellness Lebanon',
+  description: 'Learn about Vexa Toys in Lebanon, its product categories, discreet packaging, and cash on delivery.',
   alternates: { canonical: 'https://vexatoys.com/about' },
   openGraph: {
-    title: 'About Vexa Store | Intimate Wellness Lebanon',
-    description: 'Learn about Vexa Store in Lebanon, its product categories, discreet packaging, and cash on delivery.',
+    title: 'About Vexa Toys | Intimate Wellness Lebanon',
+    description: 'Learn about Vexa Toys in Lebanon, its product categories, discreet packaging, and cash on delivery.',
     url: 'https://vexatoys.com/about',
-    siteName: 'Vexa Store Lebanon',
+    siteName: 'Vexa Toys Lebanon',
     type: 'website',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630 }],
   },
@@ -27,13 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'AboutPage',
-  name: 'About Vexa Store Lebanon',
+  name: 'About Vexa Toys Lebanon',
   url: 'https://vexatoys.com/about',
-  description: 'About Vexa Store in Lebanon, its product categories and ordering options.',
+  description: 'About Vexa Toys in Lebanon, its product categories and ordering options.',
   breadcrumb: {
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
+      { '@type': 'ListItem', position: 1, name: 'Vexa Toys', item: 'https://vexatoys.com' },
       { '@type': 'ListItem', position: 2, name: 'About Us', item: 'https://vexatoys.com/about' },
     ],
   },

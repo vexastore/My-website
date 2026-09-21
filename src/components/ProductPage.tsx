@@ -68,7 +68,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     const productName = product.nameEn || product.name || '';
 
     // ── Meta tags ──
-    const title = `${productName} | Vexa Store Lebanon`;
+    const title = `${productName} | Vexa Toys Lebanon`;
     document.title = title;
     const desc = `${productName}, ${product.price.toFixed(2)} USD, ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
@@ -80,7 +80,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     document.querySelector('meta[property="og:image"]')?.setAttribute('content', ogImg);
 
     // Twitter Card meta tags
-    document.querySelector('meta[name="twitter:site"]')?.setAttribute('content', '@vexastore');
+    document.querySelector('meta[name="twitter:site"]')?.setAttribute('content', '@vexatoys');
     document.querySelector('meta[name="twitter:title"]')?.setAttribute('content', title);
     document.querySelector('meta[name="twitter:description"]')?.setAttribute('content', desc);
     document.querySelector('meta[name="twitter:image"]')?.setAttribute('content', ogImg);
@@ -165,7 +165,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     const name = isArabic ? (product.name || product.nameEn) : (product.nameEn || product.name);
     const msg   = isArabic
       ? `مرحباً متجر فيكسا، لدي استفسار عن هذا المنتج:\n*${name}*\nhttps://vexatoys.com${productUrl}`
-      : `Hello Vexa Store, I have a question about this product:\n*${name}*\nhttps://vexatoys.com${productUrl}`;
+      : `Hello Vexa Toys, I have a question about this product:\n*${name}*\nhttps://vexatoys.com${productUrl}`;
     window.open('https://wa.me/96176730767?text=' + encodeURIComponent(msg), '_blank');
   };
 

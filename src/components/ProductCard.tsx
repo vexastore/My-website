@@ -207,7 +207,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center bg-stone-900 text-stone-600 text-xs font-semibold">
-              {isArabic ? 'صورة المنتج' : 'Vexa Store'}
+              {isArabic ? 'صورة المنتج' : 'Vexa Toys'}
             </div>
           )}
         </div>

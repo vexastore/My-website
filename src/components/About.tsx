@@ -10,7 +10,7 @@ export const About: React.FC = () => {
     {
       icon: <Lock size={24} className="text-indigo-400" />,
       ar: { title: 'خصوصية مطلقة 100%', body: 'كل طلب يُشحن في كرتون عادي مغلق بالكامل بدون أي إشارة إلى محتواه أو اسم المتجر. خصوصيتك هي أولويتنا الأولى في متجر فيكسا.' },
-      en: { title: '100% Discreet Packaging', body: 'Every order ships in a plain sealed box with zero indication of its contents or our store name. Your privacy is our top priority at Vexa Store Lebanon.' }
+      en: { title: '100% Discreet Packaging', body: 'Every order ships in a plain sealed box with zero indication of its contents or our store name. Your privacy is our top priority at Vexa Toys Lebanon.' }
     },
     {
       icon: <Truck size={24} className="text-emerald-400" />,
@@ -63,17 +63,17 @@ export const About: React.FC = () => {
 
         <div className="relative z-10 mx-auto max-w-3xl">
           <p className="mb-4 text-[10px] font-black uppercase tracking-[0.4em] text-[#ff2d78]">
-            {isArabic ? 'عن متجر فيكسا' : 'About Vexa Store Lebanon'}
+            {isArabic ? 'عن متجر فيكسا' : 'About Vexa Toys Lebanon'}
           </p>
           <h2 className="text-3xl font-black uppercase tracking-[0.08em] text-white sm:text-5xl">
             {isArabic
               ? 'متجر فيكسا, الوجهة الأولى للمنتجات الزوجية الفاخرة في لبنان'
-              : 'Vexa Store, Lebanon\'s #1 Destination for Discreet Adult Products'}
+              : 'Vexa Toys, Lebanon\'s #1 Destination for Discreet Adult Products'}
           </h2>
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-stone-300 sm:text-base">
             {isArabic
               ? 'متجر فيكسا هو المتجر الرائد والأكثر أماناً لشراء الألعاب الزوجية، الهزازات، اللانجري الفاخر، ومنتجات BDSM في لبنان. نوفر تجربة تسوق سرية 100% مع توصيل في نفس اليوم في بيروت وخلال 72 ساعة لكل المناطق اللبنانية.'
-              : 'Vexa Store is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. As a fully online sex shop in Lebanon and a discreet online adult store, we serve customers in Beirut and every Lebanese region, a 100% private shopping experience with same-day delivery in Beirut and within 72 hours nationwide, so you never need to visit a physical sex shop in Beirut to get what you want.'}
+              : 'Vexa Toys is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. As a fully online sex shop in Lebanon and a discreet online adult store, we serve customers in Beirut and every Lebanese region, a 100% private shopping experience with same-day delivery in Beirut and within 72 hours nationwide, so you never need to visit a physical sex shop in Beirut to get what you want.'}
           </p>
           <button
             onClick={() => setView('shop')}
@@ -90,7 +90,7 @@ export const About: React.FC = () => {
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
         <div className="mb-12 text-center">
           <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-[#ff2d78]">
-            {isArabic ? 'لماذا تختار متجر فيكسا؟' : 'Why Choose Vexa Store Lebanon?'}
+            {isArabic ? 'لماذا تختار متجر فيكسا؟' : 'Why Choose Vexa Toys Lebanon?'}
           </p>
           <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white sm:text-3xl">
             {isArabic
@@ -124,7 +124,7 @@ export const About: React.FC = () => {
           <h2 className="mb-6 text-2xl font-black uppercase tracking-[0.1em] text-white sm:text-3xl">
             {isArabic
               ? 'كيف بدأ متجر فيكسا في لبنان؟'
-              : 'How Vexa Store Started in Lebanon'}
+              : 'How Vexa Toys Started in Lebanon'}
           </h2>
           <div className="space-y-4 text-sm leading-8 text-stone-400">
             {isArabic ? (
@@ -142,7 +142,7 @@ export const About: React.FC = () => {
             ) : (
               <>
                 <p>
-                  Vexa Store was founded with one clear mission: to provide a completely safe and discreet shopping experience for couples and adults in Lebanon. In a market that lacked privacy and quality, we came to fill that gap.
+                  Vexa Toys was founded with one clear mission: to provide a completely safe and discreet shopping experience for couples and adults in Lebanon. In a market that lacked privacy and quality, we came to fill that gap.
                 </p>
                 <p>
                   We believe everyone deserves access to premium, body-safe adult products without fear of judgment or embarrassment. That's why we guarantee every order arrives in a plain sealed box, with cash on delivery, and a confidential support service.

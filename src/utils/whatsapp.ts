@@ -53,7 +53,7 @@ export function orderWhatsAppUrl(order: Order, locale: 'en' | 'ar' = 'en'): stri
   const delivery = order.deliveryFee ?? 0;
   const items = order.items.map(item => itemLines(item, arabic).join('\n')).join('\n\n');
   const message = arabic ? [
-    'طلب جديد — Vexa Store', '',
+    'طلب جديد — Vexa Toys', '',
     `رقم الطلب: ${order.id}`,
     `التاريخ: ${orderDate(order)}`, '',
     'العميل',
@@ -68,7 +68,7 @@ export function orderWhatsAppUrl(order: Order, locale: 'en' | 'ar' = 'en'): stri
     `التوصيل: ${money(delivery)}`,
     `المجموع: ${money(order.total)}`,
   ] : [
-    'New Order — Vexa Store', '',
+    'New Order — Vexa Toys', '',
     `Order: ${order.id}`,
     `Date: ${orderDate(order)}`, '',
     'Customer',

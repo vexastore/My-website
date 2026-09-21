@@ -91,7 +91,7 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: 'Product Not Found | Vexa Store',
+      title: 'Product Not Found | Vexa Toys',
       robots: {
         index: false,
         follow: false,
@@ -120,13 +120,13 @@ export async function generateMetadata({
   const sameNameCount = products.filter(item => (locale === 'ar' ? item.name : item.nameEn) === name).length;
   const priceLabel = `${product.price.toFixed(2)} ${product.currency || 'USD'}`;
   const title = (locale === 'ar' ? product.seoTitleAr : product.seoTitleEn) ||
-    `${name}${sameNameCount > 1 ? ` (${priceLabel})` : ''} | ${categoryLabel} | ${locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Store Lebanon'}`;
+    `${name}${sameNameCount > 1 ? ` (${priceLabel})` : ''} | ${categoryLabel} | ${locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Toys Lebanon'}`;
 
   const sourceDescription = ((locale === 'ar' ? product.description : product.descriptionEn) || product.description || '').replace(/\s+/g, ' ').trim();
   const listingName = sameNameCount > 1 ? `${name} (${product.slug.replaceAll('-', ' ')})` : name;
   const description = ((locale === 'ar' ? product.seoDescriptionAr : product.seoDescriptionEn) ||
     (sourceDescription ? `${listingName}. ${sourceDescription}` : '') ||
-    (locale === 'ar' ? `تسوق ${name} في لبنان من متجر فيكسا.` : `Shop ${name} in Lebanon at Vexa Store.`)).slice(0, 300);
+    (locale === 'ar' ? `تسوق ${name} في لبنان من متجر فيكسا.` : `Shop ${name} in Lebanon at Vexa Toys.`)).slice(0, 300);
 
   const canonical = `${SITE_BASE_URL}${canonicalProductPath(
     product
@@ -145,7 +145,7 @@ export async function generateMetadata({
       title,
       description,
       url: canonical,
-      siteName: 'Vexa Store Lebanon',
+      siteName: 'Vexa Toys Lebanon',
       locale: locale === 'ar' ? 'ar_LB' : 'en_US',
       type: 'website',
       images: [
@@ -160,7 +160,7 @@ export async function generateMetadata({
 
     twitter: {
       card: 'summary_large_image',
-      site: '@vexastore',
+      site: '@vexatoys',
       title,
       description,
       images: [image],

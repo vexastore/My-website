@@ -6,21 +6,21 @@ import { BlogHeader } from '@/src/components/BlogHeader';
 import { CATEGORY_META as STORE_CATEGORIES } from '@/lib/categoryMeta';
 
 const baseMetadata: Metadata = {
-  title: 'Find Your Perfect Toy | Vexa Store Lebanon',
-  description: 'Answer 3 quick questions and get a personalised product recommendation from Vexa Store Lebanon. Same-day discreet delivery in Beirut. Cash on delivery.',
+  title: 'Find Your Perfect Toy | Vexa Toys Lebanon',
+  description: 'Answer 3 quick questions and get a personalised product recommendation from Vexa Toys Lebanon. Same-day discreet delivery in Beirut. Cash on delivery.',
   alternates: { canonical: 'https://vexatoys.com/quiz' },
   openGraph: {
-    title: 'Find Your Perfect Toy | Vexa Store Lebanon',
+    title: 'Find Your Perfect Toy | Vexa Toys Lebanon',
     description: 'Answer 3 quick questions and get a personalised product recommendation. Discreet delivery across Lebanon.',
     url: 'https://vexatoys.com/quiz',
-    siteName: 'Vexa Store Lebanon',
+    siteName: 'Vexa Toys Lebanon',
     type: 'website',
     images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    site: '@vexastore',
-    title: 'Find Your Perfect Toy | Vexa Store Lebanon',
+    site: '@vexatoys',
+    title: 'Find Your Perfect Toy | Vexa Toys Lebanon',
     images: ['https://vexatoys.com/opengraph.jpg'],
   },
   robots: { index: true, follow: true },
@@ -36,13 +36,13 @@ export async function generateMetadata(): Promise<Metadata> {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebPage',
-  name: 'Find Your Perfect Toy, Vexa Store Lebanon',
+  name: 'Find Your Perfect Toy, Vexa Toys Lebanon',
   description: 'Interactive product recommendation quiz. Answer 3 questions to get personalised sex toy recommendations delivered discreetly in Lebanon.',
   url: 'https://vexatoys.com/quiz',
   breadcrumb: {
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
+      { '@type': 'ListItem', position: 1, name: 'Vexa Toys', item: 'https://vexatoys.com' },
       { '@type': 'ListItem', position: 2, name: 'Find Your Perfect Toy', item: 'https://vexatoys.com/quiz' },
     ],
   },
@@ -100,7 +100,7 @@ export default async function QuizPage() {
             {ar ? 'تسوق جميع الفئات' : 'Shop All Categories'}
           </h2>
           <p className="text-stone-400 text-sm mb-8 max-w-2xl">
-            {ar ? 'يقدم متجر فيكسا مجموعة واسعة من المنتجات في فئات متعددة. يصل كل طلب في صندوق عادي مغلق دون علامة تجارية، مع الدفع عند الاستلام في جميع أنحاء لبنان.' : 'Vexa Store Lebanon carries 500+ adult products across every category, including vibrators, dildos, male toys, lingerie, and more. Every order ships discreetly in a plain sealed box with no branding. Cash on delivery is available across Lebanon.'}
+            {ar ? 'يقدم متجر فيكسا مجموعة واسعة من المنتجات في فئات متعددة. يصل كل طلب في صندوق عادي مغلق دون علامة تجارية، مع الدفع عند الاستلام في جميع أنحاء لبنان.' : 'Vexa Toys Lebanon carries 500+ adult products across every category, including vibrators, dildos, male toys, lingerie, and more. Every order ships discreetly in a plain sealed box with no branding. Cash on delivery is available across Lebanon.'}
           </p>
 
           <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -126,7 +126,7 @@ export default async function QuizPage() {
             </p>
             <div className="flex flex-wrap gap-3 text-xs">
               <Link href="/sex-toys"      className="text-stone-400 hover:text-white transition">{ar ? 'كل المنتجات' : 'All Sex Toys Lebanon'}</Link>
-              <Link href="/about"         className="text-stone-400 hover:text-white transition">{ar ? 'عن متجر فيكسا' : 'About Vexa Store'}</Link>
+              <Link href="/about"         className="text-stone-400 hover:text-white transition">{ar ? 'عن متجر فيكسا' : 'About Vexa Toys'}</Link>
               <Link href="/blog"          className="text-stone-400 hover:text-white transition">{ar ? 'المدونة' : 'Product Guides Blog'}</Link>
               <Link href="/new-arrivals"  className="text-stone-400 hover:text-white transition">{ar ? 'وصل حديثاً' : 'New Arrivals'}</Link>
               <Link href="/blog/guides"   className="text-stone-400 hover:text-white transition">{ar ? 'أدلة الشراء' : 'Buying Guides'}</Link>

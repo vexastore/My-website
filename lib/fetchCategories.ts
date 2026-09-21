@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache';
+import { CACHE_KEYS, CACHE_TAGS } from './cacheVersion';
 import { displayCopy } from './displayCopy';
 
 export type PublicCategory = {
@@ -41,6 +42,6 @@ async function readCategories(): Promise<PublicCategory[]> {
   }));
 }
 
-export const fetchCategoriesServer = unstable_cache(readCategories, ['supabase-categories-seo-v1'], {
-  revalidate: 300, tags: ['vexa-categories'],
+export const fetchCategoriesServer = unstable_cache(readCategories, [CACHE_KEYS.CATEGORIES], {
+  revalidate: 300, tags: [CACHE_TAGS.CATEGORIES],
 });

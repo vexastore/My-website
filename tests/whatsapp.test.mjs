@@ -32,7 +32,7 @@ function message(order, locale = 'en') {
 
 test('English message follows the owner template with option SKU, image link, and totals', () => {
   assert.equal(message(sampleOrder), [
-    'New Order — Vexa Store', '',
+    'New Order — Vexa Toys', '',
     'Order: ORD-QNGU5VI1D',
     'Date: 16/09/2026 — 10:40', '',
     'Customer', 'Name: Charbel', 'Phone: +961 03 258 963',
@@ -47,7 +47,7 @@ test('English message follows the owner template with option SKU, image link, an
 
 test('Arabic message uses matching sections and the same product reference', () => {
   assert.equal(message(sampleOrder, 'ar'), [
-    'طلب جديد — Vexa Store', '',
+    'طلب جديد — Vexa Toys', '',
     'رقم الطلب: ORD-QNGU5VI1D',
     'التاريخ: 16/09/2026 — 10:40', '',
     'العميل', 'الاسم: Charbel', 'الهاتف: +961 03 258 963',

@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post || post.categorySlug !== blogCategory || !getBlogCategory(blogCategory)) return { robots: { index: false, follow: false } };
 
   const pageUrl = `https://vexatoys.com/blog/${blogCategory}/${slug}`;
-  const title = (ar ? post.seoTitleAr : post.seoTitleEn) || `${ar ? post.titleAr || post.title : post.title} | ${ar ? 'متجر فيكسا' : 'Vexa Store Lebanon'}`;
+  const title = (ar ? post.seoTitleAr : post.seoTitleEn) || `${ar ? post.titleAr || post.title : post.title} | ${ar ? 'متجر فيكسا' : 'Vexa Toys Lebanon'}`;
   const description = (ar ? post.seoDescriptionAr : post.seoDescriptionEn) || (ar ? post.excerptAr || post.excerpt : post.excerpt);
   const image = post.image || 'https://vexatoys.com/opengraph.jpg';
   return {
@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       locale: ar ? 'ar_LB' : 'en_US',
       url: pageUrl,
-      siteName: 'Vexa Store Lebanon',
+      siteName: 'Vexa Toys Lebanon',
       type: 'article',
       publishedTime: new Date(post.publishedAt).toISOString(),
       modifiedTime: new Date(post.updatedAt || post.publishedAt).toISOString(),
@@ -45,7 +45,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      site: '@vexastore',
+      site: '@vexatoys',
       title,
       description,
       images: [image],
@@ -214,7 +214,7 @@ export default async function BlogArticlePage({ params }: Props) {
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Vexa Store', item: 'https://vexatoys.com' },
+          { '@type': 'ListItem', position: 1, name: 'Vexa Toys', item: 'https://vexatoys.com' },
           { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://vexatoys.com/blog' },
           { '@type': 'ListItem', position: 3, name: ar ? cat.nameAr : cat.name, item: `https://vexatoys.com/blog/${blogCategory}` },
           { '@type': 'ListItem', position: 4, name: ar ? post.titleAr || post.title : post.title, item: pageUrl },
@@ -230,7 +230,7 @@ export default async function BlogArticlePage({ params }: Props) {
         author: { '@type': 'Organization', name: post.author },
         publisher: {
           '@type': 'Organization',
-          name: 'Vexa Store Lebanon',
+          name: 'Vexa Toys Lebanon',
           url: 'https://vexatoys.com',
           logo: { '@type': 'ImageObject', url: 'https://vexatoys.com/vexa-logo.png' },
         },
@@ -240,7 +240,7 @@ export default async function BlogArticlePage({ params }: Props) {
         inLanguage: locale,
         isPartOf: {
           '@type': 'Blog',
-          name: 'Vexa Store Lebanon Blog',
+          name: 'Vexa Toys Lebanon Blog',
           url: 'https://vexatoys.com/blog',
         },
       },

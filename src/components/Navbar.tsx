@@ -142,7 +142,7 @@ export const Navbar: React.FC = () => {
               href="/"
               onClick={openShopHome}
               className="flex flex-col select-none group"
-              aria-label="Vexa Store Home"
+              aria-label="Vexa Toys Home"
             >
               <span className="text-xl sm:text-2xl font-black tracking-wider text-[#ff2d78] group-hover:brightness-110 transition leading-none">
                 VEXA

@@ -236,7 +236,7 @@ export async function generateMetadata({
       title,
       description,
       url: pageUrl,
-      siteName: 'Vexa Store Lebanon',
+      siteName: 'Vexa Toys Lebanon',
       locale: locale === 'ar' ? 'ar_LB' : 'en_US',
       type: 'website',
 
@@ -252,7 +252,7 @@ export async function generateMetadata({
 
     twitter: {
       card: 'summary_large_image',
-      site: '@vexastore',
+      site: '@vexatoys',
       title,
       description,
       images: [DEFAULT_OG_IMAGE],
@@ -375,7 +375,7 @@ export default async function CategoryPage({
           {
             '@type': 'ListItem',
             position: 1,
-            name: 'Vexa Store',
+            name: 'Vexa Toys',
             item: SITE_BASE_URL,
           },
 
@@ -459,7 +459,7 @@ export default async function CategoryPage({
         seoHeading={locale === 'ar' ? meta.titleAr.split('|')[0].trim() : slug === 'dildos'
           ? 'Dildos in Lebanon | Premium Body-Safe Collection'
           : slug === 'sex-toys'
-            ? 'Sex Toys in Lebanon | Vexa Store Collection'
+            ? 'Sex Toys in Lebanon | Vexa Toys Collection'
             : undefined}
       />
 

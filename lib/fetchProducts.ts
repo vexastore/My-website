@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache';
+import { CACHE_KEYS, CACHE_TAGS } from './cacheVersion';
 import type { Product, ProductVariant } from '@/src/types';
 import { displayCopy } from './displayCopy';
 import { SLUG_TO_CATEGORY } from './categoryMeta';
@@ -87,6 +88,6 @@ export async function fetchPublishedProducts(): Promise<Product[]> {
 }
 
 // An unavailable database must never resurrect an archived product from static data.
-export const fetchProductsServer = unstable_cache(fetchPublishedProducts, ['supabase-products-v2'], {
-  revalidate: 300, tags: ['vexa-products'],
+export const fetchProductsServer = unstable_cache(fetchPublishedProducts, [CACHE_KEYS.PRODUCTS], {
+  revalidate: 300, tags: [CACHE_TAGS.PRODUCTS],
 });

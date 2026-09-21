@@ -233,7 +233,7 @@ async function main() {
   const backupFile = `migration-backup-${timestamp}.json`;
   const reportFile = `migration-report-${timestamp}.json`;
 
-  log('info', `=== Vexa Store Image Migration → Vercel Blob${DRY_RUN ? ' [DRY RUN]' : ''} ===`);
+  log('info', `=== Vexa Toys Image Migration → Vercel Blob${DRY_RUN ? ' [DRY RUN]' : ''} ===`);
 
   // ── PHASE 0: Check token ──────────────────────────────────────────────────
   log('info', '--- PHASE 0: Checking BLOB_READ_WRITE_TOKEN ---');

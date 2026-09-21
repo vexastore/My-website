@@ -373,6 +373,7 @@ Known limitations, technical debt, future improvements, breaking changes, and mi
 - Update the current day's worklog.
 - Run or generate tests for every affected feature.
 - Verify existing functionality has not regressed.
+- Verify and bump cache version in `lib/cacheVersion.ts` if data models, queries, schemas, or static content were modified.
 
 7. Whenever a new module or feature is introduced:
 
@@ -383,6 +384,13 @@ Known limitations, technical debt, future improvements, breaking changes, and mi
 - Update Testing.md
 - Update CHANGELOG.md
 - Update the current worklog
+
+8. Cache versioning:
+
+- All server and client cache keys and tags must derive from `lib/cacheVersion.ts`.
+- Whenever modifying data-fetching logic, queries, schemas, catalog/editorial models, or static data, agents MUST bump the cache version (`CACHE_VERSION` or individual keys in `CACHE_KEYS` in `lib/cacheVersion.ts`).
+- Never introduce unversioned cache keys in `unstable_cache` or `localStorage`.
+- Document every cache version bump in `CHANGELOG.md` and the current day's worklog.
 
 After each completed task, execute all unit tests for affected modules, all integration tests touching the modified components, and all relevant end-to-end tests for impacted user workflows. Run the complete E2E suite before major releases, milestone commits, or pull request completion.
 

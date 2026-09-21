@@ -1,4 +1,5 @@
 import { unstable_cache } from 'next/cache';
+import { CACHE_KEYS, CACHE_TAGS } from './cacheVersion';
 import { parseCategoryEditorial, type CategoryEditorial } from '@/src/utils/category-editorial';
 import { displayCopy } from './displayCopy';
 
@@ -17,7 +18,7 @@ async function fetchEditorial(slug: string): Promise<CategoryEditorial | null> {
   return editorial ? { guide: displayCopy(editorial.guide), faqs: editorial.faqs.map(faq => ({ q: displayCopy(faq.q), a: displayCopy(faq.a) })) } : null;
 }
 
-export const fetchCategoryEditorial = unstable_cache(fetchEditorial, ['category-editorial-v1'], {
+export const fetchCategoryEditorial = unstable_cache(fetchEditorial, [CACHE_KEYS.CATEGORY_EDITORIAL], {
   revalidate: 300,
-  tags: ['vexa-category-editorial'],
+  tags: [CACHE_TAGS.CATEGORY_EDITORIAL],
 });
