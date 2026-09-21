@@ -98,11 +98,9 @@ export const ProductList: React.FC = () => {
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               {searchQuery
                 ? (isArabic ? `نتائج البحث: "${searchQuery}"` : `Search Results: "${searchQuery}"`)
-                : activeCategory === ''
-                ? (isArabic ? 'المنتجات الأكثر مبيعاً' : 'Best Selling Sex Toys')
-                : seoHeading
-                ? seoHeading
-                : getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')}
+                : activeCategory
+                ? getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')
+                : (seoHeading || (isArabic ? 'المنتجات الأكثر مبيعاً' : 'Best Selling Sex Toys'))}
             </h2>
             {/* Hot pink underline bar */}
             <div className="w-12 h-1 bg-[#ff2d78] rounded-full mt-2" />

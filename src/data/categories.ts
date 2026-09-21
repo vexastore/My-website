@@ -9,133 +9,133 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: 'Sex Toys',
     name: { ar: 'ألعاب زوجية', en: 'Sex Toys' },
-    titlePage: { ar: 'ألعاب جنسية في لبنان | متجر فيكسا', en: 'Sex Toys Lebanon | Vexa Toys' },
+    titlePage: { ar: 'ألعاب جنسية في لبنان | متجر فيكسا', en: 'Sex Toys in Lebanon | Vexa Toys' },
     seoTab: { ar: 'ألعاب زوجية في لبنان | متجر فيكسا', en: 'Sex Toys in Lebanon | Vexa Toys - Discreet Delivery' }
   },
   {
     id: 'Vibrators',
     name: { ar: 'هزازات', en: 'Vibrators' },
-    titlePage: { ar: 'هزازات فاخرة - مجموعة مميزة متوفرة', en: 'Vibrators - Premium Collection Available' },
+    titlePage: { ar: 'هزازات في لبنان | متجر فيكسا', en: 'Vibrators in Lebanon | Vexa Toys' },
     seoTab: { ar: 'هزازات في لبنان | متجر فيكسا', en: 'Vibrators in Lebanon | Vexa Toys - Same Day Delivery' }
   },
   {
     id: 'Male Toys',
     name: { ar: 'ألعاب رجالية', en: 'Male Toys' },
-    titlePage: { ar: 'ألعاب رجالية - وصلت حديثاً', en: 'Male Toys - New Arrivals Available' },
+    titlePage: { ar: 'ألعاب رجالية في لبنان | متجر فيكسا', en: 'Male Toys in Lebanon | Vexa Toys' },
     seoTab: { ar: 'ألعاب رجالية في لبنان | متجر فيكسا', en: 'Male Toys in Lebanon | Vexa Toys' }
   },
   {
     id: 'Dildos',
     name: { ar: 'ديلدو', en: 'Dildos' },
-    titlePage: { ar: 'ديلدو في لبنان | سيليكون آمن', en: 'Dildos in Lebanon | Body-Safe Silicone' },
+    titlePage: { ar: 'ديلدو في لبنان | متجر فيكسا', en: 'Dildos in Lebanon | Vexa Toys' },
     seoTab: { ar: 'ديلدو في لبنان | متجر فيكسا', en: 'Dildo in Lebanon | Vexa Toys - Discreet Delivery Beirut' }
   },
   {
     id: 'Lingerie',
     name: { ar: 'لانجري', en: 'Lingerie' },
-    titlePage: { ar: 'لانجري - مجموعة جديدة ومثيرة', en: 'Lingerie - New Sensual Collection' },
+    titlePage: { ar: 'لانجري في لبنان | متجر فيكسا', en: 'Lingerie in Lebanon | Vexa Toys' },
     seoTab: { ar: 'لانجري في لبنان | متجر فيكسا', en: 'Lingerie Lebanon | Vexa Toys - Fast Discreet Delivery' }
   },
   {
     id: 'BDSM',
     name: { ar: 'ألعاب القوة', en: 'BDSM' },
-    titlePage: { ar: 'ألعاب القوة - أساسيات ناعمة وآمنة', en: 'BDSM - Soft Play Essentials' },
+    titlePage: { ar: 'BDSM في لبنان | متجر فيكسا', en: 'BDSM in Lebanon | Vexa Toys' },
     seoTab: { ar: 'BDSM في لبنان | متجر فيكسا', en: 'BDSM in Lebanon | Vexa Toys' }
   },
   {
     id: 'Holiday Collection',
     name: { ar: 'مجموعة الأعياد', en: 'Holiday Collection' },
-    titlePage: { ar: 'مجموعة الأعياد - هدايا محدودة', en: 'Holiday Collection - Limited Gifts' },
+    titlePage: { ar: 'مجموعة الأعياد في لبنان | متجر فيكسا', en: 'Holiday Collection in Lebanon | Vexa Toys' },
     seoTab: { ar: 'مجموعة الأعياد | متجر فيكسا لبنان', en: 'Holiday Collection Lebanon | Vexa Toys' }
   },
   {
     id: 'New Arrivals',
     name: { ar: 'وصل حديثاً', en: 'New Arrivals' },
-    titlePage: { ar: 'وصل حديثاً - أحدث منتجات Vexa', en: 'New Arrivals - Fresh Vexa Drops' },
+    titlePage: { ar: 'وصل حديثاً في لبنان | متجر فيكسا', en: 'New Arrivals in Lebanon | Vexa Toys' },
     seoTab: { ar: 'وصل حديثاً | متجر فيكسا لبنان', en: 'New Arrivals | Vexa Toys Lebanon' }
   },
   {
     id: 'Butt Plugs',
     name: { ar: 'سدادة شرجية', en: 'Butt Plugs' },
-    titlePage: { ar: 'سدادة شرجية - مجموعة آمنة ومريحة', en: 'Butt Plugs - Safe & Comfortable Collection' },
+    titlePage: { ar: 'سدادات شرجية في لبنان | متجر فيكسا', en: 'Butt Plugs in Lebanon | Vexa Toys' },
     seoTab: { ar: 'سدادة شرجية في لبنان | متجر فيكسا', en: 'Butt Plugs in Lebanon | Vexa Toys' }
   },
   {
     id: 'Anal Toys',
     name: { ar: 'ألعاب الشرج', en: 'Anal Toys' },
-    titlePage: { ar: 'ألعاب الشرج - مجموعة متنوعة', en: 'Anal Toys - Diverse Collection' },
+    titlePage: { ar: 'ألعاب شرجية في لبنان | متجر فيكسا', en: 'Anal Toys in Lebanon | Vexa Toys' },
     seoTab: { ar: 'ألعاب الشرج في لبنان | متجر فيكسا', en: 'Anal Toys in Lebanon | Vexa Toys' }
   },
   {
     id: 'Bondage',
     name: { ar: 'عبودية', en: 'Bondage' },
-    titlePage: { ar: 'عبودية - ألعاب القيود والسيطرة', en: 'Bondage - Restraint & Control Play' },
+    titlePage: { ar: 'أدوات البوندج في لبنان | متجر فيكسا', en: 'Bondage in Lebanon | Vexa Toys' },
     seoTab: { ar: 'Bondage في لبنان | متجر فيكسا', en: 'Bondage in Lebanon | Vexa Toys' }
   },
   {
     id: 'Sex Dolls',
     name: { ar: 'دمى جنسية', en: 'Sex Dolls' },
-    titlePage: { ar: 'دمى جنسية - مجموعة واقعية', en: 'Sex Dolls - Realistic Collection' },
+    titlePage: { ar: 'دمى جنسية في لبنان | متجر فيكسا', en: 'Sex Dolls in Lebanon | Vexa Toys' },
     seoTab: { ar: 'دمى جنسية في لبنان | متجر فيكسا', en: 'Sex Dolls in Lebanon | Vexa Toys' }
   },
   {
     id: 'Strap Ons',
     name: { ar: 'أحزمة', en: 'Strap-ons' },
-    titlePage: { ar: 'أحزمة - مجموعة متنوعة', en: 'Strap-ons - Various Styles' },
+    titlePage: { ar: 'أحزمة جنسية في لبنان | متجر فيكسا', en: 'Strap-ons in Lebanon | Vexa Toys' },
     seoTab: { ar: 'Strap-ons في لبنان | متجر فيكسا', en: 'Strap-ons in Lebanon | Vexa Toys' }
   },
   {
     id: 'Kegel Balls',
     name: { ar: 'كرات كيجل', en: 'Kegel Balls' },
-    titlePage: { ar: 'كرات كيجل - للصحة والمتعة', en: 'Kegel Balls - Health & Pleasure' },
+    titlePage: { ar: 'كرات كيجل في لبنان | متجر فيكسا', en: 'Kegel Balls in Lebanon | Vexa Toys' },
     seoTab: { ar: 'كرات كيجل في لبنان | متجر فيكسا', en: 'Kegel Balls in Lebanon | Vexa Toys' }
   },
   {
     id: 'Sexual Enhancers',
     name: { ar: 'معززات ومؤخرات جنسية', en: 'Sexual Enhancers' },
-    titlePage: { ar: 'معززات ومؤخرات جنسية - لتجربة أطول', en: 'Sexual Enhancers & Delays - Extended Experience' },
+    titlePage: { ar: 'معززات جنسية في لبنان | متجر فيكسا', en: 'Sexual Enhancers in Lebanon | Vexa Toys' },
     seoTab: { ar: 'معززات جنسية في لبنان | متجر فيكسا', en: 'Sexual Enhancers in Lebanon | Vexa Toys' }
   },
   {
     id: 'Penis Pumps',
     name: { ar: 'مضخات وأكمام القضيب', en: 'Penis Pumps & Sleeves' },
-    titlePage: { ar: 'مضخات وأكمام القضيب - للرجال', en: 'Penis Pumps & Sleeves - For Men' },
+    titlePage: { ar: 'مضخات القضيب في لبنان | متجر فيكسا', en: 'Penis Pumps in Lebanon | Vexa Toys' },
     seoTab: { ar: 'مضخات القضيب في لبنان | متجر فيكسا', en: 'Penis Pumps in Lebanon | Vexa Toys' }
   },
   {
     id: 'Cock Rings',
     name: { ar: 'حلقات القضيب', en: 'Cock Rings' },
-    titlePage: { ar: 'حلقات القضيب - متنوعة وآمنة', en: 'Cock Rings - Variety & Safe' },
+    titlePage: { ar: 'حلقات القضيب في لبنان | متجر فيكسا', en: 'Cock Rings in Lebanon | Vexa Toys' },
     seoTab: { ar: 'حلقات القضيب في لبنان | متجر فيكسا', en: 'Cock Rings in Lebanon | Vexa Toys' }
   },
   {
     id: 'Masturbators',
     name: { ar: 'أدوات الاستمناء', en: 'Masturbators' },
-    titlePage: { ar: 'أدوات الاستمناء - مجموعة رجالية', en: 'Masturbators - Male Collection' },
+    titlePage: { ar: 'أدوات الاستمناء في لبنان | متجر فيكسا', en: 'Masturbators in Lebanon | Vexa Toys' },
     seoTab: { ar: 'Masturbators في لبنان | متجر فيكسا', en: 'Masturbators in Lebanon | Vexa Toys' }
   },
   {
     id: 'Chastity',
     name: { ar: 'العفة', en: 'Chastity' },
-    titlePage: { ar: 'أدوات العفة - للتحكم والمتعة', en: 'Chastity Devices - Control & Play' },
+    titlePage: { ar: 'أجهزة العفة في لبنان | متجر فيكسا', en: 'Chastity Devices in Lebanon | Vexa Toys' },
     seoTab: { ar: 'أدوات العفة في لبنان | متجر فيكسا', en: 'Chastity Devices in Lebanon | Vexa Toys' }
   },
   {
     id: 'Sex Machines',
     name: { ar: 'ماكينات الجنس', en: 'Sex Machines' },
-    titlePage: { ar: 'ماكينات الجنس - تجربة فريدة', en: 'Sex Machines - Unique Experience' },
+    titlePage: { ar: 'ماكينات الجنس في لبنان | متجر فيكسا', en: 'Sex Machines in Lebanon | Vexa Toys' },
     seoTab: { ar: 'ماكينات الجنس في لبنان | متجر فيكسا', en: 'Sex Machines in Lebanon | Vexa Toys' }
   },
   {
     id: 'Lubricants',
     name: { ar: 'مواد التشحيم', en: 'Lubricants' },
-    titlePage: { ar: 'مواد التشحيم - آمنة وطبيعية', en: 'Lubricants - Safe & Natural' },
+    titlePage: { ar: 'مواد التشحيم في لبنان | متجر فيكسا', en: 'Lubricants in Lebanon | Vexa Toys' },
     seoTab: { ar: 'مواد التشحيم في لبنان | متجر فيكسا', en: 'Lubricants in Lebanon | Vexa Toys' }
   },
   {
     id: 'Poppers',
     name: { ar: 'بوبرز', en: 'Poppers' },
-    titlePage: { ar: 'بوبرز - مجموعة متنوعة', en: 'Poppers - Various Brands' },
+    titlePage: { ar: 'بوبرز في لبنان | متجر فيكسا', en: 'Poppers in Lebanon | Vexa Toys' },
     seoTab: { ar: 'بوبرز في لبنان | متجر فيكسا', en: 'Poppers in Lebanon | Vexa Toys' }
   }
 ];

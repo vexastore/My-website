@@ -3,6 +3,28 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.6] - 2026-09-21
+
+### Removed
+
+- **Bottom Editorial & Guide Section from Category & Catalog Pages**: Removed the bottom server-rendered section (Buying Guide, Arabic/English editorial text, category FAQs, "Not sure where to start? Take our 3-question quiz" banner, "All Products" link list, and "Related Categories" link list) from `app/[category]/page.tsx` and `app/adult-toys/page.tsx`.
+- **FAQPage Schema.org Structured Data**: Removed `FAQPage` schema from `jsonLd` on `app/[category]/page.tsx` and `app/adult-toys/page.tsx` to align with Google Search Console guidelines requiring all structured data to have visible corresponding content on the rendered page.
+- **Unused Editorial Helpers & Constants**: Cleaned up unused `fetchCategoryEditorial`, `RELATED_CATEGORIES`, and `CATEGORY_META` imports and references from the category and adult-toys routes.
+
+### Changed
+
+- **Cache Version Bump**: Bumped `CACHE_VERSION` to `v1.5.6` in `lib/cacheVersion.ts` and updated `package.json` to `1.5.6` per Rule 8 in `AGENTS.md` to invalidate stale page caches across deployments.
+
+## [1.5.5] - 2026-09-21
+
+### Fixed
+
+- **Dynamic Category Header Bug**: Fixed issue where the category header in `ProductList.tsx` remained stuck displaying `'Dildos in Lebanon | Premium Body-Safe Collection'` when navigating to or viewing the Vibrators category (or any other category). Header now dynamically reflects `activeCategory` using `getCategoryTitle(activeCategory, lang)` and seamlessly updates when switching categories.
+- **Removed "Body-Safe Collection" from Category Titles**: Eliminated hardcoded `'Dildos in Lebanon | Premium Body-Safe Collection'` from `app/[category]/page.tsx`, `titlePage` in `src/data/categories.ts`, and `titleEn` in `lib/categoryMeta.ts`.
+- **Standardized Category Titles**: Updated all 22 categories across `src/data/categories.ts` and `lib/categoryMeta.ts` to standardized dynamic titles: `[Category] in Lebanon | Vexa Toys` (English) and `[Category] في لبنان | متجر فيكسا` (Arabic).
+- **Cache Invalidation**: Bumped `CACHE_VERSION` to `v1.5.5` in `lib/cacheVersion.ts` and updated `package.json` to `1.5.5` per Rule 8 in `AGENTS.md` to invalidate stale cached category metadata across deployments.
+- **Automated Tests**: Added `tests/category-title.test.mjs` ensuring dynamic category title generation, lack of body-safe phrases in titles, and active category title switching.
+
 ## [1.5.4] - 2026-09-21
 
 ### Changed
