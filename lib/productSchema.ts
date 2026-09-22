@@ -1,6 +1,6 @@
 import type { Product } from '@/src/types';
 import { SITE_BASE_URL, canonicalProductPath } from './productSeo.ts';
-import { getAggregateRating, getProductReviews } from './productReviews.ts';
+import { getAggregateRating, type ProductReview } from './productReviews.ts';
 
 export interface GenerateProductJsonLdParams {
   locale?: string;
@@ -10,6 +10,7 @@ export interface GenerateProductJsonLdParams {
   name?: string;
   description?: string;
   images?: string[];
+  reviews?: ProductReview[];
 }
 
 export function getOfferValidFrom(product: { updatedAt?: string }): string {
@@ -29,7 +30,7 @@ export function generateProductJsonLd(
   params: GenerateProductJsonLdParams = {}
 ) {
   const isArabic = params.locale === 'ar';
-  const canonicalUrl = params.canonicalUrl || `${SITE_BASE_URL}${canonicalProductPath(product)}`;
+  const canonicalUrl = params.canonicalUrl || product.canonicalUrlOverride || `${SITE_BASE_URL}${canonicalProductPath(product)}`;
   const catSlug = params.catSlug || product.categorySlug || 'sex-toys';
   const categoryLabel = params.categoryLabel || (isArabic ? 'ألعاب جنسية' : 'Sex Toys');
 
@@ -68,7 +69,7 @@ export function generateProductJsonLd(
   const sku = (product.sku || product.id || '').trim();
 
   const aggregateRating = getAggregateRating(product);
-  const reviews = getProductReviews(product, 3);
+  const reviews = params.reviews || [];
 
   const productNode: Record<string, unknown> = {
     '@type': 'Product',
@@ -92,14 +93,14 @@ export function generateProductJsonLd(
               '@type': 'Person',
               name: r.author,
             },
-            datePublished: r.date,
+            datePublished: r.createdAt ? r.createdAt.slice(0, 10) : new Date().toISOString().slice(0, 10),
             reviewRating: {
               '@type': 'Rating',
               ratingValue: r.rating,
               bestRating: 5,
               worstRating: 1,
             },
-            reviewBody: isArabic ? r.textAr : r.text,
+            reviewBody: r.body,
           })),
         }
       : {}),
@@ -153,6 +154,7 @@ export function generateProductJsonLd(
         merchantReturnDays: 7,
         returnMethod: 'https://schema.org/ReturnByMail',
         returnFees: 'https://schema.org/FreeReturn',
+        merchantReturnLink: `${SITE_BASE_URL}/returns`,
       },
     },
   };

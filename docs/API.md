@@ -22,3 +22,12 @@ In 1.2.0, successful `POST /api/orders` responses also include `deliveryFee` and
 ## Category editorial read
 
 Category pages query `category_editorial` through Supabase REST with the publishable key and anonymous RLS. They read one slug at a time, validate FAQ pairs, and cache the result for up to five minutes. Writes occur only in the separate admin app through an authenticated Server Action.
+
+## Product reviews API
+
+- `GET /api/reviews?productId=<uuid>`: Returns array of approved reviews (`status = 'approved'`) for a product ordered by `created_at DESC`. Public endpoint; response includes `id`, `productId`, `customerName`, `rating`, `title`, `body`, `verifiedPurchase`, `createdAt`. Private customer contact fields are omitted. Returns `Cache-Control: public, s-maxage=60, stale-while-revalidate=300`.
+- `POST /api/reviews`: Submits a new customer product review for moderation. Same-origin JSON request bounded to 16 KiB.
+  - Request body: `{ productId: string, customerName: string, rating: number (1-5), title?: string, body: string, locale?: string, orderReference?: string, customerPhone?: string }`.
+  - Behavior: Calls Supabase stored function `submit_product_review`. Validates rating (1–5), product existence, and non-empty body. Verifies order and item match if `orderReference` and `customerPhone` are supplied, setting `verified_purchase: true` if valid; otherwise `false`. The review is placed into `status: 'pending'` awaiting admin approval.
+  - Response: 201 `{ success: true, reviewId: string, verifiedPurchase: boolean, status: "pending" }`. Returns 400 for validation failure, 403 for foreign origin, and 500 on database failure.
+

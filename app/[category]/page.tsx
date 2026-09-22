@@ -41,6 +41,11 @@ const RESERVED = new Set([
   'robots.txt',
   'blog',
   'quiz',
+  'terms',
+  'privacy',
+  'delivery',
+  'warranty',
+  'returns',
 ]);
 
 export async function generateMetadata({

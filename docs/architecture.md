@@ -24,3 +24,17 @@ In 1.2.1, My Orders keeps the local receipt but refreshes its status through a s
 ## Catalog freshness
 
 The admin writes product rows to the same Supabase project the storefront reads. The public `GET /api/products` route reads published rows directly with a no-store response so a page load or tab return receives current values. The client replaces both its catalog and any selected product with the refreshed row, or clears a selected product that has been archived. Server-rendered category/product HTML and SEO metadata still use a five-minute incremental cache. No cross-repository push invalidation is installed.
+
+## Real Product Reviews & Ratings Architecture (v1.5.9)
+
+1. **Storage & RLS**: Product reviews are persisted in `public.product_reviews`. Anonymous public users are granted `SELECT` access strictly for rows where `status = 'approved'`. Admin users (`app_metadata.role = 'admin'`) have full `SELECT`, `UPDATE`, and `DELETE` permissions. Customer contact details are never exposed to public queries.
+2. **Automated Rating Derivation**: Product rating and review count fields (`products.rating`, `products.review_count`) are maintained automatically via database trigger `trg_product_reviews_aggregate` on `public.product_reviews`. Aggregate metrics calculate `AVG(rating)` and `COUNT(*)` exclusively from approved reviews.
+3. **Verified Buyer Determination**: Public users cannot self-assign verified status. When a customer submits a review via `POST /api/reviews`, the server executes the secure Postgres function `submit_product_review(...)`. This function checks the optional `order_reference` and `customer_phone` against `orders` and `order_items`. If a completed order contains the target `product_id`, `verified_purchase` is set to `TRUE`; otherwise `FALSE`. Reviews are placed in `pending` status for admin moderation.
+4. **Structured Data Alignment**: `lib/productSchema.ts` and `src/components/ProductReviews.tsx` consume real approved reviews. If a product has zero approved reviews, `aggregateRating` and `review` properties are completely omitted from Schema.org JSON-LD to prevent fabricating ratings.
+
+## SEO Overrides & Media Alt Architecture (v1.5.9)
+
+1. **Canonical URL Overrides**: `products.canonical_url_override` stores an optional validated HTTPS URL. If populated, `generateMetadata()` in `app/[category]/[slug]/page.tsx`, `lib/productSchema.ts`, and `app/sitemap.ts` use the override directly. If null or blank, the default URL (`https://vexatoys.com/${category}/${slug}`) is used.
+2. **Open Graph Image Overrides**: `products.og_image_url` stores an optional image URL selected from existing product media or storage. When populated, storefront metadata sets `openGraph.images` and `twitter.images` to this URL; otherwise, it defaults to the primary product image.
+3. **Media Alt Text Fallback**: Product media rows (`product_media`) maintain `alt_en` and `alt_ar`. If either is blank or whitespace, storefront fetchers (`lib/fetchProducts.ts`) fall back to the product's primary English or Arabic name.
+

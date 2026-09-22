@@ -28,6 +28,16 @@ const nextConfig = {
         destination: '/terms',
         permanent: true,
       },
+      {
+        source: '/refund-returns',
+        destination: '/returns',
+        permanent: true,
+      },
+      {
+        source: '/returns-policy',
+        destination: '/returns',
+        permanent: true,
+      },
     ];
   },
   async headers() {

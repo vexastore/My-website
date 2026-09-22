@@ -14,3 +14,41 @@ On 17 September 2026, a read-only live check found one `source=storefront` order
 ## Category editorial and media transition
 
 The shared Supabase project now has 23 `category_editorial` rows, seeded from the former bundled guide text. RLS grants anonymous read and admin-only updates. `product_media.legacy_source_url` is the rollback reference for each verified Vercel Blob-to-Supabase Storage binary copy. Old Blob objects remain available until the rollback window closes.
+
+## Product reviews and SEO overrides schema (Migration 20260922223000)
+
+The migration `supabase/migrations/20260922223000_product_reviews_and_seo_overrides.sql` introduces:
+
+1. **`public.product_reviews` Table**:
+   - `id` (UUID PK default `gen_random_uuid()`)
+   - `product_id` (UUID NOT NULL FK `products(id)` ON DELETE CASCADE)
+   - `order_id` (UUID NULL FK `orders(id)` ON DELETE SET NULL)
+   - `order_item_id` (UUID NULL FK `order_items(id)` ON DELETE SET NULL)
+   - `customer_name` (TEXT NOT NULL)
+   - `customer_phone` (TEXT NULL) — private verification reference, never returned publicly
+   - `rating` (INTEGER NOT NULL CHECK `rating >= 1 AND rating <= 5`)
+   - `title` (TEXT NULL)
+   - `body` (TEXT NOT NULL)
+   - `locale` (TEXT NOT NULL DEFAULT 'en')
+   - `status` (TEXT NOT NULL DEFAULT 'pending' CHECK `status IN ('pending', 'approved', 'rejected')`)
+   - `verified_purchase` (BOOLEAN NOT NULL DEFAULT FALSE)
+   - `created_at` (TIMESTAMPTZ NOT NULL DEFAULT NOW())
+   - `updated_at` (TIMESTAMPTZ NOT NULL DEFAULT NOW())
+   - `approved_at` (TIMESTAMPTZ NULL)
+   - `approved_by` (UUID NULL)
+2. **Postgres Triggers**:
+   - `trg_product_reviews_aggregate`: Executes `recalculate_product_rating()` upon any INSERT, UPDATE (rating or status), or DELETE on `product_reviews`. Atomically updates `products.rating` (`ROUND(AVG(rating), 2)`) and `products.review_count` (`COUNT(*)`) for all rows with `status = 'approved'`.
+   - `trg_product_reviews_updated_at`: Automatically sets `updated_at = NOW()`.
+3. **Stored Procedure (`submit_product_review`)**:
+   - Security DEFINER function callable by anonymous / authenticated clients.
+   - Validates rating range (1–5) and product existence.
+   - If `p_order_reference` and `p_customer_phone` are provided, performs lookup on `orders` and `order_items`. If an order matches the phone and contains the target product, sets `verified_purchase = TRUE`.
+   - Inserts review with status `pending`.
+4. **RLS & Security Policies**:
+   - Anonymous/authenticated users can SELECT rows where `status = 'approved'`.
+   - Admin users (`app_metadata.role = 'admin'`) have full SELECT, UPDATE, and DELETE privileges.
+   - Public users cannot directly INSERT or UPDATE rows outside the `submit_product_review` RPC.
+5. **Product SEO Overrides**:
+   - Added `canonical_url_override` (TEXT NULL) with check constraint `^https?://`.
+   - Added `og_image_url` (TEXT NULL) with check constraint `^https?://`.
+

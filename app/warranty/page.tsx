@@ -97,7 +97,11 @@ export default function WarrantyPage() {
             At Vexa Toys, we want you to shop with confidence. This Warranty Policy explains the warranty coverage available for eligible products purchased from Vexa Toys in Lebanon, including what is covered, what is not covered, and how to request a warranty replacement.
           </p>
           <p className="mt-4 text-sm leading-7 text-stone-400">
-            This policy should be read together with our Refund &amp; Returns Policy and{' '}
+            This policy should be read together with our{' '}
+            <Link href="/returns" className="text-[#ff2d78] underline hover:text-white">
+              Refund &amp; Returns Policy
+            </Link>{' '}
+            and{' '}
             <Link href="/terms" className="text-[#ff2d78] underline hover:text-white">
               Terms &amp; Conditions
             </Link>.
@@ -157,7 +161,12 @@ export default function WarrantyPage() {
 
           <PolicySection title="Warranty Replacement">
             <p>The standard remedy for an approved warranty claim is a replacement.</p>
-            <p>Warranty claims do not automatically qualify for a refund. Any refund or return request is handled according to our separate Refund &amp; Returns Policy.</p>
+            <p>
+              Warranty claims do not automatically qualify for a refund. Any refund or return request is handled according to our separate{' '}
+              <Link href="/returns" className="text-[#ff2d78] underline hover:text-white">
+                Refund &amp; Returns Policy
+              </Link>.
+            </p>
             <p>Replacement products may be subject to the warranty terms applicable to the replacement item.</p>
           </PolicySection>
 
@@ -178,7 +187,11 @@ export default function WarrantyPage() {
           <PolicySection title="Shop Vexa Toys in Lebanon">
             <p>Vexa Toys provides discreet online shopping and delivery across Lebanon, with discreet packaging and customer privacy throughout the ordering and delivery process.</p>
             <p>
-              By purchasing from Vexa Toys, you acknowledge and agree to this Warranty Policy together with our Refund &amp; Returns Policy and{' '}
+              By purchasing from Vexa Toys, you acknowledge and agree to this Warranty Policy together with our{' '}
+              <Link href="/returns" className="text-[#ff2d78] underline hover:text-white">
+                Refund &amp; Returns Policy
+              </Link>{' '}
+              and{' '}
               <Link href="/terms" className="text-[#ff2d78] underline hover:text-white">
                 Terms &amp; Conditions
               </Link>.
@@ -203,6 +216,9 @@ export default function WarrantyPage() {
             </Link>
             <Link href="/warranty" className="font-bold text-[#ff2d78]">
               Warranty Policy
+            </Link>
+            <Link href="/returns" className="hover:text-white transition">
+              Refund &amp; Returns Policy
             </Link>
           </div>
         </nav>

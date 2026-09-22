@@ -3,6 +3,23 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.9] - 2026-09-22
+
+### Added
+
+- **Real Database-Backed Product Reviews & Ratings**: Completely eliminated the hardcoded fabricated review pool in `lib/productReviews.ts`. Replaced with database-driven queries (`fetchProductReviewsServer`) and client review submission endpoint `/api/reviews` calling Supabase `submit_product_review` RPC.
+- **Customer Review Submission Modal**: Added interactive review submission dialog in `ProductReviews.tsx` allowing customers to submit a star rating, name, review title, body, and optional order reference for automated verified buyer checks.
+- **Dedicated Refund & Returns Policy Route (`/returns`)**: Created dedicated `/returns` page with full SEO metadata, canonical (`https://vexatoys.com/returns`), OpenGraph, and Schema.org `WebPage` structured data.
+- **Storefront & Sitemap Integration**: Added `/returns` to sitemap (`app/sitemap.ts`) and footer navigation in `src/App.tsx`. Updated all unlinked plain text references in `/terms`, `/warranty`, and `/delivery` to clickable Next.js links.
+- **Canonical & OpenGraph Overrides**: Storefront `generateMetadata()`, sitemap, and Schema.org JSON-LD respect admin-managed `canonical_url_override` and `og_image_url` with graceful column fallback resilience during migrations.
+- **Media Alt Text Fallbacks**: Configured image processing in `lib/fetchProducts.ts` to automatically fall back to the product name if alt text is blank.
+- **Permanent Redirects**: Added 308 permanent redirects in `next.config.mjs` from `/refund-returns` and `/returns-policy` to `/returns`.
+
+### Changed
+
+- **Eliminated Fabricated Testimonials & Ratings**: Removed fake 5-star fallback ratings; products with zero approved reviews cleanly display an empty state and omit `aggregateRating` and `review` from JSON-LD to comply with Google Rich Results guidelines.
+- **Cache Version Invalidation**: Bumped `CACHE_VERSION` to `v1.5.9` in `lib/cacheVersion.ts` and updated `package.json` to `1.5.9` per Rule 8 in `AGENTS.md`.
+
 ## [1.5.8] - 2026-09-22
 
 ### Added

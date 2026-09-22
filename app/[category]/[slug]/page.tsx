@@ -17,6 +17,7 @@ import {
   toProductSlug,
 } from '@/lib/productSeo';
 import { generateProductJsonLd } from '@/lib/productSchema';
+import { fetchProductReviewsServer } from '@/lib/productReviews';
 
 const DEFAULT_OG_IMAGE = 'https://vexatoys.com/opengraph.jpg';
 
@@ -128,11 +129,11 @@ export async function generateMetadata({
     (sourceDescription ? `${listingName}. ${sourceDescription}` : '') ||
     (locale === 'ar' ? `تسوق ${name} في لبنان من متجر فيكسا.` : `Shop ${name} in Lebanon at Vexa Toys.`)).slice(0, 300);
 
-  const canonical = `${SITE_BASE_URL}${canonicalProductPath(
+  const canonical = product.canonicalUrlOverride || `${SITE_BASE_URL}${canonicalProductPath(
     product
   )}`;
 
-  const image = productImage(product);
+  const image = product.ogImageUrl || productImage(product);
 
   return {
     title: {
@@ -296,16 +297,18 @@ export default async function ProductPage({
   const inStock = (product.stock ?? 0) > 0;
 
   /**
-   * Schema.org structured data.
+   * Schema.org structured data using real approved reviews from database.
    */
+  const approvedReviews = await fetchProductReviewsServer(product.id);
   const jsonLd = generateProductJsonLd(product, {
     locale,
-    canonicalUrl,
+    canonicalUrl: product.canonicalUrlOverride || canonicalUrl,
     catSlug,
     categoryLabel,
     name,
     description,
     images,
+    reviews: approvedReviews,
   });
 
   return (

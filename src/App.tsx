@@ -263,6 +263,12 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
               >
                 {isArabic ? 'التوصيل' : 'Delivery'}
               </a>
+              <a
+                href="/returns"
+                className="hover:text-white transition"
+              >
+                {isArabic ? 'سياسة الاسترجاع' : 'Returns'}
+              </a>
             </div>
           </div>
         </div>

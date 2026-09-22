@@ -13,19 +13,13 @@ type Row = {
   description_en: string; description_ar: string; price: number; stock: number; currency: string; updated_at: string;
   seo_title_en: string | null; seo_title_ar: string | null;
   seo_description_en: string | null; seo_description_ar: string | null;
+  canonical_url_override: string | null; og_image_url: string | null;
   rating: number; reviews_count: number; is_new: boolean;
   canonical_category: Category | null;
   product_categories: { categories: Category | null }[];
   product_media: Media[]; product_variants: Variant[];
 };
 
-const select = [
-  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,stock,currency,updated_at,seo_title_en,seo_title_ar,seo_description_en,seo_description_ar,rating,reviews_count,is_new',
-  'canonical_category:categories!products_canonical_category_id_fkey(slug,name_en)',
-  'product_categories(categories(slug,name_en))',
-  'product_media(source_url,storage_path,position,is_primary,is_active,alt_en,alt_ar)',
-  'product_variants(name_en,name_ar,is_required,position,is_active,product_variant_options(value_en,price_delta,stock,sku,position,is_active))',
-].join(',');
 
 function config() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -45,7 +39,11 @@ export function mapProduct(row: Row, base: string): Product {
   ).filter((name): name is string => !!name);
   const media = row.product_media.filter(item => item.is_active)
     .sort((a, b) => Number(b.is_primary) - Number(a.is_primary) || a.position - b.position)
-    .map(item => ({ url: mediaUrl(item, base), altEn: displayCopy(item.alt_en), altAr: displayCopy(item.alt_ar) }))
+    .map(item => ({
+      url: mediaUrl(item, base),
+      altEn: displayCopy(item.alt_en) || displayCopy(row.name_en),
+      altAr: displayCopy(item.alt_ar) || displayCopy(row.name_ar),
+    }))
     .filter(item => item.url);
   const variants: ProductVariant[] = row.product_variants.filter(item => item.is_active)
     .sort((a, b) => a.position - b.position).map(item => {
@@ -64,6 +62,8 @@ export function mapProduct(row: Row, base: string): Product {
     currency: row.currency, updatedAt: row.updated_at,
     seoTitleEn: row.seo_title_en?.trim() || undefined, seoTitleAr: row.seo_title_ar?.trim() || undefined,
     seoDescriptionEn: row.seo_description_en?.trim() || undefined, seoDescriptionAr: row.seo_description_ar?.trim() || undefined,
+    canonicalUrlOverride: row.canonical_url_override?.trim() || undefined,
+    ogImageUrl: row.og_image_url?.trim() || undefined,
     categorySlug: row.canonical_category?.slug || '',
     name: displayCopy(row.name_ar), nameEn: displayCopy(row.name_en),
     description: displayCopy(row.description_ar), descriptionEn: displayCopy(row.description_en),
@@ -75,14 +75,34 @@ export function mapProduct(row: Row, base: string): Product {
   };
 }
 
+const selectFull = [
+  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,stock,currency,updated_at,seo_title_en,seo_title_ar,seo_description_en,seo_description_ar,canonical_url_override,og_image_url,rating,reviews_count,is_new',
+  'canonical_category:categories!products_canonical_category_id_fkey(slug,name_en)',
+  'product_categories(categories(slug,name_en))',
+  'product_media(source_url,storage_path,position,is_primary,is_active,alt_en,alt_ar)',
+  'product_variants(name_en,name_ar,is_required,position,is_active,product_variant_options(value_en,price_delta,stock,sku,position,is_active))',
+].join(',');
+
+const selectBase = [
+  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,stock,currency,updated_at,seo_title_en,seo_title_ar,seo_description_en,seo_description_ar,rating,reviews_count,is_new',
+  'canonical_category:categories!products_canonical_category_id_fkey(slug,name_en)',
+  'product_categories(categories(slug,name_en))',
+  'product_media(source_url,storage_path,position,is_primary,is_active,alt_en,alt_ar)',
+  'product_variants(name_en,name_ar,is_required,position,is_active,product_variant_options(value_en,price_delta,stock,sku,position,is_active))',
+].join(',');
+
 export async function fetchPublishedProducts(): Promise<Product[]> {
   const { url, key } = config();
   const endpoint = new URL(`${url}/rest/v1/products`);
-  endpoint.searchParams.set('select', select);
+  endpoint.searchParams.set('select', selectFull);
   endpoint.searchParams.set('status', 'eq.published');
   endpoint.searchParams.set('order', 'created_at.asc');
   endpoint.searchParams.set('limit', '1000');
-  const response = await fetch(endpoint, { headers: { apikey: key }, cache: 'no-store' });
+  let response = await fetch(endpoint, { headers: { apikey: key }, cache: 'no-store' });
+  if (response.status === 400) {
+    endpoint.searchParams.set('select', selectBase);
+    response = await fetch(endpoint, { headers: { apikey: key }, cache: 'no-store' });
+  }
   if (!response.ok) throw new Error(`Supabase catalog read failed: ${response.status}`);
   return ((await response.json()) as Row[]).map(row => mapProduct(row, url));
 }

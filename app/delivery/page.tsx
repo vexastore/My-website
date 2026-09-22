@@ -150,7 +150,11 @@ export default function DeliveryPage() {
             <p>Vexa Toys provides discreet delivery across Lebanon, with privacy-focused packaging and a convenient online ordering experience.</p>
             <p>Our goal is to make every order simple, private, and reliable from the moment it is placed until it reaches you.</p>
             <p>
-              By placing an order with Vexa Toys, you acknowledge and agree to this Delivery Policy together with our Refund &amp; Returns Policy and{' '}
+              By placing an order with Vexa Toys, you acknowledge and agree to this Delivery Policy together with our{' '}
+              <Link href="/returns" className="text-[#ff2d78] underline hover:text-white">
+                Refund &amp; Returns Policy
+              </Link>{' '}
+              and{' '}
               <Link href="/terms" className="text-[#ff2d78] underline hover:text-white">
                 Terms &amp; Conditions
               </Link>.
@@ -175,6 +179,9 @@ export default function DeliveryPage() {
             </Link>
             <Link href="/warranty" className="hover:text-white transition">
               Warranty Policy
+            </Link>
+            <Link href="/returns" className="hover:text-white transition">
+              Refund &amp; Returns Policy
             </Link>
           </div>
         </nav>

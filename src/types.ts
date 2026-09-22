@@ -29,6 +29,8 @@
     seoTitleAr?: string;
     seoDescriptionEn?: string;
     seoDescriptionAr?: string;
+    canonicalUrlOverride?: string;
+    ogImageUrl?: string;
     name: string;
     nameEn: string;
     description: string;

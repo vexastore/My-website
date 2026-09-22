@@ -26,6 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/privacy` },
     { url: `${BASE}/delivery` },
     { url: `${BASE}/warranty` },
+    { url: `${BASE}/returns` },
     ...categories.filter(category => knownCategories.has(category.slug)).map(category => ({
       url: `${BASE}/${category.slug}`,
       lastModified: latest([category.updatedAt, ...products.filter(product =>
@@ -45,7 +46,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const seen = new Set(pages.map(page => page.url));
   for (const product of products) {
-    const url = `${BASE}${canonicalProductPath(product)}`;
+    const url = product.canonicalUrlOverride || `${BASE}${canonicalProductPath(product)}`;
     if (seen.has(url)) continue;
     seen.add(url);
     pages.push({ url, lastModified: product.updatedAt });

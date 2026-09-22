@@ -246,7 +246,9 @@ export default function TermsPage() {
             </p>
             <BulletList
               items={[
-                'Refund & Returns Policy',
+                <Link key="returns" href="/returns" className="text-[#ff2d78] underline hover:text-white">
+                  Refund &amp; Returns Policy
+                </Link>,
                 <Link key="warranty" href="/warranty" className="text-[#ff2d78] underline hover:text-white">
                   Warranty Policy
                 </Link>,
@@ -376,7 +378,9 @@ export default function TermsPage() {
                 <Link key="delivery" href="/delivery" className="text-[#ff2d78] underline hover:text-white">
                   Delivery Policy
                 </Link>,
-                'Refund & Returns Policy',
+                <Link key="returns" href="/returns" className="text-[#ff2d78] underline hover:text-white">
+                  Refund &amp; Returns Policy
+                </Link>,
                 <Link key="warranty" href="/warranty" className="text-[#ff2d78] underline hover:text-white">
                   Warranty Policy
                 </Link>,
@@ -406,6 +410,9 @@ export default function TermsPage() {
             </Link>
             <Link href="/warranty" className="hover:text-white transition">
               Warranty Policy
+            </Link>
+            <Link href="/returns" className="hover:text-white transition">
+              Refund &amp; Returns Policy
             </Link>
           </div>
         </nav>
