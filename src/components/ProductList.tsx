@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from './ProductCard';
 import { HeroSection } from './HeroSection';
@@ -8,7 +8,7 @@ import { QuizBanner } from './QuizBanner';
 import { RelatedCategories } from './RelatedCategories';
 import { FaqAccordion } from './FaqAccordion';
 import { CategoryGuideSection } from './CategoryGuideSection';
-import { Search, SearchX, SlidersHorizontal, X, ChevronRight } from 'lucide-react';
+import { Search, SearchX, SlidersHorizontal, X, ChevronRight, ChevronDown, Check } from 'lucide-react';
 import { CATEGORIES, getCategoryTitle, productMatchesCategory } from '../data/categories';
 
 export const ProductList: React.FC = () => {
@@ -29,6 +29,8 @@ export const ProductList: React.FC = () => {
   const [openFilterSection, setOpenFilterSection] = useState<'availability' | 'price' | 'categories' | null>(null);
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'in-stock' | 'low-stock'>('all');
   const [sortBy, setSortBy] = useState<'best' | 'price-low' | 'price-high'>('best');
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const categoryDropdownRef = useRef<HTMLDivElement>(null);
 
   const filteredProducts = products.filter((product) => {
     const q = searchQuery.toLowerCase().trim();
@@ -81,6 +83,33 @@ export const ProductList: React.FC = () => {
     { id: 'price-high', label: isArabic ? 'السعر: الأعلى أولاً' : 'Price: high to low' },
   ];
 
+  useEffect(() => {
+    if (!isCategoryDropdownOpen) return;
+    const handleClickOutside = (event: MouseEvent | TouchEvent) => {
+      if (categoryDropdownRef.current && !categoryDropdownRef.current.contains(event.target as Node)) {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsCategoryDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('touchstart', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isCategoryDropdownOpen]);
+
+  const activeCategoryObj = CATEGORIES.find(c => c.id === activeCategory);
+  const activeCategoryLabel = activeCategory
+    ? (activeCategoryObj ? (isArabic ? activeCategoryObj.name.ar : activeCategoryObj.name.en) : activeCategory)
+    : (isArabic ? 'كل الفئات' : 'All categories');
+
   return (
     <div className="bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* ── 1. HERO SECTION ────────────────────────────────────────── */}
@@ -93,7 +122,7 @@ export const ProductList: React.FC = () => {
       />
 
       {/* ── 3. BEST SELLING PRODUCTS / CATALOG ─────────────────────── */}
-      <section id="products-grid" className="mx-auto max-w-7xl px-4 py-10 sm:py-14 sm:px-6 lg:px-8 border-b border-white/10">
+      <section id="products-grid" className="mx-auto max-w-7xl px-4 py-10 sm:py-14 sm:px-6 lg:px-8 border-b border-white/10 scroll-mt-24 sm:scroll-mt-28">
         {/* Section Header matching mockup */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
@@ -135,24 +164,89 @@ export const ProductList: React.FC = () => {
         </div>
 
         {/* Filter & Search Bar */}
-        <div className="mb-8 grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_auto] items-center gap-2 sm:gap-3" dir="ltr">
-          <label className="sr-only" htmlFor="catalog-category">
-            {isArabic ? 'اختر الفئة' : 'Choose a category'}
-          </label>
-          <select
-            id="catalog-category"
-            value={activeCategory}
-            onChange={event => { setActiveCategory(event.target.value); setSearchQuery(''); }}
-            className="h-10 sm:h-11 min-w-0 w-full rounded-xl border border-white/15 bg-[#121212] px-3 text-xs font-bold text-white outline-none focus:border-[#ff2d78] transition"
-            dir={isArabic ? 'rtl' : 'ltr'}
-          >
-            <option value="">{isArabic ? 'كل الفئات' : 'All categories'}</option>
-            {CATEGORIES.map(cat => (
-              <option key={cat.id} value={cat.id}>
-                {isArabic ? cat.name.ar : cat.name.en}
-              </option>
-            ))}
-          </select>
+        <div className="mb-8 grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_auto] items-center gap-2 sm:gap-3" dir={isArabic ? 'rtl' : 'ltr'}>
+          {/* Custom Category Dropdown */}
+          <div className="relative min-w-0" ref={categoryDropdownRef}>
+            <button
+              id="catalog-category"
+              type="button"
+              role="combobox"
+              aria-haspopup="listbox"
+              aria-expanded={isCategoryDropdownOpen}
+              aria-controls="catalog-category-listbox"
+              aria-label={isArabic ? 'اختر الفئة' : 'Choose a category'}
+              onClick={() => setIsCategoryDropdownOpen(prev => !prev)}
+              className={`h-10 sm:h-11 min-w-0 w-full rounded-xl border bg-[#121212] px-2.5 sm:px-3 text-xs font-bold text-white outline-none transition flex items-center justify-between gap-1.5 cursor-pointer select-none ${
+                isCategoryDropdownOpen
+                  ? 'border-[#ff2d78] shadow-[0_0_12px_rgba(255,45,120,0.25)]'
+                  : 'border-white/15 hover:border-white/30'
+              }`}
+            >
+              <span className="truncate">{activeCategoryLabel}</span>
+              <ChevronDown
+                size={14}
+                className={`shrink-0 text-stone-400 transition-transform duration-200 ${
+                  isCategoryDropdownOpen ? 'rotate-180 text-[#ff2d78]' : ''
+                }`}
+              />
+            </button>
+
+            {isCategoryDropdownOpen && (
+              <div
+                id="catalog-category-listbox"
+                role="listbox"
+                aria-label={isArabic ? 'قائمة الفئات' : 'Categories list'}
+                className="absolute top-full mt-1.5 start-0 z-50 w-max min-w-full max-w-[calc(100vw-2rem)] sm:min-w-[220px] rounded-xl border border-white/15 bg-[#121212] p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in duration-150"
+              >
+                <div className="max-h-60 overflow-y-auto overscroll-contain py-0.5 space-y-0.5 [scrollbar-width:thin] [scrollbar-color:#333_transparent]">
+                  {/* All Categories Option */}
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={activeCategory === ''}
+                    onClick={() => {
+                      setIsCategoryDropdownOpen(false);
+                      handleSelectCategory('');
+                    }}
+                    className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-bold transition text-start cursor-pointer ${
+                      activeCategory === ''
+                        ? 'bg-[#ff2d78]/15 text-[#ff2d78]'
+                        : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                    }`}
+                  >
+                    <span>{isArabic ? 'كل الفئات' : 'All categories'}</span>
+                    {activeCategory === '' && <Check size={14} className="shrink-0 text-[#ff2d78]" />}
+                  </button>
+
+                  {/* Individual Categories */}
+                  {CATEGORIES.map(cat => {
+                    const isSelected = activeCategory === cat.id;
+                    const catLabel = isArabic ? cat.name.ar : cat.name.en;
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        role="option"
+                        aria-selected={isSelected}
+                        onClick={() => {
+                          setIsCategoryDropdownOpen(false);
+                          handleSelectCategory(cat.id);
+                        }}
+                        className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-bold transition text-start cursor-pointer ${
+                          isSelected
+                            ? 'bg-[#ff2d78]/15 text-[#ff2d78]'
+                            : 'text-stone-300 hover:bg-white/10 hover:text-white'
+                        }`}
+                      >
+                        <span className="truncate">{catLabel}</span>
+                        {isSelected && <Check size={14} className="shrink-0 text-[#ff2d78]" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
 
           <label
             className="flex h-10 sm:h-11 min-w-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3 focus-within:border-[#ff2d78] transition"
@@ -366,7 +460,7 @@ export const ProductList: React.FC = () => {
                     {CATEGORIES.map(cat => (
                       <button
                         key={cat.id}
-                        onClick={() => { setActiveCategory(cat.id); setSearchQuery(''); setIsFilterOpen(false); }}
+                        onClick={() => { handleSelectCategory(cat.id); setIsFilterOpen(false); }}
                         className={`rounded-lg border px-2.5 py-2 text-xs font-bold transition text-start ${
                           activeCategory === cat.id
                             ? 'border-[#ff2d78] bg-[#ff2d78] text-white'
@@ -383,8 +477,8 @@ export const ProductList: React.FC = () => {
 
             <div className="border-t border-white/10 px-5 py-4 flex items-center justify-between gap-4 bg-[#0d0d0d]">
               <button
-                onClick={() => { setSearchQuery(''); setAvailabilityFilter('all'); setSortBy('best'); setActiveCategory(''); }}
-                className="text-xs text-stone-400 hover:text-white underline"
+                onClick={() => { setSearchQuery(''); setAvailabilityFilter('all'); setSortBy('best'); handleSelectCategory(''); }}
+                className="text-xs text-stone-400 hover:text-white underline cursor-pointer"
               >
                 {isArabic ? 'إعادة ضبط' : 'Reset all'}
               </button>

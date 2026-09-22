@@ -3,6 +3,18 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.10] - 2026-09-23
+
+### Fixed
+
+- **Custom Mobile Category Dropdown**: Replaced native browser `<select>` element in `src/components/ProductList.tsx` with a custom-styled, dark glassmorphism interactive combobox dropdown. Eliminates OS picker wheels and 12px form input auto-zoom on iOS Safari and Android Chrome.
+- **Scroll Preservation & Direct Catalog Navigation**: Fixed mobile issue where selecting a category jumped back to the top of the homepage (hero section). In `src/context/ShopContext.tsx`, updated `navigateToCategoryFn` so that category changes while already on `'shop'` view do not invoke `window.scrollTo(0, 0)`. Added `scroll-mt-24 sm:scroll-mt-28` to `id="products-grid"` and smooth scrolling to `#products-grid` on category selection.
+- **Filter Drawer Category Selection**: Updated mobile filter drawer category buttons and "Reset all" to scroll smoothly to the products catalog.
+
+### Changed
+
+- **Cache Version Bump**: Bumped `CACHE_VERSION` to `v1.5.10` in `lib/cacheVersion.ts` and `package.json` to `1.5.10`.
+
 ## [1.5.9] - 2026-09-22
 
 ### Added

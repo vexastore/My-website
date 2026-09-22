@@ -499,14 +499,16 @@ export const ShopProvider: React.FC<{
 
     const navigateToCategoryFn = (category: string) => {
       const slug = CATEGORY_TO_SLUG[category] || category.toLowerCase().replace(/\s+/g, '-');
-      const catPath = `/${slug}`;
-      if (window.location.pathname !== catPath) {
+      const catPath = category ? `/${slug}` : '/';
+      if (typeof window !== 'undefined' && window.location.pathname !== catPath) {
         window.history.pushState(null, '', catPath);
       }
       setActiveCategory(category);
       setSelectedProduct(null);
-      setViewState('shop');
-      window.scrollTo(0, 0);
+      if (currentView !== 'shop') {
+        setViewState('shop');
+        window.scrollTo(0, 0);
+      }
     };
 
   const setSelectedArticle = (article: AdviceArticle | null) => {
