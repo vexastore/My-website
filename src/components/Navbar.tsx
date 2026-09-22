@@ -207,7 +207,7 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => {
-                  const target = document.getElementById('shop-by-category');
+                  const target = document.getElementById('products-grid');
                   if (target) {
                     target.scrollIntoView({ behavior: 'smooth' });
                   } else {

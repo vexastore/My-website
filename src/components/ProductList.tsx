@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from './ProductCard';
 import { HeroSection } from './HeroSection';
-import { CategoryShowcase } from './CategoryShowcase';
 import { BuyingGuideBanner } from './BuyingGuideBanner';
 import { QuizBanner } from './QuizBanner';
 import { RelatedCategories } from './RelatedCategories';
@@ -115,13 +114,7 @@ export const ProductList: React.FC = () => {
       {/* ── 1. HERO SECTION ────────────────────────────────────────── */}
       <HeroSection />
 
-      {/* ── 2. SHOP BY CATEGORY (5 CARDS) ──────────────────────────── */}
-      <CategoryShowcase
-        onSelectCategory={handleSelectCategory}
-        onViewAllCategories={scrollToProducts}
-      />
-
-      {/* ── 3. BEST SELLING PRODUCTS / CATALOG ─────────────────────── */}
+      {/* ── 2. BEST SELLING PRODUCTS / CATALOG ─────────────────────── */}
       <section id="products-grid" className="mx-auto max-w-7xl px-4 py-10 sm:py-14 sm:px-6 lg:px-8 border-b border-white/10 scroll-mt-24 sm:scroll-mt-28">
         {/* Section Header matching mockup */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
