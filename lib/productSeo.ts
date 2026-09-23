@@ -10,6 +10,24 @@ export const SITE_BASE_URL = 'https://vexatoys.com';
 export const SLUG_REMAPS: Record<string, string> = {
   'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
     'anal-cleansing-douche-easy-comfortable-cleaning',
+  'premium-adjustable-strap-on-harness-with-interchangeable-rin':
+    'premium-strap-on-harness-set-interchangeable-o-ring-system-f',
+  'silicone-vibrating-cock-ring-comfortable-adjustable-cock-rin':
+    'zoro-vibrating-cock-ring-delay-control-ring',
+  'silicone-strap-on-dildo-in-lebanon-':
+    'strap-on-harness-kit-with-silicone-dildo',
+  'silicone-strap-on-dildo-in-lebanon':
+    'strap-on-harness-kit-with-silicone-dildo',
+  'silicone-strap-on-dildo':
+    'strap-on-harness-kit-with-silicone-dildo',
+  'penis-sleeve-reusable-silicone-extender-enhancer':
+    'silicone-textured-enhancement-sleeve',
+  'double-ended-flexible-silicone-intimate-wellness-toy-ultra-s':
+    'beaded-dual-silicone-toy-lebanon',
+  'silicone-anal-plug-lebanon-smooth-beaded-plug-set':
+    '3-piece-anal-plug-set-s-m-l-anal-plugs-in-lebanon',
+  'cock-ring-set-in-lebanon-4-piece-textured-silicone-enhanceme':
+    'textured-silicone-couples-enhancement-sleeve-with-beaded-des',
 };
 
 export function toProductSlug(value: string): string {
@@ -63,4 +81,19 @@ export function resolveProductCategorySlug(
 
 export function canonicalProductPath(product: Product): string {
   return `/${resolveProductCategorySlug(product)}/${canonicalProductSlug(product)}`;
+}
+
+export function findProduct(
+  products: Product[],
+  rawSlug: string
+): Product | undefined {
+  const cleanRaw = (rawSlug || '').replace(/-+$/, '');
+  const remappedSlug = SLUG_REMAPS[rawSlug] ?? SLUG_REMAPS[cleanRaw] ?? cleanRaw;
+  const slug = remappedSlug.replace(/-+$/, '');
+
+  return (
+    products.find((product) => canonicalProductSlug(product) === slug) ||
+    products.find((product) => product.id === slug) ||
+    products.find((product) => toProductSlug(product.nameEn || product.name || '') === slug)
+  );
 }

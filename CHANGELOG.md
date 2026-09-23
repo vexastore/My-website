@@ -3,6 +3,34 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.11] - 2026-09-23
+
+### Fixed
+
+- **Google Search Console 404 Historical URL Remapping**: Resolved Google Search Console Page Indexing validation failure for 6 historical URLs crawled by Googlebot. Added permanent 301 redirects and slug remapping across Vercel CDN Edge (`vercel.json`), Next.js router (`next.config.mjs`), and application fallback routes (`lib/productSeo.ts`, `app/[category]/[slug]/page.tsx`, `app/product/[slug]/page.tsx`, `app/products/[slug]/page.tsx`):
+  1. `/dildos/premium-adjustable-strap-on-harness-with-interchangeable-rin` & `/sex-toys/premium-adjustable-strap-on-harness-with-interchangeable-rin` → `/sex-toys/premium-strap-on-harness-set-interchangeable-o-ring-system-f`
+  2. `/sex-toys/silicone-vibrating-cock-ring-comfortable-adjustable-cock-rin` → `/sex-toys/zoro-vibrating-cock-ring-delay-control-ring`
+  3. `/dildos/silicone-strap-on-dildo-in-lebanon-`, `/dildos/silicone-strap-on-dildo-in-lebanon`, and `/dildos/silicone-strap-on-dildo` → `/dildos/strap-on-harness-kit-with-silicone-dildo`
+  4. `/sex-toys/penis-sleeve-reusable-silicone-extender-enhancer` → `/sex-toys/silicone-textured-enhancement-sleeve`
+  5. `/sex-toys/double-ended-flexible-silicone-intimate-wellness-toy-ultra-s` → `/male-toys/beaded-dual-silicone-toy-lebanon`
+  6. `/sex-toys/lingerie-in-lebanon-luxury-sexy-lingerie-collection-vexa-sto` → `/lingerie`
+- **Trailing Hyphen Sanitization**: Added automatic trailing hyphen stripping (`.replace(/-+$/, '')`) in `findProduct` (`lib/productSeo.ts`) ensuring URLs generated with truncation hyphens resolve smoothly without 404 errors.
+- **Repaired 5 Stale Redirect Targets in `vercel.json`**:
+  - Corrected `/sex-toys/realcock-premium-realistic-dildo-in-lebanon-hyper-realistic-` to point to `/dildos/realcock-premium-realistic-dildo-in-lebanon-hyper-realistic`.
+  - Corrected `/dildos/silicone-strap-on-dildo` to point to `/dildos/strap-on-harness-kit-with-silicone-dildo`.
+  - Corrected `/sex-toys/silicone-anal-plug-lebanon-smooth-beaded-plug-set` to point to `/sex-toys/3-piece-anal-plug-set-s-m-l-anal-plugs-in-lebanon`.
+  - Corrected `/sex-toys/dolphin-suction-vibrator-in-lebanon-rechargeable-clitoral-st` to point to active `/vibrators` category.
+  - Corrected `/male-toys/cock-ring-set-in-lebanon-4-piece-textured-silicone-enhanceme` to point to `/sex-toys/textured-silicone-couples-enhancement-sleeve-with-beaded-des`.
+- **Unified Product Finding**: Replaced duplicated product lookups in `app/product/[slug]/page.tsx` and `app/products/[slug]/page.tsx` with shared, remapping-aware `findProduct` from `lib/productSeo.ts`.
+
+### Added
+
+- **GSC 404 Redirect Regression Tests**: Added `tests/gsc-404-redirects.test.mjs` verifying edge, Next.js router, and application slug resolution for historical URLs.
+
+### Changed
+
+- **Cache Version Bump**: Bumped `CACHE_VERSION` to `v1.5.11` in `lib/cacheVersion.ts` and `package.json` to `1.5.11`.
+
 ## [1.5.10] - 2026-09-23
 
 ### Fixed

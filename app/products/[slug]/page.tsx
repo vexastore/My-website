@@ -1,6 +1,6 @@
 import { permanentRedirect, notFound } from 'next/navigation';
 import { fetchProductsServer } from '@/lib/fetchProducts';
-import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
+import { canonicalProductPath, findProduct } from '@/lib/productSeo';
 
 // Legacy route: the old React/Vite SPA also served products at /products/:slug (plural).
 // The current Next.js app serves them at /[category]/[slug]. Google still
@@ -18,7 +18,7 @@ export default async function LegacyProductRedirect({
   const { slug } = await params;
 
   const products = await fetchProductsServer();
-  const match = products.find((p) => canonicalProductSlug(p) === slug || p.id === slug);
+  const match = findProduct(products, slug);
 
   if (!match) {
     // Product no longer exists — a real 404 is correct and expected here,

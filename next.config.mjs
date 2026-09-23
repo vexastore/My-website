@@ -38,6 +38,52 @@ const nextConfig = {
         destination: '/returns',
         permanent: true,
       },
+      // Google Search Console 404 historical redirect resolutions
+      {
+        source: '/dildos/premium-adjustable-strap-on-harness-with-interchangeable-rin',
+        destination: '/sex-toys/premium-strap-on-harness-set-interchangeable-o-ring-system-f',
+        permanent: true,
+      },
+      {
+        source: '/sex-toys/premium-adjustable-strap-on-harness-with-interchangeable-rin',
+        destination: '/sex-toys/premium-strap-on-harness-set-interchangeable-o-ring-system-f',
+        permanent: true,
+      },
+      {
+        source: '/sex-toys/silicone-vibrating-cock-ring-comfortable-adjustable-cock-rin',
+        destination: '/sex-toys/zoro-vibrating-cock-ring-delay-control-ring',
+        permanent: true,
+      },
+      {
+        source: '/dildos/silicone-strap-on-dildo-in-lebanon-',
+        destination: '/dildos/strap-on-harness-kit-with-silicone-dildo',
+        permanent: true,
+      },
+      {
+        source: '/dildos/silicone-strap-on-dildo-in-lebanon',
+        destination: '/dildos/strap-on-harness-kit-with-silicone-dildo',
+        permanent: true,
+      },
+      {
+        source: '/dildos/silicone-strap-on-dildo',
+        destination: '/dildos/strap-on-harness-kit-with-silicone-dildo',
+        permanent: true,
+      },
+      {
+        source: '/sex-toys/penis-sleeve-reusable-silicone-extender-enhancer',
+        destination: '/sex-toys/silicone-textured-enhancement-sleeve',
+        permanent: true,
+      },
+      {
+        source: '/sex-toys/double-ended-flexible-silicone-intimate-wellness-toy-ultra-s',
+        destination: '/male-toys/beaded-dual-silicone-toy-lebanon',
+        permanent: true,
+      },
+      {
+        source: '/sex-toys/lingerie-in-lebanon-luxury-sexy-lingerie-collection-vexa-sto',
+        destination: '/lingerie',
+        permanent: true,
+      },
     ];
   },
   async headers() {

@@ -11,6 +11,7 @@ import type { Product } from '@/src/types';
 import {
   canonicalProductPath,
   canonicalProductSlug,
+  findProduct,
   resolveProductCategorySlug,
   SITE_BASE_URL,
   SLUG_REMAPS,
@@ -57,22 +58,6 @@ function schemaImageUrl(product: Product): string {
   return DEFAULT_OG_IMAGE;
 }
 
-/**
- * Finds a product using the canonical slug, old slug remaps,
- * product name slug, or product ID.
- */
-function findProduct(
-  products: Product[],
-  rawSlug: string
-): Product | undefined {
-  const remappedSlug = SLUG_REMAPS[rawSlug] ?? rawSlug;
-
-  const slug = remappedSlug.replace(/-+$/, '');
-
-  return products.find(product => canonicalProductSlug(product) === slug) ||
-    products.find(product => product.id === slug) ||
-    products.find(product => toProductSlug(product.nameEn || product.name || '') === slug);
-}
 
 /**
  * Returns the main product image.
