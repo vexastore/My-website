@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import { getAggregateRating } from '../lib/productReviews.ts';
 
 test('getAggregateRating strictly returns null when reviewsCount is 0 or rating is 0', () => {
@@ -44,4 +45,15 @@ test('review submission validation enforces strict constraints', () => {
   const isValidBody = (body) => typeof body === 'string' && body.trim().length >= 5 && body.trim().length <= 2000;
   assert.ok(isValidBody('Arrived fast in Beirut in a discreet package!'));
   assert.equal(isValidBody('Bad'), false);
+});
+
+test('storefront rating surfaces do not fabricate zero-review fallbacks', () => {
+  const card = readFileSync(new URL('../src/components/ProductCard.tsx', import.meta.url), 'utf8');
+  const page = readFileSync(new URL('../src/components/ProductPage.tsx', import.meta.url), 'utf8');
+
+  assert.doesNotMatch(card, /reviewsCount\s*\|\|/);
+  assert.doesNotMatch(card, /className="fill-amber-400 text-amber-400"/);
+  assert.match(card, /No reviews yet/);
+  assert.doesNotMatch(page, /Rated \$\{product\.rating\}\/5/);
+  assert.match(page, /href="#reviews-section"/);
 });

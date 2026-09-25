@@ -13,7 +13,7 @@
  * and client localStorage caches are immediately invalidated across deployments.
  */
 
-export const CACHE_VERSION = 'v1.5.11';
+export const CACHE_VERSION = 'v1.5.12';
 
 export const CACHE_KEYS = {
   PRODUCTS: `supabase-products-${CACHE_VERSION}`,

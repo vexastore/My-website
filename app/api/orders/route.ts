@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import { NextRequest, NextResponse } from 'next/server';
+import { isValidOrderAddress } from '@/lib/orderValidation';
 
 export const runtime = 'nodejs';
 
@@ -20,7 +21,7 @@ function validPayload(value: unknown): value is Payload {
     && (body.locale === 'en' || body.locale === 'ar')
     && !!customer && validText(customer.name, 2, 120)
     && validText(customer.phone, 5, 40) && validText(customer.city, 1, 120)
-    && validText(customer.address, 4, 500)
+    && isValidOrderAddress(customer.address)
     && (customer.notes === undefined || validText(customer.notes, 0, 2000))
     && Array.isArray(body.items) && body.items.length >= 1 && body.items.length <= 50
     && body.items.every(item => typeof item.productId === 'string' && uuid.test(item.productId)

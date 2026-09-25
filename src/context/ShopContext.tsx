@@ -602,7 +602,10 @@ export const ShopProvider: React.FC<{
       body: JSON.stringify({ idempotencyKey, customer, locale: language,
         items: cart.map(item => ({ productId: item.product.id, quantity: item.quantity, selectedOptions: item.selectedVariant || {} })) }),
     });
-    if (!response.ok) throw new Error(`Order save failed: ${response.status}`);
+    if (!response.ok) {
+      const failure = await response.json().catch(() => null) as { error?: string } | null;
+      throw new Error(failure?.error || `Order save failed: ${response.status}`);
+    }
     const saved = await response.json() as { id: string; reference: string; status: Order['status']; total: number; deliveryFee?: number | null; placedAt?: string | null; testMode?: boolean };
     const order: Order = {
       id: saved.reference, isTestOrder: saved.testMode === true, items: [...cart], customer, total: saved.total, deliveryFee: saved.deliveryFee ?? deliveryFee,

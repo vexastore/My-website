@@ -4,6 +4,8 @@ SEO metadata for products, categories, and articles uses published admin overrid
 
 Each product page displays a database-backed Customer Reviews section (`src/components/ProductReviews.tsx`). Reviews are stored in Supabase `product_reviews` and moderated in admin. Verified buyer badges are derived exclusively through server lookup of completed orders matching order reference and customer phone; users cannot arbitrarily claim verified status. An interactive "Write a Review" modal allows customers to submit reviews via `/api/reviews` (calling RPC `submit_product_review`). If no approved reviews exist yet, a clean empty state is displayed inviting the first review.
 
+Catalog cards use the same database aggregate as the product page. A product with no approved reviews displays empty stars and `No reviews yet`; it never receives a fallback score or review count. The product-page summary links to the review section so the submission workflow is discoverable without permitting administrators to type arbitrary product ratings.
+
 The public storefront defaults to English and offers Arabic through the EN/AR switch. The selection persists across catalog, product, checkout, orders, blog, about, quiz, and returns views. Page direction and server-rendered copy follow the selected language. The catalog toolbar combines a category dropdown, search field, and filter action; the customer-only main navigation has a Products submenu and animated overlay. The homepage has one FAQ section.
 
 The homepage does not expose links to the reserved `/city/*` routes until dedicated city landing pages are implemented, so customers are not sent to city-page 404 responses.
@@ -19,6 +21,8 @@ The storefront also includes a public `/delivery` policy page covering 24/7 serv
 The storefront includes a public `/privacy` policy page explaining discreet shopping, personal information collection and use, cookies, analytics, third-party sharing, retention, security, privacy rights, marketing choices, and communication services. The page is linked from the footer and includes canonical and Open Graph metadata.
 
 Checkout confirms database persistence before offering a customer-sent WhatsApp order summary. The customer sends it manually to the store and keeps a copy in the chat. See [flow](02-architecture/flows/whatsapp-checkout.md).
+
+Checkout and `/api/orders` share the same address boundary (4–500 trimmed characters). Invalid short addresses are rejected locally before submission, while catalog/variant conflicts returned by the server show a cart-refresh instruction and retain the cart.
 # Supabase storefront release 1.3.0
 
 The storefront shows the imported Supabase product catalog and blog content. Cart checkout retains items when the order write fails, and a saved order can be handed to WhatsApp by the customer. The administrator interface lives at `admin.vexatoys.com`. The production cutover is live; a real storefront order is now confirmed in the database and visible in admin.

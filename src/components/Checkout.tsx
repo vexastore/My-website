@@ -5,6 +5,7 @@ import { CustomerInfo, Order } from '../types';
 import { selectedUnitPrice } from '../utils/pricing';
 import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
 import { orderWhatsAppUrl } from '../utils/whatsapp';
+import { MIN_ORDER_ADDRESS_LENGTH } from '@/lib/orderValidation';
 
 // Synchronous guard, prevents double-submissions caused by React's async state
 // batching. Two rapid taps can both see isSubmitting===false before the first
@@ -65,7 +66,11 @@ export const Checkout: React.FC = () => {
       newErrors.phone = isArabic ? 'رقم الهاتف غير صحيح.' : 'Invalid phone number.';
     }
     if (!form.city.trim()) newErrors.city = isArabic ? 'يرجى اختيار المدينة.' : 'Please select a city.';
-    if (!form.address.trim()) newErrors.address = isArabic ? 'يرجى كتابة العنوان.' : 'Please enter your address.';
+    if (form.address.trim().length < MIN_ORDER_ADDRESS_LENGTH) {
+      newErrors.address = isArabic
+        ? `يرجى كتابة عنوان من ${MIN_ORDER_ADDRESS_LENGTH} أحرف على الأقل.`
+        : `Address must be at least ${MIN_ORDER_ADDRESS_LENGTH} characters.`;
+    }
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
@@ -127,9 +132,14 @@ export const Checkout: React.FC = () => {
       }
     } catch (error) {
       console.error('[Checkout] order save failed:', error);
-      setValidationBanner(isArabic
-        ? 'تعذر حفظ الطلب. لم يتم إرسال رسالة. يرجى المحاولة مجدداً.'
-        : 'Could not save your order. No message was sent. Please try again.');
+      const unavailableItem = error instanceof Error && error.message === 'An item or customer detail is invalid or unavailable';
+      setValidationBanner(unavailableItem
+        ? (isArabic
+            ? 'أحد المنتجات أو الخيارات لم يعد متاحاً. يرجى تحديث السلة والمحاولة مجدداً.'
+            : 'An item or option is no longer available. Please refresh your cart and try again.')
+        : (isArabic
+            ? 'تعذر حفظ الطلب. لم يتم إرسال رسالة. يرجى المحاولة مجدداً.'
+            : 'Could not save your order. No message was sent. Please try again.'));
     } finally {
       // Guarantees spinner stops even if something throws unexpectedly.
       _submitting.current = false;
@@ -423,4 +433,3 @@ export const Checkout: React.FC = () => {
     </div>
   );
 };
-

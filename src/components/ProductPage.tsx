@@ -50,6 +50,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const remaining   = Math.min(product.stock - cartQty, optionRemaining);
   const displayedPrice = selectedUnitPrice(product, variants);
   const oldPrice    = Math.round(displayedPrice * 1.23);
+  const hasReviews  = product.reviewsCount > 0 && product.rating > 0;
 
   const productCats    = getProductCategories(product);
   const primaryCatId   = productCats[0] || product.category;
@@ -70,7 +71,8 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
     // ── Meta tags ──
     const title = `${productName} | Vexa Toys Lebanon`;
     document.title = title;
-    const desc = `${productName}, ${product.price.toFixed(2)} USD, ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}. Rated ${product.rating}/5. Buy discreetly in Lebanon.`;
+    const ratingSummary = hasReviews ? ` Rated ${Number(product.rating).toFixed(1)}/5 from ${product.reviewsCount} reviews.` : '';
+    const desc = `${productName}, ${product.price.toFixed(2)} USD, ${product.stock > 0 ? 'In Stock' : 'Out of Stock'}.${ratingSummary} Buy discreetly in Lebanon.`;
     document.querySelector('meta[name="description"]')?.setAttribute('content', desc);
     document.querySelector('meta[property="og:title"]')?.setAttribute('content', title);
     document.querySelector('meta[property="og:description"]')?.setAttribute('content', desc);
@@ -104,7 +106,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
       document.head.appendChild(script);
     }
     script.text = JSON.stringify(jsonLd);
-  }, [product, language, primaryCatName, primaryCatId]);
+  }, [product, language, primaryCatName, primaryCatId, hasReviews]);
 
   useEffect(() => {
     let cancelled = false;
@@ -268,17 +270,25 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           </div>
 
           {/* Rating */}
-          <div className="flex items-center gap-2">
+          <a href="#reviews-section" className="flex items-center gap-2 w-fit" aria-label={hasReviews ? `${product.rating} out of 5 from ${product.reviewsCount} reviews` : (isArabic ? 'لا توجد تقييمات بعد، أضف أول تقييم' : 'No reviews yet, write the first review')}>
             <div className="flex gap-0.5 text-amber-400">
               {[...Array(5)].map((_, i) => (
                 <Star key={i} size={14}
-                  fill={i < Math.floor(product.rating) ? 'currentColor' : 'none'}
-                  className={i < Math.floor(product.rating) ? '' : 'text-stone-600'} />
+                  fill={hasReviews && i < Math.round(product.rating) ? 'currentColor' : 'none'}
+                  className={hasReviews && i < Math.round(product.rating) ? '' : 'text-stone-600'} />
               ))}
             </div>
-            <span className="text-sm font-bold text-amber-400">{product.rating}/5</span>
-            <span className="text-sm text-stone-500">({product.reviewsCount} {isArabic ? 'تقييم' : 'reviews'})</span>
-          </div>
+            {hasReviews ? (
+              <>
+                <span className="text-sm font-bold text-amber-400">{Number(product.rating).toFixed(1)}/5</span>
+                <span className="text-sm text-stone-500">({product.reviewsCount} {isArabic ? 'تقييم' : 'reviews'})</span>
+              </>
+            ) : (
+              <span className="text-sm font-semibold text-stone-400 underline decoration-white/20 underline-offset-4">
+                {isArabic ? 'لا توجد تقييمات بعد — أضف أول تقييم' : 'No reviews yet — write the first review'}
+              </span>
+            )}
+          </a>
 
           {/* Price */}
           <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/[0.04] to-transparent p-4 flex items-baseline gap-2.5 flex-wrap">

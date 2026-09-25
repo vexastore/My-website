@@ -1,5 +1,7 @@
 # Testing
 
+For 1.5.12, run `node --test --experimental-strip-types tests/*.test.mjs`, `npx tsc --noEmit --incremental false`, `npm run lint`, and `npm run build`. At a mobile viewport, verify a zero-review product has no `0/5` label, displays `No reviews yet`, and links to `#reviews-section`. Seed a cart locally, enter a three-character address, and verify the form displays `Address must be at least 4 characters.` without issuing `POST /api/orders`. Do not use a valid production item in automated checkout tests because that would create a real order and decrement stock.
+
 For Merchant listings `validFrom` and `offers` schema, run `node --test tests/product-schema.test.mjs`. Verify that Schema.org Product structured data outputs `validFrom` in ISO 8601 `YYYY-MM-DD` format, `priceValidUntil >= validFrom`, and `itemCondition: 'https://schema.org/NewCondition'` across all product pages, specifically verifying all 26 affected URLs reported by Google Search Console.
 
 For the Terms & Conditions policy, run `node --test tests/legal-routes.test.mjs` and `npm run build`. Confirm `/terms` is generated as a static/dynamic route, returns HTTP 200 locally, includes all 18 numbered sections and required legal links, is linked from the storefront footer and age verification banner, and that `/terms-and-conditions` 301-redirects to `/terms`.

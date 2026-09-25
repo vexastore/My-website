@@ -106,6 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
 
   const oldPrice = Math.round(product.price * 1.25);
   const isOutOfStock = product.stock <= 0;
+  const hasReviews = product.reviewsCount > 0 && product.rating > 0;
 
   // Determine badge style matching mockup
   const getBadge = () => {
@@ -239,12 +240,15 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
               <Star
                 key={i}
                 size={10}
-                className="fill-amber-400 text-amber-400"
+                fill={hasReviews && i < Math.round(product.rating) ? 'currentColor' : 'none'}
+                className={hasReviews && i < Math.round(product.rating) ? 'text-amber-400' : 'text-stone-600'}
               />
             ))}
           </div>
           <span className="text-[10px] font-semibold text-stone-400">
-            ({product.reviewsCount || 12})
+            {hasReviews
+              ? `${Number(product.rating).toFixed(1)} (${product.reviewsCount})`
+              : (isArabic ? 'لا توجد تقييمات بعد' : 'No reviews yet')}
           </span>
         </div>
       </div>

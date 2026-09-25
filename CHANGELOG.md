@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.12] - 2026-09-25
+
+### Fixed
+
+- **Checkout address contract**: Shared the API's four-character address minimum with the checkout form. Inputs such as `Sss` are now rejected beside the address field before any order request is sent.
+- **Actionable order failures**: The client now reads safe API error messages and distinguishes an unavailable item or option from a generic persistence failure.
+- **Truthful catalog ratings**: Removed the product-card fallback that rendered five filled stars and `12` reviews when the database count was zero. Catalog cards and product pages now show `No reviews yet` with empty stars.
+- **Review discovery**: The zero-review summary on product pages links directly to the real customer review form.
+- **Zero-review metadata**: Client-generated product descriptions no longer say `Rated 0/5` when no approved review exists.
+
+### Changed
+
+- **Cache version bump**: Bumped `CACHE_VERSION` and the package version to `1.5.12` so stale catalog/card output is invalidated.
+
 ## [1.5.11] - 2026-09-23
 
 ### Fixed
