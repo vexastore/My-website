@@ -23,6 +23,8 @@ The storefront includes a public `/privacy` policy page explaining discreet shop
 Checkout confirms database persistence before offering a customer-sent WhatsApp order summary. The customer sends it manually to the store and keeps a copy in the chat. See [flow](02-architecture/flows/whatsapp-checkout.md).
 
 Checkout and `/api/orders` share the same address boundary (4–500 trimmed characters). Invalid short addresses are rejected locally before submission, while catalog/variant conflicts returned by the server show a cart-refresh instruction and retain the cart.
+
+Checkout country-code and city selection use custom dark popovers rather than native browser selects. Both controls expose combobox/listbox semantics, keyboard navigation, visible selected states, outside-click dismissal, and English/Arabic labels while preserving the same saved phone and city values.
 # Supabase storefront release 1.3.0
 
 The storefront shows the imported Supabase product catalog and blog content. Cart checkout retains items when the order write fails, and a saved order can be handed to WhatsApp by the customer. The administrator interface lives at `admin.vexatoys.com`. The production cutover is live; a real storefront order is now confirmed in the database and visible in admin.

@@ -1,9 +1,9 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import { useShop } from '../context/ShopContext';
 import { CustomerInfo, Order } from '../types';
 import { selectedUnitPrice } from '../utils/pricing';
-import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, Truck, CheckCircle2, ArrowRight, Zap, ChevronDown, Check } from 'lucide-react';
 import { orderWhatsAppUrl } from '../utils/whatsapp';
 import { MIN_ORDER_ADDRESS_LENGTH } from '@/lib/orderValidation';
 
@@ -38,6 +38,135 @@ const COUNTRY_CODES = [
   { code: '+61', flag: '🇦🇺', label: 'Australia' },
 ];
 
+type CheckoutOption = {
+  value: string;
+  label: string;
+  prefix?: string;
+};
+
+type CheckoutDropdownProps = {
+  value: string;
+  options: CheckoutOption[];
+  placeholder: string;
+  ariaLabel: string;
+  onChange: (value: string) => void;
+  triggerRef?: React.RefObject<HTMLButtonElement | null>;
+  compact?: boolean;
+  invalid?: boolean;
+};
+
+function CheckoutDropdown({ value, options, placeholder, ariaLabel, onChange, triggerRef, compact = false, invalid = false }: CheckoutDropdownProps) {
+  const [open, setOpen] = useState(false);
+  const selectedIndex = Math.max(0, options.findIndex(option => option.value === value));
+  const [activeIndex, setActiveIndex] = useState(selectedIndex);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listboxId = useId();
+  const selected = options.find(option => option.value === value);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener('pointerdown', closeOutside);
+    return () => document.removeEventListener('pointerdown', closeOutside);
+  }, [open]);
+
+  const choose = (index: number) => {
+    const option = options[index];
+    if (!option) return;
+    onChange(option.value);
+    setActiveIndex(index);
+    setOpen(false);
+    buttonRef.current?.focus();
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === 'Escape') {
+      setOpen(false);
+      return;
+    }
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault();
+      const direction = event.key === 'ArrowDown' ? 1 : -1;
+      setOpen(true);
+      setActiveIndex(current => (current + direction + options.length) % options.length);
+      return;
+    }
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      if (open) choose(activeIndex);
+      else {
+        setActiveIndex(selectedIndex);
+        setOpen(true);
+      }
+    }
+  };
+
+  return (
+    <div ref={rootRef} className={`relative ${compact ? 'w-[112px] flex-shrink-0' : 'w-full'}`}>
+      <button
+        ref={node => {
+          buttonRef.current = node;
+          if (triggerRef) triggerRef.current = node;
+        }}
+        type="button"
+        role="combobox"
+        aria-label={ariaLabel}
+        aria-expanded={open}
+        aria-controls={listboxId}
+        aria-haspopup="listbox"
+        aria-activedescendant={open ? `${listboxId}-option-${activeIndex}` : undefined}
+        onClick={() => {
+          setActiveIndex(selectedIndex);
+          setOpen(current => !current);
+        }}
+        onKeyDown={handleKeyDown}
+        className={`flex min-h-[46px] w-full items-center justify-between gap-2 rounded-xl border px-3 py-3 text-sm text-white outline-none transition focus:border-[#ff2d78] focus:ring-1 focus:ring-[#ff2d78] ${invalid ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'} ${open ? 'border-[#ff2d78] bg-white/10 ring-1 ring-[#ff2d78]' : ''}`}
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          {selected?.prefix && <span className="text-base leading-none" aria-hidden="true">{selected.prefix}</span>}
+          <span className={`truncate ${selected ? 'text-white' : 'text-white/40'}`}>{(compact ? selected?.value : selected?.label) || placeholder}</span>
+        </span>
+        <ChevronDown size={14} className={`flex-shrink-0 text-white/50 transition-transform ${open ? 'rotate-180 text-[#ff2d78]' : ''}`} aria-hidden="true" />
+      </button>
+
+      {open && (
+        <div
+          id={listboxId}
+          role="listbox"
+          aria-label={ariaLabel}
+          className={`absolute start-0 z-50 mt-2 max-h-64 overflow-y-auto rounded-xl border border-white/15 bg-[#151515] p-1.5 shadow-[0_18px_60px_rgba(0,0,0,0.65)] ${compact ? 'w-[min(280px,calc(100vw-2rem))]' : 'w-full'}`}
+        >
+          {options.map((option, index) => {
+            const isSelected = option.value === value;
+            const isActive = index === activeIndex;
+            return (
+              <button
+                key={`${option.value}-${option.label}`}
+                id={`${listboxId}-option-${index}`}
+                type="button"
+                role="option"
+                aria-selected={isSelected}
+                onMouseEnter={() => setActiveIndex(index)}
+                onClick={() => choose(index)}
+                className={`flex w-full items-center justify-between gap-3 rounded-lg px-3 py-2.5 text-start text-sm transition ${isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'} ${isSelected ? 'font-bold' : ''}`}
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  {option.prefix && <span className="text-base leading-none" aria-hidden="true">{option.prefix}</span>}
+                  <span className="truncate">{option.label}</span>
+                </span>
+                {isSelected && <Check size={14} className="flex-shrink-0 text-[#ff2d78]" aria-hidden="true" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export const Checkout: React.FC = () => {
   const { cart, updateCartQuantity, removeFromCart, getCartTotal, getDeliveryFee, getCartItemsCount, placeOrder, setView, language } = useShop();
   const isArabic = language === 'ar';
@@ -54,7 +183,7 @@ export const Checkout: React.FC = () => {
   // Refs for scrolling to the first invalid field on mobile
   const nameRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
-  const cityRef = useRef<HTMLSelectElement>(null);
+  const cityRef = useRef<HTMLButtonElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
 
   const validateForm = (): boolean => {
@@ -147,8 +276,13 @@ export const Checkout: React.FC = () => {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
+  };
+
+  const handleSelectChange = (name: 'countryCode' | 'city', value: string) => {
     setForm(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: undefined }));
   };
@@ -253,6 +387,15 @@ export const Checkout: React.FC = () => {
   const subtotal = getCartTotal();
   const total = subtotal + deliveryFee;
   const selectedCountry = COUNTRY_CODES.find(c => c.code === form.countryCode) || COUNTRY_CODES[0];
+  const countryOptions = COUNTRY_CODES.map(country => ({
+    value: country.code,
+    label: `${country.code} · ${country.label}`,
+    prefix: country.flag,
+  }));
+  const cityOptions = (isArabic ? LEBANESE_CITIES_AR : LEBANESE_CITIES_EN).map((city, index) => ({
+    value: LEBANESE_CITIES_AR[index],
+    label: city,
+  })).concat({ value: 'أخرى', label: isArabic ? 'أخرى...' : 'Other...' });
 
   return (
     <div className="bg-black text-white mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8" dir={isArabic ? 'rtl' : 'ltr'}>
@@ -357,24 +500,17 @@ export const Checkout: React.FC = () => {
             <div>
               <label className="block text-xs font-bold text-white/70 mb-1">{isArabic ? 'رقم الهاتف *' : 'Phone number *'}</label>
               <div className="flex gap-2">
-                <div className="relative">
-                  <select
-                    name="countryCode"
-                    value={form.countryCode}
-                    onChange={handleInputChange}
-                    className="appearance-none h-full border border-white/15 rounded-xl pl-3 pr-7 py-3 text-sm text-white bg-white/5 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] min-w-[90px] cursor-pointer transition"
-                  >
-                    {COUNTRY_CODES.map(c => (
-                      <option key={c.code} value={c.code}>
-                        {c.flag} {c.code}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronDown size={12} className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
-                </div>
+                <CheckoutDropdown
+                  compact
+                  value={form.countryCode}
+                  options={countryOptions}
+                  placeholder="+961"
+                  ariaLabel={isArabic ? 'رمز الدولة' : 'Country calling code'}
+                  onChange={value => handleSelectChange('countryCode', value)}
+                />
                 <input ref={phoneRef} type="tel" name="phone" value={form.phone} onChange={handleInputChange} dir="ltr"
                   placeholder={form.countryCode === '+961' ? '03 123 456' : '555 1234'}
-                  className={`flex-1 border rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] transition ${errors.phone ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'}`} />
+                  className={`min-w-0 flex-1 border rounded-xl px-4 py-3 text-sm text-white placeholder:text-white/30 outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] transition ${errors.phone ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'}`} />
               </div>
               <p className="text-[10px] text-white/40 mt-1">
                 {isArabic ? `الرقم الكامل: ${selectedCountry.flag} ${form.countryCode} ${form.phone}` : `Full number: ${selectedCountry.flag} ${form.countryCode} ${form.phone}`}
@@ -384,12 +520,15 @@ export const Checkout: React.FC = () => {
 
             <div>
               <label className="block text-xs font-bold text-white/70 mb-1">{isArabic ? 'المدينة *' : 'City *'}</label>
-              <select ref={cityRef} name="city" value={form.city} onChange={handleInputChange}
-                className={`appearance-none w-full border rounded-xl px-4 py-3 text-sm text-white outline-none focus:ring-1 focus:ring-[#ff2d78] focus:border-[#ff2d78] transition ${errors.city ? 'border-red-500/60 bg-red-500/10' : 'border-white/15 bg-white/5'}`}>
-                <option value="">{isArabic ? '- اختر المدينة -' : '- Select city -'}</option>
-                {(isArabic ? LEBANESE_CITIES_AR : LEBANESE_CITIES_EN).map((city, idx) => { const val = LEBANESE_CITIES_AR[idx]; return <option key={val} value={val}>{city}</option>; })}
-                <option value="أخرى">{isArabic ? 'أخرى...' : 'Other...'}</option>
-              </select>
+              <CheckoutDropdown
+                value={form.city}
+                options={cityOptions}
+                placeholder={isArabic ? 'اختر المدينة' : 'Select city'}
+                ariaLabel={isArabic ? 'المدينة' : 'City'}
+                invalid={Boolean(errors.city)}
+                triggerRef={cityRef}
+                onChange={value => handleSelectChange('city', value)}
+              />
               {errors.city && <p className="text-xs text-red-400 mt-1">{errors.city}</p>}
             </div>
 

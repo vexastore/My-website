@@ -1,5 +1,7 @@
 # Testing
 
+For 1.5.13, run `node --test --experimental-strip-types tests/*.test.mjs`, `npx tsc --noEmit --incremental false`, `npm run lint`, and `npm run build`. In a 390×844 Chrome viewport, open checkout with a cart item, open the country-code and city controls, confirm each renders an in-page dark popover instead of a native picker, select a value, dismiss by outside click/Escape, and verify Arrow keys plus Enter update the visible selection without console errors or horizontal overflow.
+
 For 1.5.12, run `node --test --experimental-strip-types tests/*.test.mjs`, `npx tsc --noEmit --incremental false`, `npm run lint`, and `npm run build`. At a mobile viewport, verify a zero-review product has no `0/5` label, displays `No reviews yet`, and links to `#reviews-section`. Seed a cart locally, enter a three-character address, and verify the form displays `Address must be at least 4 characters.` without issuing `POST /api/orders`. Do not use a valid production item in automated checkout tests because that would create a real order and decrement stock.
 
 For Merchant listings `validFrom` and `offers` schema, run `node --test tests/product-schema.test.mjs`. Verify that Schema.org Product structured data outputs `validFrom` in ISO 8601 `YYYY-MM-DD` format, `priceValidUntil >= validFrom`, and `itemCondition: 'https://schema.org/NewCondition'` across all product pages, specifically verifying all 26 affected URLs reported by Google Search Console.

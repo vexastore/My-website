@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.13] - 2026-09-25
+
+### Changed
+
+- **Styled checkout dropdowns**: Replaced the native country-code and city selects with dark storefront popovers so mobile browsers no longer substitute OS/browser picker styling.
+- **Accessible selection**: Added combobox/listbox semantics, selected and active states, keyboard arrow/Enter/Space/Escape behavior, outside-click dismissal, focus restoration, and bilingual labels.
+
 ## [1.5.12] - 2026-09-25
 
 ### Fixed
