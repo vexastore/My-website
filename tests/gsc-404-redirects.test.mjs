@@ -9,6 +9,9 @@ import nextConfig from '../next.config.mjs';
 const vercelJson = JSON.parse(await readFile(new URL('../vercel.json', import.meta.url), 'utf8'));
 
 const GSC_FAILED_SLUGS = [
+  'dildos-silicone-custom-colors-in-lebanon',
+  'beaded-dual-penetrator-vibrating-silicone-toy',
+  'luxecurve-silicone-dildo-in-lebanon',
   'premium-adjustable-strap-on-harness-with-interchangeable-rin',
   'silicone-vibrating-cock-ring-comfortable-adjustable-cock-rin',
   'silicone-strap-on-dildo-in-lebanon-',
@@ -17,6 +20,18 @@ const GSC_FAILED_SLUGS = [
 ];
 
 test('SLUG_REMAPS contains all GSC legacy slugs and mappings', () => {
+  assert.equal(
+    SLUG_REMAPS['dildos-silicone-custom-colors-in-lebanon'],
+    'silicone-dildo-custom-colors-lebanon'
+  );
+  assert.equal(
+    SLUG_REMAPS['beaded-dual-penetrator-vibrating-silicone-toy'],
+    'beaded-dual-silicone-toy-lebanon'
+  );
+  assert.equal(
+    SLUG_REMAPS['luxecurve-silicone-dildo-in-lebanon'],
+    'luxecurve-silicone-dildo'
+  );
   assert.equal(
     SLUG_REMAPS['premium-adjustable-strap-on-harness-with-interchangeable-rin'],
     'premium-strap-on-harness-set-interchangeable-o-ring-system-f'
@@ -49,6 +64,24 @@ test('SLUG_REMAPS contains all GSC legacy slugs and mappings', () => {
 
 test('findProduct strips trailing hyphens and resolves remapped slugs', () => {
   const mockProducts = [
+    {
+      id: 'prod-custom-dildo',
+      slug: 'silicone-dildo-custom-colors-lebanon',
+      nameEn: 'Silicone Dildo with Custom Colors',
+      categorySlug: 'dildos',
+    },
+    {
+      id: 'prod-beaded-dual',
+      slug: 'beaded-dual-silicone-toy-lebanon',
+      nameEn: 'Beaded Dual Penetrator',
+      categorySlug: 'male-toys',
+    },
+    {
+      id: 'prod-luxecurve',
+      slug: 'luxecurve-silicone-dildo',
+      nameEn: 'LuxeCurve Silicone Dildo',
+      categorySlug: 'sex-toys',
+    },
     {
       id: 'prod-strap',
       slug: 'strap-on-harness-kit-with-silicone-dildo',
@@ -87,11 +120,16 @@ test('findProduct strips trailing hyphens and resolves remapped slugs', () => {
   }
 });
 
-test('next.config.mjs defines permanent 301 redirects for all 6 GSC routes', async () => {
+test('next.config.mjs defines permanent redirects for all reported GSC routes', async () => {
   const redirects = await nextConfig.redirects();
   const redirectMap = new Map(redirects.map((r) => [r.source, r]));
 
   const requiredSources = [
+    '/dildos/dildos-silicone-custom-colors-in-lebanon',
+    '/dildos/dildos-silicone-custom-colors-in-lebanon-',
+    '/male-toys/beaded-dual-penetrator-vibrating-silicone-toy',
+    '/sex-toys/luxecurve-silicone-dildo-in-lebanon',
+    '/sex-toys/dolphin-suckling-female-adult-sex',
     '/dildos/premium-adjustable-strap-on-harness-with-interchangeable-rin',
     '/sex-toys/premium-adjustable-strap-on-harness-with-interchangeable-rin',
     '/sex-toys/silicone-vibrating-cock-ring-comfortable-adjustable-cock-rin',
@@ -111,13 +149,33 @@ test('next.config.mjs defines permanent 301 redirects for all 6 GSC routes', asy
   }
 });
 
-test('vercel.json defines permanent 301 redirects for all 6 GSC routes and fixes broken targets', () => {
+test('vercel.json defines permanent 301 redirects for all reported GSC routes and fixes broken targets', () => {
   const redirects = vercelJson.redirects;
   assert.ok(Array.isArray(redirects));
 
   const redirectMap = new Map(redirects.map((r) => [r.source, r]));
 
   const gscChecks = [
+    {
+      source: '/dildos/dildos-silicone-custom-colors-in-lebanon',
+      expectedDest: 'https://vexatoys.com/dildos/silicone-dildo-custom-colors-lebanon',
+    },
+    {
+      source: '/dildos/dildos-silicone-custom-colors-in-lebanon-',
+      expectedDest: 'https://vexatoys.com/dildos/silicone-dildo-custom-colors-lebanon',
+    },
+    {
+      source: '/male-toys/beaded-dual-penetrator-vibrating-silicone-toy',
+      expectedDest: 'https://vexatoys.com/male-toys/beaded-dual-silicone-toy-lebanon',
+    },
+    {
+      source: '/sex-toys/luxecurve-silicone-dildo-in-lebanon',
+      expectedDest: 'https://vexatoys.com/sex-toys/luxecurve-silicone-dildo',
+    },
+    {
+      source: '/sex-toys/dolphin-suckling-female-adult-sex',
+      expectedDest: 'https://vexatoys.com/vibrators',
+    },
     {
       source: '/dildos/premium-adjustable-strap-on-harness-with-interchangeable-rin',
       expectedDest: 'https://vexatoys.com/sex-toys/premium-strap-on-harness-set-interchangeable-o-ring-system-f',

@@ -40,6 +40,31 @@ const nextConfig = {
       },
       // Google Search Console 404 historical redirect resolutions
       {
+        source: '/dildos/dildos-silicone-custom-colors-in-lebanon',
+        destination: '/dildos/silicone-dildo-custom-colors-lebanon',
+        permanent: true,
+      },
+      {
+        source: '/dildos/dildos-silicone-custom-colors-in-lebanon-',
+        destination: '/dildos/silicone-dildo-custom-colors-lebanon',
+        permanent: true,
+      },
+      {
+        source: '/male-toys/beaded-dual-penetrator-vibrating-silicone-toy',
+        destination: '/male-toys/beaded-dual-silicone-toy-lebanon',
+        permanent: true,
+      },
+      {
+        source: '/sex-toys/luxecurve-silicone-dildo-in-lebanon',
+        destination: '/sex-toys/luxecurve-silicone-dildo',
+        permanent: true,
+      },
+      {
+        source: '/sex-toys/dolphin-suckling-female-adult-sex',
+        destination: '/vibrators',
+        permanent: true,
+      },
+      {
         source: '/dildos/premium-adjustable-strap-on-harness-with-interchangeable-rin',
         destination: '/sex-toys/premium-strap-on-harness-set-interchangeable-o-ring-system-f',
         permanent: true,

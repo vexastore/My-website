@@ -3,6 +3,22 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.14] - 2026-10-08
+
+### Fixed
+
+- **Google Search Console 404 follow-up**: Added permanent redirects for five additional historical URLs that still returned 404 after Google recrawled them:
+  1. `/dildos/dildos-silicone-custom-colors-in-lebanon` and its trailing-hyphen variant → `/dildos/silicone-dildo-custom-colors-lebanon`
+  2. `/male-toys/beaded-dual-penetrator-vibrating-silicone-toy` → `/male-toys/beaded-dual-silicone-toy-lebanon`
+  3. `/sex-toys/luxecurve-silicone-dildo-in-lebanon` → `/sex-toys/luxecurve-silicone-dildo`
+  4. `/sex-toys/dolphin-suckling-female-adult-sex` → `/vibrators` because the original product is no longer published
+- **Layered redirect coverage**: Kept Vercel edge redirects, Next.js permanent redirects, and product-slug remapping aligned for current published product replacements.
+- **Regression coverage**: Expanded the GSC redirect suite to cover all newly reported failed URLs while retaining coverage for the three already-remediated pending URLs.
+
+### Changed
+
+- **Cache version bump**: Bumped `CACHE_VERSION` and package version to `1.5.14` so product URL mapping changes cannot be masked by older catalog/page cache entries.
+
 ## [1.5.13] - 2026-09-25
 
 ### Changed

@@ -8,6 +8,12 @@ export const SITE_BASE_URL = 'https://vexatoys.com';
  * Keep this list aligned with the permanent redirects in vercel.json.
  */
 export const SLUG_REMAPS: Record<string, string> = {
+  'dildos-silicone-custom-colors-in-lebanon':
+    'silicone-dildo-custom-colors-lebanon',
+  'beaded-dual-penetrator-vibrating-silicone-toy':
+    'beaded-dual-silicone-toy-lebanon',
+  'luxecurve-silicone-dildo-in-lebanon':
+    'luxecurve-silicone-dildo',
   'premium-anal-cleansing-douche-easy-comfortable-cleaning-310':
     'anal-cleansing-douche-easy-comfortable-cleaning',
   'premium-adjustable-strap-on-harness-with-interchangeable-rin':

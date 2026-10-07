@@ -40,3 +40,11 @@ Category guides are sections of the category pages, not separate URLs. Search, f
 ## Local verification result
 
 On 18 September 2026, lint exited successfully with 30 non-blocking warnings, TypeScript passed, all 12 unit tests passed, and the Next.js 15.5.24 production build passed. A local production HTTP crawl checked all 151 sitemap URLs and 16 representative English/Arabic page variants: zero missing pages, canonical mismatches, missing H1/title/description fields, or duplicate titles/descriptions. Checkout exposed `noindex` and robots.txt advertised the sitemap. This is local technical evidence only; production deployment verification and Search Console validation remain outstanding.
+
+## Search Console 404 follow-up, 8 October 2026
+
+Google Search Console reported five historical product URLs as failed during a validation run that ended on 5 October 2026. A live check on 8 October confirmed that all five still returned HTTP 404, while the three examples still marked pending already returned HTTP 301 to live destinations.
+
+The failed URLs now have explicit permanent redirect rules at both the Vercel edge and Next.js routing layers. Three published-product aliases also resolve through `SLUG_REMAPS` using verified `legacyId` identity matches from the live catalog: the custom-color dildo, Beaded Dual Penetrator, and LuxeCurve product. The trailing-hyphen custom-color alias resolves to the same product. The old Dolphin product is no longer present in the published catalog, so it redirects to the relevant live `/vibrators` category rather than an unrelated product or a soft-404 page.
+
+This repository change makes the redirect behavior deployable; it does not prove that Google has recrawled the URLs or accepted a new validation. After deployment, verify every source returns a single permanent redirect to an HTTP 200 destination, then start a new Search Console validation.
