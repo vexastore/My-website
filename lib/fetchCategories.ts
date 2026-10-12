@@ -23,6 +23,13 @@ type Row = {
   updated_at: string;
 };
 
+function categoryCopy(value: string): string;
+function categoryCopy(value: string | null | undefined): string | undefined;
+function categoryCopy(value: string | null | undefined): string | undefined {
+  if (!value) return undefined;
+  return displayCopy(value.replace(/Vexa Store/gi, 'Vexa Toys'));
+}
+
 async function readCategories(): Promise<PublicCategory[]> {
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -34,10 +41,10 @@ async function readCategories(): Promise<PublicCategory[]> {
   const response = await fetch(url, { headers: { apikey: key }, cache: 'no-store' });
   if (!response.ok) throw new Error(`Supabase category read failed: ${response.status}`);
   return ((await response.json()) as Row[]).map(row => ({
-    slug: row.slug, nameEn: displayCopy(row.name_en), nameAr: displayCopy(row.name_ar),
-    descriptionEn: displayCopy(row.description_en), descriptionAr: displayCopy(row.description_ar),
-    seoTitleEn: row.seo_title_en?.trim() || undefined, seoTitleAr: row.seo_title_ar?.trim() || undefined,
-    seoDescriptionEn: row.seo_description_en?.trim() || undefined, seoDescriptionAr: row.seo_description_ar?.trim() || undefined,
+    slug: row.slug, nameEn: categoryCopy(row.name_en), nameAr: categoryCopy(row.name_ar),
+    descriptionEn: categoryCopy(row.description_en), descriptionAr: categoryCopy(row.description_ar),
+    seoTitleEn: categoryCopy(row.seo_title_en), seoTitleAr: categoryCopy(row.seo_title_ar),
+    seoDescriptionEn: categoryCopy(row.seo_description_en), seoDescriptionAr: categoryCopy(row.seo_description_ar),
     updatedAt: row.updated_at,
   }));
 }

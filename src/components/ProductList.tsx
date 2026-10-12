@@ -108,11 +108,14 @@ export const ProductList: React.FC = () => {
   const activeCategoryLabel = activeCategory
     ? (activeCategoryObj ? (isArabic ? activeCategoryObj.name.ar : activeCategoryObj.name.en) : activeCategory)
     : (isArabic ? 'كل الفئات' : 'All categories');
+  const pageHeading = activeCategory
+    ? getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')
+    : (seoHeading || (isArabic ? 'ألعاب ومنتجات للكبار في لبنان | متجر فيكسا' : 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys'));
 
   return (
     <div className="bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* ── 1. HERO SECTION ────────────────────────────────────────── */}
-      <HeroSection />
+      <HeroSection heading={pageHeading} />
 
       {/* ── 2. BEST SELLING PRODUCTS / CATALOG ─────────────────────── */}
       <section id="products-grid" className="mx-auto max-w-7xl px-4 py-10 sm:py-14 sm:px-6 lg:px-8 border-b border-white/10 scroll-mt-24 sm:scroll-mt-28">
@@ -122,9 +125,7 @@ export const ProductList: React.FC = () => {
             <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
               {searchQuery
                 ? (isArabic ? `نتائج البحث: "${searchQuery}"` : `Search Results: "${searchQuery}"`)
-                : activeCategory
-                ? getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')
-                : (seoHeading || (isArabic ? 'المنتجات الأكثر مبيعاً' : 'Best Selling Sex Toys'))}
+                : pageHeading}
             </h2>
             {/* Hot pink underline bar */}
             <div className="w-12 h-1 bg-[#ff2d78] rounded-full mt-2" />

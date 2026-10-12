@@ -62,7 +62,6 @@ export const Navbar: React.FC = () => {
 
   const openShopHome = (e: React.MouseEvent) => {
     e.preventDefault();
-    setView('shop');
     setActiveCategory('');
     setSearchQuery('');
     setIsMenuOpen(false);
@@ -76,7 +75,6 @@ export const Navbar: React.FC = () => {
     e.preventDefault();
     setActiveCategory(category);
     setSearchQuery('');
-    setView('shop');
     setIsMenuOpen(false);
     setActiveSubmenu(null);
     setIsShopDropdownOpen(false);
@@ -183,10 +181,13 @@ export const Navbar: React.FC = () => {
                 >
                   <a
                     href="/adult-toys"
-                    onClick={(e) => { e.preventDefault(); openShopHome(e); }}
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      setIsShopDropdownOpen(false);
+                    }}
                     className="block px-4 py-2 text-xs font-bold text-white hover:bg-white/10 hover:text-[#ff2d78] transition"
                   >
-                    {isArabic ? 'كل المنتجات' : 'All Products'}
+                    {isArabic ? 'كل منتجات الكبار' : 'All Adult Toys'}
                   </a>
                   <div className="my-1 border-t border-white/10" />
                   {CATEGORIES.slice(0, 8).map(c => (
@@ -358,6 +359,14 @@ export const Navbar: React.FC = () => {
                 <span className="text-xs text-[#ff2d78] font-bold">{CATEGORIES.length}</span>
               </div>
               <div className="grid grid-cols-1 divide-y divide-white/5 sm:grid-cols-2">
+                <a
+                  href="/adult-toys"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex w-full items-center justify-between py-3.5 text-start text-base font-bold text-[#ff2d78] transition hover:text-white"
+                >
+                  <span>{isArabic ? 'كل منتجات الكبار' : 'All Adult Toys'}</span>
+                  <ChevronRight size={18} className="text-stone-500" />
+                </a>
                 {CATEGORIES.map(item => (
                   <a
                     key={item.id}

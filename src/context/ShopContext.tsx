@@ -7,6 +7,7 @@ import { isStorefrontReference, mergeOrderStatuses } from '../utils/order-status
 import { STORE_LOCALE_COOKIE, type StoreLocale } from '@/lib/storeLocaleShared';
 import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
 import { CACHE_VERSION } from '@/lib/cacheVersion';
+import { useRouter } from 'next/navigation';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
 
@@ -121,6 +122,7 @@ export const ShopProvider: React.FC<{
   seoHeading?: string;
   initialLocale?: StoreLocale;
 }> = ({ children, initialProducts, initialCategory, initialCategorySlug, initialView: initialViewProp, initialProductSlug, seoHeading, initialLocale = 'en' }) => {
+  const router = useRouter();
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [deliveryFee, setDeliveryFee] = useState(DELIVERY_FEE);
@@ -501,7 +503,8 @@ export const ShopProvider: React.FC<{
       const slug = CATEGORY_TO_SLUG[category] || category.toLowerCase().replace(/\s+/g, '-');
       const catPath = category ? `/${slug}` : '/';
       if (typeof window !== 'undefined' && window.location.pathname !== catPath) {
-        window.history.pushState(null, '', catPath);
+        router.push(catPath);
+        return;
       }
       setActiveCategory(category);
       setSelectedProduct(null);

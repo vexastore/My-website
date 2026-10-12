@@ -27,6 +27,7 @@ const CATEGORY_SLUGS: Record<string, string> = {
 };
 
 const FOOTER_CATEGORIES = [
+  { id: 'Adult Toys',        slug: 'adult-toys',        ar: 'كل منتجات الكبار',        en: 'Adult Toys Lebanon' },
   { id: 'Sex Toys',          slug: 'sex-toys',          ar: 'ألعاب زوجية',            en: 'Sex Toys' },
   { id: 'Vibrators',         slug: 'vibrators',         ar: 'هزازات',                  en: 'Vibrators' },
   { id: 'Dildos',            slug: 'dildos',            ar: 'ديلدو',                   en: 'Dildos' },
@@ -84,9 +85,9 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
   }, [currentView, activeCategory, selectedProduct]);
 
   const handleCatLink = (e: React.MouseEvent, catId: string) => {
+    if (catId === 'Adult Toys') return;
     e.preventDefault();
     setActiveCategory(catId);
-    setView('shop');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -119,7 +120,7 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
           <div className="flex flex-col lg:flex-row items-center lg:items-start justify-between gap-8 pb-10 border-b border-white/10 text-center lg:text-start">
             {/* Left: Brand Identity */}
             <div className="flex flex-col items-center lg:items-start">
-              <a href="/" onClick={(e) => { e.preventDefault(); setView('shop'); setActiveCategory(''); }} className="flex flex-col select-none group">
+              <a href="/" onClick={(e) => { e.preventDefault(); setActiveCategory(''); }} className="flex flex-col select-none group">
                 <span className="text-2xl font-black tracking-wider text-[#ff2d78] group-hover:brightness-110 transition leading-none">
                   VEXA
                 </span>
@@ -127,9 +128,9 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
                   TOYS
                 </span>
               </a>
-              <p className="text-xs text-stone-400 mt-3 font-medium">
-                {isArabic ? 'متجر العناية الحميمية لبنان' : 'Intimate Wellness Store Lebanon'}
-              </p>
+              <a href="/" className="text-xs text-stone-400 mt-3 font-medium hover:text-white transition">
+                {isArabic ? 'ألعاب ومنتجات للكبار في لبنان' : 'Sex Toys & Adult Toys in Lebanon'}
+              </a>
             </div>
 
             {/* Right: Social Icons + WhatsApp Direct Button */}

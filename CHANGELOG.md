@@ -3,6 +3,29 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.15] - 2026-10-12
+
+### Added
+
+- Added persistent desktop, mobile, and footer links to `/adult-toys`, plus a descriptive `Sex Toys & Adult Toys in Lebanon` homepage link rendered across the storefront.
+- Added regression coverage for the homepage's broad-query metadata, page-specific hero headings, crawlable adult-toys navigation, route-aware category navigation, and public category-brand normalization.
+
+### Changed
+
+- Made the homepage the primary broad-query landing page with the title and H1 `Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys`, an exact-topic description, and the owner-supplied Lebanon/Beirut keyword variants.
+- Category pages now render their own category-specific H1 instead of reusing the homepage's generic `SEX TOYS IN LEBANON` H1.
+- Category navigation now uses real Next.js route transitions so URL, title, canonical, and server-rendered page content remain synchronized.
+- Normalized legacy `Vexa Store` category titles and descriptions from published Supabase rows to `Vexa Toys` at the public reader boundary.
+- Bumped the package and centralized cache version to `1.5.15` / `v1.5.15` for the changed metadata, category mapping, and static navigation content.
+
+### Fixed
+
+- Restored a primary H1 on `/about`, eliminating the only missing-H1 exception found by the 126-URL production sitemap crawl.
+
+### Documentation
+
+- Added and implemented a production homepage SEO audit comparing `/`, `/sex-toys`, and `/sex-dolls`, including the evidence, page hierarchy, verification limits, and post-deployment Search Console steps.
+
 ## [1.5.14] - 2026-10-08
 
 ### Fixed

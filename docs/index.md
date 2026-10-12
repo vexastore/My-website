@@ -9,6 +9,8 @@
 
 - [Admin remediation plan](09-project/admin-remediation-plan.md)
 - [Audit finding traceability](09-project/audit-traceability.md)
+- [Homepage SEO prioritization audit, 12 October 2026](09-project/homepage-seo-audit-2026-10-12.md)
+- [Storefront SEO remediation](09-project/seo-remediation-2026-09-18.md)
 
 ## Development records
 

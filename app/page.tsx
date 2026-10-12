@@ -6,8 +6,8 @@ import { FAQ_DATA } from '@/src/data/faq';
 
 export const revalidate = 300;
 
-const SITE_TITLE = 'Premium Intimate Wellness & Couples Care | Vexa Toys Lebanon';
-const SITE_DESC = 'Lebanon\'s #1 premium intimate wellness store. Shop luxury personal massagers, couples essentials, and elegant lingerie. Discreet delivery across Beirut & all Lebanon. Cash on delivery.';
+const SITE_TITLE = 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys';
+const SITE_DESC = 'Shop sex toys in Lebanon and adult toys in Lebanon at Vexa Toys. Discreet delivery across Beirut and all Lebanon, private packaging, and cash on delivery.';
 
 const baseMetadata: Metadata = {
   metadataBase: new URL('https://vexatoys.com'),
@@ -16,8 +16,12 @@ const baseMetadata: Metadata = {
   keywords: [
     'sex toys lebanon',
     'sex toys in lebanon',
+    'sex toy in lebanon',
     'adult store beirut',
     'adult toys lebanon',
+    'adult toys in lebanon',
+    'adult toys in beirut',
+    'sex toys in beirut',
     'vibrators lebanon',
     'dildos lebanon',
     'intimate wellness lebanon',
@@ -39,8 +43,8 @@ const baseMetadata: Metadata = {
     url: 'https://vexatoys.com',
     siteName: 'Vexa Toys Lebanon',
     title: SITE_TITLE,
-    description: 'Discover luxury personal massagers, elegant lingerie, and couples essentials. Discreet delivery and private packaging across Lebanon. Cash on delivery.',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Toys Lebanon, Premium Intimate Wellness' }],
+    description: SITE_DESC,
+    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Sex Toys Lebanon and Adult Toys Lebanon, Vexa Toys' }],
   },
   twitter: {
     card: 'summary_large_image',
@@ -179,7 +183,7 @@ export default async function HomePage() {
         initialProducts={productsWithImages}
         initialCategory=""
         initialView="shop"
-        seoHeading={isAr ? 'ألعاب جنسية في لبنان | متجر فيكسا' : 'Sex Toys in Lebanon | Vexa Toys'}
+        seoHeading={isAr ? 'ألعاب ومنتجات للكبار في لبنان | متجر فيكسا' : 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys'}
         seoContent={
           <div key="seo-content" className="bg-black text-white" dir={isAr ? 'rtl' : 'ltr'}>
             {/* ── CUSTOMER REVIEWS ────────────────────────────────────── */}

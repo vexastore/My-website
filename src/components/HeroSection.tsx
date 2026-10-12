@@ -3,9 +3,49 @@ import React from 'react';
 import { useShop } from '../context/ShopContext';
 import { Sparkles } from 'lucide-react';
 
-export const HeroSection: React.FC = () => {
+interface HeroSectionProps {
+  heading?: string;
+}
+
+function splitHeroHeading(heading: string): { primary: string; secondary: string } {
+  const normalized = heading.split('|')[0].trim();
+
+  if (/^sex toys lebanon\s*&\s*adult toys lebanon$/i.test(normalized)) {
+    return {
+      primary: 'SEX TOYS LEBANON',
+      secondary: '& ADULT TOYS LEBANON',
+    };
+  }
+
+  const locationMatch = normalized.match(/^(.*?)\s+in\s+Lebanon$/i);
+  if (locationMatch) {
+    return {
+      primary: locationMatch[1].toUpperCase(),
+      secondary: 'IN LEBANON',
+    };
+  }
+
+  return { primary: normalized.toUpperCase(), secondary: '' };
+}
+
+function splitArabicHeroHeading(heading: string): { primary: string; secondary: string } {
+  const normalized = heading.split('|')[0].trim();
+  const locationMatch = normalized.match(/^(.*?)\s+في\s+لبنان$/);
+
+  if (locationMatch) {
+    return { primary: locationMatch[1], secondary: 'في لبنان' };
+  }
+
+  return { primary: normalized, secondary: '' };
+}
+
+export const HeroSection: React.FC<HeroSectionProps> = ({ heading }) => {
   const { language } = useShop();
   const isArabic = language === 'ar';
+  const heroHeading = isArabic
+    ? splitArabicHeroHeading(heading || 'ألعاب ومنتجات للكبار في لبنان')
+    : splitHeroHeading(heading || 'Sex Toys Lebanon & Adult Toys Lebanon');
+  const isBroadHomepageHeading = !isArabic && /adult toys lebanon/i.test(heading || '');
 
   return (
     <section className="relative overflow-hidden bg-black text-white py-12 sm:py-16 lg:py-20 border-b border-white/10">
@@ -41,13 +81,18 @@ export const HeroSection: React.FC = () => {
           </div>
 
           {/* Giant Title matching mockup */}
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-[1.02]">
+          <h1 className={`text-4xl sm:text-5xl ${isBroadHomepageHeading ? 'lg:text-5xl' : 'lg:text-6xl'} font-black uppercase tracking-tight leading-[1.02]`}>
             <span className="block text-white">
-              {isArabic ? 'منتجات زوجية' : 'SEX TOYS'}
+              {heroHeading.primary}
             </span>
-            <span className="block text-[#ff2d78]">
-              {isArabic ? 'في لبنان' : 'IN LEBANON'}
-            </span>
+            {heroHeading.secondary ? (
+              <>
+                {' '}
+                <span className="block text-[#ff2d78]">
+                  {heroHeading.secondary}
+                </span>
+              </>
+            ) : null}
           </h1>
 
           {/* Subtitle description */}
