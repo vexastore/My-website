@@ -4,6 +4,7 @@ import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 import { FAQ_DATA } from '@/src/data/faq';
 
+
 export const revalidate = 300;
 
 const SITE_TITLE = 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys';
@@ -186,6 +187,48 @@ export default async function HomePage() {
         seoHeading={isAr ? 'ألعاب ومنتجات للكبار في لبنان | متجر فيكسا' : 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys'}
         seoContent={
           <div key="seo-content" className="bg-black text-white" dir={isAr ? 'rtl' : 'ltr'}>
+{/* HOMEPAGE SHOPPING GUIDE */}
+<section className="border-t border-white/10 py-12 sm:py-16">
+  <div className="max-w-6xl mx-auto px-4 sm:px-6">
+    <h2 className="text-2xl sm:text-3xl font-black mb-4">
+      {isAr
+        ? 'اكتشف مجموعات فيكسا في لبنان'
+        : 'Explore Adult Toys and Intimate Wellness Products in Lebanon'}
+    </h2>
+
+    <p className="text-stone-300 leading-7 max-w-3xl mb-6">
+      {isAr
+        ? 'تسوّق منتجات العناية الحميمية والألعاب الزوجية في لبنان. استكشف المجموعات المختلفة وقارن الأسعار وتفاصيل المنتجات قبل الطلب، مع خيارات توصيل سري ودفع عند الاستلام.'
+        : 'Looking to buy sex toys online in Lebanon? Explore Vexa Toys collections, compare product details and prices, and find the right option for your preferences. Browse our range with discreet delivery across Lebanon and cash-on-delivery options.'}
+    </p>
+
+    <h3 className="text-lg font-bold mb-4">
+      {isAr ? 'تصفّح حسب الفئة' : 'Browse Popular Categories'}
+    </h3>
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      {[
+        { href: '/sex-toys', en: 'All Sex Toys', ar: 'الألعاب الزوجية' },
+        { href: '/vibrators', en: 'Vibrators', ar: 'الهزازات' },
+        { href: '/dildos', en: 'Dildos', ar: 'ديلدو' },
+        { href: '/male-toys', en: 'Male Toys', ar: 'ألعاب رجالية' },
+        { href: '/lingerie', en: 'Lingerie', ar: 'لانجري' },
+        { href: '/sexual-enhancers', en: 'Sexual Enhancers', ar: 'معززات زوجية' },
+      ].map(category => (
+        <a
+          key={category.href}
+          href={category.href}
+          className="rounded-xl border border-white/15 bg-white/5 px-4 py-4 text-sm font-semibold text-white hover:border-[#ff2d78] hover:text-[#ff2d78] transition"
+        >
+          {isAr ? category.ar : category.en}
+        </a>
+      ))}
+    </div>
+  </div>
+</section>
+
+
+
             {/* ── CUSTOMER REVIEWS ────────────────────────────────────── */}
             <section className="border-t border-white/10 py-12 sm:py-16">
               <div className="max-w-6xl mx-auto px-4 sm:px-6">
