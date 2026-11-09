@@ -53,7 +53,9 @@ test('storefront rating surfaces do not fabricate zero-review fallbacks', () => 
 
   assert.doesNotMatch(card, /reviewsCount\s*\|\|/);
   assert.doesNotMatch(card, /className="fill-amber-400 text-amber-400"/);
-  assert.match(card, /No reviews yet/);
+  assert.doesNotMatch(card, /No reviews yet/);
+  assert.match(card, /hasReviews \? \(/);
+  assert.match(card, /Cash on delivery · Discreet packaging/);
   assert.doesNotMatch(page, /Rated \$\{product\.rating\}\/5/);
   assert.match(page, /href="#reviews-section"/);
 });

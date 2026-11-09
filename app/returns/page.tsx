@@ -209,7 +209,7 @@ export default function ReturnsPage() {
             </p>
             <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 text-xs leading-6 text-stone-300">
               <p><strong>Store:</strong> Vexa Toys Lebanon</p>
-              <p><strong>WhatsApp Support:</strong> +961 76 669 821 (Fastest response)</p>
+              <p><strong>WhatsApp Support:</strong> <a href="https://wa.me/96176730767" className="text-vexa-pink hover:underline">+961 76 730 767</a> (Fastest response)</p>
               <p><strong>Website:</strong> https://vexatoys.com</p>
               <p><strong>Support Hours:</strong> Monday – Saturday, 10:00 AM – 8:00 PM Beirut Time</p>
             </div>

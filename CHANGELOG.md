@@ -3,6 +3,20 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.18] - 2026-11-09
+
+### Product pages
+
+- **Honest pricing** (`lib/fetchProducts.ts`, `src/types.ts`): products now carry the catalog `compare_at_price` as `compareAtPrice`, kept only when it is higher than the current price. The product page shows a crossed-out "was" price and a `Save N%` badge from that field alone; the invented `price * 1.23` old price is gone.
+- **No empty stars** (`src/components/ProductCard.tsx`, `src/components/ProductPage.tsx`): star rows render only when a product has approved reviews. Cards without reviews show `Cash on delivery · Discreet packaging`; the product page shows the rating link only when real reviews exist. Ratings are never seeded or faked.
+- **Product page redesign** (`src/components/ProductPage.tsx`, rewritten in the storefront token system): crawlable breadcrumb (store, category, product), sticky gallery, buy box with price, stock, three linked assurances (cash on delivery, 7-day returns, plain packaging), variants, quantity, add to cart, buy now, WhatsApp question button, copyable link and a delivery summary. Below: the full description with preserved paragraphs, a specs table, material-specific care tips with links to the care guide and lubricants, a shopping FAQ, up to four related products from the same category with a link to the category page, then reviews. "Cash or card on delivery" corrected to cash only.
+- **Derived product content** (`lib/productContent.ts`, new): `extractSpecs` reads material, size, power, modes, waterproofing, control and SKU out of the description (a row appears only when stated), `careTips` by detected material, `productFaqs` from the published policies.
+- **Metadata sync**: the client no longer overwrites the server title with `<name> | Vexa Toys Lebanon`; it reuses the stored `seo_title`/`seo_description` when present (length-checked) or the same `buildProductTitle`/`buildProductDescription` the server uses, so hydration keeps the SEO title.
+- **Deliverables outside the repo** (parent folder): `product-seo-update.sql` and `product-seo-fields.md` (76 unique titles of 60 characters or fewer and descriptions of 155 or fewer, medicines excluded), `reviews-real-insert-template.sql` and `review-request-whatsapp.md` for collecting and posting real customer reviews.
+- Tests: `tests/product-page-honesty.test.mjs` (new); `tests/reviews.test.mjs` updated for the new no-review card copy.
+- **Returns page**: WhatsApp contact corrected to +961 76 730 767 (the number used everywhere else) and linked to `wa.me`.
+- Cache and package version 1.5.18 (product mapping changed).
+
 ## [1.5.17] - 2026-11-09
 
 ### Blog redesign

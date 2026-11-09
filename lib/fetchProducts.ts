@@ -10,7 +10,7 @@ type Option = { value_en: string; price_delta: number; stock: number | null; sku
 type Variant = { name_en: string; name_ar: string; is_required: boolean; position: number; is_active: boolean; product_variant_options: Option[] };
 type Row = {
   id: string; legacy_id: string | null; slug: string; sku: string | null; name_en: string; name_ar: string;
-  description_en: string; description_ar: string; price: number; stock: number; currency: string; updated_at: string;
+  description_en: string; description_ar: string; price: number; compare_at_price: number | null; stock: number; currency: string; updated_at: string;
   seo_title_en: string | null; seo_title_ar: string | null;
   seo_description_en: string | null; seo_description_ar: string | null;
   canonical_url_override: string | null; og_image_url: string | null;
@@ -73,7 +73,10 @@ export function mapProduct(row: Row, base: string): Product {
     categorySlug: row.canonical_category?.slug || '',
     name: displayCopy(row.name_ar), nameEn: displayCopy(row.name_en),
     description: displayCopy(row.description_ar), descriptionEn: displayCopy(row.description_en),
-    price: Number(row.price), stock: row.stock, rating: Number(row.rating),
+    price: Number(row.price),
+    // Only a real "was" price from the catalog is shown; nothing is invented on the page.
+    compareAtPrice: row.compare_at_price && Number(row.compare_at_price) > Number(row.price) ? Number(row.compare_at_price) : undefined,
+    stock: row.stock, rating: Number(row.rating),
     reviewsCount: row.reviews_count, isNew: row.is_new,
     category: (row.canonical_category && (SLUG_TO_CATEGORY[row.canonical_category.slug] || row.canonical_category.name_en) || categories[0] || 'Sex Toys') as Product['category'],
     categories: categories as Product['categories'], image: media[0]?.url || '', images: media.map(item => item.url),
@@ -82,7 +85,7 @@ export function mapProduct(row: Row, base: string): Product {
 }
 
 const selectFull = [
-  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,stock,currency,updated_at,seo_title_en,seo_title_ar,seo_description_en,seo_description_ar,canonical_url_override,og_image_url,rating,reviews_count,is_new',
+  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,compare_at_price,stock,currency,updated_at,seo_title_en,seo_title_ar,seo_description_en,seo_description_ar,canonical_url_override,og_image_url,rating,reviews_count,is_new',
   'canonical_category:categories!products_canonical_category_id_fkey(slug,name_en)',
   'product_categories(categories(slug,name_en))',
   'product_media(source_url,storage_path,position,is_primary,is_active,alt_en,alt_ar)',
@@ -90,7 +93,7 @@ const selectFull = [
 ].join(',');
 
 const selectBase = [
-  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,stock,currency,updated_at,seo_title_en,seo_title_ar,seo_description_en,seo_description_ar,rating,reviews_count,is_new',
+  'id,legacy_id,slug,sku,name_en,name_ar,description_en,description_ar,price,compare_at_price,stock,currency,updated_at,seo_title_en,seo_title_ar,seo_description_en,seo_description_ar,rating,reviews_count,is_new',
   'canonical_category:categories!products_canonical_category_id_fkey(slug,name_en)',
   'product_categories(categories(slug,name_en))',
   'product_media(source_url,storage_path,position,is_primary,is_active,alt_en,alt_ar)',

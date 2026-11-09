@@ -221,24 +221,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
           <span className="text-sm font-extrabold text-white">${product.price.toFixed(2)}</span>
         </div>
 
-        {/* Star Rating */}
-        <div className="mt-1.5 flex items-center gap-1.5 text-amber-400">
-          <div className="flex items-center gap-0.5">
-            {[...Array(5)].map((_, i) => (
-              <Star
-                key={i}
-                size={10}
-                fill={hasReviews && i < Math.round(product.rating) ? 'currentColor' : 'none'}
-                className={hasReviews && i < Math.round(product.rating) ? 'text-amber-400' : 'text-stone-600'}
-              />
-            ))}
+        {/* Rating only when real reviews exist; otherwise a true shopping assurance instead of empty stars */}
+        {hasReviews ? (
+          <div className="mt-1.5 flex items-center gap-1.5 text-amber-400">
+            <div className="flex items-center gap-0.5">
+              {[...Array(5)].map((_, i) => (
+                <Star
+                  key={i}
+                  size={10}
+                  fill={i < Math.round(product.rating) ? 'currentColor' : 'none'}
+                  className={i < Math.round(product.rating) ? 'text-amber-400' : 'text-stone-600'}
+                />
+              ))}
+            </div>
+            <span className="text-[10px] font-semibold text-stone-400">
+              {Number(product.rating).toFixed(1)} ({product.reviewsCount})
+            </span>
           </div>
-          <span className="text-[10px] font-semibold text-stone-400">
-            {hasReviews
-              ? `${Number(product.rating).toFixed(1)} (${product.reviewsCount})`
-              : (isArabic ? 'لا توجد تقييمات بعد' : 'No reviews yet')}
-          </span>
-        </div>
+        ) : (
+          <p className="mt-1.5 text-[10px] font-semibold text-stone-500">
+            {isArabic ? 'الدفع عند الاستلام · تغليف سري' : 'Cash on delivery · Discreet packaging'}
+          </p>
+        )}
       </div>
 
       {/* Add to Cart Outline Button */}
