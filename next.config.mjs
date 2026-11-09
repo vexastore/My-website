@@ -40,6 +40,18 @@ const nextConfig = {
       },
       // Google Search Console 404 historical redirect resolutions
       {
+        // Still indexed in Nov 2026 (Search Console Pages report) but 404
+        source: '/sex-toys/dildo-in-lebanon-premium-silicone-dildo',
+        destination: '/dildos/dildo-in-lebanon-premium-silicone-dildo-prod-g7v7fpyt8',
+        permanent: true,
+      },
+      {
+        // Still indexed in Nov 2026 (Search Console Pages report) but 404
+        source: '/dildos/realistic-silicone-dildo-lebanon-g-spot-curved-suction-cup-d',
+        destination: '/dildos/realcock-premium-realistic-dildo-in-lebanon-hyper-realistic',
+        permanent: true,
+      },
+      {
         source: '/dildos/dildos-silicone-custom-colors-in-lebanon',
         destination: '/dildos/silicone-dildo-custom-colors-lebanon',
         permanent: true,
@@ -113,9 +125,11 @@ const nextConfig = {
   },
   async headers() {
     return [
-      {
-        // Prevent browsers & intermediate proxies from caching HTML documents; guarantees fresh renders on reload
-        source: '/((?!_next/static|_next/image|favicon|.*\\.(?:jpg|jpeg|gif|png|svg|ico|webp)$).*)',
+      // Only personal or admin responses are forced to `no-store`. Public
+      // storefront pages are left to Next.js so they can become CDN-cacheable
+      // once rendering no longer depends on the locale cookie.
+      ...['/checkout/:path*', '/orders/:path*', '/admin/:path*', '/api/:path*'].map((source) => ({
+        source,
         headers: [
           {
             key: 'Cache-Control',
@@ -130,17 +144,24 @@ const nextConfig = {
             value: '0',
           },
         ],
-      },
-      {
-        // Content-hashed static JavaScript and CSS chunks can safely be cached immutably
-        source: '/_next/static/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
-          },
-        ],
-      },
+      })),
+      // Content-hashed production chunks can be cached immutably. In `next dev`
+      // chunk names are NOT hashed (e.g. /_next/static/chunks/app/page.js), so
+      // an immutable header there makes browsers keep stale client code and
+      // triggers hydration mismatches after every edit. Production only.
+      ...(process.env.NODE_ENV === 'production'
+        ? [
+            {
+              source: '/_next/static/:path*',
+              headers: [
+                {
+                  key: 'Cache-Control',
+                  value: 'public, max-age=31536000, immutable',
+                },
+              ],
+            },
+          ]
+        : []),
     ];
   },
 };

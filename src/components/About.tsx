@@ -3,7 +3,7 @@ import { useShop } from '../context/ShopContext';
 import { ShieldCheck, Truck, Lock, Star, Heart, Package, Zap, CheckCircle2 } from 'lucide-react';
 
 export const About: React.FC = () => {
-  const { language, setView } = useShop();
+  const { language } = useShop();
   const isArabic = language === 'ar';
 
   const features = [
@@ -29,8 +29,8 @@ export const About: React.FC = () => {
     },
     {
       icon: <Star size={24} className="text-yellow-400" />,
-      ar: { title: 'تشكيلة واسعة من المنتجات الفاخرة', body: 'أكبر تشكيلة من الألعاب الزوجية، الهزازات، اللانجري، منتجات BDSM، وأكثر في لبنان. شيء لكل الأذواق.' },
-      en: { title: 'Widest Selection of Premium Products', body: 'Lebanon\'s largest selection of sex toys, vibrators, lingerie, BDSM, and more. Something for every taste and preference.' }
+      ar: { title: 'تشكيلة واسعة من المنتجات الفاخرة', body: 'تشكيلة واسعة من الهزازات، الديلدو، اللانجري، منتجات BDSM وأكثر. شيء لكل الأذواق.' },
+      en: { title: 'Wide Selection of Premium Products', body: 'A wide selection of vibrators, dildos, lingerie, BDSM gear and more. Something for every taste and preference.' }
     },
     {
       icon: <Heart size={24} className="text-pink-400" />,
@@ -40,10 +40,10 @@ export const About: React.FC = () => {
   ];
 
   return (
-    <article className="min-h-screen bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
+    <article className="min-h-screen bg-vexa-ink text-white" dir={isArabic ? 'rtl' : 'ltr'}>
 
       {/* ── Hero ── */}
-      <header className="relative overflow-hidden bg-black border-b border-white/10 px-5 py-24 text-center sm:py-36">
+      <header className="relative overflow-hidden bg-vexa-ink border-b border-white/10 px-5 py-24 text-center sm:py-36">
         {/* Full-bleed Beirut city-lights background */}
         <div className="pointer-events-none absolute inset-0 z-0">
           <img
@@ -62,26 +62,26 @@ export const About: React.FC = () => {
         </div>
 
         <div className="relative z-10 mx-auto max-w-3xl">
-          <p className="mb-4 text-[10px] font-black uppercase tracking-[0.4em] text-[#ff2d78]">
-            {isArabic ? 'عن متجر فيكسا' : 'About Vexa Toys Lebanon'}
+          <p className="mb-4 text-[10px] font-black uppercase tracking-[0.4em] text-vexa-pink">
+            {isArabic ? 'عن متجر فيكسا' : 'About Vexa Toys'}
           </p>
           <h1 className="text-3xl font-black uppercase tracking-[0.08em] text-white sm:text-5xl">
             {isArabic
-              ? 'متجر فيكسا, الوجهة الأولى للمنتجات الزوجية الفاخرة في لبنان'
-              : 'Vexa Toys, Lebanon\'s #1 Destination for Discreet Adult Products'}
+              ? 'قصة متجر فيكسا'
+              : 'The Story Behind Vexa Toys'}
           </h1>
           <p className="mx-auto mt-6 max-w-2xl text-sm leading-8 text-stone-300 sm:text-base">
             {isArabic
-              ? 'متجر فيكسا هو المتجر الرائد والأكثر أماناً لشراء الألعاب الزوجية، الهزازات، اللانجري الفاخر، ومنتجات BDSM في لبنان. نوفر تجربة تسوق سرية 100% مع توصيل في نفس اليوم في بيروت وخلال 72 ساعة لكل المناطق اللبنانية.'
-              : 'Vexa Toys is Lebanon\'s leading and most trusted destination for buying sex toys, vibrators, premium lingerie, and BDSM products. As a fully online sex shop in Lebanon and a discreet online adult store, we serve customers in Beirut and every Lebanese region, a 100% private shopping experience with same-day delivery in Beirut and within 72 hours nationwide, so you never need to visit a physical sex shop in Beirut to get what you want.'}
+              ? 'متجر فيكسا هو متجر لبناني إلكتروني للمنتجات الزوجية، قائم على وعد واحد: تجربة تسوق خاصة وبدون أحكام. تصل الطلبات في كرتون عادي مغلق، في نفس اليوم داخل بيروت وخلال 72 ساعة في كل لبنان، مع الدفع عند الاستلام.'
+              : 'Vexa Toys is a Lebanese online store for adult products, built around one promise: a private, judgment-free shopping experience. Orders ship in plain sealed boxes, arrive the same day in Beirut and within 72 hours across Lebanon, and are paid for in cash on delivery.'}
           </p>
-          <button
-            onClick={() => setView('shop')}
-            className="mt-8 inline-flex items-center gap-2 bg-[#ff2d78] hover:bg-white text-black font-black rounded-full px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-[#ff2d78]/25"
+          <a
+            href="/sex-toys"
+            className="mt-8 inline-flex items-center gap-2 bg-vexa-pink hover:bg-white text-black font-black rounded-full px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-vexa-pink/25"
           >
             <Zap size={14} />
-            {isArabic ? 'تسوق الآن' : 'Shop Now'}
-          </button>
+            {isArabic ? 'تصفح الألعاب الزوجية' : 'Browse sex toys in Lebanon'}
+          </a>
         </div>
       </header>
 
@@ -89,18 +89,18 @@ export const About: React.FC = () => {
       {/* ── Why Vexa ── */}
       <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20">
         <div className="mb-12 text-center">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-[#ff2d78]">
-            {isArabic ? 'لماذا تختار متجر فيكسا؟' : 'Why Choose Vexa Toys Lebanon?'}
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-vexa-pink">
+            {isArabic ? 'لماذا متجر فيكسا؟' : 'Why Vexa Toys?'}
           </p>
           <h2 className="text-2xl font-black uppercase tracking-[0.1em] text-white sm:text-3xl">
             {isArabic
-              ? '٦ أسباب تجعلنا الخيار الأول للتسوق السري في لبنان'
-              : '6 Reasons We\'re Lebanon\'s #1 Choice for Discreet Shopping'}
+              ? 'لماذا يختار العملاء متجر فيكسا'
+              : 'Why Customers Choose Vexa Toys'}
           </h2>
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {features.map((f, i) => (
-            <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-3 hover:border-[#ff2d78]/40 transition">
+            <div key={i} className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-3 hover:border-vexa-pink/40 transition">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-white/5 border border-white/10">
                 {f.icon}
               </div>
@@ -116,9 +116,9 @@ export const About: React.FC = () => {
       </section>
 
       {/* ── Our Story ── */}
-      <section className="bg-[#0a0a0a] border-y border-white/10 px-5 py-16 sm:px-8 sm:py-20">
+      <section className="bg-vexa-surface border-y border-white/10 px-5 py-16 sm:px-8 sm:py-20">
         <div className="mx-auto max-w-3xl">
-          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-[#ff2d78]">
+          <p className="mb-3 text-[10px] font-black uppercase tracking-[0.36em] text-vexa-pink">
             {isArabic ? 'قصتنا' : 'Our Story'}
           </p>
           <h2 className="mb-6 text-2xl font-black uppercase tracking-[0.1em] text-white sm:text-3xl">
@@ -159,7 +159,7 @@ export const About: React.FC = () => {
 
 
       {/* ── Delivery Info ── */}
-      <section className="bg-[#ff2d78]/10 border-y border-[#ff2d78]/30 px-5 py-12 text-center sm:py-16">
+      <section className="bg-vexa-pink/10 border-y border-vexa-pink/30 px-5 py-12 text-center sm:py-16">
         <div className="mx-auto max-w-3xl">
           <h2 className="text-2xl font-black tracking-wide text-white sm:text-3xl">
             {isArabic
@@ -171,13 +171,13 @@ export const About: React.FC = () => {
               ? 'بيروت: توصيل في نفس اليوم. كل لبنان: خلال 24 إلى 72 ساعة. كل الطلبات تصل بتغليف سري محكم.'
               : 'Beirut: Same-day delivery. All Lebanon: within 24 to 72 hours. Every order arrives in fully discreet packaging.'}
           </p>
-          <button
-            onClick={() => setView('shop')}
-            className="mt-7 inline-flex items-center gap-2 bg-[#ff2d78] hover:bg-white text-black rounded-full font-black px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-[#ff2d78]/25"
+          <a
+            href="/adult-toys"
+            className="mt-7 inline-flex items-center gap-2 bg-vexa-pink hover:bg-white text-black rounded-full font-black px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-vexa-pink/25"
           >
             <ShieldCheck size={14} />
-            {isArabic ? 'اطلب الآن بأمان' : 'Shop Now Safely'}
-          </button>
+            {isArabic ? 'تصفح كل المنتجات' : 'Browse all adult toys'}
+          </a>
         </div>
       </section>
 

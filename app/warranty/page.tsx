@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { BlogHeader } from '@/src/components/BlogHeader';
 
 export const metadata: Metadata = {
-  title: 'Vexa Toys Warranty Policy | Product Warranty in Lebanon',
+  title: { absolute: 'Warranty Policy | Vexa Toys Lebanon' },
   description: 'Learn about the Vexa Toys warranty policy in Lebanon, including warranty periods, eligible products, exclusions, defective items, and replacement claims.',
   alternates: { canonical: 'https://vexatoys.com/warranty' },
   openGraph: {
-    title: 'Vexa Toys Warranty Policy | Product Warranty in Lebanon',
+    title: 'Warranty Policy | Vexa Toys Lebanon',
     description: 'Learn about the Vexa Toys warranty policy in Lebanon, including warranty periods, eligible products, exclusions, defective items, and replacement claims.',
     url: 'https://vexatoys.com/warranty',
     siteName: 'Vexa Toys Lebanon',

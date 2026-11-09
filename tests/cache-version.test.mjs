@@ -29,6 +29,8 @@ test('getCacheKey generates custom keys with version stamp', () => {
 });
 
 test('nextConfig defines anti-caching headers for HTML and immutable headers for static chunks', async () => {
+  // The immutable static-chunk rule is production-only (dev chunks are not content-hashed).
+  process.env.NODE_ENV = 'production';
   const nextConfigModule = await import('../next.config.mjs');
   const nextConfig = nextConfigModule.default;
   assert.equal(typeof nextConfig.headers, 'function');
@@ -36,14 +38,21 @@ test('nextConfig defines anti-caching headers for HTML and immutable headers for
   assert.ok(Array.isArray(headersList));
   assert.ok(headersList.length >= 2);
 
-  // Rule 1: No-cache for HTML/pages
-  const htmlRule = headersList[0];
-  assert.ok(htmlRule.source.includes('?!_next/static'));
-  const cacheControlHeader = htmlRule.headers.find(h => h.key === 'Cache-Control');
-  assert.ok(cacheControlHeader);
-  assert.ok(cacheControlHeader.value.includes('no-store'));
-  assert.ok(cacheControlHeader.value.includes('no-cache'));
-  assert.ok(cacheControlHeader.value.includes('max-age=0'));
+  // Rule 1: No-cache only for personal/admin/API responses. Public storefront
+  // pages must NOT be forced to no-store so they can become CDN-cacheable.
+  for (const source of ['/checkout/:path*', '/orders/:path*', '/admin/:path*', '/api/:path*']) {
+    const rule = headersList.find(h => h.source === source);
+    assert.ok(rule, `missing no-store rule for ${source}`);
+    const cacheControlHeader = rule.headers.find(h => h.key === 'Cache-Control');
+    assert.ok(cacheControlHeader);
+    assert.ok(cacheControlHeader.value.includes('no-store'));
+    assert.ok(cacheControlHeader.value.includes('no-cache'));
+    assert.ok(cacheControlHeader.value.includes('max-age=0'));
+  }
+  const publicNoStore = headersList.filter(h =>
+    h.headers.some(header => header.key === 'Cache-Control' && header.value.includes('no-store')),
+  ).filter(h => /^\/\(/.test(h.source) || h.source === '/:path*' || h.source === '/(.*)');
+  assert.equal(publicNoStore.length, 0, 'no catch-all no-store rule may cover public pages');
 
   // Rule 2: Immutable for static chunks
   const staticRule = headersList.find(h => h.source === '/_next/static/:path*');

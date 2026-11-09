@@ -5,6 +5,8 @@ import { fetchBlogPostsServer } from '@/lib/fetchArticles';
 import { CATEGORY_META, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
 import { BLOG_CATEGORIES } from '@/lib/blogPosts';
 import { canonicalProductPath, SITE_BASE_URL as BASE } from '@/lib/productSeo';
+import { isCategoryIndexable } from '@/lib/categoryIndexing';
+import { productMatchesCategory } from '@/src/data/categories';
 
 export const revalidate = 300;
 
@@ -27,12 +29,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE}/delivery` },
     { url: `${BASE}/warranty` },
     { url: `${BASE}/returns` },
-    ...categories.filter(category => knownCategories.has(category.slug)).map(category => ({
-      url: `${BASE}/${category.slug}`,
-      lastModified: latest([category.updatedAt, ...products.filter(product =>
-        product.categorySlug === category.slug || product.categories?.some(name => name === SLUG_TO_CATEGORY[category.slug])
-      ).map(product => product.updatedAt)]),
-    })),
+    // Thin categories (see lib/categoryIndexing.ts) are noindex, so they stay out of the sitemap too.
+    ...categories
+      .filter(category => knownCategories.has(category.slug))
+      .map(category => ({
+        category,
+        categoryProducts: products.filter(product => productMatchesCategory(product, SLUG_TO_CATEGORY[category.slug])),
+      }))
+      .filter(({ categoryProducts }) => isCategoryIndexable(categoryProducts.length))
+      .map(({ category, categoryProducts }) => ({
+        url: `${BASE}/${category.slug}`,
+        lastModified: latest([category.updatedAt, ...categoryProducts.map(product => product.updatedAt)]),
+      })),
     { url: `${BASE}/blog`, lastModified: latest(articles.map(article => article.updatedAt)) },
     ...BLOG_CATEGORIES.filter(category => articles.some(article => article.categorySlug === category.slug)).map(category => ({
       url: `${BASE}/blog/${category.slug}`,

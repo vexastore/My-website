@@ -33,6 +33,12 @@ function mediaUrl(media: Media, base: string): string {
   return media.source_url?.startsWith('https://') ? media.source_url : '';
 }
 
+/** Hand-written SEO fields may still say "Vexa Store"; publish them as "Vexa Toys". */
+function seoCopy(value: string | null): string | undefined {
+  const clean = value?.trim();
+  return clean ? displayCopy(clean.replace(/vexa\s+store/gi, 'Vexa Toys')) : undefined;
+}
+
 export function mapProduct(row: Row, base: string): Product {
   const categories = row.product_categories.map(link => link.categories &&
     (SLUG_TO_CATEGORY[link.categories.slug] || link.categories.name_en)
@@ -60,8 +66,8 @@ export function mapProduct(row: Row, base: string): Product {
   return {
     id: row.id, legacyId: row.legacy_id || undefined, slug: row.slug, sku: row.sku || undefined,
     currency: row.currency, updatedAt: row.updated_at,
-    seoTitleEn: row.seo_title_en?.trim() || undefined, seoTitleAr: row.seo_title_ar?.trim() || undefined,
-    seoDescriptionEn: row.seo_description_en?.trim() || undefined, seoDescriptionAr: row.seo_description_ar?.trim() || undefined,
+    seoTitleEn: seoCopy(row.seo_title_en), seoTitleAr: seoCopy(row.seo_title_ar),
+    seoDescriptionEn: seoCopy(row.seo_description_en), seoDescriptionAr: seoCopy(row.seo_description_ar),
     canonicalUrlOverride: row.canonical_url_override?.trim() || undefined,
     ogImageUrl: row.og_image_url?.trim() || undefined,
     categorySlug: row.canonical_category?.slug || '',

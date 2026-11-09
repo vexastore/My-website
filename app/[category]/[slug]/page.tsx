@@ -9,14 +9,17 @@ import { getStoreLocale } from '@/lib/storeLocale';
 import type { Product } from '@/src/types';
 
 import {
+  buildProductDescription,
+  buildProductTitle,
   canonicalProductPath,
   canonicalProductSlug,
   findProduct,
   resolveProductCategorySlug,
+  shortProductName,
   SITE_BASE_URL,
-  SLUG_REMAPS,
-  toProductSlug,
 } from '@/lib/productSeo';
+import { toCardProduct, toClientProduct } from '@/lib/storefrontPayload';
+import { productMatchesCategory } from '@/src/data/categories';
 import { generateProductJsonLd } from '@/lib/productSchema';
 import { fetchProductReviewsServer } from '@/lib/productReviews';
 
@@ -104,15 +107,26 @@ export async function generateMetadata({
     .trim();
 
   const sameNameCount = products.filter(item => (locale === 'ar' ? item.name : item.nameEn) === name).length;
-  const priceLabel = `${product.price.toFixed(2)} ${product.currency || 'USD'}`;
-  const title = (locale === 'ar' ? product.seoTitleAr : product.seoTitleEn) ||
-    `${name}${sameNameCount > 1 ? ` (${priceLabel})` : ''} | ${categoryLabel} | ${locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Toys Lebanon'}`;
+  const brand = locale === 'ar' ? 'متجر فيكسا لبنان' : 'Vexa Toys Lebanon';
+
+  // A hand-written SEO title wins when it is a sensible length; otherwise build
+  // `<short name> | Vexa Toys Lebanon` (plus the category only to tell two
+  // products with the same name apart). Never the old triple-suffix form.
+  const storedTitle = ((locale === 'ar' ? product.seoTitleAr : product.seoTitleEn) || '').replace(/\s+/g, ' ').trim();
+  const title = storedTitle && storedTitle.length <= 70
+    ? storedTitle
+    : buildProductTitle(name, brand, sameNameCount > 1 ? categoryLabel : undefined);
 
   const sourceDescription = ((locale === 'ar' ? product.description : product.descriptionEn) || product.description || '').replace(/\s+/g, ' ').trim();
-  const listingName = sameNameCount > 1 ? `${name} (${product.slug.replaceAll('-', ' ')})` : name;
-  const description = ((locale === 'ar' ? product.seoDescriptionAr : product.seoDescriptionEn) ||
-    (sourceDescription ? `${listingName}. ${sourceDescription}` : '') ||
-    (locale === 'ar' ? `تسوق ${name} في لبنان من متجر فيكسا.` : `Shop ${name} in Lebanon at Vexa Toys.`)).slice(0, 300);
+  const storedDescription = ((locale === 'ar' ? product.seoDescriptionAr : product.seoDescriptionEn) || '').replace(/\s+/g, ' ').trim();
+  const shortName = shortProductName(name);
+  const description = storedDescription && storedDescription.length <= 170
+    ? storedDescription
+    : buildProductDescription(
+        locale === 'ar' ? `تسوق ${shortName} في لبنان من متجر فيكسا.` : `Buy ${shortName} in Lebanon from Vexa Toys.`,
+        sourceDescription,
+        locale === 'ar' ? 'توصيل سري ودفع عند الاستلام.' : 'Discreet delivery across Lebanon, cash on delivery.',
+      );
 
   const canonical = product.canonicalUrlOverride || `${SITE_BASE_URL}${canonicalProductPath(
     product
@@ -256,26 +270,21 @@ export default async function ProductPage({
     .slice(0, 5000);
 
   /**
-   * Remove Base64 images before sending products
-   * to the client.
+   * Only this product (in full) plus a few same-category cards go into the
+   * server-rendered HTML. The client refreshes the whole catalog from
+   * /api/products after hydration, so shipping all 78 products here only
+   * made every product page ~300 KB.
    */
-  const productsWithImages = allProducts.map(
-    (currentProduct) => ({
-      ...currentProduct,
+  const relatedCards = allProducts
+    .filter(
+      (candidate) =>
+        candidate.id !== product.id &&
+        productMatchesCategory(candidate, SLUG_TO_CATEGORY[catSlug])
+    )
+    .slice(0, 8)
+    .map(toCardProduct);
 
-      image:
-        currentProduct.image &&
-        !currentProduct.image.startsWith('data:')
-          ? currentProduct.image
-          : '',
-
-      images: (currentProduct.images || []).filter(
-        (currentImage) =>
-          currentImage &&
-          !currentImage.startsWith('data:')
-      ),
-    })
-  );
+  const initialProducts = [toClientProduct(product), ...relatedCards];
 
   const images = [...new Set((product.images || []).filter(value => /^https:\/\//.test(value)))];
 
@@ -308,7 +317,7 @@ export default async function ProductPage({
 
       <ShopApp
         initialLocale={locale}
-        initialProducts={productsWithImages}
+        initialProducts={initialProducts}
         initialCategory={
           catMeta
             ? SLUG_TO_CATEGORY[catSlug]

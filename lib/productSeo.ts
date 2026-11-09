@@ -36,6 +36,63 @@ export const SLUG_REMAPS: Record<string, string> = {
     'textured-silicone-couples-enhancement-sleeve-with-beaded-des',
 };
 
+const TITLE_MAX_LENGTH = 60;
+const DESCRIPTION_MAX_LENGTH = 155;
+
+/** Cut text at a word boundary so it fits in `max` characters. */
+export function clampText(text: string, max: number): string {
+  const clean = (text || '').replace(/\s+/g, ' ').trim();
+  if (clean.length <= max) return clean;
+  const slice = clean.slice(0, max + 1);
+  const lastSpace = slice.lastIndexOf(' ');
+  const cut = lastSpace > max * 0.6 ? slice.slice(0, lastSpace) : clean.slice(0, max);
+  return cut.replace(/[\s,;:(–—-]+$/, '').replace(TRAILING_STOPWORD, '');
+}
+
+/** A clamp must not end on "with", "and", "for"... */
+const TRAILING_STOPWORD = /\s+(?:with|and|for|in|of|the|a|an|to|by|or|&)$/i;
+
+/**
+ * Short, human title form of a product name: whitespace collapsed, a trailing
+ * "in Lebanon" dropped (the brand suffix already carries the location), and
+ * everything after the first dash, comma, bracket or pipe removed when the
+ * head is still meaningful on its own.
+ */
+export function shortProductName(name: string): string {
+  const dropLocation = (value: string) => value.replace(/\s+in\s+lebanon\s*$/i, '').trim();
+  const clean = dropLocation((name || '').replace(/\s+/g, ' ').trim());
+  const head = dropLocation(clean.split(/\s+[–—-]\s+|\s*\(|,\s|\s+\|\s+/)[0]);
+  return head.length >= 12 ? head : clean;
+}
+
+/** `<short name> | <brand>` capped at 60 characters, with an optional middle segment. */
+export function buildProductTitle(name: string, brand: string, disambiguator?: string): string {
+  const short = shortProductName(name);
+  const withMiddle = disambiguator ? `${short} | ${disambiguator} | ${brand}` : `${short} | ${brand}`;
+  if (withMiddle.length <= TITLE_MAX_LENGTH) return withMiddle;
+  const suffix = ` | ${brand}`;
+  return `${clampText(short, TITLE_MAX_LENGTH - suffix.length)}${suffix}`;
+}
+
+function ensureSentence(text: string): string {
+  return /[.!?؟]$/.test(text) ? text : `${text}.`;
+}
+
+/**
+ * Meta description of at most 155 characters: a lead sentence, the first
+ * sentence of the product copy trimmed to the remaining room, and a closing
+ * delivery sentence. The lead and closing are always kept.
+ */
+export function buildProductDescription(lead: string, body: string, closing: string): string {
+  const leadText = ensureSentence(clampText(lead, DESCRIPTION_MAX_LENGTH));
+  const closingText = closing ? ensureSentence(clampText(closing, DESCRIPTION_MAX_LENGTH)) : '';
+  const base = closingText ? `${leadText} ${closingText}` : leadText;
+  const room = DESCRIPTION_MAX_LENGTH - base.length - 1;
+  const firstSentence = (body || '').replace(/\s+/g, ' ').trim().split(/(?<=[.!?؟])\s+/)[0] || '';
+  if (!firstSentence || room < 40) return clampText(base, DESCRIPTION_MAX_LENGTH);
+  return `${leadText} ${ensureSentence(clampText(firstSentence, room))} ${closingText}`.trim();
+}
+
 export function toProductSlug(value: string): string {
   return (value || '')
     .toLowerCase()
