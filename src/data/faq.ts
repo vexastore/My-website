@@ -27,7 +27,7 @@ export const FAQ_DATA: FaqItem[] = [
   {
     q: 'What payment methods are available?',
     qAr: 'ما هي طرق الدفع المتاحة؟',
-    a: 'We offer Cash on Delivery (COD) in USD or LBP across all of Lebanon. You only pay when you inspect and receive your sealed package at your door. Card and online payments are also supported.',
+    a: 'We offer Cash on Delivery (COD) in USD or LBP across all of Lebanon. You only pay when you receive your sealed package at your door.',
     aAr: 'نوفر الدفع نقداً عند الاستلام (بالدولار أو الليرة اللبنانية) في جميع المناطق اللبنانية. تدفع فقط عند استلام طردك المغلق عند بابك.',
   },
   {
@@ -39,7 +39,7 @@ export const FAQ_DATA: FaqItem[] = [
   {
     q: 'Are the products body-safe and medical grade?',
     qAr: 'هل المنتجات آمنة ومصنوعة من مواد طبية؟',
-    a: 'Yes. All products use premium body-safe silicone or medical-grade ABS plastic. Every item ships brand new, sterile, and factory sealed for your health and peace of mind.',
-    aAr: 'نعم. جميع المنتجات مصنوعة من السيليكون الطبي الفاخر الآمن للجسم بنسبة 100% والبلاستيك الطبي، وتصل جديدة ومغلفة تماماً لضمان الصحة وراحة البال.',
+    a: 'Yes. Our products use body-safe silicone or ABS plastic. Every item ships brand new and factory sealed, and each product page lists its materials.',
+    aAr: 'نعم. منتجاتنا مصنوعة من السيليكون الآمن للجسم أو بلاستيك ABS، وتصل جديدة ومغلفة من المصنع، وتُذكر المواد في صفحة كل منتج.',
   },
 ];

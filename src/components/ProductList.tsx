@@ -2,13 +2,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useShop } from '../context/ShopContext';
 import { ProductCard } from './ProductCard';
 import { HeroSection } from './HeroSection';
+import { CategoryShowcase } from './CategoryShowcase';
+import { AssuranceSection } from './AssuranceSection';
 import { BuyingGuideBanner } from './BuyingGuideBanner';
-import { QuizBanner } from './QuizBanner';
-import { RelatedCategories } from './RelatedCategories';
 import { FaqAccordion } from './FaqAccordion';
+import { ShoppingInfoSection } from './ShoppingInfoSection';
 import { CategoryGuideSection } from './CategoryGuideSection';
 import { Search, SearchX, SlidersHorizontal, X, ChevronRight, ChevronDown, Check } from 'lucide-react';
 import { CATEGORIES, getCategoryTitle, productMatchesCategory } from '../data/categories';
+import { getCategoryContent } from '../data/categoryContent';
+import { CATEGORY_TO_SLUG } from '@/lib/categoryMeta';
+
+/** How many products the homepage shows before "Show all". Category pages always show everything. */
+const HOME_FEATURED_LIMIT = 15;
 
 export const ProductList: React.FC = () => {
   const {
@@ -29,7 +35,11 @@ export const ProductList: React.FC = () => {
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'in-stock' | 'low-stock'>('all');
   const [sortBy, setSortBy] = useState<'best' | 'price-low' | 'price-high'>('best');
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [showAllFeatured, setShowAllFeatured] = useState(false);
   const categoryDropdownRef = useRef<HTMLDivElement>(null);
+
+  // The homepage is the broad landing page; /adult-toys and category routes list everything.
+  const isHome = !activeCategory && !initialCategorySlug;
 
   const filteredProducts = products.filter((product) => {
     const q = searchQuery.toLowerCase().trim();
@@ -48,8 +58,18 @@ export const ProductList: React.FC = () => {
   }).sort((a, b) => {
     if (sortBy === 'price-low') return a.price - b.price;
     if (sortBy === 'price-high') return b.price - a.price;
-    return b.reviewsCount - a.reviewsCount;
+    // Recommended: in stock first, then most reviewed, then newest arrivals.
+    return (
+      Number(b.stock > 0) - Number(a.stock > 0) ||
+      b.reviewsCount - a.reviewsCount ||
+      Number(Boolean(b.isNew)) - Number(Boolean(a.isNew))
+    );
   });
+
+  const isFiltering = Boolean(searchQuery) || availabilityFilter !== 'all' || sortBy !== 'best';
+  const limitFeatured = isHome && !showAllFeatured && !isFiltering;
+  const visibleProducts = limitFeatured ? filteredProducts.slice(0, HOME_FEATURED_LIMIT) : filteredProducts;
+  const hiddenCount = filteredProducts.length - visibleProducts.length;
 
   const scrollToProducts = () => {
     const target = document.getElementById('products-grid');
@@ -77,7 +97,7 @@ export const ProductList: React.FC = () => {
   ];
 
   const sortOptions = [
-    { id: 'best', label: isArabic ? 'الأكثر مبيعاً' : 'Best selling' },
+    { id: 'best', label: isArabic ? 'الموصى به' : 'Recommended' },
     { id: 'price-low', label: isArabic ? 'السعر: الأقل أولاً' : 'Price: low to high' },
     { id: 'price-high', label: isArabic ? 'السعر: الأعلى أولاً' : 'Price: high to low' },
   ];
@@ -110,25 +130,43 @@ export const ProductList: React.FC = () => {
     : (isArabic ? 'كل الفئات' : 'All categories');
   const pageHeading = activeCategory
     ? getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')
-    : (seoHeading || (isArabic ? 'ألعاب ومنتجات للكبار في لبنان | متجر فيكسا' : 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys'));
+    : (seoHeading || (isArabic ? 'ألعاب جنسية في لبنان | منتجات للكبار بسرية' : 'Sex Toys Lebanon | Discreet Adult Toys'));
+
+  // Category routes get a page-specific hero sentence from the structured content.
+  const currentCategorySlug = activeCategory
+    ? (CATEGORY_TO_SLUG[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-'))
+    : (initialCategorySlug || '');
+  const categoryContent = currentCategorySlug ? getCategoryContent(currentCategorySlug) : null;
+
+  // Section heading above the grid. On the homepage the grid is a curated
+  // selection, elsewhere it repeats the page topic without the brand suffix.
+  const gridHeading = searchQuery
+    ? (isArabic ? `نتائج البحث: "${searchQuery}"` : `Search Results: "${searchQuery}"`)
+    : isHome
+      ? (isArabic ? 'منتجات مختارة' : 'Featured Products')
+      : pageHeading.split('|')[0].trim();
 
   return (
-    <div className="bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
-      {/* ── 1. HERO SECTION ────────────────────────────────────────── */}
-      <HeroSection heading={pageHeading} />
+    <div className="bg-vexa-ink text-white" dir={isArabic ? 'rtl' : 'ltr'}>
+      {/* ── 1. HERO ─────────────────────────────────────────────────── */}
+      <HeroSection
+        heading={pageHeading}
+        isHome={isHome}
+        intro={categoryContent?.heroIntro[isArabic ? 'ar' : 'en']}
+      />
 
-      {/* ── 2. BEST SELLING PRODUCTS / CATALOG ─────────────────────── */}
-      <section id="products-grid" className="mx-auto max-w-7xl px-4 py-10 sm:py-14 sm:px-6 lg:px-8 border-b border-white/10 scroll-mt-24 sm:scroll-mt-28">
-        {/* Section Header matching mockup */}
+      {/* ── 2. CATEGORY DISCOVERY (homepage only) ───────────────────── */}
+      {isHome && <CategoryShowcase />}
+
+      {/* ── 3. PRODUCT GRID ─────────────────────────────────────────── */}
+      <section id="products-grid" className="vexa-container vexa-section border-b border-white/10 scroll-mt-24 sm:scroll-mt-28">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              {searchQuery
-                ? (isArabic ? `نتائج البحث: "${searchQuery}"` : `Search Results: "${searchQuery}"`)
-                : pageHeading}
-            </h2>
-            {/* Hot pink underline bar */}
-            <div className="w-12 h-1 bg-[#ff2d78] rounded-full mt-2" />
+            {isHome && !searchQuery && (
+              <p className="vexa-eyebrow">{isArabic ? 'اختيارات مختارة بعناية' : 'Hand-picked for you'}</p>
+            )}
+            <h2 className={`vexa-h2 ${isHome ? 'mt-2' : ''}`}>{gridHeading}</h2>
+            <div className="vexa-h2-bar" />
           </div>
 
           <div className="flex items-center gap-4 self-start sm:self-auto">
@@ -136,23 +174,22 @@ export const ProductList: React.FC = () => {
               <button
                 type="button"
                 onClick={handleViewAllProducts}
-                className="text-xs font-bold text-[#ff2d78] hover:underline cursor-pointer"
+                className="text-xs font-bold text-vexa-pink hover:underline cursor-pointer"
               >
                 {isArabic ? 'عرض كل المنتجات ←' : 'View All Products →'}
               </button>
             )}
             {!activeCategory && (
-              <button
-                type="button"
-                onClick={scrollToProducts}
-                className="group flex items-center gap-1 text-xs font-bold text-stone-400 hover:text-white transition cursor-pointer"
+              <a
+                href="/adult-toys"
+                className="group flex items-center gap-1 text-xs font-bold text-stone-400 hover:text-white transition"
               >
-                <span>{isArabic ? 'عرض جميع المنتجات' : 'View All Products'}</span>
+                <span>{isArabic ? 'عرض كل منتجات الكبار' : 'View all adult toys'}</span>
                 <ChevronRight
                   size={14}
-                  className={`transition-transform duration-200 ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}
+                  className={`transition-transform duration-200 ${isArabic ? 'rotate-180 group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}
                 />
-              </button>
+              </a>
             )}
           </div>
         </div>
@@ -170,9 +207,9 @@ export const ProductList: React.FC = () => {
               aria-controls="catalog-category-listbox"
               aria-label={isArabic ? 'اختر الفئة' : 'Choose a category'}
               onClick={() => setIsCategoryDropdownOpen(prev => !prev)}
-              className={`h-10 sm:h-11 min-w-0 w-full rounded-xl border bg-[#121212] px-2.5 sm:px-3 text-xs font-bold text-white outline-none transition flex items-center justify-between gap-1.5 cursor-pointer select-none ${
+              className={`h-10 sm:h-11 min-w-0 w-full rounded-xl border bg-vexa-surface px-2.5 sm:px-3 text-xs font-bold text-white outline-none transition flex items-center justify-between gap-1.5 cursor-pointer select-none ${
                 isCategoryDropdownOpen
-                  ? 'border-[#ff2d78] shadow-[0_0_12px_rgba(255,45,120,0.25)]'
+                  ? 'border-vexa-pink shadow-[0_0_12px_rgba(255,45,120,0.25)]'
                   : 'border-white/15 hover:border-white/30'
               }`}
             >
@@ -180,7 +217,7 @@ export const ProductList: React.FC = () => {
               <ChevronDown
                 size={14}
                 className={`shrink-0 text-stone-400 transition-transform duration-200 ${
-                  isCategoryDropdownOpen ? 'rotate-180 text-[#ff2d78]' : ''
+                  isCategoryDropdownOpen ? 'rotate-180 text-vexa-pink' : ''
                 }`}
               />
             </button>
@@ -190,7 +227,7 @@ export const ProductList: React.FC = () => {
                 id="catalog-category-listbox"
                 role="listbox"
                 aria-label={isArabic ? 'قائمة الفئات' : 'Categories list'}
-                className="absolute top-full mt-1.5 start-0 z-50 w-max min-w-full max-w-[calc(100vw-2rem)] sm:min-w-[220px] rounded-xl border border-white/15 bg-[#121212] p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in duration-150"
+                className="absolute top-full mt-1.5 start-0 z-50 w-max min-w-full max-w-[calc(100vw-2rem)] sm:min-w-[220px] rounded-xl border border-white/15 bg-vexa-surface p-1.5 shadow-2xl backdrop-blur-xl animate-in fade-in duration-150"
               >
                 <div className="max-h-60 overflow-y-auto overscroll-contain py-0.5 space-y-0.5 [scrollbar-width:thin] [scrollbar-color:#333_transparent]">
                   {/* All Categories Option */}
@@ -204,12 +241,12 @@ export const ProductList: React.FC = () => {
                     }}
                     className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-bold transition text-start cursor-pointer ${
                       activeCategory === ''
-                        ? 'bg-[#ff2d78]/15 text-[#ff2d78]'
+                        ? 'bg-vexa-pink/15 text-vexa-pink'
                         : 'text-stone-300 hover:bg-white/10 hover:text-white'
                     }`}
                   >
                     <span>{isArabic ? 'كل الفئات' : 'All categories'}</span>
-                    {activeCategory === '' && <Check size={14} className="shrink-0 text-[#ff2d78]" />}
+                    {activeCategory === '' && <Check size={14} className="shrink-0 text-vexa-pink" />}
                   </button>
 
                   {/* Individual Categories */}
@@ -228,12 +265,12 @@ export const ProductList: React.FC = () => {
                         }}
                         className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-xs font-bold transition text-start cursor-pointer ${
                           isSelected
-                            ? 'bg-[#ff2d78]/15 text-[#ff2d78]'
+                            ? 'bg-vexa-pink/15 text-vexa-pink'
                             : 'text-stone-300 hover:bg-white/10 hover:text-white'
                         }`}
                       >
                         <span className="truncate">{catLabel}</span>
-                        {isSelected && <Check size={14} className="shrink-0 text-[#ff2d78]" />}
+                        {isSelected && <Check size={14} className="shrink-0 text-vexa-pink" />}
                       </button>
                     );
                   })}
@@ -243,7 +280,7 @@ export const ProductList: React.FC = () => {
           </div>
 
           <label
-            className="flex h-10 sm:h-11 min-w-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3 focus-within:border-[#ff2d78] transition"
+            className="flex h-10 sm:h-11 min-w-0 items-center gap-2 rounded-xl border border-white/15 bg-white/[0.03] px-3 focus-within:border-vexa-pink transition"
             dir={isArabic ? 'rtl' : 'ltr'}
           >
             <Search size={16} className="shrink-0 text-stone-400" aria-hidden="true" />
@@ -261,7 +298,7 @@ export const ProductList: React.FC = () => {
             type="button"
             onClick={() => setIsFilterOpen(true)}
             aria-label={isArabic ? 'فتح قائمة الفلتر' : 'Open filter menu'}
-            className="inline-flex h-10 sm:h-11 items-center justify-center gap-2 rounded-xl border border-white/15 px-3 sm:px-4 text-xs font-bold text-stone-200 transition hover:border-[#ff2d78] hover:text-[#ff2d78] hover:bg-white/5 cursor-pointer"
+            className="inline-flex h-10 sm:h-11 items-center justify-center gap-2 rounded-xl border border-white/15 px-3 sm:px-4 text-xs font-bold text-stone-200 transition hover:border-vexa-pink hover:text-vexa-pink hover:bg-white/5 cursor-pointer"
           >
             <SlidersHorizontal size={15} />
             <span className="hidden sm:inline">{isArabic ? 'فلتر' : 'Filter'}</span>
@@ -286,7 +323,7 @@ export const ProductList: React.FC = () => {
         {isProductsLoading ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
             {[...Array(10)].map((_, i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-white/10 bg-[#0d0d0d] p-3 space-y-3">
+              <div key={i} className="animate-pulse rounded-2xl border border-white/10 bg-vexa-surface p-3 space-y-3">
                 <div className="aspect-square bg-white/5 rounded-xl" />
                 <div className="h-4 bg-white/5 rounded w-3/4" />
                 <div className="h-3 bg-white/5 rounded w-1/2" />
@@ -295,11 +332,24 @@ export const ProductList: React.FC = () => {
             ))}
           </div>
         ) : filteredProducts.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
-            {filteredProducts.map((product, index) => (
-              <ProductCard key={product.id} product={product} priority={index < 5} />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-4 lg:gap-5">
+              {visibleProducts.map((product, index) => (
+                <ProductCard key={product.id} product={product} priority={!isHome && index < 5} />
+              ))}
+            </div>
+            {hiddenCount > 0 && (
+              <div className="mt-8 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => setShowAllFeatured(true)}
+                  className="vexa-btn-secondary"
+                >
+                  {isArabic ? `عرض كل المنتجات (${filteredProducts.length})` : `Show all ${filteredProducts.length} products`}
+                </button>
+              </div>
+            )}
+          </>
         ) : searchQuery ? (
           <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-white/15 bg-white/[0.02] px-4 py-16 text-center">
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-white/10 bg-white/5 text-stone-400">
@@ -331,7 +381,7 @@ export const ProductList: React.FC = () => {
               href="https://wa.me/96176730767"
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-[#25D366] text-black font-bold px-5 py-2.5 rounded-full text-xs transition hover:bg-[#20bd5a]"
+              className="inline-flex items-center gap-2 bg-vexa-whatsapp text-black font-bold px-5 py-2.5 rounded-full text-xs transition hover:bg-[#20bd5a]"
             >
               <span>{isArabic ? 'تواصل معنا عبر واتساب' : 'Contact Us on WhatsApp'}</span>
             </a>
@@ -339,29 +389,23 @@ export const ProductList: React.FC = () => {
         )}
       </section>
 
-      {/* ── 4. DYNAMIC CATEGORY GUIDE & FAQS (OR HOMEPAGE SHOWCASE) ── */}
-      {activeCategory || initialCategorySlug ? (
-        <CategoryGuideSection
-          onSelectCategory={handleSelectCategory}
-          onViewAllCategories={scrollToProducts}
-        />
-      ) : (
+      {/* ── 4. CATEGORY GUIDE (category routes) OR HOMEPAGE JOURNEY ── */}
+      {isHome ? (
         <>
+          <AssuranceSection />
           <BuyingGuideBanner />
-          <QuizBanner />
-          <RelatedCategories
-            onSelectCategory={handleSelectCategory}
-            onViewAllCategories={scrollToProducts}
-          />
-          <FaqAccordion onViewAllFaqs={scrollToProducts} />
+          <FaqAccordion />
+          <ShoppingInfoSection />
         </>
+      ) : (
+        <CategoryGuideSection onSelectCategory={handleSelectCategory} />
       )}
 
       {/* ── FILTER SLIDE-IN DRAWER ─────────────────────────────────── */}
       {isFilterOpen && (
         <div className="fixed inset-0 z-[10000] bg-black/60 backdrop-blur-sm" onClick={() => setIsFilterOpen(false)}>
           <div
-            className={`absolute inset-y-0 ${isArabic ? 'left-0' : 'right-0'} w-[86%] max-w-[400px] bg-[#121212] border-x border-white/10 text-white shadow-2xl flex flex-col`}
+            className={`absolute inset-y-0 ${isArabic ? 'left-0' : 'right-0'} w-[86%] max-w-[400px] bg-vexa-surface border-x border-white/10 text-white shadow-2xl flex flex-col`}
             onClick={(e) => e.stopPropagation()}
             dir={isArabic ? 'rtl' : 'ltr'}
           >
@@ -401,7 +445,7 @@ export const ProductList: React.FC = () => {
                         onClick={() => setAvailabilityFilter(option.id as 'all' | 'in-stock' | 'low-stock')}
                         className={`rounded-lg border px-2 py-2 text-[11px] font-bold transition ${
                           availabilityFilter === option.id
-                            ? 'border-[#ff2d78] bg-[#ff2d78] text-white'
+                            ? 'border-vexa-pink bg-vexa-pink text-white'
                             : 'border-white/15 text-stone-400 hover:text-white hover:border-white/30'
                         }`}
                       >
@@ -429,7 +473,7 @@ export const ProductList: React.FC = () => {
                         onClick={() => setSortBy(option.id as 'best' | 'price-low' | 'price-high')}
                         className={`rounded-lg border px-3 py-2 text-xs font-bold transition text-start ${
                           sortBy === option.id
-                            ? 'border-[#ff2d78] bg-[#ff2d78]/15 text-[#ff2d78]'
+                            ? 'border-vexa-pink bg-vexa-pink/15 text-vexa-pink'
                             : 'border-white/10 text-stone-400 hover:text-white hover:border-white/20'
                         }`}
                       >
@@ -457,7 +501,7 @@ export const ProductList: React.FC = () => {
                         onClick={() => { handleSelectCategory(cat.id); setIsFilterOpen(false); }}
                         className={`rounded-lg border px-2.5 py-2 text-xs font-bold transition text-start ${
                           activeCategory === cat.id
-                            ? 'border-[#ff2d78] bg-[#ff2d78] text-white'
+                            ? 'border-vexa-pink bg-vexa-pink text-white'
                             : 'border-white/10 text-stone-400 hover:border-white/30 hover:text-white'
                         }`}
                       >
@@ -469,7 +513,7 @@ export const ProductList: React.FC = () => {
               </div>
             </div>
 
-            <div className="border-t border-white/10 px-5 py-4 flex items-center justify-between gap-4 bg-[#0d0d0d]">
+            <div className="border-t border-white/10 px-5 py-4 flex items-center justify-between gap-4 bg-vexa-surface">
               <button
                 onClick={() => { setSearchQuery(''); setAvailabilityFilter('all'); setSortBy('best'); handleSelectCategory(''); }}
                 className="text-xs text-stone-400 hover:text-white underline cursor-pointer"
@@ -478,7 +522,7 @@ export const ProductList: React.FC = () => {
               </button>
               <button
                 onClick={() => setIsFilterOpen(false)}
-                className="bg-[#ff2d78] hover:bg-[#e11d48] text-white px-6 py-2 rounded-xl text-xs font-bold transition shadow-md"
+                className="bg-vexa-pink hover:bg-vexa-pink-deep text-white px-6 py-2 rounded-xl text-xs font-bold transition shadow-md"
               >
                 {isArabic ? 'تطبيق الفلتر' : 'Apply'}
               </button>

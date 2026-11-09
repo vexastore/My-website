@@ -23,7 +23,7 @@ export const RelatedCategories: React.FC<RelatedCategoriesProps> = ({
   const isArabic = language === 'ar';
 
   return (
-    <section className="bg-black py-8 sm:py-10 border-b border-white/10">
+    <section className="bg-vexa-ink py-8 sm:py-10 border-b border-white/10">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
@@ -56,11 +56,11 @@ export const RelatedCategories: React.FC<RelatedCategoriesProps> = ({
                 onClick={() => onSelectCategory(item.id)}
                 className={`flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? 'border-[#ff2d78] bg-[#ff2d78]/15 text-white shadow-md'
-                    : 'border-white/15 bg-white/[0.02] text-stone-300 hover:border-[#ff2d78] hover:text-[#ff2d78] hover:bg-white/5'
+                    ? 'border-vexa-pink bg-vexa-pink/15 text-white shadow-md'
+                    : 'border-white/15 bg-white/[0.02] text-stone-300 hover:border-vexa-pink hover:text-vexa-pink hover:bg-white/5'
                 }`}
               >
-                <Icon size={14} className="text-[#ff2d78]" />
+                <Icon size={14} className="text-vexa-pink" />
                 <span>{isArabic ? item.ar : item.en}</span>
               </button>
             );

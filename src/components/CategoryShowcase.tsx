@@ -1,123 +1,99 @@
 'use client';
 import React from 'react';
 import { useShop } from '../context/ShopContext';
-import { ChevronRight } from 'lucide-react';
+import { productMatchesCategory } from '../data/categories';
+import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 
-interface CategoryShowcaseProps {
-  onSelectCategory: (category: string) => void;
-  onViewAllCategories?: () => void;
-}
-
+/**
+ * Homepage category discovery. Every card is a real link to the category route
+ * so crawlers can follow it; the click handler only upgrades it to a client
+ * route transition for people.
+ */
 const CATEGORY_CARDS = [
-  {
-    id: 'Vibrators',
-    titleEn: 'Vibrators',
-    titleAr: 'هزازات',
-    subtitleEn: 'Feel the difference',
-    subtitleAr: 'اشعر بالفرق والمتعة',
-    image: '/images/mockup/cat-vibrators.webp',
-  },
-  {
-    id: 'Dildos',
-    titleEn: 'Dildos',
-    titleAr: 'ديلدو',
-    subtitleEn: 'Realistic & Powerful',
-    subtitleAr: 'واقعي وقوي وآمن',
-    image: '/images/mockup/cat-dildos.webp',
-  },
-  {
-    id: 'Male Toys',
-    titleEn: 'Male Toys',
-    titleAr: 'ألعاب رجالية',
-    subtitleEn: 'For his pleasure',
-    subtitleAr: 'لمتعة استثنائية للرجال',
-    image: '/images/mockup/cat-maletoys.webp',
-  },
-  {
-    id: 'Sex Toys',
-    titleEn: 'Couples Toys',
-    titleAr: 'ألعاب للأزواج',
-    subtitleEn: 'Share the pleasure',
-    subtitleAr: 'شارك المتعة مع الشريك',
-    image: '/images/mockup/cat-couples.webp',
-  },
-  {
-    id: 'Lingerie',
-    titleEn: 'Lingerie',
-    titleAr: 'لانجري',
-    subtitleEn: 'Feel confident',
-    subtitleAr: 'إطلالة جذابة وواثقة',
-    image: '/images/mockup/cat-lingerie.webp',
-  },
-];
+  { id: 'Vibrators', slug: 'vibrators', en: 'Vibrators', ar: 'هزازات', hintEn: 'Bullet, wand, rabbit and G-spot', hintAr: 'نحيل، عصا، أرنب ونقطة G', image: '/images/mockup/cat-vibrators.webp' },
+  { id: 'Dildos', slug: 'dildos', en: 'Dildos', ar: 'ديلدو', hintEn: 'Realistic styles in every size', hintAr: 'تصاميم واقعية بكل الأحجام', image: '/images/mockup/cat-dildos.webp' },
+  { id: 'Male Toys', slug: 'male-toys', en: 'Male Toys', ar: 'ألعاب رجالية', hintEn: 'Strokers, rings and pumps', hintAr: 'أدوات، حلقات ومضخات', image: '/images/mockup/cat-maletoys.webp' },
+  { id: 'Sex Toys', slug: 'sex-toys', en: 'Couples Toys', ar: 'ألعاب للأزواج', hintEn: 'Shared pleasure, all sex toys', hintAr: 'متعة مشتركة، كل الألعاب الزوجية', image: '/images/mockup/cat-couples.webp' },
+  { id: 'Lingerie', slug: 'lingerie', en: 'Lingerie', ar: 'لانجري', hintEn: 'Lace, satin and bodysuits', hintAr: 'دانتيل، ساتان وبدلات', image: '/images/mockup/cat-lingerie.webp' },
+  { id: 'Sex Dolls', slug: 'sex-dolls', en: 'Sex Dolls', ar: 'دمى جنسية', hintEn: 'Realistic torsos and dolls', hintAr: 'تورسو ودمى واقعية' },
+  { id: 'BDSM', slug: 'bdsm', en: 'BDSM & Bondage', ar: 'BDSM والقيود', hintEn: 'Restraints, blindfolds and kits', hintAr: 'قيود، عصابات عين وأطقم' },
+  { id: 'Sexual Enhancers', slug: 'sexual-enhancers', en: 'Sexual Enhancers', ar: 'معززات زوجية', hintEn: 'Delay sprays, gels and more', hintAr: 'بخاخات تأخير، جل وأكثر' },
+] as const;
 
-export const CategoryShowcase: React.FC<CategoryShowcaseProps> = ({
-  onSelectCategory,
-  onViewAllCategories,
-}) => {
-  const { language } = useShop();
+export const CategoryShowcase: React.FC = () => {
+  const { language, products, setActiveCategory } = useShop();
   const isArabic = language === 'ar';
+  const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
+  const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
+
+  const imageFor = (card: (typeof CATEGORY_CARDS)[number]): string => {
+    if ('image' in card && card.image) return card.image;
+    // Fall back to the first real product photo in that category.
+    const product = products.find(item => productMatchesCategory(item, card.id) && item.image && !item.image.startsWith('data:'));
+    return product?.image || '';
+  };
 
   return (
-    <section id="shop-by-category" className="bg-black py-10 sm:py-14 border-b border-white/10">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        {/* Section Header */}
-        <div className="flex items-end justify-between mb-8">
+    <section id="shop-by-category" className="vexa-section scroll-mt-24 border-b border-white/10 bg-vexa-ink">
+      <div className="vexa-container">
+        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-              {isArabic ? 'تسوق حسب الفئة' : 'Shop by Category'}
-            </h2>
-            {/* Hot pink underline bar */}
-            <div className="w-12 h-1 bg-[#ff2d78] rounded-full mt-2" />
+            <p className="vexa-eyebrow">{isArabic ? 'ابدأ من هنا' : 'Start here'}</p>
+            <h2 className="vexa-h2 mt-2">{isArabic ? 'تسوّق حسب الفئة' : 'Shop by Category'}</h2>
+            <div className="vexa-h2-bar" />
           </div>
-
-          <button
-            type="button"
-            onClick={onViewAllCategories}
-            className="group flex items-center gap-1 text-xs font-bold text-stone-400 hover:text-white transition cursor-pointer"
+          <a
+            href="/adult-toys"
+            className="group inline-flex items-center gap-1 text-xs font-bold text-stone-400 transition hover:text-white"
           >
-            <span>{isArabic ? 'عرض جميع الفئات' : 'View All Categories'}</span>
-            <ChevronRight
-              size={14}
-              className={`transition-transform duration-200 ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}
-            />
-          </button>
+            <span>{isArabic ? 'كل منتجات الكبار' : 'All adult toys'}</span>
+            <ChevronIcon size={14} className={`transition-transform duration-200 ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} />
+          </a>
         </div>
 
-        {/* 5 Column Grid matching mockup */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
-          {CATEGORY_CARDS.map(cat => (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => onSelectCategory(cat.id)}
-              className="group flex flex-col text-start rounded-2xl border border-white/10 bg-[#0e0e0e] hover:border-white/25 hover:bg-[#141414] overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-[#ff2d78]/5 cursor-pointer"
-            >
-              {/* Image Container */}
-              <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/60">
-                <img
-                  src={cat.image}
-                  alt={isArabic ? cat.titleAr : cat.titleEn}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  loading="lazy"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0e0e0e] via-transparent to-transparent opacity-60" />
-              </div>
-
-              {/* Text Info */}
-              <div className="p-3.5 sm:p-4">
-                <div className="flex items-center gap-1.5 font-black text-sm text-white group-hover:text-[#ff2d78] transition-colors">
-                  <span>{isArabic ? cat.titleAr : cat.titleEn}</span>
-                  <span className={`text-xs transition-transform duration-200 ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}>
-                    →
-                  </span>
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+          {CATEGORY_CARDS.map((card, index) => {
+            const image = imageFor(card);
+            const label = isArabic ? card.ar : card.en;
+            return (
+              <a
+                key={card.slug}
+                href={`/${card.slug}`}
+                onClick={event => {
+                  event.preventDefault();
+                  setActiveCategory(card.id);
+                }}
+                className="vexa-card vexa-card-interactive group flex flex-col overflow-hidden text-start"
+              >
+                <div className="relative aspect-[4/3] w-full overflow-hidden bg-vexa-raised">
+                  {image ? (
+                    <img
+                      src={image}
+                      alt={isArabic ? `${label} في لبنان` : `${label} in Lebanon`}
+                      width={640}
+                      height={480}
+                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading={index < 4 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-vexa-raised via-vexa-surface to-vexa-ink">
+                      <span className="text-3xl font-black tracking-tight text-white/15">{label.charAt(0)}</span>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-vexa-surface via-transparent to-transparent opacity-70" />
                 </div>
-                <p className="text-[11px] font-medium text-stone-400 mt-1 line-clamp-1">
-                  {isArabic ? cat.subtitleAr : cat.subtitleEn}
-                </p>
-              </div>
-            </button>
-          ))}
+
+                <div className="flex flex-1 items-start justify-between gap-2 p-3.5 sm:p-4">
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-black text-white transition-colors group-hover:text-vexa-pink sm:text-base">{label}</h3>
+                    <p className="mt-1 line-clamp-1 text-[11px] font-medium text-stone-400 sm:text-xs">{isArabic ? card.hintAr : card.hintEn}</p>
+                  </div>
+                  <ArrowIcon size={16} className={`mt-0.5 shrink-0 text-vexa-pink transition-transform duration-200 ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} aria-hidden="true" />
+                </div>
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>

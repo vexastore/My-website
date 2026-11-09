@@ -4,23 +4,28 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('homepage owns the broad Lebanon sex-toys and adult-toys query signals', async () => {
+test('homepage targets "sex toys lebanon" with one title, description and hero heading', async () => {
   const home = await read('app/page.tsx');
 
-  assert.match(home, /Sex Toys Lebanon & Adult Toys Lebanon \| Vexa Toys/);
-  assert.match(home, /Shop sex toys in Lebanon and adult toys in Lebanon at Vexa Toys/);
-  assert.match(home, /seoHeading=\{isAr[\s\S]*Sex Toys Lebanon & Adult Toys Lebanon \| Vexa Toys/);
+  assert.match(home, /SEO_TITLE = 'Sex Toys Lebanon \| Discreet Adult Toys \| Vexa Toys'/);
+  assert.match(home, /Shop sex toys in Lebanon at Vexa Toys\./);
+  assert.match(home, /HERO_HEADING_EN = 'Sex Toys Lebanon \| Discreet Adult Toys'/);
+  assert.match(home, /title: \{ absolute: title \}/);
+  assert.match(home, /canonical: `\$\{SITE_URL\}\/`/);
+  // The homepage ships lightweight cards, not the full catalog, and no appended SEO layer.
+  assert.match(home, /allProducts\.map\(toCardProduct\)/);
+  assert.doesNotMatch(home, /seoContent=/);
 });
 
-test('shared catalog hero receives a page-specific heading instead of a fixed H1', async () => {
+test('shared catalog hero splits a page-specific heading into two lines', async () => {
   const hero = await read('src/components/HeroSection.tsx');
   const productList = await read('src/components/ProductList.tsx');
 
   assert.match(hero, /interface HeroSectionProps[\s\S]*heading\?: string/);
-  assert.match(hero, /splitHeroHeading\(heading \|\| 'Sex Toys Lebanon & Adult Toys Lebanon'\)/);
-  assert.doesNotMatch(hero, /isArabic \? 'منتجات زوجية' : 'SEX TOYS'/);
+  assert.match(hero, /splitHeroHeading\(heading \|\| 'Sex Toys Lebanon \| Discreet Adult Toys'\)/);
+  assert.match(hero, /<h1[\s\S]*aria-label=\{\[heroHeading\.primary, heroHeading\.secondary\]/);
   assert.match(productList, /activeCategory[\s\S]*getCategoryTitle\(activeCategory/);
-  assert.match(productList, /<HeroSection heading=\{pageHeading\} \/>/);
+  assert.match(productList, /<HeroSection[\s\S]*?heading=\{pageHeading\}[\s\S]*?isHome=\{isHome\}[\s\S]*?\/>/);
 });
 
 test('adult-toys has persistent crawlable navigation and homepage has descriptive self-link text', async () => {
@@ -43,7 +48,8 @@ test('category navigation performs a real Next route transition', async () => {
 test('published category SEO copy is normalized to the current brand', async () => {
   const categories = await read('lib/fetchCategories.ts');
 
-  assert.match(categories, /value\.replace\(\/Vexa Store\/gi, 'Vexa Toys'\)/);
+  // Both the legacy "Vexa Store" brand and the lowercase "Vexa toys" casing are normalized.
+  assert.match(categories, /value\.replace\(\/vexa\\s\+\(store\|toys\)\/gi, 'Vexa Toys'\)/);
   assert.match(categories, /seoTitleEn: categoryCopy\(row\.seo_title_en\)/);
   assert.match(categories, /seoDescriptionEn: categoryCopy\(row\.seo_description_en\)/);
 });
