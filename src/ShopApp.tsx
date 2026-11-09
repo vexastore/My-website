@@ -4,6 +4,7 @@ import { ShopProvider } from './context/ShopContext';
 import { AppContent } from './App';
 import { Product } from './types';
 import type { StoreLocale } from '@/lib/storeLocaleShared';
+import type { CategoryEditorial } from './utils/category-editorial';
 
 interface ShopAppProps {
   initialProducts?: Product[];
@@ -12,6 +13,8 @@ interface ShopAppProps {
   initialView?: 'shop' | 'checkout' | 'admin' | 'orders' | 'about' | 'product';
   initialProductSlug?: string;
   seoHeading?: string;
+  /** Supabase category guide + FAQs for the current category route. */
+  categoryEditorial?: CategoryEditorial | null;
   initialLocale?: StoreLocale;
   seoContent?: React.ReactNode;
 }
@@ -23,6 +26,7 @@ export function ShopApp({
   initialView,
   initialProductSlug,
   seoHeading,
+  categoryEditorial,
   initialLocale,
   seoContent,
 }: ShopAppProps) {
@@ -34,6 +38,7 @@ export function ShopApp({
       initialView={initialView}
       initialProductSlug={initialProductSlug}
       seoHeading={seoHeading}
+      categoryEditorial={categoryEditorial}
       initialLocale={initialLocale}
     >
       <AppContent seoContent={seoContent} />

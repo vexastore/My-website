@@ -7,6 +7,7 @@ import { isStorefrontReference, mergeOrderStatuses } from '../utils/order-status
 import { STORE_LOCALE_COOKIE, type StoreLocale } from '@/lib/storeLocaleShared';
 import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
 import { CACHE_VERSION } from '@/lib/cacheVersion';
+import type { CategoryEditorial } from '../utils/category-editorial';
 import { useRouter } from 'next/navigation';
 
 type ViewType = 'shop' | 'checkout' | 'admin' | 'advice' | 'orders' | 'about' | 'product';
@@ -23,6 +24,8 @@ interface ShopContextType {
   activeCategory: string;
   initialCategorySlug?: string;
   seoHeading?: string;
+  /** Category guide + FAQs from Supabase for the current category route, when the page fetched one. */
+  categoryEditorial?: CategoryEditorial | null;
   searchQuery: string;
   is18PlusVerified: boolean;
   isProductsLoading: boolean;
@@ -120,8 +123,9 @@ export const ShopProvider: React.FC<{
   initialView?: string;
   initialProductSlug?: string;
   seoHeading?: string;
+  categoryEditorial?: CategoryEditorial | null;
   initialLocale?: StoreLocale;
-}> = ({ children, initialProducts, initialCategory, initialCategorySlug, initialView: initialViewProp, initialProductSlug, seoHeading, initialLocale = 'en' }) => {
+}> = ({ children, initialProducts, initialCategory, initialCategorySlug, initialView: initialViewProp, initialProductSlug, seoHeading, categoryEditorial, initialLocale = 'en' }) => {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>(initialProducts || []);
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -640,7 +644,7 @@ export const ShopProvider: React.FC<{
       value={{
         language, products, cart, orders, orderStatusSync, refreshOrderStatuses, currentView, selectedArticle,
         activeCategory, initialCategorySlug, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
-        seoHeading,
+        seoHeading, categoryEditorial,
         setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
         setActiveCategory: navigateToCategoryFn, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, deleteOrder,
