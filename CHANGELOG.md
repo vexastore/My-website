@@ -49,6 +49,7 @@ All notable changes to this project are documented here. The project follows
 
 ### Fixed
 
+- **Sitemap homepage URL** now has the trailing slash (`https://vexatoys.com/`) to match the homepage canonical; Search Console reported "No referring sitemaps detected" for the homepage because the two spellings did not match.
 - **Dev hydration mismatches**: the `Cache-Control: public, max-age=31536000, immutable` rule for `/_next/static/:path*` now applies only when `NODE_ENV` is `production`. In `next dev` chunk names are not content-hashed, so the immutable header made browsers keep stale client bundles after every edit and report "Hydration failed because the server rendered text didn't match the client". Production chunks are hashed and keep the immutable header. After pulling this change, restart `npm run dev` and hard-refresh once (Ctrl+F5) to drop the already-cached chunks.
 - Added permanent redirects for two URLs that Search Console still lists as indexed but that returned 404: `/sex-toys/dildo-in-lebanon-premium-silicone-dildo` and `/dildos/realistic-silicone-dildo-lebanon-g-spot-curved-suction-cup-d`.
 
