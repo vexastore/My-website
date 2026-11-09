@@ -20,7 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const latest = (dates: Array<string | undefined>) => dates.filter((date): date is string => !!date).sort().at(-1);
 
   const pages: MetadataRoute.Sitemap = [
-    { url: BASE, lastModified: latest(products.map(product => product.updatedAt)) },
+    // Trailing slash: the homepage canonical is "https://vexatoys.com/", and Search
+    // Console only links a sitemap entry to a page when the URLs match exactly.
+    { url: `${BASE}/`, lastModified: latest(products.map(product => product.updatedAt)) },
     { url: `${BASE}/adult-toys`, lastModified: latest(products.map(product => product.updatedAt)) },
     { url: `${BASE}/about` },
     { url: `${BASE}/quiz` },
