@@ -104,9 +104,9 @@ export const Navbar: React.FC = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-black text-white" dir={isArabic ? 'rtl' : 'ltr'}>
+    <header className="sticky top-0 z-50 w-full bg-vexa-ink text-white" dir={isArabic ? 'rtl' : 'ltr'}>
       {/* ── TOP ANNOUNCEMENT BAR ────────────────────────────────────── */}
-      <div className="border-b border-white/10 bg-black text-stone-300">
+      <div className="border-b border-white/10 bg-vexa-ink text-stone-300">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2 text-[11px] sm:px-6">
           <div />
 
@@ -116,9 +116,9 @@ export const Navbar: React.FC = () => {
             aria-label={isArabic ? 'التبديل إلى الإنجليزية' : 'Switch to Arabic'}
             className="flex items-center gap-1 text-[11px] font-semibold text-stone-400 hover:text-white transition px-2 py-0.5 rounded"
           >
-            <span className={isArabic ? 'text-[#ff2d78] font-bold' : ''}>عربي</span>
+            <span className={isArabic ? 'text-vexa-pink font-bold' : ''}>عربي</span>
             <span className="text-stone-600">|</span>
-            <span className={!isArabic ? 'text-[#ff2d78] font-bold' : ''}>EN</span>
+            <span className={!isArabic ? 'text-vexa-pink font-bold' : ''}>EN</span>
           </button>
         </div>
       </div>
@@ -142,10 +142,10 @@ export const Navbar: React.FC = () => {
               className="flex flex-col select-none group"
               aria-label="Vexa Toys Home"
             >
-              <span className="text-xl sm:text-2xl font-black tracking-wider text-[#ff2d78] group-hover:brightness-110 transition leading-none">
+              <span className="text-xl sm:text-2xl font-black tracking-wider text-vexa-pink group-hover:brightness-110 transition leading-none">
                 VEXA
               </span>
-              <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.32em] text-[#ff2d78] group-hover:brightness-110 transition mt-0.5 leading-none">
+              <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.32em] text-vexa-pink group-hover:brightness-110 transition mt-0.5 leading-none">
                 TOYS
               </span>
             </a>
@@ -176,7 +176,7 @@ export const Navbar: React.FC = () => {
 
               {isShopDropdownOpen && (
                 <div
-                  className="absolute top-full mt-2 w-64 rounded-xl border border-white/10 bg-[#0e0e0e] py-2 shadow-2xl z-50"
+                  className="absolute top-full mt-2 w-64 rounded-xl border border-white/10 bg-vexa-surface py-2 shadow-2xl z-50"
                   dir={isArabic ? 'rtl' : 'ltr'}
                 >
                   <a
@@ -185,7 +185,7 @@ export const Navbar: React.FC = () => {
                       setIsMenuOpen(false);
                       setIsShopDropdownOpen(false);
                     }}
-                    className="block px-4 py-2 text-xs font-bold text-white hover:bg-white/10 hover:text-[#ff2d78] transition"
+                    className="block px-4 py-2 text-xs font-bold text-white hover:bg-white/10 hover:text-vexa-pink transition"
                   >
                     {isArabic ? 'كل منتجات الكبار' : 'All Adult Toys'}
                   </a>
@@ -219,7 +219,7 @@ export const Navbar: React.FC = () => {
               >
                 <span>{isArabic ? 'الفئات' : 'Categories'}</span>
                 {/* Hot pink active underline bar matching mockup */}
-                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-[#ff2d78] rounded-full" />
+                <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-vexa-pink rounded-full" />
               </button>
             </div>
 
@@ -262,7 +262,7 @@ export const Navbar: React.FC = () => {
             >
               <User size={20} strokeWidth={1.6} />
               {orders.length > 0 && (
-                <span className="absolute 1 top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ff2d78] px-1 text-[9px] font-black text-white">
+                <span className="absolute 1 top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-vexa-pink px-1 text-[9px] font-black text-white">
                   {orders.length}
                 </span>
               )}
@@ -274,7 +274,7 @@ export const Navbar: React.FC = () => {
               aria-label={isArabic ? 'السلة' : 'Cart'}
             >
               <ShoppingBag size={20} strokeWidth={1.6} />
-              <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ff2d78] px-1 text-[10px] font-black text-white shadow-sm">
+              <span className="absolute top-1.5 right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-vexa-pink px-1 text-[10px] font-black text-white shadow-sm">
                 {getCartItemsCount()}
               </span>
             </button>
@@ -338,8 +338,8 @@ export const Navbar: React.FC = () => {
             </button>
 
             <a href="/" onClick={openShopHome} className="flex flex-col select-none">
-              <span className="text-xl font-black tracking-wider text-[#ff2d78]">VEXA</span>
-              <span className="text-[9px] font-bold tracking-[0.32em] text-[#ff2d78] -mt-1">TOYS</span>
+              <span className="text-xl font-black tracking-wider text-vexa-pink">VEXA</span>
+              <span className="text-[9px] font-bold tracking-[0.32em] text-vexa-pink -mt-1">TOYS</span>
             </a>
 
             <button
@@ -356,13 +356,13 @@ export const Navbar: React.FC = () => {
                 <span className="text-xl font-bold text-white">
                   {isArabic ? 'جميع الفئات' : 'All Categories'}
                 </span>
-                <span className="text-xs text-[#ff2d78] font-bold">{CATEGORIES.length}</span>
+                <span className="text-xs text-vexa-pink font-bold">{CATEGORIES.length}</span>
               </div>
               <div className="grid grid-cols-1 divide-y divide-white/5 sm:grid-cols-2">
                 <a
                   href="/adult-toys"
                   onClick={() => setIsMenuOpen(false)}
-                  className="flex w-full items-center justify-between py-3.5 text-start text-base font-bold text-[#ff2d78] transition hover:text-white"
+                  className="flex w-full items-center justify-between py-3.5 text-start text-base font-bold text-vexa-pink transition hover:text-white"
                 >
                   <span>{isArabic ? 'كل منتجات الكبار' : 'All Adult Toys'}</span>
                   <ChevronRight size={18} className="text-stone-500" />
@@ -372,7 +372,7 @@ export const Navbar: React.FC = () => {
                     key={item.id}
                     href={`/${catSlug(item.id)}`}
                     onClick={(e) => handleCategorySelect(e, item.id)}
-                    className="flex w-full items-center justify-between py-3.5 text-start text-base font-medium text-stone-200 transition hover:text-[#ff2d78]"
+                    className="flex w-full items-center justify-between py-3.5 text-start text-base font-medium text-stone-200 transition hover:text-vexa-pink"
                   >
                     <span>{isArabic ? item.name.ar : item.name.en}</span>
                     <ChevronRight size={18} className="text-stone-500" />
@@ -385,7 +385,7 @@ export const Navbar: React.FC = () => {
               <a
                 href="/"
                 onClick={openShopHome}
-                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-[#ff2d78] transition"
+                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
                 <span>{isArabic ? 'الرئيسية' : 'Home'}</span>
               </a>
@@ -393,7 +393,7 @@ export const Navbar: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setActiveSubmenu('Categories')}
-                className="group flex w-full items-center justify-between py-2 text-start text-2xl font-bold text-white hover:text-[#ff2d78] transition"
+                className="group flex w-full items-center justify-between py-2 text-start text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
                 <span>{isArabic ? 'الفئات' : 'Categories'}</span>
                 <ChevronRight size={24} className="text-stone-500 group-hover:translate-x-1 transition-transform" />
@@ -402,7 +402,7 @@ export const Navbar: React.FC = () => {
               <a
                 href="/quiz"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-[#ff2d78] transition"
+                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
                 <span>{isArabic ? 'اختار منتجك (اختبار ٣ أسئلة)' : 'Find My Product (Quiz)'}</span>
                 <span className="text-lg">🎯</span>
@@ -411,7 +411,7 @@ export const Navbar: React.FC = () => {
               <a
                 href="/blog"
                 onClick={() => setIsMenuOpen(false)}
-                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-[#ff2d78] transition"
+                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
                 <span>{isArabic ? 'المدونة' : 'Blog'}</span>
               </a>
@@ -423,7 +423,7 @@ export const Navbar: React.FC = () => {
                   setView('about');
                   setIsMenuOpen(false);
                 }}
-                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-[#ff2d78] transition"
+                className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
                 <span>{isArabic ? 'عن المتجر' : 'About Us'}</span>
                 <Info size={20} className="text-stone-500" />
@@ -439,11 +439,11 @@ export const Navbar: React.FC = () => {
                   className="flex w-full items-center justify-between py-2 text-base font-semibold text-stone-300 hover:text-white"
                 >
                   <span className="flex items-center gap-2">
-                    <ClipboardList size={18} className="text-[#ff2d78]" />
+                    <ClipboardList size={18} className="text-vexa-pink" />
                     {isArabic ? 'طلباتي' : 'My Orders'}
                   </span>
                   {orders.length > 0 && (
-                    <span className="bg-[#ff2d78] text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                    <span className="bg-vexa-pink text-white text-xs px-2 py-0.5 rounded-full font-bold">
                       {orders.length}
                     </span>
                   )}
@@ -467,13 +467,13 @@ export const Navbar: React.FC = () => {
       {isOrdersOpen && (
         <div className="fixed inset-0 z-[20000] flex items-end sm:items-center justify-center" dir={isArabic ? 'rtl' : 'ltr'}>
           <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={() => setIsOrdersOpen(false)} />
-          <div className="relative w-full max-w-lg bg-[#0d0d0d] rounded-t-3xl sm:rounded-2xl border border-white/10 shadow-2xl max-h-[85vh] flex flex-col">
+          <div className="relative w-full max-w-lg bg-vexa-surface rounded-t-3xl sm:rounded-2xl border border-white/10 shadow-2xl max-h-[85vh] flex flex-col">
             <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <ClipboardList size={18} className="text-[#ff2d78]" />
+                <ClipboardList size={18} className="text-vexa-pink" />
                 <h2 className="text-base font-black text-white">{isArabic ? 'طلباتي' : 'My Orders'}</h2>
                 {orders.length > 0 && (
-                  <span className="bg-[#ff2d78] text-white text-xs font-black px-2 py-0.5 rounded-full">{orders.length}</span>
+                  <span className="bg-vexa-pink text-white text-xs font-black px-2 py-0.5 rounded-full">{orders.length}</span>
                 )}
               </div>
               <button onClick={() => setIsOrdersOpen(false)} aria-label={isArabic ? 'إغلاق' : 'Close'} className="text-stone-400 hover:text-white transition">

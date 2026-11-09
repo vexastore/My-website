@@ -2,13 +2,19 @@ import { Metadata } from 'next';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 
+// Brand-story page. It must not compete with the homepage or /sex-toys for
+// "sex toys lebanon" queries, so the title and copy stay about the company.
+const pageTitle = 'About Vexa Toys | Our Story and Promise';
+const pageDescription =
+  'Vexa Toys is a Lebanese online store for adult products. Read how we started, how discreet delivery works across Lebanon and why customers trust us.';
+
 const baseMetadata: Metadata = {
-  title: 'About Vexa Toys | Intimate Wellness Lebanon',
-  description: 'Learn about Vexa Toys in Lebanon, its product categories, discreet packaging, and cash on delivery.',
+  title: { absolute: pageTitle },
+  description: pageDescription,
   alternates: { canonical: 'https://vexatoys.com/about' },
   openGraph: {
-    title: 'About Vexa Toys | Intimate Wellness Lebanon',
-    description: 'Learn about Vexa Toys in Lebanon, its product categories, discreet packaging, and cash on delivery.',
+    title: pageTitle,
+    description: pageDescription,
     url: 'https://vexatoys.com/about',
     siteName: 'Vexa Toys Lebanon',
     type: 'website',

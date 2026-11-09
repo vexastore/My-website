@@ -27,7 +27,9 @@ function categoryCopy(value: string): string;
 function categoryCopy(value: string | null | undefined): string | undefined;
 function categoryCopy(value: string | null | undefined): string | undefined {
   if (!value) return undefined;
-  return displayCopy(value.replace(/Vexa Store/gi, 'Vexa Toys'));
+  // Published rows still carry the old "Vexa Store" brand and inconsistent
+  // "Vexa toys" casing; normalize both at the public reader boundary.
+  return displayCopy(value.replace(/vexa\s+(store|toys)/gi, 'Vexa Toys'));
 }
 
 async function readCategories(): Promise<PublicCategory[]> {

@@ -1,285 +1,128 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
+import { toCardProduct } from '@/lib/storefrontPayload';
 import { FAQ_DATA } from '@/src/data/faq';
-
 
 export const revalidate = 300;
 
-const SITE_TITLE = 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys';
-const SITE_DESC = 'Shop sex toys in Lebanon and adult toys in Lebanon at Vexa Toys. Discreet delivery across Beirut and all Lebanon, private packaging, and cash on delivery.';
+const SITE_URL = 'https://vexatoys.com';
 
-const baseMetadata: Metadata = {
-  metadataBase: new URL('https://vexatoys.com'),
-  title: SITE_TITLE,
-  description: SITE_DESC,
-  keywords: [
-    'sex toys lebanon',
-    'sex toys in lebanon',
-    'sex toy in lebanon',
-    'adult store beirut',
-    'adult toys lebanon',
-    'adult toys in lebanon',
-    'adult toys in beirut',
-    'sex toys in beirut',
-    'vibrators lebanon',
-    'dildos lebanon',
-    'intimate wellness lebanon',
-    'luxury personal massagers beirut',
-    'couples intimacy products',
-    'premium lingerie beirut',
-    'vexa toys',
-    'vexa toys lebanon',
-    'ألعاب زوجية لبنان',
-    'منتجات متزوجين بيروت',
-    'هدايا للمتزوجين لبنان',
-    'متجر سري لبنان',
-    'مقويات زوجية لبنان',
-  ],
-  alternates: { canonical: 'https://vexatoys.com' },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://vexatoys.com',
-    siteName: 'Vexa Toys Lebanon',
-    title: SITE_TITLE,
-    description: SITE_DESC,
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Sex Toys Lebanon and Adult Toys Lebanon, Vexa Toys' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@vexatoys',
-    title: SITE_TITLE,
-    description: SITE_DESC,
-    images: ['https://vexatoys.com/opengraph.jpg'],
-  },
-  robots: {
-    index: true,
-    follow: true,
-    nocache: true,
-    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 },
-  },
-};
+/**
+ * Homepage SEO. Focus query: "sex toys lebanon".
+ * The title, description, H1 (see HeroSection) and intro copy all target it
+ * naturally; the rest of the page is a real shopping journey, not keyword copy.
+ */
+const SEO_TITLE = 'Sex Toys Lebanon | Discreet Adult Toys | Vexa Toys';
+const SEO_DESCRIPTION =
+  'Shop sex toys in Lebanon at Vexa Toys. Explore vibrators, adult toys and lingerie with discreet packaging, delivery across Lebanon and cash on delivery.';
+
+/** Hero H1 lines, split on "|" by HeroSection: "SEX TOYS LEBANON" / "DISCREET ADULT TOYS". */
+const HERO_HEADING_EN = 'Sex Toys Lebanon | Discreet Adult Toys';
+const HERO_HEADING_AR = 'ألعاب جنسية في لبنان | منتجات للكبار بسرية';
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await getStoreLocale() === 'en') return baseMetadata;
-  const title = 'متجر فيكسا لبنان | منتجات زوجية وتوصيل سري';
-  const description = 'تسوق منتجات العناية الحميمية واللانجري في لبنان بخصوصية تامة. توصيل سري ودفع عند الاستلام.';
+  const isAr = (await getStoreLocale()) === 'ar';
+  const title = isAr
+    ? 'متجر ألعاب زوجية في لبنان | توصيل سري | Vexa Toys'
+    : SEO_TITLE;
+  const description = isAr
+    ? 'تسوّق الألعاب الزوجية ومنتجات العناية الحميمية واللانجري من Vexa Toys في لبنان، مع تغليف سري وخيارات توصيل والدفع عند الاستلام.'
+    : SEO_DESCRIPTION;
+
   return {
-    ...baseMetadata,
-    title,
+    metadataBase: new URL(SITE_URL),
+    title: { absolute: title },
     description,
-    openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' },
-    twitter: { ...baseMetadata.twitter, title, description },
+    alternates: { canonical: `${SITE_URL}/` },
+    openGraph: {
+      type: 'website',
+      locale: isAr ? 'ar_LB' : 'en_US',
+      url: `${SITE_URL}/`,
+      siteName: 'Vexa Toys',
+      title,
+      description,
+      images: [
+        {
+          url: `${SITE_URL}/opengraph.jpg`,
+          width: 1200,
+          height: 630,
+          alt: 'Vexa Toys, adult toys and intimate wellness in Lebanon',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [`${SITE_URL}/opengraph.jpg`],
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
   };
 }
 
-const BASE = 'https://vexatoys.com';
-
-const REVIEWS = [
-  {
-    text: 'Placed my order in the morning and it arrived before dinner. Plain box, nothing on it. Product quality genuinely surprised me, better than expected.',
-    textAr: 'طلبت صباحاً ووصل طلبي قبل المساء في صندوق عادي. جودة المنتج كانت أفضل من المتوقع.',
-    name: 'Dina M.',
-    city: 'Beirut, Lebanon',
-    cityAr: 'بيروت، لبنان',
-    initial: 'D',
-    color: 'bg-purple-600',
-  },
-  {
-    text: 'Was skeptical ordering something like this online in Lebanon, but Vexa proved me wrong. Discreet, professional, and the quality is actually great.',
-    textAr: 'كنت متردداً في الطلب عبر الإنترنت، لكن التجربة كانت سرية واحترافية والجودة ممتازة.',
-    name: 'Georges K.',
-    city: 'Jounieh, Lebanon',
-    cityAr: 'جونية، لبنان',
-    initial: 'G',
-    color: 'bg-rose-600',
-  },
-  {
-    text: 'Messaged them on WhatsApp before ordering, they answered fast and helped me pick the right product. Arrived in Tripoli in two days, completely plain box.',
-    textAr: 'تواصلت معهم عبر واتساب قبل الطلب، وساعدوني في الاختيار. وصل المنتج إلى طرابلس خلال يومين بصندوق عادي.',
-    name: 'Tarek H.',
-    city: 'Tripoli, Lebanon',
-    cityAr: 'طرابلس، لبنان',
-    initial: 'T',
-    color: 'bg-amber-600',
-  },
-  {
-    text: 'Fast, private, and exactly what was advertised. Cash on delivery made everything easier. Already placed a second order.',
-    textAr: 'الخدمة سريعة وسرية والمنتج كما في الوصف. الدفع عند الاستلام سهّل الطلب، وقد طلبت مرة أخرى.',
-    name: 'Lina B.',
-    city: 'Sidon, Lebanon',
-    cityAr: 'صيدا، لبنان',
-    initial: 'L',
-    color: 'bg-teal-600',
-  },
-  {
-    text: 'Delivery reached Zahle the next morning. I was a bit nervous about privacy but the packaging had absolutely nothing on it. Very impressed.',
-    textAr: 'وصل طلبي إلى زحلة في صباح اليوم التالي. كان التغليف خالياً تماماً من أي علامة تكشف المحتوى.',
-    name: 'Jad R.',
-    city: 'Zahle, Lebanon',
-    cityAr: 'زحلة، لبنان',
-    initial: 'J',
-    color: 'bg-indigo-600',
-  },
-  {
-    text: 'No other store in Lebanon comes close. Fair prices, fast delivery in Beirut, and genuinely discreet packaging every single time.',
-    textAr: 'أسعار مناسبة وتوصيل في اليوم نفسه داخل بيروت وتغليف سري في كل مرة.',
-    name: 'Nadia S.',
-    city: 'Beirut, Lebanon',
-    cityAr: 'بيروت، لبنان',
-    initial: 'N',
-    color: 'bg-sky-600',
-  },
-];
-
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  '@id': `${BASE}/#faq`,
-  mainEntity: FAQ_DATA.map(item => ({
-    '@type': 'Question', name: item.q,
-    acceptedAnswer: { '@type': 'Answer', text: item.a },
-  })),
-};
-
 export default async function HomePage() {
   const locale = await getStoreLocale();
-  const localizedJsonLd = locale === 'ar'
-    ? {
-        ...jsonLd,
-        mainEntity: FAQ_DATA.map(item => ({
-          '@type': 'Question',
-          name: item.qAr,
-          acceptedAnswer: { '@type': 'Answer', text: item.aAr },
-        })),
-      }
-    : jsonLd;
+  const isAr = locale === 'ar';
 
   let allProducts: Awaited<ReturnType<typeof fetchProductsServer>> = [];
   try {
     allProducts = await fetchProductsServer();
   } catch {
-    // fallback
+    // The storefront can still render if the product service is unavailable.
   }
 
-  const productsWithImages = allProducts.map(p => ({
-    ...p,
-    image: (p.image && !p.image.startsWith('data:')) ? p.image : '',
-    images: (p.images || []).filter((s: string) => s && !s.startsWith('data:')),
-  }));
+  // Lightweight cards only: descriptions and gallery images are not needed
+  // for the grid, and the client refreshes the full catalog after hydration.
+  const initialProducts = allProducts.map(toCardProduct);
 
-  const isAr = locale === 'ar';
+  // FAQ structured data mirrors the FAQ section rendered on the page.
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    '@id': `${SITE_URL}/#faq`,
+    mainEntity: FAQ_DATA.map((item) => ({
+      '@type': 'Question',
+      name: isAr ? item.qAr : item.q,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: isAr ? item.aAr : item.a,
+      },
+    })),
+  };
 
   return (
     <>
+      <link rel="preload" as="image" href="/images/mockup/hero-bg-right.webp" fetchPriority="high" />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(localizedJsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema).replace(/</g, '\\u003c'),
+        }}
       />
 
+      {/*
+        The whole homepage journey (hero, categories, featured products,
+        assurances, buying guide, FAQ, policies) renders inside ProductList so
+        it shares one design system with the storefront. Nothing is appended
+        after the shop anymore.
+      */}
       <ShopApp
         initialLocale={locale}
-        initialProducts={productsWithImages}
+        initialProducts={initialProducts}
         initialCategory=""
         initialView="shop"
-        seoHeading={isAr ? 'ألعاب ومنتجات للكبار في لبنان | متجر فيكسا' : 'Sex Toys Lebanon & Adult Toys Lebanon | Vexa Toys'}
-        seoContent={
-          <div key="seo-content" className="bg-black text-white" dir={isAr ? 'rtl' : 'ltr'}>
-{/* HOMEPAGE SHOPPING GUIDE */}
-<section className="border-t border-white/10 py-12 sm:py-16">
-  <div className="max-w-6xl mx-auto px-4 sm:px-6">
-    <h2 className="text-2xl sm:text-3xl font-black mb-4">
-      {isAr
-        ? 'اكتشف مجموعات فيكسا في لبنان'
-        : 'Explore Adult Toys and Intimate Wellness Products in Lebanon'}
-    </h2>
-
-    <p className="text-stone-300 leading-7 max-w-3xl mb-6">
-      {isAr
-        ? 'تسوّق منتجات العناية الحميمية والألعاب الزوجية في لبنان. استكشف المجموعات المختلفة وقارن الأسعار وتفاصيل المنتجات قبل الطلب، مع خيارات توصيل سري ودفع عند الاستلام.'
-        : 'Looking to buy sex toys online in Lebanon? Explore Vexa Toys collections, compare product details and prices, and find the right option for your preferences. Browse our range with discreet delivery across Lebanon and cash-on-delivery options.'}
-    </p>
-
-    <h3 className="text-lg font-bold mb-4">
-      {isAr ? 'تصفّح حسب الفئة' : 'Browse Popular Categories'}
-    </h3>
-
-    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-      {[
-        { href: '/sex-toys', en: 'All Sex Toys', ar: 'الألعاب الزوجية' },
-        { href: '/vibrators', en: 'Vibrators', ar: 'الهزازات' },
-        { href: '/dildos', en: 'Dildos', ar: 'ديلدو' },
-        { href: '/male-toys', en: 'Male Toys', ar: 'ألعاب رجالية' },
-        { href: '/lingerie', en: 'Lingerie', ar: 'لانجري' },
-        { href: '/sexual-enhancers', en: 'Sexual Enhancers', ar: 'معززات زوجية' },
-      ].map(category => (
-        <a
-          key={category.href}
-          href={category.href}
-          className="rounded-xl border border-white/15 bg-white/5 px-4 py-4 text-sm font-semibold text-white hover:border-[#ff2d78] hover:text-[#ff2d78] transition"
-        >
-          {isAr ? category.ar : category.en}
-        </a>
-      ))}
-    </div>
-  </div>
-</section>
-
-
-
-            {/* ── CUSTOMER REVIEWS ────────────────────────────────────── */}
-            <section className="border-t border-white/10 py-12 sm:py-16">
-              <div className="max-w-6xl mx-auto px-4 sm:px-6">
-                <div className="text-center mb-10">
-                  <p className="text-[10px] font-black uppercase tracking-[0.3em] text-[#ff2d78] mb-2">
-                    {isAr ? 'آراء العملاء الموثقة' : 'Verified Reviews'}
-                  </p>
-                  <h2 className="text-xl sm:text-2xl font-black text-white mb-3">
-                    {isAr ? 'ماذا يقول عملاؤنا في لبنان' : 'What Our Customers Say'}
-                  </h2>
-                  <div className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/[0.03] px-5 py-2 mt-2">
-                    <span className="text-xl font-black text-white">4.9</span>
-                    <div className="flex text-amber-400 text-sm">★★★★★</div>
-                    <span className="text-stone-400 text-xs">
-                      {isAr ? 'أكثر من ١,٩٠٠ عميل راضٍ' : '1,900+ Happy Clients'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-                  {REVIEWS.map((r, i) => (
-                    <div
-                      key={i}
-                      className="rounded-2xl border border-white/10 bg-[#0c0c0c] p-5 flex flex-col justify-between hover:border-white/20 transition"
-                    >
-                      <div>
-                        <div className="flex text-amber-400 text-xs mb-3">★★★★★</div>
-                        <p className="text-stone-300 text-xs sm:text-sm leading-relaxed">
-                          &ldquo;{isAr ? r.textAr : r.text}&rdquo;
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3 pt-4 mt-4 border-t border-white/10">
-                        <div className={`${r.color} w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-black shrink-0`}>
-                          {r.initial}
-                        </div>
-                        <div>
-                          <p className="text-white text-xs font-bold">{r.name}</p>
-                          <p className="text-stone-500 text-[10px]">{isAr ? r.cityAr : r.city}</p>
-                        </div>
-                        <span className="ms-auto text-emerald-500 text-[10px] font-bold">
-                          {isAr ? '✓ موثّق' : '✓ Verified'}
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </section>
-
-          </div>
-        }
+        seoHeading={isAr ? HERO_HEADING_AR : HERO_HEADING_EN}
       />
     </>
   );

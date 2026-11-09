@@ -3,6 +3,59 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.16] - 2026-11-09
+
+### Homepage redesign
+
+- **One design system**: `app/globals.css` now defines the storefront tokens (`vexa-ink`, `vexa-surface`, `vexa-raised`, `vexa-pink`, `vexa-pink-hover`, `vexa-whatsapp`) plus shared `vexa-container`, `vexa-section`, `vexa-eyebrow`, `vexa-h2`, `vexa-card` and `vexa-btn-*` classes. The navbar, hero, product grid, product cards, footer, about page and homepage sections all use them; the blue-tinted `#08080b` / `#0e0e12` / `#121217` backgrounds and the three different pinks are gone.
+- **One page flow instead of two layers**: the homepage journey (hero, category discovery, featured products, assurances, buying guide, FAQ, policies and contact) now renders inside `ProductList`, so nothing is appended after the storefront anymore. `app/page.tsx` no longer passes `seoContent`.
+- **Hero** (`src/components/HeroSection.tsx`): H1 `SEX TOYS LEBANON / DISCREET ADULT TOYS`, a natural intro sentence, a primary `Shop sex toys` link to `/sex-toys`, a secondary `Browse categories` anchor, and three reassurance chips. Heading splitting moved to `src/utils/heroHeading.ts`.
+- **Category discovery** (`src/components/CategoryShowcase.tsx`): eight crawlable `<a href="/slug">` cards (vibrators, dildos, male toys, couples toys, lingerie, sex dolls, BDSM, sexual enhancers) using the existing category artwork or the first real product photo.
+- **Featured products**: the homepage shows 15 products with a `Show all N products` button; category routes and `/adult-toys` still list everything. Default sort is now `Recommended` (in stock, then most reviewed, then new) instead of a `Best selling` label the data cannot support.
+- **Honest product cards** (`src/components/ProductCard.tsx`): removed the deterministic `Best Seller` / `-20%` badges and the invented crossed-out price (`price * 1.25`). Badges now reflect only real data: out of stock, `Only N left` (stock of 3 or fewer) and the catalog `isNew` flag.
+- **New sections**: `AssuranceSection.tsx` (packaging, delivery, cash on delivery, WhatsApp support, each linked to its policy page), `BuyingGuideBanner.tsx` rewritten as three tips plus links to the real blog guides and the quiz, `FaqAccordion.tsx` restyled with a WhatsApp prompt and accessible panels, `ShoppingInfoSection.tsx` for policy and contact cards. `QuizBanner.tsx` was removed (its call to action lives in the guide section).
+- **Trust accuracy**: the footer no longer links to generic `instagram.com`, `tiktok.com` and `x.com` homepages; only the verified WhatsApp contact remains until real brand accounts exist. FAQ no longer claims card or online payment (checkout is cash on delivery) or "sterile" products; `BuyingGuideBanner` no longer says `Card Payment`.
+- **Homepage payload**: `app/page.tsx` sends `toCardProduct` records and preloads the hero image.
+- Tests: `tests/homepage-structure.test.mjs` (section order, honest badges, crawlable category links, no placeholder socials, token usage) and an updated `tests/homepage-seo-priority.test.mjs`.
+
+### Category pages
+
+- **Structured Lebanon content for every category route** (`src/data/categoryContent.ts`, 22 categories plus `/adult-toys`): a hero sentence, two intro paragraphs, three H3 sections (types, how to choose, delivery and privacy in Lebanon), 3 to 8 related-category links, 3 to 4 blog guide links and FAQs, all in English and Arabic.
+- **New category guide layout** (`src/components/CategoryGuideSection.tsx`) in the shared design system: intro and section cards, a collapsible "More about buying X in Lebanon" block for the Supabase guide text, related-category cards as crawlable links, blog guides, FAQ `<details>` list, quiz and WhatsApp calls to action.
+- **Supabase editorial reaches the client**: `app/[category]/page.tsx` now passes the `category_editorial` row through `ShopApp` and `ShopContext` (`categoryEditorial`), so the visible guide and FAQs match the FAQ schema instead of falling back to code copy.
+- **Category hero**: `HeroSection` accepts an `intro` sentence and shows the packaging, delivery and payment chips on category pages too.
+- Tests: `tests/category-content.test.mjs`.
+- Documentation: paste-ready category SEO titles and descriptions for the Supabase `categories` table in `SEO_AUDIT_2026-11-09.md`.
+
+### Added
+
+- `lib/storefrontPayload.ts`: `toCardProduct` / `toClientProduct` helpers that strip descriptions, SEO-only fields and secondary gallery images from the products embedded in server-rendered HTML.
+- `lib/categoryIndexing.ts`: categories with fewer than 3 published products are marked `noindex, follow` and left out of `sitemap.xml` until they are stocked (currently Lingerie, Sex Machines, Kegel Balls, New Arrivals, Lubricants, Poppers).
+- `lib/productSeo.ts`: `shortProductName`, `buildProductTitle`, `buildProductDescription` and `clampText` for length-safe product metadata.
+- `tests/product-seo-title.test.mjs` covering the new helpers, payload trimming, the thin-category threshold and `displayCopy` whitespace handling.
+- `SEO_AUDIT_2026-11-09.md`: full live-site audit plus Search Console analysis (Aug 7 to Nov 6, 2026) that motivated this release.
+
+### Changed
+
+- **Smaller HTML**: category pages now embed only their own products as lightweight cards, and product pages embed the product plus up to 8 same-category cards, instead of the whole 78-product catalog (~236 KB) on every page. The client still refreshes the full catalog from `/api/products` after hydration.
+- **Product titles**: generated titles are now `<short product name> | Vexa Toys Lebanon`, capped at 60 characters; the category segment is used only to tell two same-named products apart, and the old `(price USD)` disambiguator is gone. Hand-written SEO titles are kept when they are 70 characters or shorter.
+- **Product descriptions**: generated meta descriptions are capped at 155 characters (lead sentence, first sentence of the product copy, delivery closing). Category descriptions are capped at 160 instead of 300.
+- **About page** is a brand-story page again: title `About Vexa Toys | Our Story and Promise`, H1 `The Story Behind Vexa Toys`, no `#1 destination` / `sex shop in Lebanon` copy, and its two calls to action are real links to `/sex-toys` and `/adult-toys`. This stops `/about` competing with the homepage for `sex toys lebanon` (Search Console showed it at position 10 with 1,040 impressions).
+- **Static page titles**: quiz, privacy, delivery and warranty use absolute titles so the root template no longer appends `| Vexa Toys Lebanon` a second time; privacy and delivery titles and descriptions were shortened to fit 60 / 155 characters.
+- **Category section heading**: the `<h2>` above the product grid no longer repeats the `| Vexa Toys` title suffix.
+- **Brand normalization**: category copy from Supabase now maps both `Vexa Store` and `Vexa toys` to `Vexa Toys`; product SEO fields map `Vexa Store` to `Vexa Toys`; `displayCopy` collapses doubled spaces inside a line (fixes `Sex Toys in  Lebanon`).
+- **Cache headers**: the catch-all `no-store` rule in `next.config.mjs` now applies only to `/checkout`, `/orders`, `/admin` and `/api`. Public pages are still rendered dynamically because of the locale cookie, so CDN caching needs a follow-up decision on how Arabic is served.
+- Bumped `CACHE_VERSION` and the package version to `1.5.16` because product and category mapping changed.
+
+### Fixed
+
+- **Dev hydration mismatches**: the `Cache-Control: public, max-age=31536000, immutable` rule for `/_next/static/:path*` now applies only when `NODE_ENV` is `production`. In `next dev` chunk names are not content-hashed, so the immutable header made browsers keep stale client bundles after every edit and report "Hydration failed because the server rendered text didn't match the client". Production chunks are hashed and keep the immutable header. After pulling this change, restart `npm run dev` and hard-refresh once (Ctrl+F5) to drop the already-cached chunks.
+- Added permanent redirects for two URLs that Search Console still lists as indexed but that returned 404: `/sex-toys/dildo-in-lebanon-premium-silicone-dildo` and `/dildos/realistic-silicone-dildo-lebanon-g-spot-curved-suction-cup-d`.
+
+### Documentation
+
+- Added `docs/worklogs/2026/11/worklog-09-11-2026.md` and indexed it.
+
 ## [1.5.15] - 2026-10-12
 
 ### Added

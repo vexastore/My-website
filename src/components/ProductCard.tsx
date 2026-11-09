@@ -104,40 +104,35 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
     }
   };
 
-  const oldPrice = Math.round(product.price * 1.25);
   const isOutOfStock = product.stock <= 0;
+  const isLowStock = !isOutOfStock && product.stock <= 3;
   const hasReviews = product.reviewsCount > 0 && product.rating > 0;
 
-  // Determine badge style matching mockup
+  // Badges only reflect real catalog data: stock level and the "new" flag.
+  // No invented "best seller" or discount labels.
   const getBadge = () => {
     if (isOutOfStock) {
       return (
-        <span className="rounded-full bg-black/80 border border-white/20 px-2.5 py-0.5 text-[10px] font-bold uppercase text-stone-300">
+        <span className="rounded-full border border-white/20 bg-vexa-ink/80 px-2.5 py-0.5 text-[10px] font-bold uppercase text-stone-300">
           {isArabic ? 'نفدت الكمية' : 'Out of Stock'}
         </span>
       );
     }
-    // Deterministic badge variant
-    const charCode = product.id.charCodeAt(product.id.length - 1) || 0;
-    if (charCode % 3 === 0) {
+    if (isLowStock) {
       return (
-        <span className="rounded-full bg-[#ff2d78] px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-white shadow-sm">
-          {isArabic ? 'الأكثر مبيعاً' : 'Best Seller'}
+        <span className="rounded-full border border-amber-400/30 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-amber-300">
+          {isArabic ? `بقي ${product.stock}` : `Only ${product.stock} left`}
         </span>
       );
     }
-    if (charCode % 4 === 0) {
+    if (product.isNew) {
       return (
-        <span className="rounded-full bg-[#ff2d78] px-2 py-0.5 text-[10px] font-black uppercase text-white shadow-sm">
-          -20%
+        <span className="rounded-full bg-vexa-pink px-2.5 py-0.5 text-[10px] font-extrabold uppercase text-white shadow-sm">
+          {isArabic ? 'جديد' : 'New'}
         </span>
       );
     }
-    return (
-      <span className="rounded-full bg-stone-800 border border-white/10 px-2.5 py-0.5 text-[10px] font-bold uppercase text-stone-300">
-        {isArabic ? 'جديد' : 'New'}
-      </span>
-    );
+    return <span aria-hidden="true" />;
   };
 
   const productUrl = canonicalProductPath(product);
@@ -155,7 +150,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
   return (
     <a
       {...cardProps}
-      className={`group flex flex-col justify-between rounded-2xl border border-white/10 bg-[#0d0d0d] p-3 sm:p-3.5 transition-all duration-300 hover:border-white/20 hover:bg-[#121212] hover:shadow-xl hover:shadow-[#ff2d78]/5 no-underline text-white ${
+      className={`group flex flex-col justify-between rounded-2xl border border-white/10 bg-vexa-surface p-3 sm:p-3.5 transition-all duration-300 hover:border-white/20 hover:bg-vexa-surface hover:shadow-xl hover:shadow-vexa-pink/5 no-underline text-white ${
         isOutOfStock ? 'cursor-not-allowed opacity-60' : 'cursor-pointer'
       }`}
       aria-label={`${isArabic ? product.name : product.nameEn}${isOutOfStock ? (isArabic ? ', نفدت الكمية' : ', Out of stock') : ''}`}
@@ -170,19 +165,19 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
             aria-label={isWishlisted ? (isArabic ? 'إزالة من المفضلة' : 'Remove from wishlist') : (isArabic ? 'إضافة إلى المفضلة' : 'Add to wishlist')}
             className={`flex h-7 w-7 items-center justify-center rounded-full transition-all ${
               isWishlisted
-                ? 'text-[#ff2d78]'
+                ? 'text-vexa-pink'
                 : 'text-stone-400 hover:text-white hover:scale-110'
             }`}
           >
             <Heart
               size={16}
-              className={isWishlisted ? 'fill-[#ff2d78] text-[#ff2d78]' : ''}
+              className={isWishlisted ? 'fill-vexa-pink text-vexa-pink' : ''}
             />
           </button>
         </div>
 
         {/* Product Image Box */}
-        <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-[#161616] flex items-center justify-center mb-3">
+        <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-vexa-raised flex items-center justify-center mb-3">
           {!imgError ? (
             <img
               key={imgKey}
@@ -221,16 +216,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
           {isArabic ? product.name : product.nameEn}
         </h3>
 
-        {/* Pricing */}
+        {/* Pricing: the real price only, no invented "was" price */}
         <div className="mt-1 flex items-baseline gap-2">
-          {charCodePrice(product.id) ? (
-            <>
-              <span className="text-stone-500 line-through text-[11px] font-medium">${oldPrice.toFixed(2)}</span>
-              <span className="text-sm font-extrabold text-[#ff2d78]">${product.price.toFixed(2)}</span>
-            </>
-          ) : (
-            <span className="text-sm font-extrabold text-white">${product.price.toFixed(2)}</span>
-          )}
+          <span className="text-sm font-extrabold text-white">${product.price.toFixed(2)}</span>
         </div>
 
         {/* Star Rating */}
@@ -263,7 +251,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
             ? 'border-white/10 text-stone-500 cursor-not-allowed bg-transparent'
             : isAdded
             ? 'border-emerald-500 bg-emerald-500 text-white'
-            : 'border-white/20 text-stone-200 hover:border-[#ff2d78] hover:bg-[#ff2d78] hover:text-white'
+            : 'border-white/20 text-stone-200 hover:border-vexa-pink hover:bg-vexa-pink hover:text-white'
         }`}
       >
         <ShoppingBag size={13} />
@@ -278,8 +266,3 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
     </a>
   );
 };
-
-function charCodePrice(id: string): boolean {
-  const code = id.charCodeAt(id.length - 1) || 0;
-  return code % 4 === 0;
-}

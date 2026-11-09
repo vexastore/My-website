@@ -17,10 +17,13 @@ import { productMatchesCategory } from '@/src/data/categories';
 import {
   canonicalProductPath,
   canonicalProductSlug,
+  clampText,
   resolveProductCategorySlug,
   SITE_BASE_URL,
   SLUG_REMAPS,
 } from '@/lib/productSeo';
+import { isCategoryIndexable } from '@/lib/categoryIndexing';
+import { toCardProduct } from '@/lib/storefrontPayload';
 
 interface Props {
   params: Promise<{
@@ -58,11 +61,20 @@ export async function generateMetadata({
   const meta = getCategoryMeta(slug);
   const category = (await fetchCategoriesServer()).find(item => item.slug === slug);
   if (!SLUG_TO_CATEGORY[slug] || !category) return { robots: { index: false, follow: false } };
-  const title = (locale === 'ar' ? category.seoTitleAr : category.seoTitleEn) ||
-    (locale === 'ar' ? meta.titleAr : meta.titleEn);
-  const description = (locale === 'ar' ? category.seoDescriptionAr : category.seoDescriptionEn) ||
+  const title = ((locale === 'ar' ? category.seoTitleAr : category.seoTitleEn) ||
+    (locale === 'ar' ? meta.titleAr : meta.titleEn)).replace(/\s+/g, ' ').trim();
+  const description = clampText(
+    (locale === 'ar' ? category.seoDescriptionAr : category.seoDescriptionEn) ||
     (locale === 'ar' ? category.descriptionAr : category.descriptionEn) ||
-    (locale === 'ar' ? meta.descAr : meta.descEn);
+    (locale === 'ar' ? meta.descAr : meta.descEn),
+    160,
+  );
+
+  // A category with only one or two products is thin: keep it crawlable but
+  // out of the index until it is stocked, so it stops diluting the site.
+  const productCount = (await fetchProductsServer())
+    .filter(product => productMatchesCategory(product, SLUG_TO_CATEGORY[slug])).length;
+  const indexable = isCategoryIndexable(productCount);
 
   const pageUrl = `${SITE_BASE_URL}/${slug}`;
 
@@ -71,7 +83,7 @@ export async function generateMetadata({
       absolute: title,
     },
 
-    description: description.slice(0, 300),
+    description,
 
     openGraph: {
       title,
@@ -102,7 +114,7 @@ export async function generateMetadata({
     alternates: { canonical: pageUrl },
 
     robots: {
-      index: true,
+      index: indexable,
       follow: true,
     },
   };
@@ -141,24 +153,6 @@ export default async function CategoryPage({
 
   const allProducts = await fetchProductsServer();
 
-  const productsWithImages = allProducts.map(
-    (product) => ({
-      ...product,
-
-      image:
-        product.image &&
-        !product.image.startsWith('data:')
-          ? product.image
-          : '',
-
-      images: (product.images || []).filter(
-        (image) =>
-          image &&
-          !image.startsWith('data:')
-      ),
-    })
-  );
-
   /**
    * Only products belonging to this category.
    *
@@ -167,7 +161,7 @@ export default async function CategoryPage({
    * category page and product page use exactly
    * the same URL logic.
    */
-  const categoryProducts = productsWithImages
+  const categoryProducts = allProducts
     .filter(
       (product) =>
         productMatchesCategory(product, categoryId)
@@ -295,11 +289,16 @@ export default async function CategoryPage({
         }}
       />
 
+      {/*
+        Only this category's products, as lightweight cards, go into the HTML.
+        The client refreshes the full catalog from /api/products after hydration.
+      */}
       <ShopApp
         initialLocale={locale}
-        initialProducts={productsWithImages}
+        initialProducts={categoryProducts.map(toCardProduct)}
         initialCategory={categoryId}
         initialCategorySlug={slug}
+        categoryEditorial={content}
         initialView="shop"
       />
     </>

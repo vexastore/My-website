@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BlogHeader } from '@/src/components/BlogHeader';
 
-const pageTitle = 'Vexa Toys Delivery Policy | 24/7 Discreet Delivery in Lebanon';
-const pageDescription = 'Vexa Toys offers 24/7 discreet delivery across Lebanon, including same-day delivery in Beirut and 24–72 hour nationwide delivery. Learn about our delivery guarantee, fees and order process.';
+const pageTitle = 'Delivery Policy | Same-Day Discreet Delivery | Vexa Toys';
+const pageDescription = 'Discreet delivery across Lebanon: same-day in Beirut, 24 to 72 hours nationwide. Delivery fees, order processing and our delivery guarantee explained.';
 
 export const metadata: Metadata = {
-  title: pageTitle,
+  title: { absolute: pageTitle },
   description: pageDescription,
   alternates: { canonical: 'https://vexatoys.com/delivery' },
   openGraph: {

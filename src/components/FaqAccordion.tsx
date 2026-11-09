@@ -1,76 +1,76 @@
 'use client';
 import React, { useState } from 'react';
 import { useShop } from '../context/ShopContext';
-import { ChevronRight } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { FAQ_DATA } from '../data/faq';
 
-interface FaqAccordionProps {
-  onViewAllFaqs?: () => void;
-}
-
-export const FaqAccordion: React.FC<FaqAccordionProps> = ({ onViewAllFaqs }) => {
+/** Homepage FAQ. The same FAQ_DATA feeds the FAQPage structured data in app/page.tsx. */
+export const FaqAccordion: React.FC = () => {
   const { language } = useShop();
   const isArabic = language === 'ar';
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   const toggleIndex = (idx: number) => {
     setOpenIndex(prev => (prev === idx ? null : idx));
   };
 
   return (
-    <section className="bg-black py-10 sm:py-14 border-b border-white/10">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8 pb-3 border-b border-white/10">
-          <h2 className="text-xl sm:text-2xl font-black text-white tracking-tight">
-            {isArabic ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}
-          </h2>
+    <section className="vexa-section border-b border-white/10 bg-vexa-ink">
+      <div className="vexa-container">
+        <div className="grid gap-10 lg:grid-cols-12">
+          <div className="lg:col-span-4">
+            <p className="vexa-eyebrow">{isArabic ? 'قبل أن تطلب' : 'Before you order'}</p>
+            <h2 className="vexa-h2 mt-2">{isArabic ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}</h2>
+            <div className="vexa-h2-bar" />
+            <p className="vexa-lead mt-5">
+              {isArabic
+                ? 'لم تجد إجابتك؟ راسلنا على واتساب وسنرد بسرية تامة.'
+                : 'Did not find your answer? Message us on WhatsApp and we will reply in confidence.'}
+            </p>
+            <a
+              href="https://wa.me/96176730767"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="vexa-btn-secondary mt-6"
+            >
+              <MessageCircle size={14} aria-hidden="true" />
+              {isArabic ? 'اسأل على واتساب' : 'Ask on WhatsApp'}
+            </a>
+          </div>
 
-          <button
-            type="button"
-            onClick={onViewAllFaqs}
-            className="group flex items-center gap-1 text-xs font-bold text-stone-400 hover:text-white transition cursor-pointer"
-          >
-            <span>{isArabic ? 'عرض كل الأسئلة' : 'View All FAQs'}</span>
-            <ChevronRight
-              size={14}
-              className={`transition-transform duration-200 ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`}
-            />
-          </button>
-        </div>
-
-        {/* Accordion Rows */}
-        <div className="divide-y divide-white/10">
-          {FAQ_DATA.map((item, idx) => {
-            const isOpen = openIndex === idx;
-            return (
-              <div key={idx} className="py-4 sm:py-5">
-                <button
-                  type="button"
-                  onClick={() => toggleIndex(idx)}
-                  className="flex w-full items-center justify-between gap-4 text-start group cursor-pointer"
-                  aria-expanded={isOpen}
-                >
-                  <span className="text-sm sm:text-base font-bold text-stone-100 group-hover:text-[#ff2d78] transition-colors leading-snug">
-                    {isArabic ? item.qAr : item.q}
-                  </span>
-                  <span
-                    className={`shrink-0 text-xl font-light text-stone-400 transition-transform duration-300 ${
-                      isOpen ? 'rotate-45 text-[#ff2d78]' : 'group-hover:text-white'
-                    }`}
+          <div className="vexa-card divide-y divide-white/10 px-5 sm:px-6 lg:col-span-8">
+            {FAQ_DATA.map((item, idx) => {
+              const isOpen = openIndex === idx;
+              const panelId = `home-faq-${idx}`;
+              return (
+                <div key={idx} className="py-4 sm:py-5">
+                  <button
+                    type="button"
+                    onClick={() => toggleIndex(idx)}
+                    className="group flex w-full cursor-pointer items-center justify-between gap-4 text-start"
+                    aria-expanded={isOpen}
+                    aria-controls={panelId}
                   >
-                    +
-                  </span>
-                </button>
+                    <span className="text-sm font-bold leading-snug text-stone-100 transition-colors group-hover:text-vexa-pink sm:text-base">
+                      {isArabic ? item.qAr : item.q}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className={`shrink-0 text-xl font-light text-stone-400 transition-transform duration-300 ${
+                        isOpen ? 'rotate-45 text-vexa-pink' : 'group-hover:text-white'
+                      }`}
+                    >
+                      +
+                    </span>
+                  </button>
 
-                {isOpen && (
-                  <div className="mt-3 text-xs sm:text-sm leading-relaxed text-stone-300 pr-8 animate-fade-in">
+                  <div id={panelId} hidden={!isOpen} className="mt-3 text-xs leading-relaxed text-stone-300 sm:text-sm">
                     <p>{isArabic ? item.aAr : item.a}</p>
                   </div>
-                )}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </section>

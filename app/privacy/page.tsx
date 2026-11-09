@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { BlogHeader } from '@/src/components/BlogHeader';
 
-const pageTitle = 'Vexa Toys Privacy Policy | Privacy & Discreet Shopping Lebanon';
-const pageDescription = 'Read the Vexa Toys Privacy Policy to learn how we collect, use and protect customer information, including orders, payments, delivery and discreet shopping in Lebanon.';
+const pageTitle = 'Privacy Policy | Vexa Toys Lebanon';
+const pageDescription = 'How Vexa Toys collects, uses and protects your information for orders, payments and delivery, and how we keep shopping in Lebanon discreet.';
 
 export const metadata: Metadata = {
-  title: pageTitle,
+  title: { absolute: pageTitle },
   description: pageDescription,
   alternates: { canonical: 'https://vexatoys.com/privacy' },
   openGraph: {

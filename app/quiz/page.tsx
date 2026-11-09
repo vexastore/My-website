@@ -6,7 +6,8 @@ import { BlogHeader } from '@/src/components/BlogHeader';
 import { CATEGORY_META as STORE_CATEGORIES } from '@/lib/categoryMeta';
 
 const baseMetadata: Metadata = {
-  title: 'Find Your Perfect Toy | Vexa Toys Lebanon',
+  // `absolute` stops the root layout template appending "| Vexa Toys Lebanon" a second time.
+  title: { absolute: 'Find Your Perfect Toy | Vexa Toys Lebanon' },
   description: 'Answer 3 quick questions and get a personalised product recommendation from Vexa Toys Lebanon. Same-day discreet delivery in Beirut. Cash on delivery.',
   alternates: { canonical: 'https://vexatoys.com/quiz' },
   openGraph: {

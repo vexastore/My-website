@@ -1,5 +1,26 @@
 @import "tailwindcss";
 
+/*
+ * Vexa Toys design tokens.
+ *
+ * One dark, premium palette for the whole storefront. Every section, card and
+ * button should use these tokens (bg-vexa-ink, bg-vexa-surface, text-vexa-pink,
+ * border-white/10 ...) instead of ad-hoc hex values, so the homepage reads as
+ * one coordinated page from the hero to the footer.
+ */
+@theme {
+  --color-vexa-ink: #050505;          /* page background */
+  --color-vexa-surface: #0f0f10;      /* cards, panels, inputs */
+  --color-vexa-raised: #161618;       /* hover / elevated surfaces */
+  --color-vexa-pink: #ff2d78;         /* brand accent */
+  --color-vexa-pink-hover: #ff4c91;   /* accent hover */
+  --color-vexa-pink-deep: #c8175c;    /* accent pressed */
+  --color-vexa-whatsapp: #25d366;
+
+  --shadow-vexa-glow: 0 12px 40px -12px rgba(255, 45, 120, 0.45);
+  --shadow-vexa-card: 0 20px 50px -30px rgba(0, 0, 0, 0.9);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -10,7 +31,7 @@ body,
   min-height: 100%;
   width: 100%;
   margin: 0;
-  background: #050101;
+  background: var(--color-vexa-ink);
 }
 
 html,
@@ -42,11 +63,58 @@ svg {
 .vexa-page-shell {
   width: 100%;
   min-height: calc(100vh - 88px);
-  background: #070707;
+  background: var(--color-vexa-ink);
 }
 
 @media (min-width: 640px) {
   .vexa-page-shell {
     min-height: calc(100vh - 108px);
+  }
+}
+
+/* Shared storefront building blocks. Keep these few and consistent. */
+@layer components {
+  .vexa-container {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .vexa-section {
+    @apply py-12 sm:py-16;
+  }
+
+  .vexa-eyebrow {
+    @apply inline-flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.25em] text-vexa-pink;
+  }
+
+  .vexa-h2 {
+    @apply text-2xl font-black tracking-tight text-white sm:text-3xl;
+  }
+
+  .vexa-h2-bar {
+    @apply mt-3 h-1 w-12 rounded-full bg-vexa-pink;
+  }
+
+  .vexa-lead {
+    @apply text-sm leading-7 text-stone-300 sm:text-base;
+  }
+
+  .vexa-card {
+    @apply rounded-2xl border border-white/10 bg-vexa-surface transition-colors duration-300;
+  }
+
+  .vexa-card-interactive {
+    @apply hover:border-vexa-pink/50 hover:bg-vexa-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vexa-pink;
+  }
+
+  .vexa-btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-vexa-pink px-6 py-3 text-xs font-black uppercase tracking-[0.18em] text-white shadow-vexa-glow transition hover:bg-vexa-pink-hover active:scale-[0.98];
+  }
+
+  .vexa-btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-white/20 px-6 py-3 text-xs font-black uppercase tracking-[0.18em] text-white transition hover:border-vexa-pink hover:text-vexa-pink active:scale-[0.98];
+  }
+
+  .vexa-link {
+    @apply font-semibold text-vexa-pink underline-offset-4 transition hover:text-vexa-pink-hover hover:underline;
   }
 }
