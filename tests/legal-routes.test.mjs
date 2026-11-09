@@ -39,7 +39,9 @@ test('returns page links to terms, warranty, and delivery without dead text refe
   assert.match(returnsSource, /href=["']\/terms["']/);
   assert.match(returnsSource, /href=["']\/warranty["']/);
   assert.match(returnsSource, /href=["']\/delivery["']/);
-  assert.match(returnsSource, /\+961 76 669 821/);
+  assert.match(returnsSource, /\+961 76 730 767/);
+  assert.doesNotMatch(returnsSource, /669 821/);
+  assert.match(returnsSource, /wa\.me\/96176730767/);
 });
 
 test('warranty and delivery pages link to /returns without dead text references', () => {

@@ -36,6 +36,8 @@
     description: string;
     descriptionEn: string;
     price: number;
+    /** Catalog "was" price. Shown only when it is higher than price; never computed. */
+    compareAtPrice?: number;
     image: string;
     images?: string[];
     imageAltsEn?: string[];
