@@ -3,6 +3,19 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.17] - 2026-11-09
+
+### Blog redesign
+
+- **Storefront chrome on every page**: new `src/components/SiteFrame.tsx` wraps server-rendered pages in `ShopProvider` + the real `Navbar`, WhatsApp button and the new shared `src/components/SiteFooter.tsx` (extracted from `App.tsx`). The blog, quiz, delivery, privacy, returns, terms and warranty pages use it; the separate `BlogHeader.tsx` is removed.
+- **Blog index** (`app/blog/page.tsx`): hero with H1 "Sex Toy Guides & Advice for Lebanon", topic chips with counts, a featured newest article, an image card grid, and a "from reading to shopping" block linking each topic to shop categories. Title and description rewritten; Blog schema lists the latest 12 posts.
+- **Topic pages** (`app/blog/[blogCategory]/page.tsx`): topic-specific SEO titles and descriptions, card grid, topic switcher, and "shop what you read about" links. CollectionPage schema lists the posts.
+- **Article pages** (`app/blog/[blogCategory]/[slug]/page.tsx`): featured image (article image or a brand fallback by topic), breadcrumb, byline with updated date, sticky table of contents from H2s, "shop what this covers" sidebar linking the categories the article mentions, sources box with non-commercial health references, author box linking to `/about`, related articles with images. BlogPosting schema with image, wordCount, articleSection and author.
+- **Markdown renderer** (`src/components/blog/ArticleBody.tsx`): supports links (external open in new tab), images, italics, blockquotes, rules, H2 anchors and merged paragraphs. The article's own `# Title` line is stripped, fixing the double H1 on every post.
+- **Automatic internal links** (`lib/blogContent.ts`): the first mention of each category keyword in body text (vibrators, dildos, lubricants, BDSM and 20 more, English and Arabic) links to its category page, capped at eight per article. Also provides related categories, external sources, image fallbacks and title/description trimming.
+- **New articles**: `blog-new-articles.sql` (repo parent folder) inserts six bilingual buyer-guide articles into Supabase: best sex toys for beginners, how to buy online discreetly, vibrator vs dildo, prices and fakes, sex shop in Beirut vs online, and male masturbators. Each has a focus keyphrase, 600 to 800 English words, an Arabic version, 8 to 13 internal links and an external health reference.
+- Cache and package version 1.5.17.
+
 ## [1.5.16] - 2026-11-09
 
 ### Homepage redesign

@@ -60,14 +60,14 @@ test('category discovery cards are crawlable links to real category routes', asy
 });
 
 test('footer and shared sections carry no placeholder social links or unverified payment claims', async () => {
-  const app = await read('src/App.tsx');
+  const footer = await read('src/components/SiteFooter.tsx');
   const faq = await read('src/data/faq.ts');
   const guide = await read('src/components/BuyingGuideBanner.tsx');
 
-  assert.doesNotMatch(app, /https:\/\/instagram\.com"/);
-  assert.doesNotMatch(app, /https:\/\/tiktok\.com"/);
-  assert.doesNotMatch(app, /https:\/\/x\.com"/);
-  assert.match(app, /wa\.me\/96176730767/);
+  assert.doesNotMatch(footer, /https:\/\/instagram\.com"/);
+  assert.doesNotMatch(footer, /https:\/\/tiktok\.com"/);
+  assert.doesNotMatch(footer, /https:\/\/x\.com"/);
+  assert.match(footer, /wa\.me\/96176730767/);
   assert.doesNotMatch(faq, /Card and online payments/);
   assert.doesNotMatch(guide, /Card Payment/);
 });

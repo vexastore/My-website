@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BlogHeader } from '@/src/components/BlogHeader';
+import { SiteFrame } from '@/src/components/SiteFrame';
 
 const pageTitle = 'Vexa Toys Terms & Conditions | Vexa Toys Lebanon';
 const pageDescription =
@@ -101,11 +101,11 @@ const intellectualPropertyItems = [
 
 export default function TermsPage() {
   return (
-    <div className="min-h-screen bg-[#050101] text-white">
+    <SiteFrame>
+    <div className="min-h-screen bg-vexa-ink text-white">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <BlogHeader locale="en" />
 
-      <main className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
+      <div className="mx-auto max-w-4xl px-4 py-14 sm:px-6 sm:py-20">
         <header className="mb-10 max-w-3xl">
           <p className="mb-3 text-[10px] font-black uppercase tracking-[0.3em] text-[#ff2d78]">
             Vexa Toys Lebanon
@@ -416,7 +416,8 @@ export default function TermsPage() {
             </Link>
           </div>
         </nav>
-      </main>
+      </div>
     </div>
+    </SiteFrame>
   );
 }

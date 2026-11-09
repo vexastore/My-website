@@ -30,11 +30,14 @@ test('shared catalog hero splits a page-specific heading into two lines', async 
 
 test('adult-toys has persistent crawlable navigation and homepage has descriptive self-link text', async () => {
   const navbar = await read('src/components/Navbar.tsx');
+  const footer = await read('src/components/SiteFooter.tsx');
   const app = await read('src/App.tsx');
 
   assert.match(navbar, /href="\/adult-toys"[\s\S]*All Adult Toys/);
-  assert.match(app, /slug: 'adult-toys'[\s\S]*en: 'Adult Toys Lebanon'/);
-  assert.match(app, /href="\/"[\s\S]*Sex Toys & Adult Toys in Lebanon/);
+  assert.match(footer, /slug: 'adult-toys'[\s\S]*en: 'Adult Toys Lebanon'/);
+  assert.match(footer, /href="\/"[\s\S]*Sex Toys & Adult Toys in Lebanon/);
+  // The storefront shell renders the shared footer, so every view and every SiteFrame page carries these links.
+  assert.match(app, /<SiteFooter \/>/);
 });
 
 test('category navigation performs a real Next route transition', async () => {
