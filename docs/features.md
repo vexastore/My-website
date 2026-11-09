@@ -8,6 +8,8 @@ Each product page displays a database-backed Customer Reviews section (`src/comp
 
 Catalog cards use the same database aggregate as the product page. A product with no approved reviews displays empty stars and `No reviews yet`; it never receives a fallback score or review count. The product-page summary links to the review section so the submission workflow is discoverable without permitting administrators to type arbitrary product ratings.
 
+The blog (`/blog`, topic pages and articles) renders inside the storefront chrome through `SiteFrame` (navbar, cart, language switch, shared footer). Articles come from the Supabase `articles` table as Markdown; the renderer strips the embedded H1, adds H2 anchors for a table of contents, supports links and images, and auto-links the first mention of each shop category. Every article shows a featured image (own or topic fallback), related categories, non-commercial sources, an author box and related posts, with BlogPosting schema. Policy and quiz pages share the same frame.
+
 The public storefront defaults to English and offers Arabic through the EN/AR switch. The selection persists across catalog, product, checkout, orders, blog, about, quiz, and returns views. Page direction and server-rendered copy follow the selected language. The catalog toolbar combines a category dropdown, search field, and filter action; the customer-only main navigation has a Products submenu and animated overlay. The homepage has one FAQ section.
 
 The homepage does not expose links to the reserved `/city/*` routes until dedicated city landing pages are implemented, so customers are not sent to city-page 404 responses.

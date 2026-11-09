@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import QuizShell from './QuizShell';
 import Link from 'next/link';
 import { getStoreLocale } from '@/lib/storeLocale';
-import { BlogHeader } from '@/src/components/BlogHeader';
+import { SiteFrame } from '@/src/components/SiteFrame';
 import { CATEGORY_META as STORE_CATEGORIES } from '@/lib/categoryMeta';
 
 const baseMetadata: Metadata = {
@@ -68,15 +68,14 @@ export default async function QuizPage() {
   const locale = await getStoreLocale();
   const ar = locale === 'ar';
   return (
-    <>
+    <SiteFrame initialLocale={locale}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BlogHeader locale={locale} />
 
       {/* ── Server-rendered H1 & intro (visible to Googlebot in static HTML) ── */}
-      <div className="bg-[#050101] pt-10 pb-2 px-4" dir={ar ? 'rtl' : 'ltr'}>
+      <div className="bg-vexa-ink pt-10 pb-2 px-4" dir={ar ? 'rtl' : 'ltr'}>
         <div className="mx-auto max-w-2xl">
           <h1 className="text-2xl sm:text-3xl font-black text-white mb-3 text-center">
             {ar ? 'اعثر على المنتج المناسب لك' : 'Find Your Perfect Toy'}
@@ -92,7 +91,7 @@ export default async function QuizPage() {
 
       {/* ── Server-rendered category links, visible to Googlebot, gives Ahrefs
            "outgoing links" signal and adds meaningful word count to the page ── */}
-      <section className="bg-[#050101] border-t border-white/10" dir={ar ? 'rtl' : 'ltr'}>
+      <section className="bg-vexa-ink border-t border-white/10" dir={ar ? 'rtl' : 'ltr'}>
         <div className="mx-auto max-w-5xl px-4 py-14">
           <p className="text-[10px] font-black uppercase tracking-[0.3em] text-stone-500 mb-2">
             {ar ? 'أو تصفح حسب الفئة' : 'Or Browse by Category'}
@@ -136,6 +135,6 @@ export default async function QuizPage() {
           </div>
         </div>
       </section>
-    </>
+    </SiteFrame>
   );
 }

@@ -1,135 +1,177 @@
-import { Metadata } from 'next';
-import Link from 'next/link';
+import type { Metadata } from 'next';
 import { BLOG_CATEGORIES } from '@/lib/blogPosts';
 import { fetchBlogPostsServer } from '@/lib/fetchArticles';
 import { getStoreLocale } from '@/lib/storeLocale';
-import { BlogHeader } from '@/src/components/BlogHeader';
+import { SiteFrame } from '@/src/components/SiteFrame';
+import { BlogCard } from '@/src/components/blog/BlogCard';
+import { absoluteUrl, featuredImage } from '@/lib/blogContent';
 
-const baseMetadata: Metadata = {
-  title: { absolute: 'Blog – Sex Toys & Intimacy Guides Lebanon | Vexa Toys' },
-  description: 'Expert guides, tips, and advice on intimate products, relationships, and sexual wellness in Lebanon. Vexa Toys Blog.',
-  alternates: { canonical: 'https://vexatoys.com/blog' },
-  openGraph: {
-    title: 'Blog – Intimacy Guides Lebanon | Vexa Toys',
-    description: 'Expert guides on intimate products, relationships, and sexual wellness in Lebanon.',
-    url: 'https://vexatoys.com/blog',
-    siteName: 'Vexa Toys Lebanon',
-    type: 'website',
-    images: [{ url: 'https://vexatoys.com/opengraph.jpg', width: 1200, height: 630, alt: 'Vexa Toys Lebanon Blog' }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    site: '@vexatoys',
-    images: ['https://vexatoys.com/opengraph.jpg'],
-  },
-  robots: { index: true, follow: true },
-};
+export const revalidate = 300;
+
+const SITE = 'https://vexatoys.com';
+const TITLE_EN = 'Sex Toy Guides & Advice for Lebanon | Vexa Toys Blog';
+const DESC_EN = 'Buying guides, care tips and honest advice on sex toys in Lebanon: how to choose, how to order discreetly, and how to look after what you buy.';
+const TITLE_AR = 'أدلة ونصائح الألعاب الجنسية في لبنان | مدونة فيكسا';
+const DESC_AR = 'أدلة شراء ونصائح عناية ومقالات صادقة عن الألعاب الجنسية في لبنان: كيف تختار، كيف تطلب بسرية، وكيف تعتني بما تشتريه.';
 
 export async function generateMetadata(): Promise<Metadata> {
-  if (await getStoreLocale() === 'en') return baseMetadata;
-  const title = 'المدونة والأدلة | متجر فيكسا لبنان';
-  const description = 'أدلة ونصائح عن المنتجات والعلاقات والعناية الحميمة في لبنان.';
-  return { ...baseMetadata, title: { absolute: title }, description, openGraph: { ...baseMetadata.openGraph, title, description, locale: 'ar_LB' }, twitter: { ...baseMetadata.twitter, title, description } };
+  const ar = (await getStoreLocale()) === 'ar';
+  const title = ar ? TITLE_AR : TITLE_EN;
+  const description = ar ? DESC_AR : DESC_EN;
+  return {
+    title: { absolute: title },
+    description,
+    alternates: { canonical: `${SITE}/blog` },
+    openGraph: {
+      title, description, url: `${SITE}/blog`, siteName: 'Vexa Toys Lebanon', type: 'website', locale: ar ? 'ar_LB' : 'en_US',
+      images: [{ url: `${SITE}/opengraph.jpg`, width: 1200, height: 630, alt: 'Vexa Toys Lebanon Blog' }],
+    },
+    twitter: { card: 'summary_large_image', site: '@vexatoys', title, description, images: [`${SITE}/opengraph.jpg`] },
+    robots: { index: true, follow: true },
+  };
 }
 
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'Blog',
-  name: 'Vexa Toys Lebanon Blog',
-  url: 'https://vexatoys.com/blog',
-  description: 'Expert guides, tips, and advice on intimate products, relationships, and sexual wellness in Lebanon.',
-  publisher: {
-    '@type': 'Organization',
-    name: 'Vexa Toys Lebanon',
-    url: 'https://vexatoys.com',
-  },
+/** Shop categories each blog topic naturally sends readers to. */
+const TOPIC_SHOP_LINKS: Record<string, Array<{ href: string; en: string; ar: string }>> = {
+  guides: [
+    { href: '/vibrators', en: 'Vibrators', ar: 'هزازات' },
+    { href: '/dildos', en: 'Dildos', ar: 'ديلدو' },
+    { href: '/male-toys', en: 'Male toys', ar: 'ألعاب رجالية' },
+  ],
+  tips: [
+    { href: '/lubricants', en: 'Lubricants', ar: 'مزلقات' },
+    { href: '/sex-toys', en: 'All sex toys', ar: 'كل الألعاب' },
+  ],
+  relationships: [
+    { href: '/sex-toys', en: 'Couples toys', ar: 'ألعاب للأزواج' },
+    { href: '/lingerie', en: 'Lingerie', ar: 'لانجري' },
+  ],
+  advice: [
+    { href: '/sex-toys', en: 'Shop sex toys', ar: 'تسوّق الألعاب' },
+    { href: '/delivery', en: 'Delivery policy', ar: 'سياسة التوصيل' },
+  ],
 };
 
 export default async function BlogIndex() {
   const locale = await getStoreLocale();
   const ar = locale === 'ar';
-  const posts = await fetchBlogPostsServer();
-  const recentPosts = [...posts].sort(
-    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+  const posts = [...(await fetchBlogPostsServer())].sort(
+    (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime(),
   );
+  const [latest, ...rest] = posts;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': `${SITE}/blog#blog`,
+    name: ar ? 'مدونة فيكسا تويز لبنان' : 'Vexa Toys Lebanon Blog',
+    url: `${SITE}/blog`,
+    description: ar ? DESC_AR : DESC_EN,
+    inLanguage: locale,
+    publisher: { '@type': 'Organization', name: 'Vexa Toys Lebanon', url: SITE, logo: { '@type': 'ImageObject', url: `${SITE}/vexa-logo.png` } },
+    blogPost: posts.slice(0, 12).map(post => ({
+      '@type': 'BlogPosting',
+      headline: ar ? post.titleAr || post.title : post.title,
+      url: `${SITE}/blog/${post.categorySlug}/${post.slug}`,
+      datePublished: new Date(post.publishedAt).toISOString(),
+      image: absoluteUrl(featuredImage(post).src),
+    })),
+  };
 
   return (
-    <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ar ? { ...jsonLd, name: 'مدونة متجر فيكسا', description: 'أدلة ونصائح عن المنتجات والعلاقات والعناية الحميمة في لبنان.' } : jsonLd) }} />
-      <BlogHeader locale={locale} />
-      <div className="min-h-screen bg-[#050101] text-white" dir={ar ? 'rtl' : 'ltr'}>
-        {/* Hero */}
-        <div className="border-b border-white/10 bg-black/40">
-          <div className="mx-auto max-w-5xl px-4 py-12 sm:py-16">
-            <p className="text-[10px] font-black uppercase tracking-[0.35em] text-purple-400 mb-3">Vexa Toys</p>
-            <h1 className="text-3xl sm:text-4xl font-black text-white mb-4">
-              {ar ? 'المدونة والأدلة' : 'Blog & Guides'}
-            </h1>
-            <p className="text-stone-400 max-w-xl text-sm leading-relaxed">
-              {ar ? 'نصائح وأدلة عن المنتجات والعلاقات والعناية الحميمة لمساعدتك على الاختيار بثقة.' : 'Expert advice on intimate products, relationships, and sexual wellness, helping you make confident, informed choices.'}
-            </p>
-          </div>
-        </div>
+    <SiteFrame initialLocale={locale}>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
 
-        <div className="mx-auto max-w-5xl px-4 py-10 space-y-12">
-          {/* Categories */}
-          <section>
-            <h2 className="text-xs font-black uppercase tracking-[0.25em] text-stone-500 mb-4">{ar ? 'تصفح حسب الموضوع' : 'Browse by Topic'}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="bg-vexa-ink text-white" dir={ar ? 'rtl' : 'ltr'}>
+        {/* Hero */}
+        <section className="relative overflow-hidden border-b border-white/10">
+          <div className="pointer-events-none absolute inset-0 z-0">
+            <img src="/images/mockup/guide-bg-center.webp" alt="" aria-hidden="true" width={1376} height={768} className="h-full w-full object-cover opacity-30" loading="eager" fetchPriority="high" decoding="async" />
+            <div className="absolute inset-0 bg-gradient-to-b from-vexa-ink/60 via-vexa-ink/80 to-vexa-ink" />
+          </div>
+          <div className="vexa-container relative z-10 py-14 sm:py-20">
+            <nav aria-label="Breadcrumb" className="mb-5 text-xs text-stone-400">
+              <a href="/" className="transition hover:text-white">{ar ? 'المتجر' : 'Store'}</a>
+              <span className="mx-2" aria-hidden="true">/</span>
+              <span className="text-stone-200">{ar ? 'المدونة' : 'Blog'}</span>
+            </nav>
+            <p className="vexa-eyebrow">{ar ? 'مدونة فيكسا تويز' : 'Vexa Toys Blog'}</p>
+            <h1 className="mt-3 max-w-3xl text-4xl font-black uppercase leading-[1.05] tracking-tight sm:text-5xl">
+              {ar ? 'أدلة ونصائح الألعاب الجنسية في لبنان' : 'Sex Toy Guides & Advice for Lebanon'}
+            </h1>
+            <p className="vexa-lead mt-5 max-w-2xl">
+              {ar
+                ? 'كيف تختار منتجك الأول، كيف تطلب بسرية في لبنان، وكيف تعتني بما تشتريه. مقالات عملية بلا مبالغة، مكتوبة للمتسوقين في بيروت وكل المناطق.'
+                : 'How to choose your first toy, how to order discreetly in Lebanon, and how to care for what you buy. Practical articles without hype, written for shoppers in Beirut and every region.'}
+            </p>
+
+            <div className="mt-8 flex flex-wrap gap-2">
               {BLOG_CATEGORIES.map(cat => {
                 const count = posts.filter(p => p.categorySlug === cat.slug).length;
                 return (
-                  <Link
-                    key={cat.slug}
-                    href={`/blog/${cat.slug}`}
-                    className="group flex flex-col gap-2 rounded-xl border border-white/10 bg-white/5 p-5 hover:border-purple-500/40 hover:bg-white/10 transition"
-                  >
-                    <span className="font-black text-white group-hover:text-purple-300 transition">{ar ? cat.nameAr : cat.name}</span>
-                    <span className="text-xs text-stone-400">{ar ? cat.descriptionAr : cat.description}</span>
-                    <span className="mt-1 text-[10px] font-bold text-purple-400">{count} {ar ? 'مقالات' : `article${count !== 1 ? 's' : ''}`}</span>
-                  </Link>
+                  <a key={cat.slug} href={`/blog/${cat.slug}`} className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-4 py-2 text-xs font-bold text-stone-200 transition hover:border-vexa-pink hover:text-vexa-pink">
+                    {ar ? cat.nameAr : cat.name}
+                    <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-[10px] text-stone-300">{count}</span>
+                  </a>
                 );
               })}
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* All Posts */}
-          <section>
-            <h2 className="text-xs font-black uppercase tracking-[0.25em] text-stone-500 mb-6">{ar ? 'كل المقالات' : 'All Articles'}</h2>
-            <div className="space-y-4">
-              {recentPosts.map(post => {
-                const cat = BLOG_CATEGORIES.find(c => c.slug === post.categorySlug);
-                return (
-                  <Link
-                    key={post.id}
-                    href={`/blog/${post.categorySlug}/${post.slug}`}
-                    className="group flex flex-col sm:flex-row gap-4 rounded-xl border border-white/10 bg-white/5 p-5 hover:border-purple-500/30 hover:bg-white/8 transition"
-                  >
-                    <div className="flex-1 space-y-2">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-[9px] font-black uppercase tracking-[0.2em] text-purple-400 bg-purple-400/10 px-2 py-0.5 rounded-full">
-                          {ar ? cat?.nameAr : cat?.name}
-                        </span>
-                        <span className="text-[10px] text-stone-500">{post.readingTime} {ar ? 'دقائق قراءة' : 'min read'}</span>
-                      </div>
-                      <h3 className="font-black text-white group-hover:text-purple-200 transition text-sm sm:text-base leading-snug">
-                        {ar ? post.titleAr || post.title : post.title}
-                      </h3>
-                      <p className="text-xs text-stone-400 leading-relaxed line-clamp-2">{ar ? post.excerptAr || post.excerpt : post.excerpt}</p>
-                      <p className="text-[10px] text-stone-600">
-                        {new Date(post.publishedAt).toLocaleDateString(ar ? 'ar-LB' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                      </p>
-                    </div>
-                    <div className="sm:self-center shrink-0">
-                      <span className="text-stone-600 group-hover:text-purple-400 transition text-xs font-bold">{ar ? 'اقرأ المقال' : 'Read'} {ar ? '←' : '→'}</span>
-                    </div>
-                  </Link>
-                );
-              })}
+        {/* Latest */}
+        {latest && (
+          <section className="vexa-container vexa-section border-b border-white/10">
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <div>
+                <p className="vexa-eyebrow">{ar ? 'الأحدث' : 'Latest'}</p>
+                <h2 className="vexa-h2 mt-2">{ar ? 'أحدث مقال' : 'Newest article'}</h2>
+                <div className="vexa-h2-bar" />
+              </div>
             </div>
+            <BlogCard post={latest} isArabic={ar} featured priority />
           </section>
-        </div>
+        )}
+
+        {/* All articles */}
+        <section className="vexa-container vexa-section border-b border-white/10">
+          <div className="mb-8">
+            <p className="vexa-eyebrow">{ar ? 'كل المقالات' : 'All articles'}</p>
+            <h2 className="vexa-h2 mt-2">{ar ? 'تصفّح كل الأدلة' : 'Browse every guide'}</h2>
+            <div className="vexa-h2-bar" />
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {rest.map(post => <BlogCard key={post.id} post={post} isArabic={ar} />)}
+          </div>
+        </section>
+
+        {/* Topic to shop bridge */}
+        <section className="vexa-container vexa-section">
+          <div className="mb-8 max-w-2xl">
+            <p className="vexa-eyebrow">{ar ? 'من القراءة إلى التسوق' : 'From reading to shopping'}</p>
+            <h2 className="vexa-h2 mt-2">{ar ? 'جاهز لاختيار منتج؟' : 'Ready to pick a product?'}</h2>
+            <div className="vexa-h2-bar" />
+            <p className="vexa-lead mt-5">
+              {ar
+                ? 'كل دليل يرتبط بفئة في المتجر. التوصيل سري إلى كل لبنان والدفع عند الاستلام.'
+                : 'Every guide maps to a shop category. Delivery is discreet across Lebanon, and you pay cash on delivery.'}
+            </p>
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {BLOG_CATEGORIES.map(cat => (
+              <div key={cat.slug} className="vexa-card p-5">
+                <h3 className="font-bold text-white">{ar ? cat.nameAr : cat.name}</h3>
+                <p className="mt-2 text-xs leading-6 text-stone-400">{ar ? cat.descriptionAr : cat.description}</p>
+                <ul className="mt-4 space-y-1.5">
+                  {(TOPIC_SHOP_LINKS[cat.slug] || []).map(link => (
+                    <li key={link.href}><a href={link.href} className="vexa-link text-sm">{ar ? link.ar : link.en}</a></li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </section>
       </div>
-    </>
+    </SiteFrame>
   );
 }

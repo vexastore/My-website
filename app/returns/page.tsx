@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { BlogHeader } from '@/src/components/BlogHeader';
+import { SiteFrame } from '@/src/components/SiteFrame';
 
 const pageTitle = 'Refund & Returns Policy | Vexa Toys Lebanon';
 const pageDescription =
@@ -91,13 +91,13 @@ const damagedReportingSteps = [
 
 export default function ReturnsPage() {
   return (
-    <main className="min-h-screen bg-[#07070a] text-white">
+    <SiteFrame>
+    <div className="min-h-screen bg-vexa-ink text-white">
       <script
         id="returns-webpage-jsonld"
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <BlogHeader locale="en" />
 
       <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6 sm:py-16">
         <header className="mb-10 text-center sm:text-start">
@@ -216,6 +216,7 @@ export default function ReturnsPage() {
           </PolicySection>
         </div>
       </div>
-    </main>
+    </div>
+    </SiteFrame>
   );
 }
