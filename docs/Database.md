@@ -19,6 +19,8 @@ The shared Supabase project now has 23 `category_editorial` rows, seeded from th
 
 `category_editorial` gains `guide_ar text NOT NULL DEFAULT ''` and `faqs_ar jsonb NOT NULL DEFAULT '[]'` (checked to be a JSON array), next to the English `guide` and `faqs`. Empty means "not written yet": the storefront then shows the bilingual code content from `src/data/categoryContent.ts` on Arabic pages. RLS is unchanged (anonymous read, admin write). The storefront selects the four columns and falls back to `guide,faqs` while the migration has not run. The admin app needs two matching fields on the category guide form to write them.
 
+`docs/sql/2026-11-13-category-editorial-arabic-drafts.sql` fills both columns for all 23 categories with Arabic drafts written from each row's English guide. Every `UPDATE` is guarded by `guide_ar = '' AND faqs_ar = '[]'`, so it only touches rows that are still empty and can be rerun safely after hand edits.
+
 ## Product reviews and SEO overrides schema (Migration 20260922223000)
 
 The migration `supabase/migrations/20260922223000_product_reviews_and_seo_overrides.sql` introduces:
