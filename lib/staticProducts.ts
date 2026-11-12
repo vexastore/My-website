@@ -61,7 +61,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "slug": "portable-rechargeable-vibration-3-speed-wand-massager",
     "categorySlug": "vibrators",
     "rating": 5,
-    "nameEn": "Portable Rechargeable vibration 3-Speed Wand Massager* ",
+    "nameEn": "Portable Rechargeable 3-Speed Wand Massager",
     "stock": 20,
     "variants": [],
     "reviewsCount": 5,
@@ -74,7 +74,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "Vibrators",
       "Sex Toys"
     ],
-    "name": "Portable Rechargeable vibration 3-Speed Wand Massager* ",
+    "name": "Portable Rechargeable 3-Speed Wand Massager",
     "images": [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-24NRFZBHI/img-0-i0RVzJki8iqzAA6J8ilNY220iJW1Ap.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-24NRFZBHI/img-1-e16t4DuEkchhjtsnlBjI05V22iNJiO.jpg",
@@ -248,14 +248,14 @@ export const STATIC_PRODUCTS: Product[] = [
     "category": "Sex Toys",
     "variants": [],
     "id": "prod-4ZH2D4K4D",
-    "name": " Cock ring manual Ultra Grip Textured Dildo",
+    "name": "Ultra Grip Textured Silicone Dildo with Cock Ring",
     "reviewsCount": 3,
     "description": "Textured Wearable Silicone Dildo\nMade from soft medical-grade silicone with raised textured dots for enhanced stimulation and unique sensation. Flexible, comfortable, and designed for a secure fit. Waterproof, easy to clean, and available in multiple colors.\nSoft textured surface\nPremium medical-grade silicone\nFlexible & comfortable fit\nWaterproof & easy to clean\nDiscreet packaging",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-4ZH2D4K4D/img-0-oggBcUk6QVuXBEYWbCJpGrAOC1P6Qd.jpg",
     "categorySlug": "sex-toys",
     "slug": "cock-ring-manual-ultra-grip-textured-dildo",
     "rating": 5,
-    "nameEn": " Cock ring manual Ultra Grip Textured Dildo"
+    "nameEn": "Ultra Grip Textured Silicone Dildo with Cock Ring"
   },
   {
     "categorySlug": "vibrators",
@@ -455,10 +455,10 @@ export const STATIC_PRODUCTS: Product[] = [
   {
     "stock": 9,
     "description": "BDSM Bed Restraint Set – Leather Strap System with Handcuffs, Ankle Cuffs, Collar & Accessories\nDescription:\nComplete BDSM bed restraint set designed for couples, featuring adjustable leather straps with wrist and ankle cuffs, a matching collar, and additional accessories like blindfold and restraints for full-body control. Built for secure positioning on the bed, allowing multiple tie-down configurations for enhanced role-play experiences.\nMade from durable PU leather with strong metal buckles and adjustable straps for a firm and comfortable fit. Ideal for beginners or experienced users looking to explore bondage, control, and sensory play in a safe and customizable way.\nBdsm in lebanon ",
-    "name": "Set of bdsm 7 pcs",
+    "name": "BDSM Beginner Set – 7 Pieces",
     "slug": "set-of-bdsm-7-pcs",
     "descriptionEn": "BDSM Bed Restraint Set – Leather Strap System with Handcuffs, Ankle Cuffs, Collar & Accessories\nDescription:\nComplete BDSM bed restraint set designed for couples, featuring adjustable leather straps with wrist and ankle cuffs, a matching collar, and additional accessories like blindfold and restraints for full-body control. Built for secure positioning on the bed, allowing multiple tie-down configurations for enhanced role-play experiences.\nMade from durable PU leather with strong metal buckles and adjustable straps for a firm and comfortable fit. Ideal for beginners or experienced users looking to explore bondage, control, and sensory play in a safe and customizable way.\nBdsm in lebanon ",
-    "nameEn": "Set of bdsm 7 pcs",
+    "nameEn": "BDSM Beginner Set – 7 Pieces",
     "variants": [],
     "id": "prod-APFMTW0SN",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-APFMTW0SN/img-0-9PGb2Tqq24kjNEtdDQXhGdnqDnRRum.jpg",
@@ -561,7 +561,7 @@ export const STATIC_PRODUCTS: Product[] = [
   {
     "categorySlug": "sex-toys",
     "descriptionEn": "Premium dual-layer silicone design with a soft outer layer and firm inner core for a realistic feel and comfortable use. Crafted with smooth texture and ergonomic shape for enhanced control and pleasure. Body-safe, flexible, waterproof, and easy to clean. Suitable for solo or partner play.\nDildo in lebanon sex toys",
-    "nameEn": "Manual Dual-Layer Silicone Dildo in lebanon ",
+    "nameEn": "Manual Dual-Layer Silicone Dildo",
     "images": [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-BH98BPG4G/img-0-jR6PJz77GKDaFBwUXU8JYFPGNCpqdM.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-BH98BPG4G/img-1-lbDMsftMscurqkFuH8k32UqJT9Q5zs.jpg",
@@ -585,7 +585,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "reviewsCount": 7,
     "price": 65,
     "variants": [],
-    "name": "Manual Dual-Layer Silicone Dildo in lebanon ",
+    "name": "Manual Dual-Layer Silicone Dildo",
     "slug": "manual-dual-layer-silicone-dildo-in-lebanon"
   },
   {
@@ -674,7 +674,7 @@ export const STATIC_PRODUCTS: Product[] = [
     "reviewsCount": 10,
     "price": 45,
     "variants": [],
-    "name": "Poppers in Lebanon | Intimate Relaxation Products - Vexa Toys",
+    "name": "Poppers – Intimate Relaxation Aroma",
     "slug": "poppers-in-lebanon-intimate-relaxation-products-vexa-store",
     "category": "Poppers",
     "stock": 0,
@@ -691,7 +691,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-D056P0QP3/img-0-u5Ecop2IZYFnVc8ZG1xE4tXZzMU8OT.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-D056P0QP3/img-1-I9fqqk8Ds2KcKfJwwgU9END3MFcN7u.jpg"
     ],
-    "nameEn": "Poppers in Lebanon | Intimate Relaxation Products - Vexa Toys",
+    "nameEn": "Poppers – Intimate Relaxation Aroma",
     "rating": 5,
     "categorySlug": "poppers"
   },
@@ -1075,12 +1075,12 @@ export const STATIC_PRODUCTS: Product[] = [
     ],
     "category": "Dildos",
     "descriptionEn": "Advanced multifunction toy combining realistic design with heating, thrusting, and vibration for a customizable experience.\nFeatures\n3 functions: heating, thrusting, vibrating\nRemote control operation\n5 thrusting speeds + rotation function\n10 vibration modes\nBody-temperature heating feature\nPremium liquid silicone material\nRealistic textured design\nStrong suction base for hands-free use\nWaterproof with magnetic USB charging\nDesigned for versatile use with adjustable settings for different intensity levels.\nDildo vibrtion in lebanon ",
-    "nameEn": "THE HEAVEN 6-IN-1 Dildo  in lebanon – Heating, Thrusting & Vibrating (Remote Control)",
+    "nameEn": "The Heaven 6-in-1 Dildo – Heating, Thrusting & Vibrating, Remote Control",
     "description": "Advanced multifunction toy combining realistic design with heating, thrusting, and vibration for a customizable experience.\nFeatures\n3 functions: heating, thrusting, vibrating\nRemote control operation\n5 thrusting speeds + rotation function\n10 vibration modes\nBody-temperature heating feature\nPremium liquid silicone material\nRealistic textured design\nStrong suction base for hands-free use\nWaterproof with magnetic USB charging\nDesigned for versatile use with adjustable settings for different intensity levels.\nDildo vibrtion in lebanon ",
     "rating": 5,
     "categorySlug": "dildos",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-KM70C3LN7/img-0-AXbRh2jtTlzMBaY8HC1rcEQa4iHEPS.jpg",
-    "name": "THE HEAVEN 6-IN-1 Dildo  in lebanon – Heating, Thrusting & Vibrating (Remote Control)",
+    "name": "The Heaven 6-in-1 Dildo – Heating, Thrusting & Vibrating, Remote Control",
     "isNew": true
   },
   {
@@ -1119,7 +1119,7 @@ export const STATIC_PRODUCTS: Product[] = [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-KWTYRWVZP/img-2-BBZDRDyTHzAEebOMJqAaJ5anH3i559.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-KWTYRWVZP/img-3-3vFVyA1uk9hpOSk6BoHgHdrJ1WAfdz.jpg"
     ],
-    "slug": "remote-contro-dildo-wearable-prostate-massager-purple-silico",
+    "slug": "remote-control-wearable-prostate-massager-purple-silicone",
     "id": "prod-KWTYRWVZP",
     "categories": [
       "Vibrators",
@@ -1131,12 +1131,12 @@ export const STATIC_PRODUCTS: Product[] = [
     "reviewsCount": 5,
     "stock": 9,
     "isNew": true,
-    "name": "Remote Contro dildo Wearable Prostate Massager - Purple Silicone Dual Stimulation Device",
+    "name": "Remote Control Wearable Prostate Massager – Purple Silicone",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-KWTYRWVZP/img-0-dbmUsT9CMuRcZcbxSBMHMrFI3K7SlB.jpg",
     "categorySlug": "vibrators",
     "rating": 5,
     "description": "Experience hands-free stimulation with this remote control wearable prostate massager. The ergonomic purple silicone device features a curved shaft with a contoured base and dual external arms designed to provide targeted internal and external stimulation while staying securely in place. It comes with a compact wireless remote and a USB charging cable for convenient rechargeable use.\n\nKey features:\n- *Ergonomic dual-stimulation design* — curved shaft for internal contact with external arms for added comfort and stability\n- *Wireless remote control* — oval handheld remote with simple power and mode buttons for easy adjustment\n- *Rechargeable via USB* — includes a white magnetic USB charging cable for convenient power-up\n- *Soft silicone material* — smooth, body-safe, and skin-friendly for comfortable wear\n- *Wearable and discreet* — contoured shape designed to stay in place during use\n\nA practical and versatile wellness device built for comfort, control, and easy maintenance.\nDildo silicon vibrtion in lebanon ",
-    "nameEn": "Remote Contro dildo Wearable Prostate Massager - Purple Silicone Dual Stimulation Device",
+    "nameEn": "Remote Control Wearable Prostate Massager – Purple Silicone",
     "descriptionEn": "Experience hands-free stimulation with this remote control wearable prostate massager. The ergonomic purple silicone device features a curved shaft with a contoured base and dual external arms designed to provide targeted internal and external stimulation while staying securely in place. It comes with a compact wireless remote and a USB charging cable for convenient rechargeable use.\n\nKey features:\n- *Ergonomic dual-stimulation design* — curved shaft for internal contact with external arms for added comfort and stability\n- *Wireless remote control* — oval handheld remote with simple power and mode buttons for easy adjustment\n- *Rechargeable via USB* — includes a white magnetic USB charging cable for convenient power-up\n- *Soft silicone material* — smooth, body-safe, and skin-friendly for comfortable wear\n- *Wearable and discreet* — contoured shape designed to stay in place during use\n\nA practical and versatile wellness device built for comfort, control, and easy maintenance.\nDildo silicon vibrtion in lebanon ",
     "category": "Vibrators"
   },
@@ -1855,12 +1855,12 @@ export const STATIC_PRODUCTS: Product[] = [
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-UCQNEBAAE/img-2-lIlodeidTVNLklTLY4RqjWIodPKg9z.jpg",
       "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-UCQNEBAAE/img-3-5CdMb3MLfO6iTBfGYSKpNV51aHbq6L.jpg"
     ],
-    "name": "BDSM Bed Restraint Set of 10 pcs – Leather Strap bdsm in lebanon ",
+    "name": "BDSM Bed Restraint Set – 10 Pieces, Leather Straps",
     "categorySlug": "bdsm",
     "category": "BDSM",
     "image": "https://rgxxcmdi6l3aalg5.public.blob.vercel-storage.com/products/prod-UCQNEBAAE/img-0-SIk7KjOqUEYcphN2lYmUOOmOmU3YC0.jpg",
     "slug": "bdsm-bed-restraint-set-of-10-pcs-leather-strap-bdsm-in-leban",
-    "nameEn": "BDSM Bed Restraint Set of 10 pcs – Leather Strap bdsm in lebanon ",
+    "nameEn": "BDSM Bed Restraint Set – 10 Pieces, Leather Straps",
     "categories": [
       "BDSM",
       "Sex Toys",

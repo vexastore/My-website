@@ -30,6 +30,11 @@ export const SLUG_REMAPS: Record<string, string> = {
     'silicone-textured-enhancement-sleeve',
   'double-ended-flexible-silicone-intimate-wellness-toy-ultra-s':
     'beaded-dual-silicone-toy-lebanon',
+  // Product name cleanup (1.7.1): the typo was in the URL too.
+  'chasity-cage-in-lebanon':
+    'metal-chastity-cage-3-ring-sizes',
+  'remote-contro-dildo-wearable-prostate-massager-purple-silico':
+    'remote-control-wearable-prostate-massager-purple-silicone',
   'silicone-anal-plug-lebanon-smooth-beaded-plug-set':
     '3-piece-anal-plug-set-s-m-l-anal-plugs-in-lebanon',
   'cock-ring-set-in-lebanon-4-piece-textured-silicone-enhanceme':

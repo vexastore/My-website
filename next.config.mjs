@@ -116,6 +116,17 @@ const nextConfig = {
         destination: '/male-toys/beaded-dual-silicone-toy-lebanon',
         permanent: true,
       },
+      // Product name cleanup (1.7.1): two slugs carried the typo.
+      {
+        source: '/male-toys/chasity-cage-in-lebanon',
+        destination: '/male-toys/metal-chastity-cage-3-ring-sizes',
+        permanent: true,
+      },
+      {
+        source: '/vibrators/remote-contro-dildo-wearable-prostate-massager-purple-silico',
+        destination: '/vibrators/remote-control-wearable-prostate-massager-purple-silicone',
+        permanent: true,
+      },
       {
         source: '/sex-toys/lingerie-in-lebanon-luxury-sexy-lingerie-collection-vexa-sto',
         destination: '/lingerie',
