@@ -62,6 +62,31 @@ test('SLUG_REMAPS contains all GSC legacy slugs and mappings', () => {
   );
 });
 
+test('product name cleanup (1.7.1): the two typo slugs redirect to the corrected URLs everywhere', async () => {
+  const renamed = [
+    ['/male-toys/chasity-cage-in-lebanon', '/male-toys/metal-chastity-cage-3-ring-sizes'],
+    ['/vibrators/remote-contro-dildo-wearable-prostate-massager-purple-silico', '/vibrators/remote-control-wearable-prostate-massager-purple-silicone'],
+  ];
+  const nextRedirects = await nextConfig.redirects();
+  for (const [source, destination] of renamed) {
+    const oldSlug = source.split('/').pop();
+    assert.equal(SLUG_REMAPS[oldSlug], destination.split('/').pop(), `remap ${oldSlug}`);
+    const next = nextRedirects.find(rule => rule.source === source);
+    assert.ok(next && next.permanent && next.destination === destination, `next.config ${source}`);
+    const vercel = vercelJson.redirects.find(rule => rule.source === source);
+    assert.ok(vercel && vercel.statusCode === 301 && vercel.destination === `https://vexatoys.com${destination}`, `vercel.json ${source}`);
+    // The old slug still resolves to the product, so nothing 404s between the SQL run and the deploy.
+    const product = findProduct(STATIC_PRODUCTS, oldSlug);
+    if (product) assert.equal(canonicalProductSlug(product), destination.split('/').pop(), `findProduct ${oldSlug}`);
+  }
+  // No cleaned-up name survives in the fallback catalog.
+  for (const product of STATIC_PRODUCTS) {
+    for (const name of [product.nameEn, product.name]) {
+      assert.doesNotMatch(name || '', /Chasity|Remote Contro |Vexa Store|\*\s*$|Set of bdsm|2026 upgraded|\| Anal Plugs in Lebanon|bdsm in lebanon/, `${product.id}: ${name}`);
+    }
+  }
+});
+
 test('findProduct strips trailing hyphens and resolves remapped slugs', () => {
   const mockProducts = [
     {

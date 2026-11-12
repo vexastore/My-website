@@ -265,6 +265,16 @@
       "source": "/sex-toys/premium-anal-cleansing-douche-easy-comfortable-cleaning-310",
       "destination": "https://vexatoys.com/sex-toys/anal-cleansing-douche-easy-comfortable-cleaning",
       "statusCode": 301
+    },
+    {
+      "source": "/male-toys/chasity-cage-in-lebanon",
+      "destination": "https://vexatoys.com/male-toys/metal-chastity-cage-3-ring-sizes",
+      "statusCode": 301
+    },
+    {
+      "source": "/vibrators/remote-contro-dildo-wearable-prostate-massager-purple-silico",
+      "destination": "https://vexatoys.com/vibrators/remote-control-wearable-prostate-massager-purple-silicone",
+      "statusCode": 301
     }
   ],
   "headers": [

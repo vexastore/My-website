@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.1] - 2026-11-12
+
+### Product name cleanup
+
+- **13 product names corrected** by `docs/sql/2026-11-12-product-name-cleanup.sql` (run in Supabase by the owner): misspellings (`Chasity`, `Remote Contro`), a stray asterisk, old SEO padding (`| Anal Plugs in Lebanon`, `bdsm in lebanon`, `in lebanon` mid-name, `Vexa Store`), shouting caps, and three names that did not describe the product (`Set of bdsm 7 pcs`, `2026 upgraded realistic dildo thrusting intimate`, `Cock ring manual ...`). The Durex lubricant also gets a corrected Arabic name. Hand-written SEO titles are unchanged.
+- **Two URLs change** because the typo was in the slug: `/male-toys/chasity-cage-in-lebanon` -> `/male-toys/metal-chastity-cage-3-ring-sizes` and `/vibrators/remote-contro-dildo-wearable-prostate-massager-purple-silico` -> `/vibrators/remote-control-wearable-prostate-massager-purple-silicone`. Permanent redirects in `next.config.mjs` and `vercel.json`, plus `SLUG_REMAPS` entries so the old slugs keep resolving in the app. The other eleven URLs are unchanged.
+- The static fallback catalog (`lib/staticProducts.ts`) carries the same names and slugs. Cache version `v1.7.1` (product data changed). Tests: `tests/gsc-404-redirects.test.mjs` gains the two redirects and a guard against the old names.
+
 ## [1.7.0] - 2026-11-12
 
 ### Arabic policy pages
