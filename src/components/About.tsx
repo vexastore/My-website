@@ -3,7 +3,7 @@ import { useShop } from '../context/ShopContext';
 import { ShieldCheck, Truck, Lock, Star, Heart, Package, Zap, CheckCircle2 } from 'lucide-react';
 
 export const About: React.FC = () => {
-  const { language } = useShop();
+  const { language, localizeHref } = useShop();
   const isArabic = language === 'ar';
 
   const features = [
@@ -76,7 +76,7 @@ export const About: React.FC = () => {
               : 'Vexa Toys is a Lebanese online store for adult products, built around one promise: a private, judgment-free shopping experience. Orders ship in plain sealed boxes, arrive the same day in Beirut and within 72 hours across Lebanon, and are paid for in cash on delivery.'}
           </p>
           <a
-            href="/sex-toys"
+            href={localizeHref('/sex-toys')}
             className="mt-8 inline-flex items-center gap-2 bg-vexa-pink hover:bg-white text-black font-black rounded-full px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-vexa-pink/25"
           >
             <Zap size={14} />
@@ -172,7 +172,7 @@ export const About: React.FC = () => {
               : 'Beirut: Same-day delivery. All Lebanon: within 24 to 72 hours. Every order arrives in fully discreet packaging.'}
           </p>
           <a
-            href="/adult-toys"
+            href={localizeHref('/adult-toys')}
             className="mt-7 inline-flex items-center gap-2 bg-vexa-pink hover:bg-white text-black rounded-full font-black px-8 py-3.5 text-xs uppercase tracking-[0.2em] transition active:scale-[0.98] shadow-lg shadow-vexa-pink/25"
           >
             <ShieldCheck size={14} />

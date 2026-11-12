@@ -7,6 +7,7 @@ import { SiteFooter } from './components/SiteFooter';
 
 import { ProductList } from './components/ProductList';
 import { canonicalProductPath } from '@/lib/productSeo';
+import { localizePath, splitLocalePath } from '@/lib/localePath';
 import { ProductPage } from './components/ProductPage';
 
 const Checkout = lazy(() => import('./components/Checkout').then(m => ({ default: m.Checkout })));
@@ -39,24 +40,25 @@ export const AppContent: React.FC<{ seoContent?: React.ReactNode }> = ({ seoCont
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (currentView === 'about') {
-      window.history.replaceState(null, '', '/about');
+      window.history.replaceState(null, '', localizePath('/about', language));
     } else if (currentView === 'product' && selectedProduct) {
-      const productPath = canonicalProductPath(selectedProduct);
+      const productPath = localizePath(canonicalProductPath(selectedProduct), language);
       if (location.pathname !== productPath) {
         window.history.replaceState(null, '', productPath);
       }
     } else if (currentView === 'shop') {
-      const pts = window.location.pathname.split('/').filter(Boolean);
+      const storePath = splitLocalePath(window.location.pathname).path;
+      const pts = storePath.split('/').filter(Boolean);
       const SINGLE = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml', 'products', 'product'];
       const onProductPath = (pts.length === 2 && !SINGLE.includes(pts[0]))
-        || window.location.pathname.startsWith('/products/')
-        || window.location.pathname.startsWith('/product/');
+        || storePath.startsWith('/products/')
+        || storePath.startsWith('/product/');
       if (!onProductPath) {
         const slug = CATEGORY_SLUGS[activeCategory] || activeCategory.toLowerCase().replace(/\s+/g, '-');
-        window.history.replaceState(null, '', '/' + slug);
+        window.history.replaceState(null, '', localizePath('/' + slug, language));
       }
     }
-  }, [currentView, activeCategory, selectedProduct]);
+  }, [currentView, activeCategory, selectedProduct, language]);
 
   const renderView = () => {
     switch (currentView) {

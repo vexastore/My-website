@@ -2,10 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
-const termsSource = await readFile(new URL('../app/terms/page.tsx', import.meta.url), 'utf8');
-const warrantySource = await readFile(new URL('../app/warranty/page.tsx', import.meta.url), 'utf8');
-const deliverySource = await readFile(new URL('../app/delivery/page.tsx', import.meta.url), 'utf8');
-const returnsSource = await readFile(new URL('../app/returns/page.tsx', import.meta.url), 'utf8');
+const termsSource = await readFile(new URL('../app/(en)/terms/page.tsx', import.meta.url), 'utf8');
+const warrantySource = await readFile(new URL('../app/(en)/warranty/page.tsx', import.meta.url), 'utf8');
+const deliverySource = await readFile(new URL('../app/(en)/delivery/page.tsx', import.meta.url), 'utf8');
+const returnsSource = await readFile(new URL('../app/(en)/returns/page.tsx', import.meta.url), 'utf8');
 // The footer lives in its own component so the shop and SiteFrame pages share it.
 const appSource = await readFile(new URL('../src/components/SiteFooter.tsx', import.meta.url), 'utf8');
 const sitemapSource = await readFile(new URL('../app/sitemap.ts', import.meta.url), 'utf8');
@@ -53,10 +53,11 @@ test('warranty and delivery pages link to /returns without dead text references'
 });
 
 test('storefront footer links to /terms and /returns', () => {
-  // Links are declared in the LEGAL_LINKS list and rendered as <a href={link.href}>.
+  // Links are declared in the LEGAL_LINKS list and rendered through the language helper
+  // (policies are English only, so localizeHref leaves these paths unchanged).
   assert.match(appSource, /href: '\/terms'/);
   assert.match(appSource, /href: '\/returns'/);
-  assert.match(appSource, /href=\{link\.href\}/);
+  assert.match(appSource, /href=\{localizeHref\(link\.href\)\}/);
 });
 
 test('sitemap includes /terms, /privacy, /delivery, /warranty, and /returns', () => {

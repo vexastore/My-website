@@ -32,8 +32,8 @@ test('FAQPage schema is built from the selected list and omitted when empty', ()
 });
 
 test('category pages and the guide section share the FAQ helper', async () => {
-  const page = await read('app/[category]/page.tsx');
-  const adultToys = await read('app/adult-toys/page.tsx');
+  const page = await read('src/routes/category.tsx');
+  const adultToys = await read('src/routes/adultToys.tsx');
   const section = await read('src/components/CategoryGuideSection.tsx');
   for (const [name, source] of [['category page', page], ['adult-toys page', adultToys]]) {
     assert.match(source, /buildFaqPageSchema\(selectCategoryFaqs\(/, `${name} builds FAQPage from the shared selection`);

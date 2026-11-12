@@ -26,8 +26,7 @@ export const ProductList: React.FC = () => {
     searchQuery,
     setSearchQuery,
     language,
-    isProductsLoading,
-  } = useShop();
+    isProductsLoading, localizeHref } = useShop();
 
   const isArabic = language === 'ar';
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -181,7 +180,7 @@ export const ProductList: React.FC = () => {
             )}
             {!activeCategory && (
               <a
-                href="/adult-toys"
+                href={localizeHref('/adult-toys')}
                 className="group flex items-center gap-1 text-xs font-bold text-stone-400 hover:text-white transition"
               >
                 <span>{isArabic ? 'عرض كل منتجات الكبار' : 'View all adult toys'}</span>

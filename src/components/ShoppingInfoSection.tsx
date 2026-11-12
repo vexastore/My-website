@@ -12,7 +12,7 @@ const LINKS = [
 ];
 
 export const ShoppingInfoSection: React.FC = () => {
-  const { language } = useShop();
+  const { language, localizeHref } = useShop();
   const isArabic = language === 'ar';
   const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
 
@@ -27,7 +27,7 @@ export const ShoppingInfoSection: React.FC = () => {
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {LINKS.map(item => (
-            <a key={item.href} href={item.href} className="vexa-card vexa-card-interactive group flex flex-col justify-between p-5">
+            <a key={item.href} href={localizeHref(item.href)} className="vexa-card vexa-card-interactive group flex flex-col justify-between p-5">
               <div>
                 <h3 className="font-bold text-white">{isArabic ? item.ar : item.en}</h3>
                 <p className="mt-2 text-xs leading-6 text-stone-400">{isArabic ? item.arDetail : item.enDetail}</p>

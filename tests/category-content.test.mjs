@@ -65,11 +65,11 @@ test('related categories and blog guides only point at routes that exist', async
 test('category guide section renders the structured content, Supabase editorial and crawlable links', async () => {
   const section = await read('src/components/CategoryGuideSection.tsx');
   const productList = await read('src/components/ProductList.tsx');
-  const categoryPage = await read('app/[category]/page.tsx');
+  const categoryPage = await read('src/routes/category.tsx');
 
   assert.match(section, /getCategoryContent\(currentSlug\)/);
   assert.match(section, /categoryEditorial \?\? getCategoryEditorial\(currentSlug\)/);
-  assert.match(section, /href=\{`\/\$\{slug\}`\}/);
+  assert.match(section, /href=\{localizeHref\(`\/\$\{slug\}`\)\}/);
   assert.match(section, /<details/);
   assert.match(section, /in Lebanon: what to know/);
   assert.match(productList, /intro=\{categoryContent\?\.heroIntro/);

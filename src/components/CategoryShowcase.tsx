@@ -21,7 +21,7 @@ const CATEGORY_CARDS = [
 ] as const;
 
 export const CategoryShowcase: React.FC = () => {
-  const { language, products, setActiveCategory } = useShop();
+  const { language, products, setActiveCategory, localizeHref } = useShop();
   const isArabic = language === 'ar';
   const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
   const ChevronIcon = isArabic ? ChevronLeft : ChevronRight;
@@ -43,7 +43,7 @@ export const CategoryShowcase: React.FC = () => {
             <div className="vexa-h2-bar" />
           </div>
           <a
-            href="/adult-toys"
+            href={localizeHref('/adult-toys')}
             className="group inline-flex items-center gap-1 text-xs font-bold text-stone-400 transition hover:text-white"
           >
             <span>{isArabic ? 'كل منتجات الكبار' : 'All adult toys'}</span>
@@ -58,7 +58,7 @@ export const CategoryShowcase: React.FC = () => {
             return (
               <a
                 key={card.slug}
-                href={`/${card.slug}`}
+                href={localizeHref(`/${card.slug}`)}
                 onClick={event => {
                   event.preventDefault();
                   setActiveCategory(card.id);

@@ -34,7 +34,7 @@ function categoryName(slug: string, isArabic: boolean): string {
  *   guide is offered as a collapsible "full guide" so admin copy stays live.
  */
 export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSelectCategory }) => {
-  const { activeCategory, initialCategorySlug, language, setActiveCategory, categoryEditorial } = useShop();
+  const { activeCategory, initialCategorySlug, language, setActiveCategory, categoryEditorial, localizeHref } = useShop();
   const isArabic = language === 'ar';
   const lang = isArabic ? 'ar' : 'en';
   const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
@@ -89,9 +89,9 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
                     <p className="mt-2 text-sm leading-7 text-stone-300">{section.body[lang]}</p>
                     {index === content.sections.length - 1 && (
                       <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold">
-                        <a href="/delivery" className="vexa-link">{isArabic ? 'سياسة التوصيل' : 'Delivery policy'}</a>
-                        <a href="/returns" className="vexa-link">{isArabic ? 'سياسة الاسترجاع' : 'Returns policy'}</a>
-                        <a href="/privacy" className="vexa-link">{isArabic ? 'سياسة الخصوصية' : 'Privacy policy'}</a>
+                        <a href={localizeHref('/delivery')} className="vexa-link">{isArabic ? 'سياسة التوصيل' : 'Delivery policy'}</a>
+                        <a href={localizeHref('/returns')} className="vexa-link">{isArabic ? 'سياسة الاسترجاع' : 'Returns policy'}</a>
+                        <a href={localizeHref('/privacy')} className="vexa-link">{isArabic ? 'سياسة الخصوصية' : 'Privacy policy'}</a>
                       </p>
                     )}
                   </article>
@@ -122,7 +122,7 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
                   {isArabic ? 'فئات ذات صلة' : 'Related categories'}
                 </h2>
               </div>
-              <a href="/adult-toys" className="group hidden items-center gap-1 text-xs font-bold text-stone-400 transition hover:text-white sm:inline-flex">
+              <a href={localizeHref('/adult-toys')} className="group hidden items-center gap-1 text-xs font-bold text-stone-400 transition hover:text-white sm:inline-flex">
                 {isArabic ? 'كل منتجات الكبار' : 'All adult toys'}
                 <ArrowIcon size={14} className={`transition-transform ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} />
               </a>
@@ -131,7 +131,7 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
               {content.related.map(slug => (
                 <a
                   key={slug}
-                  href={`/${slug}`}
+                  href={localizeHref(`/${slug}`)}
                   onClick={event => goToCategory(event, slug)}
                   className="vexa-card vexa-card-interactive group flex items-center justify-between gap-2 px-4 py-3.5"
                 >
@@ -162,7 +162,7 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
                   <ul className="mt-3 space-y-2">
                     {content.guides.map(guideLink => (
                       <li key={guideLink.href}>
-                        <a href={guideLink.href} className="group inline-flex items-center gap-2 text-sm font-semibold text-stone-200 transition hover:text-vexa-pink">
+                        <a href={localizeHref(guideLink.href)} className="group inline-flex items-center gap-2 text-sm font-semibold text-stone-200 transition hover:text-vexa-pink">
                           <ArrowIcon size={14} className="text-vexa-pink" aria-hidden="true" />
                           {guideLink[lang]}
                         </a>
@@ -173,7 +173,7 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
               )}
 
               <div className="mt-8 flex flex-wrap gap-3">
-                <a href="/quiz" className="vexa-btn-primary">
+                <a href={localizeHref('/quiz')} className="vexa-btn-primary">
                   {isArabic ? 'ساعدني في الاختيار' : 'Help me choose'}
                 </a>
                 <a href="https://wa.me/96176730767" target="_blank" rel="noopener noreferrer" className="vexa-btn-secondary">

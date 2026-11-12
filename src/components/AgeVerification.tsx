@@ -10,7 +10,7 @@ function isSearchBot(): boolean {
 }
 
 export const AgeVerification: React.FC = () => {
-  const { is18PlusVerified, verifyAge, language, toggleLanguage } = useShop();
+  const { is18PlusVerified, verifyAge, language, toggleLanguage, localizeHref } = useShop();
   const isArabic = language === 'ar';
 
   if (is18PlusVerified || isSearchBot()) return null;
@@ -55,11 +55,11 @@ export const AgeVerification: React.FC = () => {
           {isArabic ? (
             <>
               بدخولك للموقع أنت توافق على{' '}
-              <a href="/terms" className="underline hover:text-stone-300">
+              <a href={localizeHref('/terms')} className="underline hover:text-stone-300">
                 شروط الاستخدام
               </a>{' '}
               و{' '}
-              <a href="/privacy" className="underline hover:text-stone-300">
+              <a href={localizeHref('/privacy')} className="underline hover:text-stone-300">
                 سياسة الخصوصية
               </a>{' '}
               الخاصة بالمتجر.
@@ -67,11 +67,11 @@ export const AgeVerification: React.FC = () => {
           ) : (
             <>
               By entering this website, you agree to our{' '}
-              <a href="/terms" className="underline hover:text-stone-300">
+              <a href={localizeHref('/terms')} className="underline hover:text-stone-300">
                 terms of use
               </a>{' '}
               and{' '}
-              <a href="/privacy" className="underline hover:text-stone-300">
+              <a href={localizeHref('/privacy')} className="underline hover:text-stone-300">
                 privacy policy
               </a>
               .

@@ -55,7 +55,8 @@ test('category discovery cards are crawlable links to real category routes', asy
   for (const slug of ['vibrators', 'dildos', 'male-toys', 'sex-toys', 'lingerie', 'sex-dolls', 'bdsm', 'sexual-enhancers']) {
     assert.match(showcase, new RegExp(`slug: '${slug}'`));
   }
-  assert.match(showcase, /href=\{`\/\$\{card\.slug\}`\}/);
+  // Category links go through the language helper so Arabic pages link to /ar/<slug>.
+  assert.match(showcase, /href=\{localizeHref\(`\/\$\{card\.slug\}`\)\}/);
   assert.match(showcase, /id="shop-by-category"/);
 });
 

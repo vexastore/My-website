@@ -48,7 +48,7 @@ const LEGAL_LINKS = [
  * the current page is not the shop.
  */
 export const SiteFooter: React.FC = () => {
-  const { language, setActiveCategory } = useShop();
+  const { language, setActiveCategory, localizeHref } = useShop();
   const isArabic = language === 'ar';
 
   const handleCatLink = (event: React.MouseEvent<HTMLAnchorElement>, catId: string) => {
@@ -63,11 +63,11 @@ export const SiteFooter: React.FC = () => {
       <div className="vexa-container py-12">
         <div className="flex flex-col items-center justify-between gap-8 border-b border-white/10 pb-10 text-center lg:flex-row lg:items-start lg:text-start">
           <div className="flex flex-col items-center lg:items-start">
-            <a href="/" className="group flex select-none flex-col">
+            <a href={localizeHref('/')} className="group flex select-none flex-col">
               <span className="text-2xl font-black leading-none tracking-wider text-vexa-pink transition group-hover:brightness-110">VEXA</span>
               <span className="mt-0.5 text-[10px] font-bold leading-none tracking-[0.32em] text-vexa-pink transition group-hover:brightness-110">TOYS</span>
             </a>
-            <a href="/" className="mt-3 text-xs font-medium text-stone-400 transition hover:text-white">
+            <a href={localizeHref('/')} className="mt-3 text-xs font-medium text-stone-400 transition hover:text-white">
               {isArabic ? 'ألعاب ومنتجات للكبار في لبنان' : 'Sex Toys & Adult Toys in Lebanon'}
             </a>
           </div>
@@ -104,7 +104,7 @@ export const SiteFooter: React.FC = () => {
             {FOOTER_CATEGORIES.map(cat => (
               <a
                 key={cat.slug}
-                href={`/${cat.slug}`}
+                href={localizeHref(`/${cat.slug}`)}
                 onClick={event => handleCatLink(event, cat.id)}
                 className="transition-colors hover:text-white"
               >
@@ -120,7 +120,7 @@ export const SiteFooter: React.FC = () => {
             {LEGAL_LINKS.map(link => (
               <a
                 key={link.href}
-                href={link.href}
+                href={localizeHref(link.href)}
                 target={link.external ? '_blank' : undefined}
                 rel={link.external ? 'noopener noreferrer' : undefined}
                 className="transition hover:text-white"

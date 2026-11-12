@@ -1,3 +1,5 @@
+import { localizePath } from './localePath';
+import type { StoreLocale } from './storeLocaleShared';
 import type { BlogPost } from './blogPosts';
 import { SITE_BASE_URL } from './productSeo';
 
@@ -71,7 +73,7 @@ const MAX_AUTO_LINKS = 8;
  * category page. Headings, existing links, bold markers and tables are left
  * alone, and at most eight links are added so the article stays readable.
  */
-export function autoLinkCategories(markdown: string): string {
+export function autoLinkCategories(markdown: string, locale: StoreLocale = 'en'): string {
   const used = new Set<string>();
   let added = 0;
   return markdown.split('\n').map(line => {
@@ -86,7 +88,7 @@ export function autoLinkCategories(markdown: string): string {
         if (!match || match.index === undefined) continue;
         const start = match.index;
         const end = start + match[0].length;
-        segments[i] = `${segments[i].slice(0, start)}[${match[0]}](${link.href})${segments[i].slice(end)}`;
+        segments[i] = `${segments[i].slice(0, start)}[${match[0]}](${localizePath(link.href, locale)})${segments[i].slice(end)}`;
         used.add(link.slug);
         added += 1;
         break;
