@@ -12,11 +12,8 @@ import type { StoreLocale } from './storeLocaleShared';
 export const ARABIC_PREFIX = '/ar';
 export const SITE_BASE_URL = 'https://vexatoys.com';
 
-/** Routes that exist in English only: policies, admin, APIs and legacy product redirects. */
-const ENGLISH_ONLY_PATHS = [
-  '/terms', '/privacy', '/delivery', '/warranty', '/returns',
-  '/admin', '/api', '/product', '/products', '/sitemap.xml', '/robots.txt', '/_next',
-];
+/** Routes that exist in English only: admin, APIs and legacy product redirects. */
+const ENGLISH_ONLY_PATHS = ['/admin', '/api', '/product', '/products', '/sitemap.xml', '/robots.txt', '/_next'];
 
 /** True when the path has an Arabic twin under `/ar`. Files (`/favicon.png`) never do. */
 export function isLocalizedPath(path: string): boolean {

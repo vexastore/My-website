@@ -43,12 +43,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...bilingual('/adult-toys', catalogUpdated),
     ...bilingual('/about'),
     ...bilingual('/quiz'),
-    // Policies are published in English only.
-    { url: `${BASE}/terms` },
-    { url: `${BASE}/privacy` },
-    { url: `${BASE}/delivery` },
-    { url: `${BASE}/warranty` },
-    { url: `${BASE}/returns` },
+    ...bilingual('/terms'),
+    ...bilingual('/privacy'),
+    ...bilingual('/delivery'),
+    ...bilingual('/warranty'),
+    ...bilingual('/returns'),
     // Thin categories (see lib/categoryIndexing.ts) are noindex, so they stay out of the sitemap too.
     ...categories
       .filter(category => knownCategories.has(category.slug))

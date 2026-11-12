@@ -17,9 +17,14 @@ const LOCALIZED_ROUTES = [
   'blog/page.tsx',
   'blog/[blogCategory]/page.tsx',
   'blog/[blogCategory]/[slug]/page.tsx',
+  'terms/page.tsx',
+  'privacy/page.tsx',
+  'delivery/page.tsx',
+  'warranty/page.tsx',
+  'returns/page.tsx',
 ];
 
-const ENGLISH_ONLY_ROUTES = ['terms', 'privacy', 'delivery', 'warranty', 'returns', 'admin', 'product/[slug]', 'products/[slug]'];
+const ENGLISH_ONLY_ROUTES = ['admin', 'product/[slug]', 'products/[slug]'];
 
 async function walk(dir) {
   const out = [];
@@ -35,15 +40,15 @@ test('each localized route has an English and an Arabic wrapper that pass their 
   for (const route of LOCALIZED_ROUTES) {
     const en = await read(`app/(en)/${route}`);
     const ar = await read(`app/(ar)/ar/${route}`);
-    assert.match(en, /from '@\/src\/routes\//, route);
-    assert.match(ar, /from '@\/src\/routes\//, route);
-    assert.match(en, /\('en'/, `${route} (en)`);
-    assert.match(ar, /\('ar'/, `${route} (ar)`);
+    assert.match(en, /from '@\/src\/(routes|components\/policy)\//, route);
+    assert.match(ar, /from '@\/src\/(routes|components\/policy)\//, route);
+    assert.match(en, /'en'/, `${route} (en)`);
+    assert.match(ar, /'ar'/, `${route} (ar)`);
     assert.doesNotMatch(ar, /'en'/, `${route}: the Arabic wrapper must not mention 'en'`);
   }
 });
 
-test('policies, admin and legacy product redirects stay English only', async () => {
+test('admin and legacy product redirects stay English only', async () => {
   for (const route of ENGLISH_ONLY_ROUTES) {
     assert.equal(await exists(`app/(en)/${route}/page.tsx`), true, route);
     assert.equal(await exists(`app/(ar)/ar/${route}/page.tsx`), false, route);
@@ -105,7 +110,7 @@ test('the sitemap lists both languages with hreflang alternates', async () => {
   assert.match(source, /alternates: \{ languages \}/);
   assert.match(source, /bilingual\('\/'/);
   assert.match(source, /bilingual\('\/adult-toys'/);
+  assert.match(source, /bilingual\('\/terms'/);
+  assert.match(source, /bilingual\('\/returns'/);
   assert.match(source, /article\.contentAr\?\.trim\(\) \? bilingual/);
-  // Policies remain single English entries.
-  assert.match(source, /\{ url: `\$\{BASE\}\/terms` \}/);
 });
