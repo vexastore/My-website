@@ -13,6 +13,8 @@
 import { Metadata } from 'next';
 import { fetchProductsServer } from '@/lib/fetchProducts';
 import { fetchCategoryEditorial } from '@/lib/fetchCategoryEditorial';
+import { buildFaqPageSchema, selectCategoryFaqs } from '@/lib/categoryFaq';
+import { getCategoryContent } from '@/src/data/categoryContent';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 
@@ -71,22 +73,12 @@ const jsonLd = {
 export default async function AdultToysPage() {
   const locale = await getStoreLocale();
   const content = await fetchCategoryEditorial('adult-toys');
+  const faqSchema = buildFaqPageSchema(selectCategoryFaqs(locale === 'ar' ? 'ar' : 'en', content, getCategoryContent('adult-toys')));
   const localizedJsonLd = {
     ...jsonLd,
     '@graph': [
       ...jsonLd['@graph'],
-      ...(locale === 'en' && content?.faqs.length
-        ? [
-            {
-              '@type': 'FAQPage',
-              mainEntity: content.faqs.map(({ q, a }) => ({
-                '@type': 'Question',
-                name: q,
-                acceptedAnswer: { '@type': 'Answer', text: a },
-              })),
-            },
-          ]
-        : []),
+      ...(faqSchema ? [faqSchema] : []),
     ],
   };
   const allProducts = await fetchProductsServer();

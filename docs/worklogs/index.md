@@ -2,6 +2,7 @@
 
 ## 2026
 
+- [12 November 2026](2026/11/worklog-12-11-2026.md)
 - [9 November 2026](2026/11/worklog-09-11-2026.md)
 - [12 October 2026](2026/10/worklog-12-10-2026.md)
 - [8 October 2026](2026/10/worklog-08-10-2026.md)

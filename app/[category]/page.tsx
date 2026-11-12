@@ -10,6 +10,8 @@ import {
 } from '@/lib/categoryMeta';
 import { fetchCategoriesServer } from '@/lib/fetchCategories';
 import { fetchCategoryEditorial } from '@/lib/fetchCategoryEditorial';
+import { buildFaqPageSchema, selectCategoryFaqs } from '@/lib/categoryFaq';
+import { getCategoryContent } from '@/src/data/categoryContent';
 import { ShopApp } from '@/src/ShopApp';
 import { getStoreLocale } from '@/lib/storeLocale';
 import { productMatchesCategory } from '@/src/data/categories';
@@ -198,6 +200,9 @@ export default async function CategoryPage({
    * Keep this limited to the first 8 products
    * to avoid unnecessarily large JSON-LD.
    */
+  // FAQPage is built from exactly the questions CategoryGuideSection renders (Google requires visible FAQs).
+  const faqSchema = buildFaqPageSchema(selectCategoryFaqs(locale === 'ar' ? 'ar' : 'en', content, getCategoryContent(slug)));
+
   const jsonLd = {
     '@context': 'https://schema.org',
 
@@ -265,18 +270,7 @@ export default async function CategoryPage({
           ]
         : []),
 
-      ...(locale === 'en' && content?.faqs.length
-        ? [
-            {
-              '@type': 'FAQPage',
-              mainEntity: content.faqs.map(({ q, a }) => ({
-                '@type': 'Question',
-                name: q,
-                acceptedAnswer: { '@type': 'Answer', text: a },
-              })),
-            },
-          ]
-        : []),
+      ...(faqSchema ? [faqSchema] : []),
     ],
   };
 
