@@ -3,6 +3,16 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.6.0] - 2026-11-12
+
+### Arabic pages at their own URLs
+
+- **`/ar/...` routes**: every localized page now has an Arabic URL (`/ar`, `/ar/vibrators`, `/ar/dildos/<product>`, `/ar/adult-toys`, `/ar/about`, `/ar/quiz`, `/ar/blog/...`, `/ar/checkout`). English routes moved unchanged into the `app/(en)` route group and Arabic wrappers live under `app/(ar)/ar`; each group has its own root layout, so `<html lang dir>` is set on the server from the URL. Policies, admin and the legacy `/product(s)` redirects stay English only, and `/ar/<policy>` redirects permanently to the English page.
+- **One implementation per page** (`src/routes/*.tsx`): the page and metadata code of the ten localized routes moved out of `app/` into functions that take the locale (`CategoryPage('ar', props)`); the `app/` files are two-line wrappers. `lib/storeLocale.ts` (the cookie reader) is gone and no public page reads cookies or headers anymore, so the `force-dynamic` flags were dropped and every public page is static/ISR (`revalidate = 300`) and CDN-cacheable.
+- **hreflang + canonicals** (`lib/localePath.ts`, new): `pageAlternates` gives each page its own canonical plus `en`, `ar` and `x-default` alternates; Open Graph URLs and JSON-LD URLs point at the page's own language. The sitemap lists both languages of every localized page with `xhtml:link` alternates (articles only when they have an Arabic body; otherwise the Arabic article URL canonicalizes to English).
+- **Links and switch**: client components get `localizeHref` from `ShopContext` and server pages use `localizePath`, so every internal link keeps the visitor's language. The EN/AR switch now navigates to the same page in the other language. The `vexa_store_language` cookie only remembers the choice: the middleware sends a returning Arabic visitor who opens a bare English URL to `/ar/...` (302, browser navigations only; crawlers and RSC/prefetch requests are never redirected).
+- Tests: `tests/locale-path.test.mjs`, `tests/locale-middleware.test.mjs`, `tests/locale-routes.test.mjs` (new); source-reading tests follow the moved files. Package version 1.6.0; cache version unchanged (no data shape changed).
+
 ## [1.5.19] - 2026-11-12
 
 ### Category FAQ structured data

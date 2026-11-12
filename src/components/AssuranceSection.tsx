@@ -35,7 +35,7 @@ const ITEMS = [
 ];
 
 export const AssuranceSection: React.FC = () => {
-  const { language } = useShop();
+  const { language, localizeHref } = useShop();
   const isArabic = language === 'ar';
 
   return (
@@ -55,7 +55,7 @@ export const AssuranceSection: React.FC = () => {
             return (
               <a
                 key={item.href + copy.title}
-                href={item.href}
+                href={localizeHref(item.href)}
                 target={external ? '_blank' : undefined}
                 rel={external ? 'noopener noreferrer' : undefined}
                 className="vexa-card vexa-card-interactive group flex flex-col gap-3 p-5"

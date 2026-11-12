@@ -3,6 +3,7 @@ import { useShop } from '../context/ShopContext';
 import { Product, ProductVariant } from '../types';
 import { CATEGORIES, getProductCategories, productMatchesCategory } from '../data/categories';
 import { buildProductDescription, buildProductTitle, canonicalProductPath, shortProductName } from '@/lib/productSeo';
+import { localizePath, pageAlternates } from '@/lib/localePath';
 import { CATEGORY_TO_SLUG, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
 import { generateProductJsonLd } from '@/lib/productSchema';
 import { careTips, extractSpecs, productFaqs } from '@/lib/productContent';
@@ -21,8 +22,7 @@ const getInitialImg = (img: string | undefined | null): string =>
 const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const {
     language, cart, addToCart, fetchProductImages,
-    arTranslations, setView, setActiveCategory, products,
-  } = useShop();
+    arTranslations, setView, setActiveCategory, products, localizeHref } = useShop();
   const isArabic = language === 'ar';
 
   const [images, setImages]             = useState<string[]>([getInitialImg(product.image)]);
@@ -56,7 +56,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   const primaryCatId   = (product.categorySlug && SLUG_TO_CATEGORY[product.categorySlug]) || productCats[0] || product.category;
   const primaryCatName = CATEGORIES.find(c => c.id === primaryCatId)?.name?.[isArabic ? 'ar' : 'en'] || primaryCatId;
   const primaryCatSlug = product.categorySlug || CATEGORY_TO_SLUG[primaryCatId] || 'sex-toys';
-  const productUrl     = canonicalProductPath(product);
+  const productUrl     = localizePath(canonicalProductPath(product), isArabic ? 'ar' : 'en');
   const productFullLink = `https://vexatoys.com${productUrl}`;
 
   const specs   = extractSpecs(product, isArabic);
@@ -72,7 +72,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
   useEffect(() => {
     // Keep the client-side document metadata identical to what the server rendered
     // (app/[category]/[slug]/page.tsx), so hydration never swaps the SEO title for a generic one.
-    const canonical = `https://vexatoys.com${canonicalProductPath(product)}`;
+    const canonical = pageAlternates(canonicalProductPath(product), isArabic ? 'ar' : 'en').canonical;
     const name = (isArabic ? product.name : product.nameEn) || product.nameEn || product.name || '';
     const brand = isArabic ? 'متجر فيكسا لبنان' : 'Vexa Toys Lebanon';
     const storedTitle = ((isArabic ? product.seoTitleAr : product.seoTitleEn) || '').replace(/\s+/g, ' ').trim();
@@ -183,9 +183,9 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
           <button onClick={goBack} aria-label={isArabic ? 'رجوع' : 'Back'} className="flex shrink-0 items-center text-stone-300 transition hover:text-white">
             <ArrowLeft size={16} className={isArabic ? 'rotate-180' : ''} />
           </button>
-          <a href="/" className="transition hover:text-white">{isArabic ? 'المتجر' : 'Store'}</a>
+          <a href={localizeHref('/')} className="transition hover:text-white">{isArabic ? 'المتجر' : 'Store'}</a>
           <span aria-hidden="true">/</span>
-          <a href={`/${primaryCatSlug}`} onClick={e => { e.preventDefault(); setActiveCategory(primaryCatId); }} className="transition hover:text-white">{primaryCatName}</a>
+          <a href={localizeHref(`/${primaryCatSlug}`)} onClick={e => { e.preventDefault(); setActiveCategory(primaryCatId); }} className="transition hover:text-white">{primaryCatName}</a>
           <span aria-hidden="true">/</span>
           <span className="truncate font-semibold text-stone-200">{displayName}</span>
         </div>
@@ -239,7 +239,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
         {/* Buy box */}
         <div className="mt-6 space-y-6 lg:mt-0 lg:rounded-3xl lg:border lg:border-white/10 lg:bg-vexa-surface lg:p-8">
           <div>
-            <a href={`/${primaryCatSlug}`} onClick={e => { e.preventDefault(); setActiveCategory(primaryCatId); }} className="vexa-eyebrow hover:text-vexa-pink-hover">{primaryCatName}</a>
+            <a href={localizeHref(`/${primaryCatSlug}`)} onClick={e => { e.preventDefault(); setActiveCategory(primaryCatId); }} className="vexa-eyebrow hover:text-vexa-pink-hover">{primaryCatName}</a>
             <h1 className="mt-2 text-2xl font-black leading-tight tracking-tight text-white sm:text-3xl">{displayName}</h1>
             {hasReviews && (
               <a href="#reviews-section" className="mt-3 flex w-fit items-center gap-2" aria-label={`${product.rating} out of 5 from ${product.reviewsCount} reviews`}>
@@ -291,7 +291,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               { icon: <Truck size={17} />, ar: 'تغليف سري\nبلا شعار', en: 'Plain sealed\npackaging', href: '/privacy' },
             ].map((item, i) => (
               <li key={i}>
-                <a href={item.href} className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-vexa-raised px-1 py-4 transition hover:border-vexa-pink/50">
+                <a href={localizeHref(item.href)} className="flex flex-col items-center gap-2 rounded-2xl border border-white/10 bg-vexa-raised px-1 py-4 transition hover:border-vexa-pink/50">
                   <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.06] text-vexa-pink">{item.icon}</span>
                   <span className="whitespace-pre-line text-[9px] font-black uppercase leading-tight tracking-wide text-stone-300">{isArabic ? item.ar : item.en}</span>
                 </a>
@@ -375,7 +375,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               <li>{isArabic ? 'كرتون عادي مغلق بلا شعار أو اسم منتج.' : 'Plain sealed box, no logo and no product name.'}</li>
               <li>{isArabic ? 'الدفع نقداً عند الاستلام بالدولار أو الليرة.' : 'Pay cash on delivery in USD or LBP.'}</li>
             </ul>
-            <a href="/delivery" className="vexa-link mt-2 inline-block text-xs">{isArabic ? 'سياسة التوصيل الكاملة' : 'Full delivery policy'}</a>
+            <a href={localizeHref('/delivery')} className="vexa-link mt-2 inline-block text-xs">{isArabic ? 'سياسة التوصيل الكاملة' : 'Full delivery policy'}</a>
           </div>
         </div>
       </div>
@@ -413,9 +413,9 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
               ))}
             </ul>
             <p className="mt-3 text-xs text-stone-500">
-              <a href="/blog/tips/sex-toy-cleaning-care" className="vexa-link">{isArabic ? 'دليل التنظيف والعناية الكامل' : 'Full cleaning and care guide'}</a>
+              <a href={localizeHref('/blog/tips/sex-toy-cleaning-care')} className="vexa-link">{isArabic ? 'دليل التنظيف والعناية الكامل' : 'Full cleaning and care guide'}</a>
               {' · '}
-              <a href="/lubricants" className="vexa-link">{isArabic ? 'المزلقات المناسبة' : 'Compatible lubricants'}</a>
+              <a href={localizeHref('/lubricants')} className="vexa-link">{isArabic ? 'المزلقات المناسبة' : 'Compatible lubricants'}</a>
             </p>
           </div>
 
@@ -446,7 +446,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
                 <h2 className="vexa-h2 mt-2">{isArabic ? `المزيد من ${primaryCatName}` : `More ${primaryCatName}`}</h2>
                 <div className="vexa-h2-bar" />
               </div>
-              <a href={`/${primaryCatSlug}`} onClick={e => { e.preventDefault(); setActiveCategory(primaryCatId); }} className="group inline-flex items-center gap-1 text-xs font-bold text-stone-400 transition hover:text-white">
+              <a href={localizeHref(`/${primaryCatSlug}`)} onClick={e => { e.preventDefault(); setActiveCategory(primaryCatId); }} className="group inline-flex items-center gap-1 text-xs font-bold text-stone-400 transition hover:text-white">
                 {isArabic ? `كل ${primaryCatName}` : `All ${primaryCatName}`}
                 <ArrowIcon size={14} className={`transition-transform ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} />
               </a>
@@ -466,7 +466,7 @@ const ProductPageContent: React.FC<{ product: Product }> = ({ product }) => {
 };
 
 export const ProductPage: React.FC = () => {
-  const { selectedProduct, isProductsLoading, setView, language } = useShop();
+  const { selectedProduct, isProductsLoading, setView, language, localizeHref } = useShop();
   const isArabic = language === 'ar';
 
   if (isProductsLoading) {

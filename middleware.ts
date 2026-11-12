@@ -1,5 +1,7 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server.js';
+import type { NextRequest } from 'next/server.js';
+import { isLocalizedPath, localizePath, splitLocalePath } from './lib/localePath.ts';
+import { STORE_LOCALE_COOKIE } from './lib/storeLocaleShared.ts';
 
 const CANONICAL_HOST = 'vexatoys.com';
 const DUPLICATE_PARAMS = new Set(['category', 'q', 'search', 'filter', 'sort', 'page']);
@@ -35,9 +37,44 @@ function buildCleanUrl(req: NextRequest, pathname: string) {
 }
 
 /**
+ * Language routing on the canonical host (and on localhost).
+ *
+ * Arabic pages live under `/ar/...`; the page itself never reads a cookie, so
+ * both language versions are plain cacheable URLs. Two rules:
+ *
+ * 1. `/ar/<english-only route>` (policies, admin, legacy product redirects)
+ *    -> 301 to the English URL, since no Arabic twin exists.
+ * 2. A visitor who chose Arabic earlier (language cookie) and opens an English
+ *    URL in the browser -> 302 to the Arabic URL. Crawlers send no cookie and
+ *    always receive exactly the URL they asked for; client-side RSC and
+ *    prefetch requests are left alone so the router never follows a redirect
+ *    it did not ask for.
+ */
+function localeRouting(req: NextRequest): NextResponse | null {
+  const { locale, path } = splitLocalePath(req.nextUrl.pathname);
+
+  if (locale === 'ar') {
+    if (isLocalizedPath(path)) return null;
+    return NextResponse.redirect(new URL(`${path}${req.nextUrl.search}`, req.url), 301);
+  }
+
+  const prefersArabic = req.cookies.get(STORE_LOCALE_COOKIE)?.value === 'ar';
+  const isDocumentRequest =
+    req.method === 'GET' &&
+    !req.headers.get('rsc') &&
+    !req.headers.get('next-router-prefetch') &&
+    (req.headers.get('sec-fetch-dest') === 'document' || (req.headers.get('accept') || '').includes('text/html'));
+
+  if (prefersArabic && isDocumentRequest && isLocalizedPath(path)) {
+    return NextResponse.redirect(new URL(`${localizePath(path, 'ar')}${req.nextUrl.search}`, req.url), 302);
+  }
+  return null;
+}
+
+/**
  * Domain canonicalization + query-param cleanup middleware.
  *
- * Handles two jobs:
+ * Handles two jobs (plus the language routing above):
  *
  * 1. Non-canonical host (*.vercel.app, www.vexatoys.com, etc.)
  *    → 301 to the canonical domain in ONE hop.
@@ -56,7 +93,7 @@ export function middleware(req: NextRequest) {
 
   // Both dev and local production-mode tests must stay on loopback.
   if (hostname === 'localhost' || hostname === '127.0.0.1') {
-    return NextResponse.next();
+    return localeRouting(req) ?? NextResponse.next();
   }
 
   // ── Canonical host ───────────────────────────────────────────────────────
@@ -73,7 +110,7 @@ export function middleware(req: NextRequest) {
         301,
       );
     }
-    return NextResponse.next();
+    return localeRouting(req) ?? NextResponse.next();
   }
 
   // ── Non-canonical host (www, *.vercel.app, etc.) ─────────────────────────

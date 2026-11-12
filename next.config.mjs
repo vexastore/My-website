@@ -126,8 +126,8 @@ const nextConfig = {
   async headers() {
     return [
       // Only personal or admin responses are forced to `no-store`. Public
-      // storefront pages are left to Next.js so they can become CDN-cacheable
-      // once rendering no longer depends on the locale cookie.
+      // storefront pages are left to Next.js: the language comes from the URL
+      // (`/ar/...`), not a cookie, so they are static/ISR and edge-cached.
       ...['/checkout/:path*', '/orders/:path*', '/admin/:path*', '/api/:path*'].map((source) => ({
         source,
         headers: [

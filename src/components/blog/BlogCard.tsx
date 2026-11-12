@@ -2,6 +2,7 @@ import React from 'react';
 import type { BlogPost } from '@/lib/blogPosts';
 import { BLOG_CATEGORIES } from '@/lib/blogPosts';
 import { featuredImage, formatDate } from '@/lib/blogContent';
+import { localizePath } from '@/lib/localePath';
 
 interface BlogCardProps {
   post: BlogPost;
@@ -17,7 +18,7 @@ export function BlogCard({ post, isArabic, featured = false, priority = false }:
   const title = isArabic ? post.titleAr || post.title : post.title;
   const excerpt = isArabic ? post.excerptAr || post.excerpt : post.excerpt;
   const image = featuredImage(post);
-  const href = `/blog/${post.categorySlug}/${post.slug}`;
+  const href = localizePath(`/blog/${post.categorySlug}/${post.slug}`, isArabic ? 'ar' : 'en');
 
   return (
     <a

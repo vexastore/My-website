@@ -35,7 +35,7 @@ const HOME_COPY = {
 const CHIP_ICONS = [Lock, Truck, Banknote];
 
 export const HeroSection: React.FC<HeroSectionProps> = ({ heading, isHome = false, intro }) => {
-  const { language } = useShop();
+  const { language, localizeHref } = useShop();
   const isArabic = language === 'ar';
   const copy = isArabic ? HOME_COPY.ar : HOME_COPY.en;
   const heroHeading = isArabic
@@ -117,7 +117,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ heading, isHome = fals
           {isHome && (
             <>
               <div className="flex flex-wrap gap-3 pt-1">
-                <a href="/sex-toys" className="vexa-btn-primary">
+                <a href={localizeHref('/sex-toys')} className="vexa-btn-primary">
                   {copy.primaryCta}
                   <ArrowIcon size={14} aria-hidden="true" />
                 </a>

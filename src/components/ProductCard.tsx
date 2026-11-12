@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Product } from '../types';
 import { useShop } from '../context/ShopContext';
+import { localizePath } from '@/lib/localePath';
 import { canonicalProductPath } from '@/lib/productSeo';
 import { Star, Heart, ShoppingBag } from 'lucide-react';
 
@@ -135,7 +136,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, priority }) =
     return <span aria-hidden="true" />;
   };
 
-  const productUrl = canonicalProductPath(product);
+  const productUrl = localizePath(canonicalProductPath(product), language);
 
   const handleProductClick = (e: React.MouseEvent) => {
     e.preventDefault();

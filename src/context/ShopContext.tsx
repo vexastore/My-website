@@ -5,6 +5,10 @@ import { loadArCache, translateProducts, ArTranslation } from '../utils/translat
 import { cartItemKey, cartSubtotal } from '../utils/pricing';
 import { isStorefrontReference, mergeOrderStatuses } from '../utils/order-status';
 import { STORE_LOCALE_COOKIE, type StoreLocale } from '@/lib/storeLocaleShared';
+import { localizePath, splitLocalePath } from '@/lib/localePath';
+
+/** The store path without the `/ar` language prefix. */
+const storePathname = () => splitLocalePath(window.location.pathname).path;
 import { canonicalProductPath, canonicalProductSlug } from '@/lib/productSeo';
 import { CACHE_VERSION } from '@/lib/cacheVersion';
 import type { CategoryEditorial } from '../utils/category-editorial';
@@ -33,6 +37,8 @@ interface ShopContextType {
   setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
   setLanguage: (language: 'en' | 'ar') => void;
   toggleLanguage: () => void;
+  /** The href of a store path in the current language (`/vibrators` -> `/ar/vibrators` in Arabic). */
+  localizeHref: (path: string) => string;
   setView: (view: ViewType) => void;
   navigateToProduct: (product: Product) => void;
   setSelectedArticle: (article: AdviceArticle | null) => void;
@@ -85,7 +91,7 @@ function getInitialCategory(override?: string): string {
     if (typeof window === 'undefined') return 'Sex Toys';
     const w = window as typeof window & { __INITIAL_CATEGORY__?: string };
     if (w.__INITIAL_CATEGORY__) return w.__INITIAL_CATEGORY__;
-    const slug = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+    const slug = storePathname().replace(/^\//, '').replace(/\/$/, '');
     const firstSeg = slug.split("/")[0];
     return URL_SLUG_TO_CATEGORY[slug] || URL_SLUG_TO_CATEGORY[firstSeg] || "Sex Toys";
   } catch { return 'Sex Toys'; }
@@ -97,7 +103,7 @@ function getInitialView(override?: string): ViewType {
     try {
       const w = window as typeof window & { __INITIAL_VIEW__?: string; __INITIAL_PRODUCT_SLUG__?: string };
       if (w.__INITIAL_VIEW__ === 'about') return 'about';
-      const path = window.location.pathname;
+      const path = storePathname();
       if (path === '/about') return 'about';
       // /products/:slug   primary product URL format
       if (path.startsWith('/products/')) return 'product';
@@ -225,7 +231,7 @@ export const ShopProvider: React.FC<{
       try {
         const w = window as typeof window & { __INITIAL_PRODUCT_SLUG__?: string };
         if (initialProductSlug) w.__INITIAL_PRODUCT_SLUG__ = initialProductSlug;
-        const pathname = window.location.pathname;
+        const pathname = storePathname();
         const parts = pathname.split('/').filter(Boolean);
         const toSl = (n: string) => (n||'').toLowerCase()
           .replace(/[^a-z0-9\s-]/g,'').replace(/\s+/g,'-')
@@ -259,10 +265,10 @@ export const ShopProvider: React.FC<{
           // Only revert to shop if we're not currently on a product-style URL
           // /:catSlug/:pSlug pattern (2 path segments, not a known single view)
           const SINGLE_VIEWS_CHECK = ['about', 'checkout', 'orders', 'admin', 'advice', 'sitemap.xml', 'products', 'product'];
-          const pts = window.location.pathname.split('/').filter(Boolean);
+          const pts = storePathname().split('/').filter(Boolean);
           const isProductPath = (
             pts.length === 2 && !SINGLE_VIEWS_CHECK.includes(pts[0])
-          ) || window.location.pathname.startsWith('/products/') || window.location.pathname.startsWith('/product/');
+          ) || storePathname().startsWith('/products/') || storePathname().startsWith('/product/');
           if (!isProductPath) {
             setViewState('shop');
           }
@@ -278,7 +284,7 @@ export const ShopProvider: React.FC<{
       .replace(/-+/g,'-').replace(/^-+|-+$/,'').slice(0,60);
 
     const handlePop = () => {
-      const path = window.location.pathname;
+      const path = storePathname();
       // /products/:slug  primary format
       if (path.startsWith('/products/')) {
         const slug = path.replace(/^\/products\//, '').replace(/\/$/, '');
@@ -366,9 +372,13 @@ export const ShopProvider: React.FC<{
   }, []);
 
   const setLanguage = (newLanguage: 'en' | 'ar') => {
-    setLanguageState(newLanguage);
     localStorage.setItem('vexa_store_language', newLanguage);
     document.cookie = `${STORE_LOCALE_COOKIE}=${newLanguage}; Path=/; Max-Age=31536000; SameSite=Lax`;
+    // Each language has its own URL (and its own root layout), so switching is a navigation.
+    const current = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+    const target = localizePath(`${storePathname()}${window.location.search}${window.location.hash}`, newLanguage);
+    if (target !== current) { window.location.assign(target); return; }
+    setLanguageState(newLanguage);
     document.documentElement.lang = newLanguage;
     document.documentElement.dir = newLanguage === 'ar' ? 'rtl' : 'ltr';
     window.location.reload();
@@ -426,6 +436,12 @@ export const ShopProvider: React.FC<{
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+    // Remember the language of the URL the visitor is on, so a later visit to a bare English URL is redirected to Arabic.
+    try {
+      if (!document.cookie.includes(`${STORE_LOCALE_COOKIE}=${language}`)) {
+        document.cookie = `${STORE_LOCALE_COOKIE}=${language}; Path=/; Max-Age=31536000; SameSite=Lax`;
+      }
+    } catch { /* cookies disabled */ }
   }, [language]);
 
   useEffect(() => {
@@ -496,8 +512,8 @@ export const ShopProvider: React.FC<{
     const navigateToProduct = (product: Product) => {
       const productPath = canonicalProductPath(product);
       // Save current scroll position so we can restore it when the user goes back
-      try { sessionStorage.setItem('vexa_scroll_' + window.location.pathname, String(Math.round(window.scrollY))); } catch (_) {}
-      window.history.pushState(null, '', productPath);
+      try { sessionStorage.setItem('vexa_scroll_' + storePathname(), String(Math.round(window.scrollY))); } catch (_) {}
+      window.history.pushState(null, '', localizePath(productPath, language));
       setSelectedProduct(product);
       setViewState('product');
       window.scrollTo(0, 0);
@@ -506,8 +522,8 @@ export const ShopProvider: React.FC<{
     const navigateToCategoryFn = (category: string) => {
       const slug = CATEGORY_TO_SLUG[category] || category.toLowerCase().replace(/\s+/g, '-');
       const catPath = category ? `/${slug}` : '/';
-      if (typeof window !== 'undefined' && window.location.pathname !== catPath) {
-        router.push(catPath);
+      if (typeof window !== 'undefined' && storePathname() !== catPath) {
+        router.push(localizePath(catPath, language));
         return;
       }
       setActiveCategory(category);
@@ -638,6 +654,7 @@ export const ShopProvider: React.FC<{
   // Customer order history is a local receipt; customers cannot mutate store orders.
   const deleteOrderLocally = (orderId: string) => setOrders(prev => prev.filter(order => order.id !== orderId));
   const deleteOrder = (orderId: string) => deleteOrderLocally(orderId);
+  const localizeHref = (path: string) => localizePath(path, language);
 
   return (
     <ShopContext.Provider
@@ -645,7 +662,7 @@ export const ShopProvider: React.FC<{
         language, products, cart, orders, orderStatusSync, refreshOrderStatuses, currentView, selectedArticle,
         activeCategory, initialCategorySlug, searchQuery, is18PlusVerified, isProductsLoading, arTranslations,
         seoHeading, categoryEditorial,
-        setProducts, setLanguage, toggleLanguage, setView, setSelectedArticle,
+        setProducts, setLanguage, toggleLanguage, localizeHref, setView, setSelectedArticle,
         setActiveCategory: navigateToCategoryFn, setSearchQuery, verifyAge, addToCart, removeFromCart,
         updateCartQuantity, clearCart, placeOrder, deleteOrder,
         deleteOrderLocally, getCartTotal, getCartItemsCount, getDeliveryFee,

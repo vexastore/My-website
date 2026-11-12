@@ -5,13 +5,13 @@ import test from 'node:test';
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('homepage targets "sex toys lebanon" with one title, description and hero heading', async () => {
-  const home = await read('app/page.tsx');
+  const home = await read('src/routes/home.tsx');
 
   assert.match(home, /SEO_TITLE = 'Sex Toys Lebanon \| Discreet Adult Toys \| Vexa Toys'/);
   assert.match(home, /Shop sex toys in Lebanon at Vexa Toys\./);
   assert.match(home, /HERO_HEADING_EN = 'Sex Toys Lebanon \| Discreet Adult Toys'/);
   assert.match(home, /title: \{ absolute: title \}/);
-  assert.match(home, /canonical: `\$\{SITE_URL\}\/`/);
+  assert.match(home, /pageAlternates\('\/', locale\)/);
   // The homepage ships lightweight cards, not the full catalog, and no appended SEO layer.
   assert.match(home, /allProducts\.map\(toCardProduct\)/);
   assert.doesNotMatch(home, /seoContent=/);
@@ -33,9 +33,9 @@ test('adult-toys has persistent crawlable navigation and homepage has descriptiv
   const footer = await read('src/components/SiteFooter.tsx');
   const app = await read('src/App.tsx');
 
-  assert.match(navbar, /href="\/adult-toys"[\s\S]*All Adult Toys/);
+  assert.match(navbar, /href=\{localizeHref\('\/adult-toys'\)\}[\s\S]*All Adult Toys/);
   assert.match(footer, /slug: 'adult-toys'[\s\S]*en: 'Adult Toys Lebanon'/);
-  assert.match(footer, /href="\/"[\s\S]*Sex Toys & Adult Toys in Lebanon/);
+  assert.match(footer, /href=\{localizeHref\('\/'\)\}[\s\S]*Sex Toys & Adult Toys in Lebanon/);
   // The storefront shell renders the shared footer, so every view and every SiteFrame page carries these links.
   assert.match(app, /<SiteFooter \/>/);
 });
@@ -44,7 +44,7 @@ test('category navigation performs a real Next route transition', async () => {
   const context = await read('src/context/ShopContext.tsx');
 
   assert.match(context, /import \{ useRouter \} from 'next\/navigation'/);
-  assert.match(context, /router\.push\(catPath\);[\s\S]*return;/);
+  assert.match(context, /router\.push\(localizePath\(catPath, language\)\);[\s\S]*return;/);
   assert.doesNotMatch(context, /window\.history\.pushState\(null, '', catPath\)/);
 });
 

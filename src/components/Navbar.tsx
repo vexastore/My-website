@@ -37,8 +37,7 @@ export const Navbar: React.FC = () => {
   const {
     currentView, setView, activeCategory, setActiveCategory,
     getCartItemsCount, searchQuery, setSearchQuery, cart, orders,
-    language, toggleLanguage, orderStatusSync, refreshOrderStatuses
-  } = useShop();
+    language, toggleLanguage, orderStatusSync, refreshOrderStatuses, localizeHref } = useShop();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -137,7 +136,7 @@ export const Navbar: React.FC = () => {
             </button>
 
             <a
-              href="/"
+              href={localizeHref('/')}
               onClick={openShopHome}
               className="flex flex-col select-none group"
               aria-label="Vexa Toys Home"
@@ -157,7 +156,7 @@ export const Navbar: React.FC = () => {
             aria-label={isArabic ? 'التنقل الرئيسي' : 'Main navigation'}
           >
             <a
-              href="/"
+              href={localizeHref('/')}
               onClick={openShopHome}
               className={`transition hover:text-white ${currentView === 'shop' && !activeCategory ? 'text-white font-semibold' : 'text-stone-300'}`}
             >
@@ -180,7 +179,7 @@ export const Navbar: React.FC = () => {
                   dir={isArabic ? 'rtl' : 'ltr'}
                 >
                   <a
-                    href="/adult-toys"
+                    href={localizeHref('/adult-toys')}
                     onClick={() => {
                       setIsMenuOpen(false);
                       setIsShopDropdownOpen(false);
@@ -193,7 +192,7 @@ export const Navbar: React.FC = () => {
                   {CATEGORIES.slice(0, 8).map(c => (
                     <a
                       key={c.id}
-                      href={`/${catSlug(c.id)}`}
+                      href={localizeHref(`/${catSlug(c.id)}`)}
                       onClick={(e) => handleCategorySelect(e, c.id)}
                       className="block px-4 py-1.5 text-xs text-stone-300 hover:bg-white/10 hover:text-white transition"
                     >
@@ -224,7 +223,7 @@ export const Navbar: React.FC = () => {
             </div>
 
             <a
-              href="/about"
+              href={localizeHref('/about')}
               onClick={(e) => {
                 e.preventDefault();
                 setView('about');
@@ -337,7 +336,7 @@ export const Navbar: React.FC = () => {
               {activeSubmenu ? <ChevronLeft size={28} strokeWidth={1.5} /> : <X size={28} strokeWidth={1.5} />}
             </button>
 
-            <a href="/" onClick={openShopHome} className="flex flex-col select-none">
+            <a href={localizeHref('/')} onClick={openShopHome} className="flex flex-col select-none">
               <span className="text-xl font-black tracking-wider text-vexa-pink">VEXA</span>
               <span className="text-[9px] font-bold tracking-[0.32em] text-vexa-pink -mt-1">TOYS</span>
             </a>
@@ -360,7 +359,7 @@ export const Navbar: React.FC = () => {
               </div>
               <div className="grid grid-cols-1 divide-y divide-white/5 sm:grid-cols-2">
                 <a
-                  href="/adult-toys"
+                  href={localizeHref('/adult-toys')}
                   onClick={() => setIsMenuOpen(false)}
                   className="flex w-full items-center justify-between py-3.5 text-start text-base font-bold text-vexa-pink transition hover:text-white"
                 >
@@ -370,7 +369,7 @@ export const Navbar: React.FC = () => {
                 {CATEGORIES.map(item => (
                   <a
                     key={item.id}
-                    href={`/${catSlug(item.id)}`}
+                    href={localizeHref(`/${catSlug(item.id)}`)}
                     onClick={(e) => handleCategorySelect(e, item.id)}
                     className="flex w-full items-center justify-between py-3.5 text-start text-base font-medium text-stone-200 transition hover:text-vexa-pink"
                   >
@@ -383,7 +382,7 @@ export const Navbar: React.FC = () => {
           ) : (
             <nav className="mt-8 flex flex-col gap-4 pb-20" aria-label={isArabic ? 'القائمة الرئيسية' : 'Main navigation'}>
               <a
-                href="/"
+                href={localizeHref('/')}
                 onClick={openShopHome}
                 className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
@@ -400,7 +399,7 @@ export const Navbar: React.FC = () => {
               </button>
 
               <a
-                href="/quiz"
+                href={localizeHref('/quiz')}
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
@@ -409,7 +408,7 @@ export const Navbar: React.FC = () => {
               </a>
 
               <a
-                href="/blog"
+                href={localizeHref('/blog')}
                 onClick={() => setIsMenuOpen(false)}
                 className="flex items-center justify-between py-2 text-2xl font-bold text-white hover:text-vexa-pink transition"
               >
@@ -417,7 +416,7 @@ export const Navbar: React.FC = () => {
               </a>
 
               <a
-                href="/about"
+                href={localizeHref('/about')}
                 onClick={(e) => {
                   e.preventDefault();
                   setView('about');

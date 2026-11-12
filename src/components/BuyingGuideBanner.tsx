@@ -34,7 +34,7 @@ const GUIDES = [
 ];
 
 export const BuyingGuideBanner: React.FC = () => {
-  const { language } = useShop();
+  const { language, localizeHref } = useShop();
   const isArabic = language === 'ar';
   const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
 
@@ -70,7 +70,7 @@ export const BuyingGuideBanner: React.FC = () => {
             <ul className="mt-6 space-y-2">
               {GUIDES.map(guide => (
                 <li key={guide.href}>
-                  <a href={guide.href} className="group inline-flex items-center gap-2 text-sm font-semibold text-stone-200 transition hover:text-vexa-pink">
+                  <a href={localizeHref(guide.href)} className="group inline-flex items-center gap-2 text-sm font-semibold text-stone-200 transition hover:text-vexa-pink">
                     <ArrowIcon size={14} className="text-vexa-pink" aria-hidden="true" />
                     {isArabic ? guide.ar : guide.en}
                   </a>
@@ -79,10 +79,10 @@ export const BuyingGuideBanner: React.FC = () => {
             </ul>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="/quiz" className="vexa-btn-primary">
+              <a href={localizeHref('/quiz')} className="vexa-btn-primary">
                 {isArabic ? 'ساعدني في الاختيار' : 'Help me choose'}
               </a>
-              <a href="/blog" className="vexa-btn-secondary">
+              <a href={localizeHref('/blog')} className="vexa-btn-secondary">
                 {isArabic ? 'كل المقالات' : 'All guides'}
               </a>
             </div>
