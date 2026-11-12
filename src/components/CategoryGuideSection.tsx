@@ -5,6 +5,7 @@ import { CATEGORY_TO_SLUG, SLUG_TO_CATEGORY } from '@/lib/categoryMeta';
 import { CATEGORIES } from '@/src/data/categories';
 import { getCategoryEditorial } from '@/src/data/categoryEditorial';
 import { getCategoryContent } from '@/src/data/categoryContent';
+import { selectCategoryFaqs } from '@/lib/categoryFaq';
 import { ArrowLeft, ArrowRight, MessageCircle } from 'lucide-react';
 
 interface CategoryGuideSectionProps {
@@ -50,9 +51,8 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
 
   const name = categoryName(currentSlug, isArabic);
   const editorialGuide = editorial?.guide && ARABIC.test(editorial.guide) === isArabic ? editorial.guide : '';
-  const faqs = !isArabic && editorial?.faqs?.length
-    ? editorial.faqs
-    : (content?.faqs || []).map(faq => ({ q: faq.q[lang], a: faq.a[lang] }));
+  // Same selection as the server's FAQPage schema (lib/categoryFaq.ts), so markup and page never drift.
+  const faqs = selectCategoryFaqs(lang, editorial, content);
 
   const goToCategory = (event: React.MouseEvent<HTMLAnchorElement>, slug: string) => {
     if (slug === 'adult-toys') return;

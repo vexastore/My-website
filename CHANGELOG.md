@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.5.19] - 2026-11-12
+
+### Category FAQ structured data
+
+- **One FAQ source for page and schema** (`lib/categoryFaq.ts`, new): `selectCategoryFaqs` applies the single selection rule (admin editorial FAQs win in English, bilingual code FAQs otherwise, Arabic always from code) and `buildFaqPageSchema` turns that list into `FAQPage` JSON-LD. `CategoryGuideSection`, `app/[category]/page.tsx` and `app/adult-toys/page.tsx` all use it, so the markup can never list a question the visitor does not see.
+- Before this, the `FAQPage` block was emitted only in English and only when an editorial row had FAQs; categories using the code FAQs (most of them) and all Arabic pages had no FAQ markup while still rendering FAQs.
+- Tests: `tests/category-faq-schema.test.mjs` (new). Package version 1.5.19; cache version unchanged (no data shape changed).
+
 ## [1.5.18] - 2026-11-09
 
 ### Product pages
