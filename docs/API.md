@@ -21,7 +21,7 @@ In 1.2.0, successful `POST /api/orders` responses also include `deliveryFee` and
 
 ## Category editorial read
 
-Category pages query `category_editorial` through Supabase REST with the publishable key and anonymous RLS. They read one slug at a time, validate FAQ pairs, and cache the result for up to five minutes. Writes occur only in the separate admin app through an authenticated Server Action.
+Category pages query `category_editorial` through Supabase REST with the publishable key and anonymous RLS. They read one slug at a time (`guide,faqs,guide_ar,faqs_ar`, retrying with `guide,faqs` if the Arabic columns do not exist yet), validate FAQ pairs in both languages, and cache the result for up to five minutes. Writes occur only in the separate admin app through an authenticated Server Action.
 
 ## Product reviews API
 

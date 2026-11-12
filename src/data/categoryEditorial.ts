@@ -1,6 +1,9 @@
 export interface CategoryEditorialData {
   guide: string;
   faqs: Array<{ q: string; a: string }>;
+  /** Arabic twins of the Supabase columns; the bundled fallback has none, so Arabic pages use src/data/categoryContent.ts. */
+  guideAr?: string;
+  faqsAr?: Array<{ q: string; a: string }>;
 }
 
 export const CATEGORY_EDITORIALS: Record<string, CategoryEditorialData> = {

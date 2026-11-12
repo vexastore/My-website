@@ -15,6 +15,10 @@ On 17 September 2026, a read-only live check found one `source=storefront` order
 
 The shared Supabase project now has 23 `category_editorial` rows, seeded from the former bundled guide text. RLS grants anonymous read and admin-only updates. `product_media.legacy_source_url` is the rollback reference for each verified Vercel Blob-to-Supabase Storage binary copy. Old Blob objects remain available until the rollback window closes.
 
+## Category editorial Arabic columns (docs/sql/2026-11-12-category-editorial-arabic.sql, release 1.7.2)
+
+`category_editorial` gains `guide_ar text NOT NULL DEFAULT ''` and `faqs_ar jsonb NOT NULL DEFAULT '[]'` (checked to be a JSON array), next to the English `guide` and `faqs`. Empty means "not written yet": the storefront then shows the bilingual code content from `src/data/categoryContent.ts` on Arabic pages. RLS is unchanged (anonymous read, admin write). The storefront selects the four columns and falls back to `guide,faqs` while the migration has not run. The admin app needs two matching fields on the category guide form to write them.
+
 ## Product reviews and SEO overrides schema (Migration 20260922223000)
 
 The migration `supabase/migrations/20260922223000_product_reviews_and_seo_overrides.sql` introduces:

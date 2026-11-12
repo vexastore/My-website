@@ -10,7 +10,7 @@ The public storefront defaults to English. Use the EN/AR switch in the shop head
 
 The public storefront serves the catalog and checkout. The separate administrator app is maintained in `admin-vexatoys`. Ratings are never entered directly on a product: customers submit genuine feedback through the product review form, administrators moderate it, and approved reviews update the aggregate automatically.
 
-Category buying guides and FAQ lists now come from Supabase editorial rows rather than bundled source text. Administrators edit them under Content → Category guides & FAQs. The visible FAQ answers and FAQ structured data use the same records and refresh within about five minutes.
+Category buying guides and FAQ lists now come from Supabase editorial rows rather than bundled source text, in English and (since 1.7.2) Arabic. Administrators edit them under Content → Category guides & FAQs; an Arabic page shows the Arabic guide and FAQs once they are written and the bilingual code content until then. The visible FAQ answers and FAQ structured data use the same records and refresh within about five minutes.
 
 ## Caching & Cache Versioning
 

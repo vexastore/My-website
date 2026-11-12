@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { parseCategoryEditorial } from '../src/utils/category-editorial.ts';
+import { editorialGuideFor, parseCategoryEditorial } from '../src/utils/category-editorial.ts';
 import { CATEGORY_EDITORIALS, getCategoryEditorial } from '../src/data/categoryEditorial.ts';
 import { CATEGORIES } from '../src/data/categories.ts';
 import { CATEGORY_TO_SLUG } from '../lib/categoryMeta.ts';
@@ -8,7 +8,27 @@ import { CATEGORY_TO_SLUG } from '../lib/categoryMeta.ts';
 test('public editorial only renders valid FAQ pairs', () => {
   assert.deepEqual(parseCategoryEditorial({ guide: 'A guide', faqs: [
     { q: 'Question?', a: 'Answer.' }, { q: 'Bad' }, null,
-  ] }), { guide: 'A guide', faqs: [{ q: 'Question?', a: 'Answer.' }] });
+  ] }), { guide: 'A guide', faqs: [{ q: 'Question?', a: 'Answer.' }], guideAr: '', faqsAr: [] });
+});
+
+test('Arabic editorial columns are read when present and validated the same way', () => {
+  const row = { guide: 'English guide', faqs: [{ q: 'Q?', a: 'A.' }], guide_ar: 'دليل عربي', faqs_ar: [{ q: 'سؤال؟', a: 'جواب.' }, { q: 'bad' }, 'x'] };
+  assert.deepEqual(parseCategoryEditorial(row), { guide: 'English guide', faqs: [{ q: 'Q?', a: 'A.' }], guideAr: 'دليل عربي', faqsAr: [{ q: 'سؤال؟', a: 'جواب.' }] });
+  // Rows from before the migration (no Arabic columns) still parse.
+  assert.deepEqual(parseCategoryEditorial({ guide: 'g', faqs: [] }), { guide: 'g', faqs: [], guideAr: '', faqsAr: [] });
+});
+
+test('the guide shown follows the page language', () => {
+  const mixed = { guide: 'English only guide', faqs: [], guideAr: '', faqsAr: [] };
+  assert.equal(editorialGuideFor(mixed, 'en'), 'English only guide');
+  assert.equal(editorialGuideFor(mixed, 'ar'), '', 'no Arabic guide and the English one is not Arabic: nothing');
+  const written = { ...mixed, guideAr: 'دليل مكتوب في الإدارة' };
+  assert.equal(editorialGuideFor(written, 'ar'), 'دليل مكتوب في الإدارة');
+  assert.equal(editorialGuideFor(written, 'en'), 'English only guide');
+  const seededArabic = { guide: 'دليل عربي قديم', faqs: [] };
+  assert.equal(editorialGuideFor(seededArabic, 'ar'), 'دليل عربي قديم', 'a seeded Arabic guide still shows on Arabic pages');
+  assert.equal(editorialGuideFor(seededArabic, 'en'), '');
+  assert.equal(editorialGuideFor(null, 'ar'), '');
 });
 
 test('invalid editorial does not render as a guide', () => {
