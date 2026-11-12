@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.0] - 2026-11-12
+
+### Arabic policy pages
+
+- **Terms, privacy, delivery, warranty and returns in Arabic** at `/ar/terms`, `/ar/privacy`, `/ar/delivery`, `/ar/warranty` and `/ar/returns`. Each policy is now data in both languages (`src/content/policies/*.ts`, with a tiny inline markup for links and bold) rendered by one component (`src/components/policy/PolicyPage.tsx`) that sets the canonical, `en`/`ar`/`x-default` alternates, Open Graph, the WebPage JSON-LD and the quick-links navigation for the page language. The `app/` files are two-line wrappers.
+- The English text is unchanged; the Arabic is a faithful Modern Standard Arabic rendering with the same sections, numbers, hours, phone number and links.
+- `lib/localePath.ts` no longer treats the policies as English only, so every policy link on Arabic pages (footer, product page badges, category guides, blog) now stays in Arabic, and the sitemap lists both languages of each policy. Only admin and the legacy `/product(s)` redirects remain English only.
+- Tests: `tests/legal-routes.test.mjs` now checks the bilingual content (same structure, same links, Arabic text present, every numbered section) instead of the old page sources; the locale tests moved the policies to the localized set. Package version 1.7.0; cache version unchanged.
+
 ## [1.6.0] - 2026-11-12
 
 ### Arabic pages at their own URLs

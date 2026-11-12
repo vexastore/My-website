@@ -26,12 +26,12 @@ test('localizePath keeps query strings and hashes and never doubles the prefix',
   assert.equal(localizePath('/ar', 'en'), '/');
 });
 
-test('English-only routes and files have no Arabic twin', () => {
-  for (const path of ['/terms', '/privacy', '/delivery', '/warranty', '/returns', '/admin', '/admin/orders', '/api/products', '/product/x', '/products/x', '/sitemap.xml', '/robots.txt', '/favicon.png', '/images/mockup/hero.webp']) {
+test('English-only routes and files have no Arabic twin; policies do', () => {
+  for (const path of ['/admin', '/admin/orders', '/api/products', '/product/x', '/products/x', '/sitemap.xml', '/robots.txt', '/favicon.png', '/images/mockup/hero.webp']) {
     assert.equal(isLocalizedPath(path), false, path);
     assert.equal(localizePath(path, 'ar'), path, path);
   }
-  for (const path of ['/', '/vibrators', '/adult-toys', '/about', '/quiz', '/checkout', '/blog', '/blog/tips', '/blog/tips/care', '/dildos/some-product']) {
+  for (const path of ['/', '/vibrators', '/adult-toys', '/about', '/quiz', '/checkout', '/blog', '/blog/tips', '/blog/tips/care', '/dildos/some-product', '/terms', '/privacy', '/delivery', '/warranty', '/returns']) {
     assert.equal(isLocalizedPath(path), true, path);
   }
 });

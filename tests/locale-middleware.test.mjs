@@ -16,7 +16,7 @@ function request(url, { cookie, headers = {} } = {}) {
 const redirectTarget = (response) => response.headers.get('location');
 
 test('Arabic URLs are served as they are', () => {
-  for (const url of ['https://vexatoys.com/ar', 'https://vexatoys.com/ar/vibrators', 'https://vexatoys.com/ar/dildos/some-product', 'https://vexatoys.com/ar/blog/tips/care']) {
+  for (const url of ['https://vexatoys.com/ar', 'https://vexatoys.com/ar/vibrators', 'https://vexatoys.com/ar/dildos/some-product', 'https://vexatoys.com/ar/blog/tips/care', 'https://vexatoys.com/ar/terms', 'https://vexatoys.com/ar/returns']) {
     const response = middleware(request(url));
     assert.equal(response.status, 200, url);
     assert.equal(redirectTarget(response), null, url);
@@ -24,9 +24,9 @@ test('Arabic URLs are served as they are', () => {
 });
 
 test('English-only routes under /ar redirect permanently to the English URL', () => {
-  const response = middleware(request('https://vexatoys.com/ar/terms?ref=footer'));
+  const response = middleware(request('https://vexatoys.com/ar/product/some-slug?ref=footer'));
   assert.equal(response.status, 301);
-  assert.equal(redirectTarget(response), 'https://vexatoys.com/terms?ref=footer');
+  assert.equal(redirectTarget(response), 'https://vexatoys.com/product/some-slug?ref=footer');
   assert.equal(redirectTarget(middleware(request('https://vexatoys.com/ar/admin'))), 'https://vexatoys.com/admin');
 });
 
@@ -36,7 +36,7 @@ test('a visitor who chose Arabic is sent from an English URL to the Arabic one',
   assert.equal(redirectTarget(response), 'https://vexatoys.com/ar/vibrators?utm_source=ig');
   assert.equal(redirectTarget(middleware(request('https://vexatoys.com/', { cookie: 'ar' }))), 'https://vexatoys.com/ar');
   // English-only pages are not redirected even with the Arabic cookie.
-  assert.equal(middleware(request('https://vexatoys.com/returns', { cookie: 'ar' })).status, 200);
+  assert.equal(middleware(request('https://vexatoys.com/admin', { cookie: 'ar' })).status, 200);
 });
 
 test('crawlers and the client router get exactly the URL they asked for', () => {
@@ -51,7 +51,7 @@ test('crawlers and the client router get exactly the URL they asked for', () => 
 
 test('language routing also applies on localhost, and host canonicalization keeps the /ar path', () => {
   assert.equal(redirectTarget(middleware(request('http://localhost:3000/vibrators', { cookie: 'ar' }))), 'http://localhost:3000/ar/vibrators');
-  assert.equal(redirectTarget(middleware(request('http://localhost:3000/ar/terms'))), 'http://localhost:3000/terms');
+  assert.equal(redirectTarget(middleware(request('http://localhost:3000/ar/admin'))), 'http://localhost:3000/admin');
   const www = middleware(request('https://www.vexatoys.com/ar/vibrators'));
   assert.equal(www.status, 301);
   assert.equal(redirectTarget(www), 'https://vexatoys.com/ar/vibrators');
