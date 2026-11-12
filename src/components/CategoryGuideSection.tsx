@@ -6,13 +6,12 @@ import { CATEGORIES } from '@/src/data/categories';
 import { getCategoryEditorial } from '@/src/data/categoryEditorial';
 import { getCategoryContent } from '@/src/data/categoryContent';
 import { selectCategoryFaqs } from '@/lib/categoryFaq';
+import { editorialGuideFor } from '@/src/utils/category-editorial';
 import { ArrowLeft, ArrowRight, MessageCircle } from 'lucide-react';
 
 interface CategoryGuideSectionProps {
   onSelectCategory?: (category: string) => void;
 }
-
-const ARABIC = /[؀-ۿ]/;
 
 function categoryName(slug: string, isArabic: boolean): string {
   if (slug === 'adult-toys') return isArabic ? 'منتجات الكبار' : 'Adult Toys';
@@ -29,9 +28,10 @@ function categoryName(slug: string, isArabic: boolean): string {
  * Content sources, in order:
  * - Structured, Lebanon-targeted copy from src/data/categoryContent.ts
  *   (intro, three sections, related categories, blog guides, FAQs).
- * - The Supabase `category_editorial` row (guide text + FAQs) when the page
- *   passed one, else the code fallback. Its FAQs are shown in English; its
- *   guide is offered as a collapsible "full guide" so admin copy stays live.
+ * - The Supabase `category_editorial` row when the page passed one, else the
+ *   code fallback: `guide`/`faqs` on English pages, `guide_ar`/`faqs_ar` on
+ *   Arabic pages when the admin wrote them (otherwise the bilingual code FAQs).
+ *   The guide is offered as a collapsible "full guide" so admin copy stays live.
  */
 export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSelectCategory }) => {
   const { activeCategory, initialCategorySlug, language, setActiveCategory, categoryEditorial, localizeHref } = useShop();
@@ -50,7 +50,7 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
   if (!content && !editorial) return null;
 
   const name = categoryName(currentSlug, isArabic);
-  const editorialGuide = editorial?.guide && ARABIC.test(editorial.guide) === isArabic ? editorial.guide : '';
+  const editorialGuide = editorialGuideFor(editorial, lang);
   // Same selection as the server's FAQPage schema (lib/categoryFaq.ts), so markup and page never drift.
   const faqs = selectCategoryFaqs(lang, editorial, content);
 

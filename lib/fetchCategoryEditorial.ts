@@ -10,21 +10,28 @@ async function fetchEditorial(slug: string): Promise<CategoryEditorial | null> {
     const base = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
     if (!base || !key) return fallback;
-    const url = new URL(`${base}/rest/v1/category_editorial`);
-    url.searchParams.set('select', 'guide,faqs');
-    url.searchParams.set('slug', `eq.${slug}`);
-    url.searchParams.set('limit', '1');
-    const response = await fetch(url, { headers: { apikey: key }, cache: 'no-store' });
+    const read = async (select: string) => {
+      const url = new URL(`${base}/rest/v1/category_editorial`);
+      url.searchParams.set('select', select);
+      url.searchParams.set('slug', `eq.${slug}`);
+      url.searchParams.set('limit', '1');
+      return fetch(url, { headers: { apikey: key }, cache: 'no-store' });
+    };
+    // The Arabic columns arrive with the 1.7.2 migration; until it has run,
+    // PostgREST rejects the select, so fall back to the English-only columns.
+    let response = await read('guide,faqs,guide_ar,faqs_ar');
+    if (response.status === 400) response = await read('guide,faqs');
     if (!response.ok) return fallback;
     const rows = await response.json() as unknown[];
     const editorial = parseCategoryEditorial(rows[0]);
     if (!editorial) return fallback;
+    const clean = (text: string) => displayCopy(text.replace(/Vexa Store/gi, 'Vexa Toys'));
+    const cleanFaqs = (faqs: CategoryEditorial['faqs']) => faqs.map(faq => ({ q: clean(faq.q), a: clean(faq.a) }));
     return {
-      guide: displayCopy(editorial.guide.replace(/Vexa Store/gi, 'Vexa Toys')),
-      faqs: editorial.faqs.map(faq => ({
-        q: displayCopy(faq.q.replace(/Vexa Store/gi, 'Vexa Toys')),
-        a: displayCopy(faq.a.replace(/Vexa Store/gi, 'Vexa Toys')),
-      })),
+      guide: clean(editorial.guide),
+      faqs: cleanFaqs(editorial.faqs),
+      guideAr: clean(editorial.guideAr || ''),
+      faqsAr: cleanFaqs(editorial.faqsAr || []),
     };
   } catch {
     return fallback;

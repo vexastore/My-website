@@ -15,6 +15,10 @@ test('category FAQ selection matches what the page renders', () => {
 
   const arabic = selectCategoryFaqs('ar', { faqs: [{ q: 'Editorial?', a: 'Yes.' }] }, content);
   assert.deepEqual(arabic, content.faqs.map(f => ({ q: f.q.ar, a: f.a.ar })), 'Arabic ignores English-only editorial FAQs');
+  const arabicWritten = selectCategoryFaqs('ar', { faqs: [{ q: 'Editorial?', a: 'Yes.' }], faqsAr: [{ q: 'سؤال؟', a: 'جواب.' }] }, content);
+  assert.deepEqual(arabicWritten, [{ q: 'سؤال؟', a: 'جواب.' }], 'admin-written Arabic FAQs win on Arabic pages');
+  const englishUnaffected = selectCategoryFaqs('en', { faqs: [], faqsAr: [{ q: 'سؤال؟', a: 'جواب.' }] }, content);
+  assert.deepEqual(englishUnaffected, content.faqs.map(f => ({ q: f.q.en, a: f.a.en })), 'Arabic FAQs never leak into English pages');
 
   const editorial = selectCategoryFaqs('en', { faqs: [{ q: 'Editorial?', a: 'Yes.' }] }, content);
   assert.deepEqual(editorial, [{ q: 'Editorial?', a: 'Yes.' }], 'editorial FAQs win in English');

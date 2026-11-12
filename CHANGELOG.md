@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.2] - 2026-11-12
+
+### Arabic category editorial
+
+- **Arabic guide and FAQ columns**: `docs/sql/2026-11-12-category-editorial-arabic.sql` (run in Supabase by the owner) adds `guide_ar` and `faqs_ar` to `category_editorial`, both empty by default. The storefront reads them (`lib/fetchCategoryEditorial.ts`, falling back to the English-only select until the migration has run) and validates Arabic FAQ pairs the same way as English (`src/utils/category-editorial.ts`).
+- **Arabic pages prefer admin content**: `selectCategoryFaqs` picks `faqs_ar` on Arabic pages when non-empty and `faqs` on English pages, otherwise the bilingual code FAQs, so the visible list and the FAQPage schema still match; `editorialGuideFor` shows `guide_ar` on Arabic pages when written (a seeded Arabic `guide` still shows as before) and never shows Arabic text on English pages.
+- Until the admin app gains the two fields, the columns can be filled in the Supabase table editor. Cache version `v1.7.2`. Tests: Arabic parsing, guide selection and FAQ precedence in `tests/category-editorial.test.mjs` and `tests/category-faq-schema.test.mjs`. Package version 1.7.2.
+
 ## [1.7.1] - 2026-11-12
 
 ### Product name cleanup
