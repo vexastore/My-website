@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.3] - 2026-11-13
+
+### Fixed
+
+- **Adult-toys page showed the bundled guide instead of the admin row**: `src/routes/adultToys.tsx` fetched `category_editorial` for the FAQPage schema but never passed it to `ShopApp`, so the visible guide section fell back to the bundled English snapshot in `src/data/categoryEditorial.ts`. After the Arabic drafts landed, `/ar/adult-toys` emitted the four Arabic FAQs in its schema while showing the English guide and the code FAQs on the page. The route now passes `categoryEditorial={content}` like the category route, and `tests/category-faq-schema.test.mjs` requires it on both routes. Cache version `v1.7.3`. Package version 1.7.3.
+- Arabic guides and FAQs for all 23 categories delivered as `docs/sql/2026-11-13-category-editorial-arabic-drafts.sql` (applied in Supabase by the owner; guarded so it never overwrites hand-written Arabic).
+- **Five English guides were hidden**: the adult-toys, sex-toys, dildos, male-toys and masturbators rows carry Arabic paragraphs inside the English `guide`, which `editorialGuideFor` treats as "not English", so those pages showed no guide block. `docs/sql/2026-11-13-english-guides-trim-arabic.sql` drops the Arabic paragraphs (md5-guarded, only where `guide_ar` is filled) so the English guides render again.
+
 ## [1.7.2] - 2026-11-12
 
 ### Arabic category editorial

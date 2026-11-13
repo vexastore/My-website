@@ -120,6 +120,7 @@ export async function AdultToysPage(locale: StoreLocale) {
         initialProducts={productsWithImages}
         initialCategory=""
         initialCategorySlug="adult-toys"
+        categoryEditorial={content}
         initialView="shop"
         seoHeading={locale === 'ar' ? 'منتجات للكبار في لبنان | كل الفئات' : 'Adult Toys in Lebanon | All Categories'}
       />

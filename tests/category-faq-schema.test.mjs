@@ -42,6 +42,10 @@ test('category pages and the guide section share the FAQ helper', async () => {
   for (const [name, source] of [['category page', page], ['adult-toys page', adultToys]]) {
     assert.match(source, /buildFaqPageSchema\(selectCategoryFaqs\(/, `${name} builds FAQPage from the shared selection`);
     assert.doesNotMatch(source, /locale === 'en' && content\?\.faqs/, `${name} no longer has the English-only inline FAQ block`);
+    // The visible guide section reads the same row through ShopContext; without
+    // this prop it falls back to the bundled English snapshot and drifts from
+    // the schema (the Arabic adult-toys page did exactly that in 1.7.2).
+    assert.match(source, /categoryEditorial=\{content\}/, `${name} passes the fetched editorial row to the page`);
   }
   assert.match(section, /selectCategoryFaqs\(/);
   assert.doesNotMatch(section, /!isArabic && editorial\?\.faqs\?\.length/);
