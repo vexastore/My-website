@@ -13,8 +13,9 @@ test('getCategoryTitle returns dynamic category titles for English and Arabic', 
   assert.equal(getCategoryTitle('Male Toys', 'en'), 'Male Toys in Lebanon | Vexa Toys');
   assert.equal(getCategoryTitle('Male Toys', 'ar'), 'ألعاب رجالية في لبنان | متجر فيكسا');
 
-  assert.equal(getCategoryTitle('Sex Toys', 'en'), 'Sex Toys in Lebanon | Vexa Toys');
-  assert.equal(getCategoryTitle('Sex Toys', 'ar'), 'ألعاب جنسية في لبنان | متجر فيكسا');
+  // The home page owns "sex toys in Lebanon"; the /sex-toys page targets the shop phrase.
+  assert.equal(getCategoryTitle('Sex Toys', 'en'), 'Online Sex Shop in Lebanon | Vexa Toys');
+  assert.equal(getCategoryTitle('Sex Toys', 'ar'), 'متجر جنسي أونلاين في لبنان | متجر فيكسا');
 });
 
 test('no category title contains body safe collection or body-safe silicone in CATEGORIES', () => {

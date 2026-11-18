@@ -13,6 +13,9 @@ import type { StoreLocale } from '@/lib/storeLocaleShared';
  */
 
 const BASE = 'https://vexatoys.com';
+/** Same number as the WhatsApp links and the Business Profile. */
+const STORE_PHONE = '+961 76 730 767';
+const STORE_WHATSAPP = 'https://wa.me/96176730767';
 
 const baseMetadata: Metadata = {
   metadataBase: new URL(BASE),
@@ -55,10 +58,20 @@ export function rootMetadata(locale: StoreLocale): Metadata {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@graph': [
-    { '@type': 'Organization', '@id': `${BASE}/#organization`, name: 'Vexa Toys Lebanon', url: BASE,
-      logo: `${BASE}/vexa-logo.png` },
-    { '@type': 'WebSite', '@id': `${BASE}/#website`, name: 'Vexa Toys Lebanon', url: BASE,
-      publisher: { '@id': `${BASE}/#organization` } },
+    // OnlineStore is an Organization subtype, so the WebSite publisher link
+    // and Google's Organization markup still resolve. Name, phone and service
+    // area match the Google Business Profile exactly.
+    { '@type': 'OnlineStore', '@id': `${BASE}/#organization`, name: 'Vexa Toys', alternateName: 'Vexa Toys Lebanon',
+      url: BASE, logo: `${BASE}/vexa-logo.png`, image: `${BASE}/opengraph.jpg`,
+      description: 'Online sex shop for Lebanon: sex toys, vibrators, dildos and lingerie with plain sealed packaging, delivery across Lebanon and cash on delivery.',
+      telephone: STORE_PHONE,
+      contactPoint: { '@type': 'ContactPoint', contactType: 'customer service', telephone: STORE_PHONE,
+        url: STORE_WHATSAPP, availableLanguage: ['en', 'ar'], areaServed: 'LB' },
+      address: { '@type': 'PostalAddress', addressCountry: 'LB' },
+      areaServed: { '@type': 'Country', name: 'Lebanon' },
+      currenciesAccepted: 'USD', paymentAccepted: 'Cash on delivery', priceRange: '$$' },
+    { '@type': 'WebSite', '@id': `${BASE}/#website`, name: 'Vexa Toys', alternateName: 'Vexa Toys Lebanon', url: BASE,
+      inLanguage: ['en', 'ar'], publisher: { '@id': `${BASE}/#organization` } },
   ],
 };
 
