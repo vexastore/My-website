@@ -132,6 +132,48 @@ const nextConfig = {
         destination: '/lingerie',
         permanent: true,
       },
+      // Blog consolidation (1.7.5): four overlapping "sex toys in Lebanon" posts
+      // were retired; their English and Arabic URLs go to the kept hub article.
+      {
+        source: '/blog/advice/sex-toys-lebanon-guide',
+        destination: '/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
+      {
+        source: '/ar/blog/advice/sex-toys-lebanon-guide',
+        destination: '/ar/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/advice/buy-sex-toys-lebanon-guide',
+        destination: '/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
+      {
+        source: '/ar/blog/advice/buy-sex-toys-lebanon-guide',
+        destination: '/ar/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/advice/where-to-buy-sex-toys-lebanon-trusted-store',
+        destination: '/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
+      {
+        source: '/ar/blog/advice/where-to-buy-sex-toys-lebanon-trusted-store',
+        destination: '/ar/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
+      {
+        source: '/blog/advice/sex-toys-in-lebanon-faq',
+        destination: '/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
+      {
+        source: '/ar/blog/advice/sex-toys-in-lebanon-faq',
+        destination: '/ar/blog/advice/sex-toys-in-lebanon-guide',
+        permanent: true,
+      },
     ];
   },
   async headers() {

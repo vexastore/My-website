@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.5] - 2026-11-18
+
+### Blog consolidation and the regions article
+
+- **Seven posts competed for "sex toys in Lebanon"**: `sex-toys-in-lebanon-guide`, `sex-toys-lebanon-guide`, `buy-sex-toys-lebanon-guide`, `where-to-buy-sex-toys-lebanon-trusted-store`, `how-to-buy-sex-toys-online-lebanon`, `sex-toys-in-lebanon-faq` and `sex-shop-beirut-vs-online`, all under `/blog/advice/`. `docs/sql/2026-11-18-blog-consolidation.sql` (run by the owner after this release deploys) keeps `sex-toys-in-lebanon-guide` as the hub, rewrites it with real `##`/`###` headings, a proper comparison table, a first-paragraph link of the phrase to the home page, Arabic without the Latin "Sex Toys", and a "Related guides" section; it archives the other four. `how-to-buy-sex-toys-online-lebanon` and `sex-shop-beirut-vs-online` stay (different queries).
+- **Eight permanent redirects** in `next.config.mjs` and `vercel.json`: each retired URL, English and `/ar/`, to the hub. Test in `tests/gsc-404-redirects.test.mjs`.
+- **New article** `docs/sql/2026-11-18-article-sex-toys-outside-beirut.sql`: "Sex Toys Delivery Outside Beirut: Tripoli, Saida, Jounieh, Zahle and the Rest of Lebanon" (Advice, English and Arabic), covering the region queries no post addressed, with the phrase linked to the home page.
+- Cache version `v1.7.5` (article content changes). Package 1.7.5.
+
 ## [1.7.4] - 2026-11-18
 
 ### Local SEO: one target page and store signals
