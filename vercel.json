@@ -275,6 +275,46 @@
       "source": "/vibrators/remote-contro-dildo-wearable-prostate-massager-purple-silico",
       "destination": "https://vexatoys.com/vibrators/remote-control-wearable-prostate-massager-purple-silicone",
       "statusCode": 301
+    },
+    {
+      "source": "/blog/advice/sex-toys-lebanon-guide",
+      "destination": "https://vexatoys.com/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
+    },
+    {
+      "source": "/ar/blog/advice/sex-toys-lebanon-guide",
+      "destination": "https://vexatoys.com/ar/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
+    },
+    {
+      "source": "/blog/advice/buy-sex-toys-lebanon-guide",
+      "destination": "https://vexatoys.com/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
+    },
+    {
+      "source": "/ar/blog/advice/buy-sex-toys-lebanon-guide",
+      "destination": "https://vexatoys.com/ar/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
+    },
+    {
+      "source": "/blog/advice/where-to-buy-sex-toys-lebanon-trusted-store",
+      "destination": "https://vexatoys.com/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
+    },
+    {
+      "source": "/ar/blog/advice/where-to-buy-sex-toys-lebanon-trusted-store",
+      "destination": "https://vexatoys.com/ar/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
+    },
+    {
+      "source": "/blog/advice/sex-toys-in-lebanon-faq",
+      "destination": "https://vexatoys.com/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
+    },
+    {
+      "source": "/ar/blog/advice/sex-toys-in-lebanon-faq",
+      "destination": "https://vexatoys.com/ar/blog/advice/sex-toys-in-lebanon-guide",
+      "statusCode": 301
     }
   ],
   "headers": [

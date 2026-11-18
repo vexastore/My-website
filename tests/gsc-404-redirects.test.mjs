@@ -265,3 +265,21 @@ test('vercel.json defines permanent 301 redirects for all reported GSC routes an
     assert.equal(entry.destination, check.expectedDest);
   }
 });
+
+test('blog consolidation (1.7.5): retired "sex toys in Lebanon" posts redirect to the hub in both languages', async () => {
+  const retired = ['sex-toys-lebanon-guide', 'buy-sex-toys-lebanon-guide', 'where-to-buy-sex-toys-lebanon-trusted-store', 'sex-toys-in-lebanon-faq'];
+  const hub = '/blog/advice/sex-toys-in-lebanon-guide';
+  const nextRedirects = await nextConfig.redirects();
+  for (const slug of retired) {
+    for (const prefix of ['', '/ar']) {
+      const source = `${prefix}/blog/advice/${slug}`;
+      const destination = `${prefix}${hub}`;
+      const next = nextRedirects.find(rule => rule.source === source);
+      assert.ok(next && next.permanent && next.destination === destination, `next.config ${source}`);
+      const vercel = vercelJson.redirects.find(rule => rule.source === source);
+      assert.ok(vercel && vercel.statusCode === 301 && vercel.destination === `https://vexatoys.com${destination}`, `vercel.json ${source}`);
+    }
+  }
+  // The hub itself is never redirected, or the chain would loop.
+  assert.ok(!nextRedirects.some(rule => rule.source === hub || rule.source === `/ar${hub}`));
+});
