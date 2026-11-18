@@ -70,6 +70,9 @@ export const SiteFooter: React.FC = () => {
             <a href={localizeHref('/')} className="mt-3 text-xs font-medium text-stone-400 transition hover:text-white">
               {isArabic ? 'ألعاب ومنتجات للكبار في لبنان' : 'Sex Toys & Adult Toys in Lebanon'}
             </a>
+            <p className="mt-2 text-[11px] text-stone-500">
+              {isArabic ? 'توصيل إلى كل لبنان، الدفع عند الاستلام' : 'Delivery across all Lebanon, cash on delivery'}
+            </p>
           </div>
 
           {/* Verified contact only. Social icons return once real brand accounts exist. */}

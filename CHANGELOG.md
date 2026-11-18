@@ -3,6 +3,15 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.4] - 2026-11-18
+
+### Local SEO: one target page and store signals
+
+- **One page for "sex toys in Lebanon"**: the home page keeps the phrase (title, H1 and now the first sentence of the hero intro in `src/components/HeroSection.tsx`). The `/sex-toys` H1 in `src/data/categories.ts` changes from "Sex Toys in Lebanon" to "Online Sex Shop in Lebanon" (Arabic "متجر جنسي أونلاين في لبنان"), matching its meta title, so the two pages stop competing for the same query. Its Supabase meta title and description are unchanged.
+- **Internal links**: the About page button "Browse sex toys in Lebanon" and the quiz quick link (now "Sex Toys in Lebanon") point at the home page instead of `/sex-toys`.
+- **Store signals**: the site-wide JSON-LD in `src/layouts/RootDocument.tsx` becomes an `OnlineStore` named "Vexa Toys" (alternate name "Vexa Toys Lebanon") with telephone +961 76 730 767, WhatsApp contact point, `areaServed` Lebanon, cash on delivery and USD, so it matches the Google Business Profile. The footer gains "Delivery across all Lebanon, cash on delivery" under the brand and the About delivery block prints the WhatsApp number.
+- Cache version `v1.7.4`, package 1.7.4. Tests: `tests/local-seo-signals.test.mjs` (new), `tests/category-title.test.mjs` updated for the new `/sex-toys` heading.
+
 ## [1.7.3] - 2026-11-13
 
 ### Fixed

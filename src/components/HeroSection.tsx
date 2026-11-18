@@ -17,7 +17,7 @@ const HOME_COPY = {
   en: {
     eyebrow: 'Discreet adult store, Lebanon',
     intro:
-      'Vexa Toys is an online adult store for Lebanon. Browse vibrators, dildos, couples toys, lingerie and more, compare details and prices, and order with discreet packaging, delivery across Lebanon and cash on delivery.',
+      'Vexa Toys sells sex toys in Lebanon online: vibrators, dildos, couples toys, lingerie and more. Compare details and prices, then order with plain sealed packaging, same-day delivery in Beirut, delivery across Lebanon and cash on delivery.',
     primaryCta: 'Shop sex toys',
     secondaryCta: 'Browse categories',
     chips: ['Plain, sealed packaging', 'Delivery across Lebanon', 'Cash on delivery'],
@@ -25,7 +25,7 @@ const HOME_COPY = {
   ar: {
     eyebrow: 'متجر سري للكبار في لبنان',
     intro:
-      'فيكسا تويز متجر إلكتروني للمنتجات الزوجية في لبنان. تصفّح الهزازات والديلدو وألعاب الأزواج واللانجري وأكثر، قارن التفاصيل والأسعار، واطلب بتغليف سري وتوصيل إلى كل لبنان والدفع عند الاستلام.',
+      'فيكسا تويز متجر إلكتروني لبيع الألعاب الجنسية في لبنان: هزازات وديلدو وألعاب الأزواج ولانجري وأكثر. قارن التفاصيل والأسعار، ثم اطلب بتغليف عادي مغلق، توصيل في نفس اليوم في بيروت، وتوصيل إلى كل لبنان مع الدفع عند الاستلام.',
     primaryCta: 'تسوّق الألعاب الزوجية',
     secondaryCta: 'تصفّح الفئات',
     chips: ['تغليف عادي ومغلق', 'توصيل إلى كل لبنان', 'الدفع عند الاستلام'],

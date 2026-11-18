@@ -9,8 +9,10 @@ export const CATEGORIES: CategoryDef[] = [
   {
     id: 'Sex Toys',
     name: { ar: 'ألعاب زوجية', en: 'Sex Toys' },
-    titlePage: { ar: 'ألعاب جنسية في لبنان | متجر فيكسا', en: 'Sex Toys in Lebanon | Vexa Toys' },
-    seoTab: { ar: 'ألعاب زوجية في لبنان | متجر فيكسا', en: 'Sex Toys in Lebanon | Vexa Toys - Discreet Delivery' }
+    // "Sex toys in Lebanon" belongs to the home page (see src/routes/home.tsx); this
+    // page targets "online sex shop in Lebanon" so the two never compete.
+    titlePage: { ar: 'متجر جنسي أونلاين في لبنان | متجر فيكسا', en: 'Online Sex Shop in Lebanon | Vexa Toys' },
+    seoTab: { ar: 'متجر جنسي أونلاين في لبنان | متجر فيكسا', en: 'Online Sex Shop in Lebanon | Vexa Toys - Discreet Delivery' }
   },
   {
     id: 'Vibrators',

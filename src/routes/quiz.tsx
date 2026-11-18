@@ -126,7 +126,7 @@ export async function QuizPage(locale: StoreLocale) {
               {ar ? 'روابط سريعة' : 'Quick Links'}
             </p>
             <div className="flex flex-wrap gap-3 text-xs">
-              <Link href={localizePath('/sex-toys', locale)}      className="text-stone-400 hover:text-white transition">{ar ? 'كل المنتجات' : 'All Sex Toys Lebanon'}</Link>
+              <Link href={localizePath('/', locale)}              className="text-stone-400 hover:text-white transition">{ar ? 'ألعاب جنسية في لبنان' : 'Sex Toys in Lebanon'}</Link>
               <Link href={localizePath('/about', locale)}         className="text-stone-400 hover:text-white transition">{ar ? 'عن متجر فيكسا' : 'About Vexa Toys'}</Link>
               <Link href={localizePath('/blog', locale)}          className="text-stone-400 hover:text-white transition">{ar ? 'المدونة' : 'Product Guides Blog'}</Link>
               <Link href={localizePath('/new-arrivals', locale)}  className="text-stone-400 hover:text-white transition">{ar ? 'وصل حديثاً' : 'New Arrivals'}</Link>
