@@ -21,7 +21,7 @@ The shared Supabase project now has 23 `category_editorial` rows, seeded from th
 
 `docs/sql/2026-11-13-category-editorial-arabic-drafts.sql` fills both columns for all 23 categories with Arabic drafts written from each row's English guide. Every `UPDATE` is guarded by `guide_ar = '' AND faqs_ar = '[]'`, so it only touches rows that are still empty and can be rerun safely after hand edits.
 
-`docs/sql/2026-11-18-article-sex-toys-outside-beirut.sql` inserts one published row into `articles` (category Advice, slug `sex-toys-delivery-outside-beirut`, English and Arabic markdown), guarded by `WHERE NOT EXISTS` on the slug. The column list mirrors a live row; `legacy_id` uses the `blog:<slug>` pattern.
+`docs/sql/2026-11-18-article-sex-toys-outside-beirut.sql` inserts one published row into `articles` (category Advice, slug `sex-toys-delivery-outside-beirut`, English and Arabic markdown), guarded by `WHERE NOT EXISTS` on the slug. The column list mirrors a live row; `legacy_id` uses the `blog:<slug>` pattern. `docs/sql/2026-11-18-article-anal-toys-beginners-guide.sql` inserts a second article the same way (category Product Guides, slug `anal-toys-butt-plugs-beginners-guide-lebanon`).
 
 ## Product reviews and SEO overrides schema (Migration 20260922223000)
 
