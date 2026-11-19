@@ -3,6 +3,12 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.6] - 2026-11-20
+
+### Google Merchant Center verification
+
+- `verification.google` added to the root metadata in `src/layouts/RootDocument.tsx`, so every page in both locales carries the `google-site-verification` meta tag Merchant Center asked for. Test in `tests/local-seo-signals.test.mjs`. No data or cache change, so `CACHE_VERSION` stays at `v1.7.5`.
+
 ## [1.7.5] - 2026-11-18
 
 ### Blog consolidation and the regions article

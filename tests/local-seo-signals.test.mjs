@@ -45,3 +45,10 @@ test('site-wide schema is an OnlineStore with the Business Profile phone and ser
   // The same number is printed on the About page, so Google can match site, schema and profile.
   assert.match(about, /\+961 76 730 767/);
 });
+
+test('Merchant Center verification tag is declared once in the root metadata (1.7.6)', async () => {
+  const root = await read('src/layouts/RootDocument.tsx');
+  const matches = root.match(/verification: \{ google: '([^']+)' \}/g) || [];
+  assert.equal(matches.length, 1, 'exactly one verification entry');
+  assert.ok(root.includes("google: '2RvVW58INu-IGaDumjtdQXGjxnbO_WF3EGlXpO0URf0'"), 'the Merchant Center code');
+});
