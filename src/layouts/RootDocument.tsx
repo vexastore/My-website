@@ -43,6 +43,9 @@ const baseMetadata: Metadata = {
     images: [`${BASE}/opengraph.jpg`],
   },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
+  // Google Merchant Center domain verification (20 Nov 2026). Search Console
+  // is verified separately; keep this tag or the Merchant Center claim lapses.
+  verification: { google: '2RvVW58INu-IGaDumjtdQXGjxnbO_WF3EGlXpO0URf0' },
   other: { rating: 'adult' },
 };
 
