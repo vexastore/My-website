@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.8] - 2026-11-20
+
+### One page for "sex toys in Lebanon", last code-side mentions
+
+- After the 1.7.7 guide rewrite, three mentions of the phrase on `/sex-toys` came from code. `src/data/categoryContent.ts`: the shared FAQ guide link pointed at `sex-toys-in-lebanon-faq`, retired in 1.7.5 and now a redirect; it links the hub article as "Complete buying guide and FAQ". The `/sex-toys` intro paragraph opens with "Buying from an online sex shop in Lebanon". `src/components/CategoryGuideSection.tsx`: on `/sex-toys` the guide heading reads "Online sex shop in Lebanon: what to know" and the accordion "More about the online sex shop in Lebanon"; other categories keep the generic "{name} in Lebanon" wording, and the "Related categories" card for the all-toys page on every other category page reads "Online sex shop in Lebanon" instead of the phrase. Arabic the same. Test in `tests/local-seo-signals.test.mjs`; `tests/category-content.test.mjs` live-post list updated for the 1.7.5 hub.
+- `docs/sql/2026-11-20-sex-toys-guide-ar-sentence.sql` (owner runs it): the one Arabic sentence of the `/sex-toys` guide that still used the phrase, exact-match guarded.
+- Package 1.7.8. `CACHE_VERSION` unchanged: static copy rendered at build, no cached data.
+
 ## [1.7.7] - 2026-11-20
 
 ### One page for "sex toys in Lebanon", second pass
