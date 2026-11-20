@@ -52,3 +52,16 @@ test('Merchant Center verification tag is declared once in the root metadata (1.
   assert.equal(matches.length, 1, 'exactly one verification entry');
   assert.ok(root.includes("google: '2RvVW58INu-IGaDumjtdQXGjxnbO_WF3EGlXpO0URf0'"), 'the Merchant Center code');
 });
+
+test('the exact phrase links to the home page from articles, the bare "sex toys" to the category (1.7.7)', async () => {
+  const content = await read('lib/blogContent.ts');
+  const rules = [...content.matchAll(/\{ pattern: (\/[^\n]+?\/[a-z]*), href: '([^']+)', slug: '([^']+)' \}/g)].map(m => ({ pattern: m[1], href: m[2], slug: m[3] }));
+  const phrase = rules.findIndex(r => r.pattern.includes('sex toys in Lebanon'));
+  const bare = rules.findIndex(r => r.pattern === '/\\bsex toys?\\b/i');
+  assert.ok(phrase >= 0 && rules[phrase].href === '/' && rules[phrase].slug === 'home', 'phrase rule links home');
+  assert.ok(bare > phrase, 'phrase rule comes before the bare rule so it wins');
+  assert.ok(rules.find(r => r.pattern.includes('الألعاب الجنسية في لبنان') && r.href === '/'), 'Arabic phrase rule links home');
+  assert.ok(content.includes("slug !== 'adult-toys' && slug !== 'home'"), 'related categories never list the home rule');
+  const article = await read('src/routes/blogArticle.tsx');
+  assert.ok(article.includes("localizePath(shopSlug === 'sex-toys' ? '/' : `/${shopSlug}`, locale)"), '"Shop what this covers" sends the sex-toys entry home');
+});

@@ -38,6 +38,9 @@ export function extractHeadings(markdown: string): Heading[] {
 
 /** Category keywords -> route. Longer phrases first so "sex toys" does not shadow "male sex toys". */
 const CATEGORY_LINKS: Array<{ pattern: RegExp; href: string; slug: string }> = [
+  // The exact target phrase links to the home page, which owns it (1.7.4); listed first so it wins over the bare "sex toys" rule.
+  { pattern: /\bsex toys in Lebanon\b/i, href: '/', slug: 'home' },
+  { pattern: /الألعاب الجنسية في لبنان/, href: '/', slug: 'home' },
   { pattern: /\bmale sex toys?\b/i, href: '/male-toys', slug: 'male-toys' },
   { pattern: /\bmale toys?\b/i, href: '/male-toys', slug: 'male-toys' },
   { pattern: /\bsex toys?\b/i, href: '/sex-toys', slug: 'sex-toys' },
@@ -107,7 +110,7 @@ export function relatedCategorySlugs(post: BlogPost, max = 4): string[] {
     const matches = haystack.match(new RegExp(link.pattern.source, link.pattern.flags.includes('g') ? link.pattern.flags : link.pattern.flags + 'g'));
     if (matches) counts.set(link.slug, (counts.get(link.slug) || 0) + matches.length);
   }
-  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([slug]) => slug).filter(slug => slug !== 'adult-toys');
+  const ranked = [...counts.entries()].sort((a, b) => b[1] - a[1]).map(([slug]) => slug).filter(slug => slug !== 'adult-toys' && slug !== 'home');
   const picked = ranked.slice(0, max);
   if (picked.length === 0) picked.push('sex-toys');
   return picked;
