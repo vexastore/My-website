@@ -231,7 +231,8 @@ export async function BlogArticlePage(locale: StoreLocale, { params }: Props) {
                   <ul className="mt-3 space-y-2">
                     {shopSlugs.map(shopSlug => (
                       <li key={shopSlug}>
-                        <a href={localizePath(`/${shopSlug}`, locale)} className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-vexa-raised px-4 py-3 text-sm font-bold text-white transition hover:border-vexa-pink/60 hover:text-vexa-pink">
+                        {/* The home page owns "sex toys in Lebanon" (1.7.4), so the entry that renders that exact phrase links there, not to /sex-toys. */}
+                        <a href={localizePath(shopSlug === 'sex-toys' ? '/' : `/${shopSlug}`, locale)} className="flex items-center justify-between gap-2 rounded-xl border border-white/10 bg-vexa-raised px-4 py-3 text-sm font-bold text-white transition hover:border-vexa-pink/60 hover:text-vexa-pink">
                           {ar ? `${shopCategoryName(shopSlug, true)} في لبنان` : `${shopCategoryName(shopSlug, false)} in Lebanon`}
                           <span aria-hidden="true" className="text-vexa-pink">{ar ? '←' : '→'}</span>
                         </a>

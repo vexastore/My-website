@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.7] - 2026-11-20
+
+### One page for "sex toys in Lebanon", second pass
+
+- Release 1.7.4 moved the titles and H1s, but the site's own links still sent the exact phrase to `/sex-toys`: the "Shop what this covers" box on every article rendered "Sex Toys in Lebanon →" linking to the category, and the article auto-linker sent the phrase there too. Now that box's sex-toys entry links to the home page (`src/routes/blogArticle.tsx`), and `lib/blogContent.ts` gains two rules, English and Arabic, that link the exact phrase to the home page ahead of the bare "sex toys" rule, which still goes to the category. Test in `tests/local-seo-signals.test.mjs`.
+- `docs/sql/2026-11-20-sex-toys-guide-rewrite.sql` (owner runs it, any time): rewrites the `/sex-toys` editorial guide so it reads as the online sex shop page, without the phrase (it appeared four times), "#1 destination" or "500+ products", and fixes the Arabic opening sentence the same way. md5- and text-guarded.
+- Package 1.7.7. `CACHE_VERSION` unchanged: the guide rewrite is a data edit that revalidates within five minutes, and no schema or mapping changed.
+
 ## [1.7.6] - 2026-11-20
 
 ### Google Merchant Center verification

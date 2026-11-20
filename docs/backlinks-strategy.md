@@ -1,183 +1,206 @@
-# دليل الـ Backlinks — Vexa Toys Lebanon
-# Backlink Outreach Strategy — vexatoys.com
+# Backlink plan for vexatoys.com
 
-> آخر تحديث: أغسطس 2026 | تم إنشاؤه تلقائياً بناءً على تحليل الموقع
+Last updated: 18 November 2026. Replaces the August 2026 draft, which listed
+unverified sites and claims. Every target below was checked on 18 November
+2026; "unverified" marks the ones whose submission route could not be
+confirmed from here.
 
----
+## Where things stand
 
-## 🎯 الأهداف
+- Links pointing at vexatoys.com from other sites: none found. The only
+  external page that mentions the domain is a pull request on the public
+  GitHub repository.
+- Profiles that exist: Trustpilot (`trustpilot.com/review/vexatoys.com`).
+- Competitor link profiles are thin too. Each of the two best-known shops has
+  one editorial feature on Beirut.com, a Trustpilot page and a social account.
+  Matching that in a month is realistic; beating it takes the editorial links
+  in section 3.
 
-- الحصول على 20-30 backlink جديد خلال 60 يوماً
-- التركيز على المواقع العربية واللبنانية أولاً (أقوى تأثير محلي)
-- تجنب الـ spammy directories — الجودة أهم من الكمية
+## What the competitors have (and where their links come from)
 
----
+| Shop | Editorial links | Profiles and listings |
+| --- | --- | --- |
+| Sirr (sirrshop.com) | Beirut.com feature, 30 Sep 2025, by William Daou: links the website, Instagram, X and Trustpilot. Not marked sponsored. | X account, Trustpilot (4.2, ~28 reviews), Trustprofile webshop listing (Baabda address), Zipchat partner directory (as a customer), StoreCensus and AfterShip auto-lists (Shopify stores only), ScamAdviser page |
+| Cumequoi (cumequoi.com) | Beirut.com feature, 5 Mar 2025, by Tanya Maalouf, plus two Beirut.com posts on X promoting it | Own site only |
+| Secrets Lebanon (secretslebanon.com) | none | Trustpilot, an Academia.edu profile (spam, ignore) |
+| Hush (hush-lb.com) | none | Trustpilot (1 review) |
+| adulttoyslb.com, lebanonsextoy.com, adulttoyslebanon.com, snushublb.com, badroomshop.com, loveaffairlb.com, obeysession.com | none found | StoreCensus list of Lebanese adult-products Shopify stores |
 
-## 📁 الفئة 1: مواقع الدليل اللبنانية (أسهل + أسرع)
+Lesson: one real editorial piece on Beirut.com is the single link that
+separates the top two from the rest. Everything else is profiles.
 
-### 🟢 مجانية — أرسل مباشرة
+## Identity to use everywhere (copy exactly)
 
-| الموقع | الرابط | ملاحظة |
-|--------|--------|---------|
-| Yellow Pages Lebanon | https://www.yellowpages.com.lb | دليل أعمال لبناني قديم — DA عالي |
-| Lebanon Online | https://www.lebanon.com/business | دليل الأعمال |
-| Daleel Madani | https://www.daleelmadani.org | مجتمعي — ضع موقعك في قسم التجارة |
-| Mira Lebanon | https://www.miralebanon.com | إعلانات مجانية |
-| OpenSooq Lebanon | https://lb.opensooq.com | إعلانات مبوبة عربية |
+- Name: `Vexa Toys`
+- Website: `https://vexatoys.com/`
+- Phone / WhatsApp: `+961 76 730 767`
+- Email: the business address, not a personal Gmail
+- Area: Lebanon (service area, no visitable location)
+- Category wording: "Online store, adult wellness products" where a directory
+  has no adult category; "Adult entertainment store" where it does
+- Short description (EN): Vexa Toys is a Lebanese online store for sex toys,
+  vibrators, dildos and lingerie. Plain sealed packaging, delivery across
+  Lebanon, same-day in Beirut, cash on delivery.
+- Short description (AR): فيكسا تويز متجر إلكتروني لبناني للألعاب الجنسية
+  والهزازات والديلدو واللانجري. تغليف عادي مغلق، توصيل إلى كل لبنان، في اليوم
+  نفسه في بيروت، والدفع عند الاستلام.
+- Anchor text, rotate: "Vexa Toys", "vexatoys.com", "Vexa Toys Lebanon",
+  "sex toys in Lebanon" (at most once in three)
 
-**قالب رسالة التسجيل (عربي):**
-```
-الموضوع: طلب إضافة متجر فيكسا إلى دليل الأعمال
+Never claim customer counts, "number one", "first in Lebanon" or "500+
+products" on any listing. They are unverifiable and other shops already
+make the same claims.
 
-السلام عليكم،
-نودّ إضافة متجر فيكسا (vexatoys.com) إلى دليلكم التجاري.
-متجر فيكسا هو متجر إلكتروني لبناني متخصص في منتجات البالغين
-مع التوصيل السري في جميع أنحاء لبنان والدفع عند الاستلام.
-الموقع: https://vexatoys.com
-الواتساب: [رقمك]
-شكراً
-```
+## 1. Profiles and reviews (week 1, all free)
 
----
+| Target | Route | Notes |
+| --- | --- | --- |
+| Google Business Profile | business.google.com/create, Vexa account, private window | No visitable location; service areas by district; category Adult entertainment store. See the session notes for verification. |
+| Trustpilot | Claim the existing page at business.trustpilot.com | Add website, logo, description; ask the next ten customers for a review via a WhatsApp link |
+| Facebook page | facebook.com/pages/create | Website in the About section; category Shopping & Retail |
+| Instagram | Business profile, website in bio | Link in bio is the one link Instagram allows |
+| X (Twitter) | Create `@vexatoys`; the site's Twitter card already names it | Website in profile; Sirr has one |
+| LinkedIn company page | linkedin.com/company/setup/new | Website field; "Retail" industry |
+| Bing Places | bingplaces.com | Imports from the Google profile once that is verified |
+| Apple Business Connect | businessconnect.apple.com | Service-area businesses are accepted; needs the verified Google profile first |
+| Trustprofile | trustprofile.com, register as a webshop | Free tier; Sirr is listed there with a link |
+| ScamAdviser | Claim the vexatoys.com page | Free; replaces the automated "low trust" wording with your details |
+| Sitejabber | sitejabber.com/business | Same as Trustpilot, lower weight |
 
-## 📁 الفئة 2: مدونات وإعلام لبناني وعربي
+## 2. Lebanese directories (weeks 2 and 3, two or three per day, not all at once)
 
-### أرسل محتوى جاهزاً (Guest Post)
+| Directory | Route | Cost | Verified on 18 Nov |
+| --- | --- | --- | --- |
+| AtLebanon | atlebanon.com/create-listing/ | Free; featured is paid | Yes. Lebanese businesses only. Use the Shopping category. |
+| Lebanese Businesses | lebanesebusinesses.com/directory, "Online Stores & Marketplaces" | Free | Site did not resolve from this machine; try from Lebanon |
+| Mafi Wasta | mafiwasta.com/for-business/ | Free tier | Yes. Needs the commercial registration (السجل التجاري), an ID and a field-verifier photo. Only if the business is registered. |
+| Brownbook | brownbook.net/business/add | Free | Form confirmed, fields not visible without an account |
+| Cylex Lebanon | cylex.com | Free | Unverified |
+| Hotfrog | hotfrog.com | Free | Unverified |
+| Cybo | cybo.com, "Add a Business" | Free | Yes, has Lebanon listings |
+| Lebweb | lebweb.com | Unknown | Unverified |
+| Listaaj | listaaj.com | Unknown | Unverified |
+| Soopage Lebanon | lbn.soopage.com | Free | Unverified |
+| Yelleb | yelleb.com/create-business-listing | Paid, 20 USD one-time | Optional; no online-store category visible |
+| Yellow Pages Lebanon, Daleel Madani, LebPages | listed by vendors as Lebanese directories | Unknown | Daleel Madani is a civil-society directory, not a fit. The other two could not be reached; skip unless found. |
 
-| الموقع | الجمهور | نوع المحتوى المقبول |
-|--------|---------|---------------------|
-| Annahar.com (النهار) | لبناني شامل | مقال رأي عن التجارة الإلكترونية في لبنان |
-| Beirut.com | سياحة + نمط حياة بيروت | مقال "أفضل المتاجر الإلكترونية اللبنانية 2026" |
-| Laha Magazine (لها) | مرأة عربية | مقال عن الصحة الزوجية والعلاقات |
-| Sayidaty (سيدتي) | مرأة عربية | مقال عن الحياة الزوجية |
-| Huffington Post Arabia | عربي واسع | تحقيق عن التجارة الإلكترونية في الشرق الأوسط |
-| Entrepreneur Arabic | رواد أعمال عرب | قصة نجاح Vexa Toys |
+Expect some refusals: a directory may decline an adult store even under
+"adult wellness" wording. Note the refusal and move on; do not resubmit
+under a misleading category.
 
-**قالب رسالة Guest Post (عربي):**
-```
-الموضوع: مقال ضيف مقترح — [عنوان المقال]
+## 3. Editorial links (the ones that move rankings)
 
-مرحباً فريق [اسم المجلة]،
+### Beirut.com (highest value, proven for this niche)
 
-أنا من فريق متجر فيكسا (vexatoys.com)، أول متجر إلكتروني للبالغين في لبنان
-مع 1900+ عميل وتوصيل في جميع أنحاء لبنان.
+Beirut.com has published two features on Lebanese sex-toy brands in 2025 and
+promoted them on X. Their advertise page offers written content in English,
+Arabic and French and social posts, with no public prices; contact is
+`info@beirut.com`. Pitch a different angle from the two existing pieces
+(which were "safe space" and "first Arab women-owned brand"):
 
-أقترح مقال ضيف بعنوان:
-"[عنوان المقال]"
+- "Buying sex toys outside Beirut": delivery to Tripoli, Saida, Jounieh,
+  Zahle, with the regions article as the source
+- "What a plain-box delivery actually looks like": the privacy angle, with
+  the delivery and returns policies as proof
+- Bilingual guides: the only Lebanese store with Arabic buying guides for
+  every category
 
-المقال يتناول [موضوع المقال] ويقدم قيمة عملية لقراء [اسم المجلة].
-الكلمات: 1200-1500 | حصري لموقعكم | مع ذِكر واحد لـ vexatoys.com كمرجع.
+Ask whether a feature is editorial or paid, and the price if paid. A paid
+feature that is not marked "sponsored" is still a normal link; one marked
+sponsored gets `rel="sponsored"` and counts for less, so ask before paying.
 
-هل أنتم مهتمون؟ أرسل المسودة خلال 48 ساعة.
+### Other Lebanese media and creators
 
-مع التحية
-```
+- The961, L'Orient Today, Executive: no sex-toy coverage found; low odds,
+  one email each at most
+- Lebanese relationship, wellness or podcast creators on Instagram and
+  YouTube: offer a product for an honest review and a mention of the site.
+  One real creator mention beats ten directories.
+- Marsa Sexual Health Center and Dr Sandrine Atallah's clinic publish
+  sex-education content. They will not link to a shop, but a resources
+  mention is possible if the blog's guides are useful to them. Low odds.
 
-**مقترحات عناوين المقالات (جاهزة للإرسال):**
-1. "كيف غيّرت التجارة الإلكترونية أسلوب التسوق الخاص في لبنان" → Beirut.com
-2. "7 أسرار لحياة زوجية أفضل: ما لا تقوله أحد" → Laha / Sayidaty
-3. "أفضل 10 متاجر إلكترونية لبنانية تستحق الزيارة في 2026" → Annahar
-4. "قصة نجاح: كيف بنينا أول متجر بالغين في لبنان" → Entrepreneur Arabic
+### Partners and suppliers
 
----
+- Ask each supplier or brand whose products are stocked for a "where to buy
+  in Lebanon" or "authorised retailer" mention. No Lebanon store locators
+  were found for Satisfyer, Lovense, We-Vibe or Durex, so this depends on the
+  supplier relationship.
+- Any friendly Lebanese business (lingerie boutique, wellness clinic,
+  delivery partner) with a partners or links page.
 
-## 📁 الفئة 3: مواقع عالمية تقبل المحتوى البالغ
+## 4. Community (ongoing, honest only)
 
-| الموقع | DA | كيف تحصل على الرابط |
-|--------|-----|---------------------|
-| Reddit r/lebanon | - | شارك في النقاشات بشكل طبيعي |
-| Reddit r/sextoys | - | شارك تجارب وأجب على الأسئلة |
-| Trustpilot | 92 | أضف صفحة شركتك وطلب المراجعات |
-| Sitejabber | 78 | نفس Trustpilot |
-| DMOZ alternatives (Best of the Web) | 66 | ادفع رسوم تسجيل صغيرة |
-| Foursquare Business | 89 | أضف موقعك كعمل تجاري |
+- Reddit r/lebanon: answer questions about where to buy, once, as the owner,
+  with the website. No search results found existing threads, so this is a
+  "watch and answer" tactic, not a campaign.
+- Quora: same approach, English and Arabic questions.
 
----
+## What not to do
 
-## 📁 الفئة 4: مواقع المراجعات والمقارنات
+- Fiverr "100 directories" gigs, link packages, private blog networks
+- Submitting all directories in one day
+- Different names or phone numbers across listings
+- Guest posts on unrelated Arabic women's magazines with an adult store link;
+  the August draft suggested Laha, Sayidaty and Annahar. They do not publish
+  adult-retail links, and the pitch burns the contact.
 
-أرسل لهم منتجاتك للمراجعة:
+## Tracking
 
-| الموقع | الجمهور |
-|--------|---------|
-| Top10.com | مقارنات دولية |
-| SexToyCollective.com | مراجعات ألعاب بالغين |
-| Refinery29 (قسم Middle East) | نساء عرب |
+Keep one table (a sheet or this file) with: site, date submitted, status
+(live / pending / refused), listing URL, link type (dofollow / nofollow /
+sponsored). Review it weekly next to Search Console → Links → Top linking
+sites, which starts showing new domains two to six weeks after they go live.
 
-**قالب طلب المراجعة (إنجليزي):**
-```
-Subject: Press Inquiry — Vexa Toys Lebanon (Adult Toy Retailer)
+## Thirty-day target
 
-Hi [Name],
+| By | Done |
+| --- | --- |
+| Day 7 | Google profile created and verification started; Trustpilot claimed; Facebook, Instagram, X, LinkedIn live with the website |
+| Day 14 | Six Lebanese directories submitted; Trustprofile and ScamAdviser claimed |
+| Day 21 | Beirut.com pitched; two creators contacted; suppliers asked |
+| Day 30 | Ten listings live, one editorial link in progress, ten reviews on Trustpilot or Google |
 
-Vexa Toys (vexatoys.com) is Lebanon's leading adult toy retailer —
-1,900+ customers, same-day discreet delivery, cash on delivery.
+## Email drafts
 
-We're the first established adult store serving Lebanon's 6M+ population
-and covering a market that previously had no dedicated local retailer.
+**Beirut.com**
 
-We'd love to be featured in your [section name]. Happy to provide:
-- Product samples for review
-- Founder interview
-- Market data on adult retail in Lebanon
+Subject: Story idea: ordering sex toys outside Beirut
 
-Would you be open to a 15-minute intro call?
+Hello Beirut.com team,
 
-Best,
-Vexa Toys Team
-```
+I run Vexa Toys (vexatoys.com), a Lebanese online store for adult products
+with delivery across the country. You covered Sirr and Cumequoi this year; I
+would like to offer a different angle: what it is like to order from Tripoli,
+Saida, Jounieh or Zahle, where most coverage assumes everyone lives in
+Beirut. We have published a bilingual guide on exactly that, plus Arabic
+buying guides for every category, which no other Lebanese store has.
 
----
+Is this something you would cover editorially, or through your written
+content option? If the latter, please send the rate and whether the piece is
+marked as sponsored.
 
-## 📁 الفئة 5: تكتيكات سريعة (يمكن عملها اليوم)
+[Name], Vexa Toys, +961 76 730 767
 
-### ✅ Google My Business (أهم واحد — مجاني — DA عالي جداً)
-1. اذهب لـ https://business.google.com
-2. أضف "Vexa Toys Lebanon" كنشاط تجاري
-3. اختر فئة: "Adult Store" أو "Online Retailer"
-4. أضف العنوان في بيروت + رقم الهاتف + الموقع
-5. اطلب من العملاء تقييمات Google
+**Supplier or partner**
 
-**يعطيك: رابط Google My Business + ظهور في Google Maps**
+Subject: Listing Vexa Toys as a Lebanon retailer
 
-### ✅ Trustpilot Profile (مجاني — DA 92)
-1. اذهب لـ https://www.trustpilot.com/businesses
-2. سجّل vexatoys.com
-3. أرسل لعملائك الـ 1900+ رابط لكتابة تقييم
+Hello [name],
 
-### ✅ Facebook Business Page
-- أنشئ صفحة رسمية بالموقع في الـ bio
-- Facebook backlink = DA 96
+Vexa Toys (vexatoys.com) stocks [brand or product line] for customers in
+Lebanon. If you keep a "where to buy" or retailer page, could you add us as
+the Lebanon retailer with a link to https://vexatoys.com/? Happy to return
+the mention on our product pages.
 
-### ✅ Instagram Bio Link
-- أضف vexatoys.com في الـ bio
-- Instagram backlink = DA 93
+[Name], Vexa Toys, +961 76 730 767
 
-### ✅ LinkedIn Company Page
-- أنشئ صفحة شركة Vexa Toys
-- LinkedIn backlink = DA 98
+## Sources checked on 18 November 2026
 
----
-
-## 📊 الأولوية والجدول الزمني
-
-| الأسبوع | المهمة | التأثير المتوقع |
-|---------|--------|-----------------|
-| الأسبوع 1 | Google My Business + Trustpilot + LinkedIn | 🔴 عالي جداً |
-| الأسبوع 2 | Yellow Pages Lebanon + Lebanon.com + 2 directories | 🟡 متوسط |
-| الأسبوع 3 | إرسال 3 طلبات Guest Post للمجلات العربية | 🔴 عالي |
-| الأسبوع 4 | Reddit + Foursquare + Sitejabber | 🟡 متوسط |
-| الأسبوع 5-8 | متابعة Guest Posts + طلب مراجعات من العملاء | 🔴 عالي |
-
----
-
-## ⚠️ ما تتجنبه
-
-- ❌ شراء backlinks من مواقع spam
-- ❌ Link exchanges مع مواقع غير ذات صلة
-- ❌ إضافة موقعك لـ 50 directory في يوم واحد (Google يلاحظ)
-- ❌ نص anchor مكرر (استخدم تنويع: "vexatoys.com"، "متجر فيكسا"، "Vexa Toys Lebanon"، "هنا")
-
----
-
-*تم إنشاؤه بواسطة Replit Agent — أغسطس 2026*
+- Beirut.com features: beirut.com/en/760090 (Sirr), beirut.com/en/746147
+  (Cumequoi); advertise page beirut.com/en/advertise
+- StoreCensus Lebanon adult-products list; Trustpilot pages for sirrshop.com,
+  secretslebanon.com, hush-lb.com; trustprofile.com webshop listing for Sirr
+- Directory pages: atlebanon.com, mafiwasta.com/for-business, yelleb.com,
+  brownbook.net/business/add, lebanesebusinesses.com (unreachable), aamax.co
+  and voxire directory round-ups (vendor lists, used only for names)

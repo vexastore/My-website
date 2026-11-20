@@ -23,6 +23,8 @@ The shared Supabase project now has 23 `category_editorial` rows, seeded from th
 
 `docs/sql/2026-11-18-article-sex-toys-outside-beirut.sql` inserts one published row into `articles` (category Advice, slug `sex-toys-delivery-outside-beirut`, English and Arabic markdown), guarded by `WHERE NOT EXISTS` on the slug. The column list mirrors a live row; `legacy_id` uses the `blog:<slug>` pattern. `docs/sql/2026-11-18-article-anal-toys-beginners-guide.sql` inserts a second article the same way (category Product Guides, slug `anal-toys-butt-plugs-beginners-guide-lebanon`).
 
+`docs/sql/2026-11-20-sex-toys-guide-rewrite.sql` rewrites `category_editorial.guide` for `sex-toys` (md5-guarded) and replaces one sentence of `guide_ar` (exact-match guarded), removing the phrase "sex toys in Lebanon" and the "#1" / "500+" claims from the category page.
+
 ## Product reviews and SEO overrides schema (Migration 20260922223000)
 
 The migration `supabase/migrations/20260922223000_product_reviews_and_seo_overrides.sql` introduces:
