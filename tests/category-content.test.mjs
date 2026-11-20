@@ -42,7 +42,7 @@ test('related categories and blog guides only point at routes that exist', async
     '/blog/guides/beginners-guide-adult-toys-couples-lebanon', '/blog/guides/app-controlled-vs-remote-controlled-toys',
     '/blog/guides/rechargeable-vs-battery-vibrators', '/blog/guides/couples-gift-guide-lebanon-2026',
     '/blog/tips/lubricants-guide', '/blog/tips/sex-toy-cleaning-care', '/blog/tips/privacy-guide-buy-adult-toys-lebanon',
-    '/blog/advice/sex-toy-delivery-lebanon', '/blog/advice/sex-toys-in-lebanon-faq',
+    '/blog/advice/sex-toy-delivery-lebanon', '/blog/advice/sex-toys-in-lebanon-guide', // the FAQ post was folded into this hub in 1.7.5
     '/blog/advice/the-importance-of-water-based-lubes-and-silicone-care',
     '/blog/advice/how-to-choose-the-right-couples-toys-for-the-first-time',
   ];

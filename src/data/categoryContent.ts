@@ -91,7 +91,7 @@ const G = {
   care: guide('/blog/tips/sex-toy-cleaning-care', 'Cleaning and care', 'التنظيف والعناية'),
   privacy: guide('/blog/tips/privacy-guide-buy-adult-toys-lebanon', 'Buying adult toys privately in Lebanon', 'شراء منتجات الكبار بخصوصية في لبنان'),
   delivery: guide('/blog/advice/sex-toy-delivery-lebanon', 'How delivery works in Lebanon', 'كيف يعمل التوصيل في لبنان'),
-  faq: guide('/blog/advice/sex-toys-in-lebanon-faq', 'Sex toys in Lebanon: FAQ', 'الألعاب الجنسية في لبنان: أسئلة شائعة'),
+  faq: guide('/blog/advice/sex-toys-in-lebanon-guide', 'Complete buying guide and FAQ', 'الدليل الكامل والأسئلة الشائعة'),
   firstCouples: guide('/blog/advice/how-to-choose-the-right-couples-toys-for-the-first-time', 'Choosing couples toys for the first time', 'اختيار ألعاب الأزواج للمرة الأولى'),
   silicone: guide('/blog/advice/the-importance-of-water-based-lubes-and-silicone-care', 'Water-based lube and silicone care', 'المزلق المائي والعناية بالسيليكون'),
 };
@@ -108,8 +108,8 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
         ar: 'هذه هي التشكيلة الكاملة للألعاب الجنسية في فيكسا تويز، المتجر الإلكتروني للكبار في لبنان. تجمع الهزازات والديلدو وألعاب الأزواج والألعاب الرجالية والألعاب الشرجية ومنتجات BDSM والمزلقات المناسبة لها، لتقارن كل شيء في مكان واحد قبل الطلب.',
       },
       {
-        en: 'Buying sex toys in Lebanon used to mean visiting a shop in Beirut or guessing from an overseas website. Here every product page lists the material, size, power and care instructions, and the order reaches you in a plain sealed box with cash on delivery.',
-        ar: 'كان شراء الألعاب الجنسية في لبنان يعني زيارة محل في بيروت أو التخمين من موقع أجنبي. هنا تعرض كل صفحة منتج المادة والحجم والطاقة وطريقة العناية، ويصلك الطلب في كرتون عادي مغلق مع الدفع عند الاستلام.',
+        en: 'Buying from an online sex shop in Lebanon used to mean guessing from an overseas website or visiting a shop in Beirut. Here every product page lists the material, size, power and care instructions, and the order reaches you in a plain sealed box with cash on delivery.',
+        ar: 'كان الشراء من متجر جنسي أونلاين في لبنان يعني التخمين من موقع أجنبي أو زيارة محل في بيروت. هنا تعرض كل صفحة منتج المادة والحجم والطاقة وطريقة العناية، ويصلك الطلب في كرتون عادي مغلق مع الدفع عند الاستلام.',
       },
     ],
     sections: [

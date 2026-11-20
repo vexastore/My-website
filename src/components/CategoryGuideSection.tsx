@@ -50,6 +50,8 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
   if (!content && !editorial) return null;
 
   const name = categoryName(currentSlug, isArabic);
+  // The home page owns "sex toys in Lebanon" (1.7.4); on /sex-toys the guide headings use the page's own name instead.
+  const isAllToys = currentSlug === 'sex-toys';
   const editorialGuide = editorialGuideFor(editorial, lang);
   // Same selection as the server's FAQPage schema (lib/categoryFaq.ts), so markup and page never drift.
   const faqs = selectCategoryFaqs(lang, editorial, content);
@@ -72,7 +74,9 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
               <div className="lg:col-span-5">
                 <p className="vexa-eyebrow">{isArabic ? 'دليل الشراء' : 'Buying guide'}</p>
                 <h2 className="vexa-h2 mt-2">
-                  {isArabic ? `${name} في لبنان: ما يجب معرفته` : `${name} in Lebanon: what to know`}
+                  {isAllToys
+                    ? (isArabic ? 'المتجر الجنسي الأونلاين في لبنان: ما يجب معرفته' : 'Online sex shop in Lebanon: what to know')
+                    : (isArabic ? `${name} في لبنان: ما يجب معرفته` : `${name} in Lebanon: what to know`)}
                 </h2>
                 <div className="vexa-h2-bar" />
                 <div className="mt-5 space-y-4">
@@ -100,7 +104,9 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
                 {editorialGuide && (
                   <details className="vexa-card group p-5 sm:p-6">
                     <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold text-white">
-                      <span>{isArabic ? `المزيد عن شراء ${name} في لبنان` : `More about buying ${name.toLowerCase()} in Lebanon`}</span>
+                      <span>{isAllToys
+                        ? (isArabic ? 'المزيد عن المتجر الجنسي الأونلاين في لبنان' : 'More about the online sex shop in Lebanon')
+                        : (isArabic ? `المزيد عن شراء ${name} في لبنان` : `More about buying ${name.toLowerCase()} in Lebanon`)}</span>
                       <span aria-hidden="true" className="text-xl font-light text-stone-400 transition-transform group-open:rotate-45">+</span>
                     </summary>
                     <p className="mt-4 whitespace-pre-line text-sm leading-7 text-stone-300">{editorialGuide}</p>
@@ -136,7 +142,9 @@ export const CategoryGuideSection: React.FC<CategoryGuideSectionProps> = ({ onSe
                   className="vexa-card vexa-card-interactive group flex items-center justify-between gap-2 px-4 py-3.5"
                 >
                   <span className="text-sm font-bold text-white">
-                    {isArabic ? `${categoryName(slug, true)} في لبنان` : `${categoryName(slug, false)} in Lebanon`}
+                    {slug === 'sex-toys'
+                      ? (isArabic ? 'المتجر الجنسي الأونلاين في لبنان' : 'Online sex shop in Lebanon')
+                      : (isArabic ? `${categoryName(slug, true)} في لبنان` : `${categoryName(slug, false)} in Lebanon`)}
                   </span>
                   <ArrowIcon size={14} className={`shrink-0 text-vexa-pink transition-transform ${isArabic ? 'group-hover:-translate-x-1' : 'group-hover:translate-x-1'}`} aria-hidden="true" />
                 </a>

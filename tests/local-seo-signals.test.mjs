@@ -65,3 +65,19 @@ test('the exact phrase links to the home page from articles, the bare "sex toys"
   const article = await read('src/routes/blogArticle.tsx');
   assert.ok(article.includes("localizePath(shopSlug === 'sex-toys' ? '/' : `/${shopSlug}`, locale)"), '"Shop what this covers" sends the sex-toys entry home');
 });
+
+test('the /sex-toys category copy no longer spells out the home page phrase and links no retired article (1.7.8)', async () => {
+  const content = await read('src/data/categoryContent.ts');
+  assert.ok(!content.includes('sex-toys-in-lebanon-faq'), 'no link to the FAQ article retired in 1.7.5');
+  const start = content.indexOf("'sex-toys': {");
+  const end = content.indexOf("\n  '", start + 1);
+  const block = content.slice(start, end);
+  assert.ok(block.length > 1000, 'found the sex-toys block');
+  assert.ok(!/sex toys in lebanon/i.test(block), 'English sex-toys copy has no exact phrase');
+  assert.ok(!block.includes('الألعاب الجنسية في لبنان'), 'Arabic sex-toys copy has no exact phrase');
+  const section = await read('src/components/CategoryGuideSection.tsx');
+  assert.ok(section.includes("const isAllToys = currentSlug === 'sex-toys';"), 'guide section special-cases the all-products page');
+  assert.ok(section.includes("'Online sex shop in Lebanon: what to know'"), 'heading');
+  assert.ok(section.includes("'More about the online sex shop in Lebanon'"), 'accordion label');
+  assert.ok(section.includes("slug === 'sex-toys'") && section.includes("'Online sex shop in Lebanon')") && section.includes("'المتجر الجنسي الأونلاين في لبنان'"), 'related-category card for the all-toys page');
+});
