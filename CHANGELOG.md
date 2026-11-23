@@ -3,6 +3,13 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.7.9] - 2026-11-23
+
+### Fixed: cart kept only one category's products
+
+- Adding a product, then opening another category page, emptied the cart of everything not in that category. Category pages seed `ShopContext` with their own products only (the full catalog arrives from `/api/products` after hydration), and the cart reconcile effect in `src/context/ShopContext.tsx` dropped every cart item it could not find in that partial list, then saved the pruned cart. Now a `catalogComplete` flag is set when `/api/products` answers; until then an item missing from the list is kept as it is, and only the full catalog can drop it (product deleted). Stock and variant checks are unchanged for items that are found. Regression test in `tests/category-dropdown.test.mjs`.
+- Package 1.7.9. `CACHE_VERSION` unchanged: no data, schema or cached-state change.
+
 ## [1.7.8] - 2026-11-20
 
 ### One page for "sex toys in Lebanon", last code-side mentions
