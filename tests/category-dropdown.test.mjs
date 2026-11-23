@@ -54,3 +54,14 @@ test('ShopContext navigateToCategoryFn preserves scroll position when already in
     'navigateToCategoryFn must NOT scroll to (0, 0) if already on shop view, preventing jump to top'
   );
 });
+
+test('ShopContext keeps cart items from other categories until the full catalog has loaded (1.7.9)', () => {
+  const code = fs.readFileSync(SHOP_CONTEXT_PATH, 'utf8');
+  // Category pages seed `products` with one category only; the reconcile effect used to drop every
+  // cart item missing from that list, so a cart could only ever hold one category's products.
+  assert.ok(code.includes('const [catalogComplete, setCatalogComplete] = useState(false);'), 'catalogComplete flag exists');
+  assert.ok(code.includes('setProducts(fresh);\n          setCatalogComplete(true);'), 'flag is set when /api/products answers');
+  assert.ok(code.includes('if (!fresh) return catalogComplete ? [] : [item];'), 'missing items are kept while the list is partial');
+  assert.ok(!code.includes('if (!fresh || fresh.stock <= 0) return [];'), 'old unconditional drop is gone');
+  assert.ok(code.includes('}, [products, cartHydrated, catalogComplete]);'), 'effect re-runs when the catalog completes');
+});

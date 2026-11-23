@@ -137,6 +137,10 @@ export const ShopProvider: React.FC<{
   const [cart, setCart] = useState<CartItem[]>([]);
   const [deliveryFee, setDeliveryFee] = useState(DELIVERY_FEE);
   const [cartHydrated, setCartHydrated] = useState(false);
+  // False until /api/products has answered once. Before that, `products` is only the page's seed
+  // (one category's cards, or one product plus related cards), so a cart item from another category
+  // is not in it, and that absence must not be read as "deleted from the catalog".
+  const [catalogComplete, setCatalogComplete] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersHydrated, setOrdersHydrated] = useState(false);
   const [orderStatusSync, setOrderStatusSync] = useState<'idle' | 'loading' | 'ready' | 'error'>('idle');
@@ -185,6 +189,7 @@ export const ShopProvider: React.FC<{
         .then((fresh: Product[]) => {
           if (cancelled) return;
           setProducts(fresh);
+          setCatalogComplete(true);
           setSelectedProduct(current => current ? fresh.find(product => product.id === current.id) ?? null : null);
           setIsProductsLoading(false);
         })
@@ -397,7 +402,11 @@ export const ShopProvider: React.FC<{
       const optionUsed = new Map<string, number>();
       return previous.flatMap(item => {
         const fresh = products.find(product => product.id === item.product.id || product.legacyId === item.product.id);
-        if (!fresh || fresh.stock <= 0) return [];
+        // Not in the list: gone from the catalog only if this list is the whole catalog. A category
+        // page seeds `products` with its own category, so items added elsewhere are missing here
+        // and used to be dropped on every page change (one-category carts, Nov 2026).
+        if (!fresh) return catalogComplete ? [] : [item];
+        if (fresh.stock <= 0) return [];
         const selected = item.selectedVariant || {};
         const valid = (fresh.variants || []).every(variant => {
           const choice = selected[variant.nameEn] ?? selected[variant.name];
@@ -425,7 +434,7 @@ export const ShopProvider: React.FC<{
         return [{ ...item, product: fresh, quantity }];
       });
     });
-  }, [products, cartHydrated]);
+  }, [products, cartHydrated, catalogComplete]);
 
   useEffect(() => {
     fetch('/api/store-settings').then(response => response.ok ? response.json() : null)
