@@ -21,7 +21,7 @@ export const ShoppingInfoSection: React.FC = () => {
       <div className="vexa-container">
         <div className="mb-8 max-w-2xl">
           <p className="vexa-eyebrow">{isArabic ? 'شفافية كاملة' : 'Clear terms'}</p>
-          <h2 className="vexa-h2 mt-2">{isArabic ? 'كل ما تحتاج معرفته قبل الطلب' : 'Everything you need to know before ordering'}</h2>
+          <h2 className="vexa-h2 mt-2">{isArabic ? 'شراء الألعاب الجنسية في لبنان: ما يجب معرفته قبل الطلب' : 'Buying sex toys in Lebanon: what to know before ordering'}</h2>
           <div className="vexa-h2-bar" />
         </div>
 

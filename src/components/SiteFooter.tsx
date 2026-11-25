@@ -68,7 +68,7 @@ export const SiteFooter: React.FC = () => {
               <span className="mt-0.5 text-[10px] font-bold leading-none tracking-[0.32em] text-vexa-pink transition group-hover:brightness-110">TOYS</span>
             </a>
             <a href={localizeHref('/')} className="mt-3 text-xs font-medium text-stone-400 transition hover:text-white">
-              {isArabic ? 'ألعاب ومنتجات للكبار في لبنان' : 'Sex Toys & Adult Toys in Lebanon'}
+              {isArabic ? 'الألعاب الجنسية في لبنان بتوصيل سري' : 'Sex toys in Lebanon, delivered discreetly'}
             </a>
             <p className="mt-2 text-[11px] text-stone-500">
               {isArabic ? 'توصيل إلى كل لبنان، الدفع عند الاستلام' : 'Delivery across all Lebanon, cash on delivery'}

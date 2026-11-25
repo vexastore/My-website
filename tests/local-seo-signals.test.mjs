@@ -10,7 +10,7 @@ test('only the home page carries the "sex toys in Lebanon" heading', async () =>
   const home = await read('src/routes/home.tsx');
   const hero = await read('src/components/HeroSection.tsx');
 
-  assert.match(home, /HERO_HEADING_EN = 'Sex Toys Lebanon \| Discreet Adult Toys'/);
+  assert.match(home, /HERO_HEADING_EN = 'Sex Toys in Lebanon \| Discreet Adult Toys'/);
   // The hero intro names the exact query in its first sentence.
   assert.match(hero, /'Vexa Toys sells sex toys in Lebanon online:/);
 
@@ -28,7 +28,7 @@ test('internal links with the target anchor point at the home page', async () =>
 
   assert.match(about, /href=\{localizeHref\('\/'\)\}[\s\S]{0,400}Browse sex toys in Lebanon/);
   assert.match(quiz, /localizePath\('\/', locale\)[^\n]*Sex Toys in Lebanon/);
-  assert.match(footer, /href=\{localizeHref\('\/'\)\}[\s\S]*Sex Toys & Adult Toys in Lebanon/);
+  assert.match(footer, /href=\{localizeHref\('\/'\)\}[\s\S]*Sex toys in Lebanon, delivered discreetly/);
   assert.match(footer, /Delivery across all Lebanon, cash on delivery/);
 });
 
@@ -80,4 +80,19 @@ test('the /sex-toys category copy no longer spells out the home page phrase and 
   assert.ok(section.includes("'Online sex shop in Lebanon: what to know'"), 'heading');
   assert.ok(section.includes("'More about the online sex shop in Lebanon'"), 'accordion label');
   assert.ok(section.includes("slug === 'sex-toys'") && section.includes("'Online sex shop in Lebanon')") && section.includes("'المتجر الجنسي الأونلاين في لبنان'"), 'related-category card for the all-toys page');
+});
+
+test('the exact phrase points at the home page from every footer and from /about (1.8.0)', async () => {
+  const footer = await read('src/components/SiteFooter.tsx');
+  const i = footer.indexOf("'Sex toys in Lebanon, delivered discreetly'");
+  assert.ok(i > 0, 'footer anchor carries the exact phrase');
+  assert.ok(footer.lastIndexOf("href={localizeHref('/')}", i) > 0, 'that anchor links to the home page');
+  assert.ok(footer.includes("'الألعاب الجنسية في لبنان بتوصيل سري'"), 'Arabic footer anchor carries the Arabic phrase');
+  const about = await read('src/components/About.tsx');
+  const j = about.indexOf("'Browse sex toys in Lebanon'");
+  assert.ok(j > 0 && about.lastIndexOf("href={localizeHref('/')}", j) > 0, '/about sends the phrase to the home page');
+  const info = await read('src/components/ShoppingInfoSection.tsx');
+  assert.ok(info.includes("'Buying sex toys in Lebanon: what to know before ordering'"), 'home-only info heading names the query');
+  const list = await read('src/components/ProductList.tsx');
+  assert.match(list, /\{isHome \? \([\s\S]*?<ShoppingInfoSection \/>/, 'ShoppingInfoSection stays home-only');
 });

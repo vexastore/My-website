@@ -46,7 +46,8 @@ test('ProductList scrolls to products when a category is selected and has scroll
 });
 
 test('ShopContext navigateToCategoryFn preserves scroll position when already in shop view', () => {
-  const code = fs.readFileSync(SHOP_CONTEXT_PATH, 'utf8');
+  // Normalise CRLF: git autocrlf gives the working copy CRLF on Windows and the assertions use "\n".
+  const code = fs.readFileSync(SHOP_CONTEXT_PATH, 'utf8').replace(/\r\n/g, '\n');
 
   // Verify that window.scrollTo(0, 0) is guarded and only triggered when navigating from another view
   assert.ok(
@@ -56,7 +57,7 @@ test('ShopContext navigateToCategoryFn preserves scroll position when already in
 });
 
 test('ShopContext keeps cart items from other categories until the full catalog has loaded (1.7.9)', () => {
-  const code = fs.readFileSync(SHOP_CONTEXT_PATH, 'utf8');
+  const code = fs.readFileSync(SHOP_CONTEXT_PATH, 'utf8').replace(/\r\n/g, '\n');
   // Category pages seed `products` with one category only; the reconcile effect used to drop every
   // cart item missing from that list, so a cart could only ever hold one category's products.
   assert.ok(code.includes('const [catalogComplete, setCatalogComplete] = useState(false);'), 'catalogComplete flag exists');
