@@ -10,16 +10,16 @@ import { FAQ_DATA } from '@/src/data/faq';
 const SITE_URL = 'https://vexatoys.com';
 
 /**
- * Homepage SEO. Focus query: "sex toys lebanon".
+ * Homepage SEO. Focus query: "sex toys in Lebanon" (the exact phrase, with "in").
  * The title, description, H1 (see HeroSection) and intro copy all target it
  * naturally; the rest of the page is a real shopping journey, not keyword copy.
  */
-const SEO_TITLE = 'Sex Toys Lebanon | Discreet Adult Toys | Vexa Toys';
+const SEO_TITLE = 'Sex Toys in Lebanon | Discreet Adult Toys | Vexa Toys';
 const SEO_DESCRIPTION =
   'Shop sex toys in Lebanon at Vexa Toys. Explore vibrators, adult toys and lingerie with discreet packaging, delivery across Lebanon and cash on delivery.';
 
-/** Hero H1 lines, split on "|" by HeroSection: "SEX TOYS LEBANON" / "DISCREET ADULT TOYS". */
-const HERO_HEADING_EN = 'Sex Toys Lebanon | Discreet Adult Toys';
+/** Hero H1 lines, split on "|" by HeroSection: "SEX TOYS IN LEBANON" / "DISCREET ADULT TOYS". */
+const HERO_HEADING_EN = 'Sex Toys in Lebanon | Discreet Adult Toys';
 const HERO_HEADING_AR = 'ألعاب جنسية في لبنان | منتجات للكبار بسرية';
 
 export async function homeMetadata(locale: StoreLocale): Promise<Metadata> {

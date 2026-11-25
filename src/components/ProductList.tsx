@@ -129,7 +129,7 @@ export const ProductList: React.FC = () => {
     : (isArabic ? 'كل الفئات' : 'All categories');
   const pageHeading = activeCategory
     ? getCategoryTitle(activeCategory, isArabic ? 'ar' : 'en')
-    : (seoHeading || (isArabic ? 'ألعاب جنسية في لبنان | منتجات للكبار بسرية' : 'Sex Toys Lebanon | Discreet Adult Toys'));
+    : (seoHeading || (isArabic ? 'ألعاب جنسية في لبنان | منتجات للكبار بسرية' : 'Sex Toys in Lebanon | Discreet Adult Toys'));
 
   // Category routes get a page-specific hero sentence from the structured content.
   const currentCategorySlug = activeCategory

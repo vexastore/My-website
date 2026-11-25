@@ -7,9 +7,9 @@ const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 test('homepage targets "sex toys lebanon" with one title, description and hero heading', async () => {
   const home = await read('src/routes/home.tsx');
 
-  assert.match(home, /SEO_TITLE = 'Sex Toys Lebanon \| Discreet Adult Toys \| Vexa Toys'/);
+  assert.match(home, /SEO_TITLE = 'Sex Toys in Lebanon \| Discreet Adult Toys \| Vexa Toys'/);
   assert.match(home, /Shop sex toys in Lebanon at Vexa Toys\./);
-  assert.match(home, /HERO_HEADING_EN = 'Sex Toys Lebanon \| Discreet Adult Toys'/);
+  assert.match(home, /HERO_HEADING_EN = 'Sex Toys in Lebanon \| Discreet Adult Toys'/);
   assert.match(home, /title: \{ absolute: title \}/);
   assert.match(home, /pageAlternates\('\/', locale\)/);
   // The homepage ships lightweight cards, not the full catalog, and no appended SEO layer.
@@ -22,7 +22,7 @@ test('shared catalog hero splits a page-specific heading into two lines', async 
   const productList = await read('src/components/ProductList.tsx');
 
   assert.match(hero, /interface HeroSectionProps[\s\S]*heading\?: string/);
-  assert.match(hero, /splitHeroHeading\(heading \|\| 'Sex Toys Lebanon \| Discreet Adult Toys'\)/);
+  assert.match(hero, /splitHeroHeading\(heading \|\| 'Sex Toys in Lebanon \| Discreet Adult Toys'\)/);
   assert.match(hero, /<h1[\s\S]*aria-label=\{\[heroHeading\.primary, heroHeading\.secondary\]/);
   assert.match(productList, /activeCategory[\s\S]*getCategoryTitle\(activeCategory/);
   assert.match(productList, /<HeroSection[\s\S]*?heading=\{pageHeading\}[\s\S]*?isHome=\{isHome\}[\s\S]*?\/>/);
@@ -35,7 +35,7 @@ test('adult-toys has persistent crawlable navigation and homepage has descriptiv
 
   assert.match(navbar, /href=\{localizeHref\('\/adult-toys'\)\}[\s\S]*All Adult Toys/);
   assert.match(footer, /slug: 'adult-toys'[\s\S]*en: 'Adult Toys Lebanon'/);
-  assert.match(footer, /href=\{localizeHref\('\/'\)\}[\s\S]*Sex Toys & Adult Toys in Lebanon/);
+  assert.match(footer, /href=\{localizeHref\('\/'\)\}[\s\S]*Sex toys in Lebanon, delivered discreetly/);
   // The storefront shell renders the shared footer, so every view and every SiteFrame page carries these links.
   assert.match(app, /<SiteFooter \/>/);
 });

@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, Banknote, Lock, Truck } from 'lucide-react';
 import { splitArabicHeroHeading, splitHeroHeading } from '../utils/heroHeading';
 
 interface HeroSectionProps {
-  /** Page heading, e.g. "Dildos in Lebanon | Vexa Toys" or "Sex Toys Lebanon | Discreet Adult Toys". */
+  /** Page heading, e.g. "Dildos in Lebanon | Vexa Toys" or "Sex Toys in Lebanon | Discreet Adult Toys". */
   heading?: string;
   /** Homepage variant: intro copy, calls to action and reassurance chips. */
   isHome?: boolean;
@@ -40,7 +40,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ heading, isHome = fals
   const copy = isArabic ? HOME_COPY.ar : HOME_COPY.en;
   const heroHeading = isArabic
     ? splitArabicHeroHeading(heading || 'ألعاب جنسية في لبنان | منتجات للكبار بسرية')
-    : splitHeroHeading(heading || 'Sex Toys Lebanon | Discreet Adult Toys');
+    : splitHeroHeading(heading || 'Sex Toys in Lebanon | Discreet Adult Toys');
   const ArrowIcon = isArabic ? ArrowLeft : ArrowRight;
 
   return (

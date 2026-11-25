@@ -56,7 +56,7 @@ make the same claims.
 | Target | Route | Notes |
 | --- | --- | --- |
 | Google Business Profile | business.google.com/create, Vexa account, private window | No visitable location; service areas by district; category Adult entertainment store. See the session notes for verification. |
-| Trustpilot | Claim the existing page at business.trustpilot.com | Add website, logo, description; ask the next ten customers for a review via a WhatsApp link |
+| Trustpilot | Claimed 29 Oct 2026 (free plan), but the public page was removed by Trustpilot ("goes against our guidelines") with no notice. Case opened with the Content Integrity team on 25 Nov 2026 via the get-in-touch form; registration address completed the same day. Follow up by 5 Dec if no reply. Do not create a second profile. | Once restored: website, logo, description; reviews via a WhatsApp link |
 | Facebook page | facebook.com/pages/create | Website in the About section; category Shopping & Retail |
 | Instagram | Business profile, website in bio | Link in bio is the one link Instagram allows |
 | X (Twitter) | Create `@vexatoys`; the site's Twitter card already names it | Website in profile; Sirr has one |

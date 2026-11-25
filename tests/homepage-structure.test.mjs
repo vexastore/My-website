@@ -6,8 +6,8 @@ import { splitHeroHeading, splitArabicHeroHeading } from '../src/utils/heroHeadi
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('hero heading splitter handles homepage, category and brand-suffixed headings', () => {
-  assert.deepEqual(splitHeroHeading('Sex Toys Lebanon | Discreet Adult Toys'), {
-    primary: 'SEX TOYS LEBANON',
+  assert.deepEqual(splitHeroHeading('Sex Toys in Lebanon | Discreet Adult Toys'), {
+    primary: 'SEX TOYS IN LEBANON',
     secondary: 'DISCREET ADULT TOYS',
   });
   assert.deepEqual(splitHeroHeading('Dildos in Lebanon | Vexa Toys'), {

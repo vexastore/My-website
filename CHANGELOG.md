@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.8.0] - 2026-11-25
+
+### Home page is the exact-phrase page for "sex toys in Lebanon"
+
+- Search Console (3 months to 25 Nov): Google ranks the site at position 9 to 10 for "sex toys in Lebanon", but shows `/about` (174 impressions, 98 of the last 99), `/sex-dolls` and `/sexual-enhancers`; the home page and `/sex-toys` had none. The home title and H1 said "Sex Toys Lebanon" without "in" and the body used the exact phrase once, while `/about` had it as a link plus Lebanon headings. Now `src/routes/home.tsx` title and hero H1 read "Sex Toys in Lebanon | Discreet Adult Toys" (defaults in `HeroSection.tsx` and `ProductList.tsx` follow), the home-only `ShoppingInfoSection.tsx` heading reads "Buying sex toys in Lebanon: what to know before ordering", and the footer's text link to the home page on every page reads "Sex toys in Lebanon, delivered discreetly" (Arabic the same). `/about` already linked the phrase to the home page. Tests updated; new test in `tests/local-seo-signals.test.mjs`.
+- `docs/backlinks-strategy.md`: Trustpilot row records the public profile removal and the Content Integrity case of 25 Nov 2026.
+- Package 1.8.0. `CACHE_VERSION` unchanged: static copy, no cached data.
+
 ## [1.7.9] - 2026-11-23
 
 ### Fixed: cart kept only one category's products

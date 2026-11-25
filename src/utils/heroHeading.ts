@@ -2,7 +2,7 @@
  * Split a page heading into the two hero lines. Kept free of JSX so tests can
  * import it directly.
  *
- * "Sex Toys Lebanon | Discreet Adult Toys" -> SEX TOYS LEBANON / DISCREET ADULT TOYS
+ * "Sex Toys in Lebanon | Discreet Adult Toys" -> SEX TOYS IN LEBANON / DISCREET ADULT TOYS
  * "Dildos in Lebanon | Vexa Toys"          -> DILDOS / IN LEBANON
  */
 const BRAND_SUFFIXES = new Set(['vexa toys', 'vexa toys lebanon', 'متجر فيكسا', 'متجر فيكسا لبنان']);
