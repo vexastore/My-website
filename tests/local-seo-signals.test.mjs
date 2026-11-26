@@ -96,3 +96,18 @@ test('the exact phrase points at the home page from every footer and from /about
   const list = await read('src/components/ProductList.tsx');
   assert.match(list, /\{isHome \? \([\s\S]*?<ShoppingInfoSection \/>/, 'ShoppingInfoSection stays home-only');
 });
+
+test('site-wide schema lists the store profiles as sameAs (1.8.1)', async () => {
+  const root = await read('src/layouts/RootDocument.tsx');
+  assert.match(root, /import \{ SOCIAL_PROFILE_URLS \} from '@\/lib\/socialProfiles'/);
+  assert.match(root, /'@type': 'OnlineStore'[\s\S]*?sameAs: SOCIAL_PROFILE_URLS,/, 'sameAs sits on the OnlineStore node');
+  const profiles = await read('lib/socialProfiles.ts');
+  const urls = [...profiles.matchAll(/url: '(https:\/\/[^']+)'/g)].map(m => m[1]);
+  assert.ok(urls.length >= 4, 'at least four profiles listed');
+  assert.ok(urls.every(u => /^https:\/\/[a-z0-9.-]+\/\S*$/.test(u) && !u.includes('?')), 'absolute https URLs without query strings');
+  assert.equal(new Set(urls).size, urls.length, 'no duplicate profile URLs');
+  for (const host of ['facebook.com', 'instagram.com', 'tiktok.com', 'pinterest.com']) {
+    assert.ok(urls.some(u => u.includes(host)), `${host} present`);
+  }
+  assert.ok(!urls.some(u => u.includes('linkedin.com/in/')), 'no personal LinkedIn profile in the entity sameAs');
+});

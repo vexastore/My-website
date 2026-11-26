@@ -74,7 +74,7 @@ make the same claims.
 | AtLebanon | atlebanon.com/create-listing/ | Free; featured is paid | Yes. Lebanese businesses only. Use the Shopping category. |
 | Lebanese Businesses | lebanesebusinesses.com/directory, "Online Stores & Marketplaces" | Free | Site did not resolve from this machine; try from Lebanon |
 | Mafi Wasta | mafiwasta.com/for-business/ | Free tier | Yes. Needs the commercial registration (السجل التجاري), an ID and a field-verifier photo. Only if the business is registered. |
-| Brownbook | brownbook.net/business/add | Free | Form confirmed, fields not visible without an account |
+| Brownbook | brownbook.net/business/add | Free | Live 26 Nov 2026: brownbook.net/business/56153348/vexa-toys, website link followed (no nofollow), category All Other Miscellaneous Retailers. To do: claim the listing, fix address capitalisation, add logo. |
 | Cylex Lebanon | cylex.com | Free | Unverified |
 | Hotfrog | hotfrog.com | Free | Unverified |
 | Cybo | cybo.com, "Add a Business" | Free | Yes, has Lebanon listings |
@@ -144,6 +144,26 @@ sponsored gets `rel="sponsored"` and counts for less, so ask before paying.
 - Guest posts on unrelated Arabic women's magazines with an adult store link;
   the August draft suggested Laha, Sayidaty and Annahar. They do not publish
   adult-retail links, and the pitch burns the contact.
+
+## Status on 26 November 2026
+
+Checked from here. "Link" means a clickable `<a>` to https://vexatoys.com/ on the public page.
+
+| Where | URL | Live | Link to site | Notes |
+| --- | --- | --- | --- | --- |
+| Brownbook | brownbook.net/business/56153348/vexa-toys | Yes | Yes, followed | Claim it; address capitalisation; logo |
+| Yelleb | yelleb.com/company/354085/Vexa_toys | Yes | Yes, nofollow | Phone present. Name shows "Vexa toys" (lowercase t) |
+| Pinterest | pinterest.com/vexastore72 | Yes | Yes, nofollow | Profile name "Vexastore"; rename to Vexa Toys |
+| about.me | about.me/vexatoys | Yes | No, website is plain text | Add the website as a link field; bio is the privacy policy; cover says "Vexa Store"; Gmail shown |
+| TikTok | tiktok.com/@vexa.toys | Yes | No link found (bio link needs 1,000 followers or a business account) | Mention the site in the bio text |
+| Flickr | flickr.com/photos/205175221@N06 | Yes | No website on the page | Add the website in the profile; low value |
+| Instagram | instagram.com/sex_toys_leb | Yes, 0 posts | Not visible logged out | Add the website in the bio link; handle does not carry the brand name |
+| Facebook | facebook.com/people/Vexa-Toys/… (share/1CPbHKg6Ev) | Yes, as a profile-style page | Not visible logged out | Check the About tab has the website; a Page, not a personal profile, is what directories and schema expect |
+| LinkedIn | linkedin.com/in/vexa-store-379b90448 | Personal profile | Not checkable logged out | This is a person profile named "Vexa Store". Create a company Page named Vexa Toys instead |
+| Hotfrog | hotfrog.com/company/AaHr_NLRckODMz3uwWl5zQ/vexa-toys/beirut/adult-entertainment | Behind a bot check | Not checkable from here | Owner to open it in a normal browser and confirm the website shows |
+| Lebanon Local | lebanonlocal.com/en/claim/vexa-toys | Claim page only, noindex | No | The listing itself was not found; finish the claim or skip |
+| AtLebanon | atlebanon.com/?post_type=ad_listing&p=6535 | 404; search finds nothing | No | Pending moderation or not published. Check the AtLebanon dashboard |
+| Trustpilot | trustpilot.com/review/vexatoys.com | Removed | No | Case open since 25 Nov |
 
 ## Tracking
 

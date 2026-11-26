@@ -3,6 +3,14 @@
 All notable changes to this project are documented here. The project follows
 [Semantic Versioning](https://semver.org/).
 
+## [1.8.1] - 2026-11-26
+
+### Store profiles in the site-wide schema
+
+- New `lib/socialProfiles.ts` lists the store's own live public profiles (Facebook, Instagram, TikTok, Pinterest, about.me); `src/layouts/RootDocument.tsx` adds them as `sameAs` on the `OnlineStore` node of the JSON-LD on every page, so Google ties the profiles to the business entity. The LinkedIn entry (a personal profile named "Vexa Store") and Flickr (no website on it) are left out until fixed; directories stay out, they are citations, not identity pages. Test in `tests/local-seo-signals.test.mjs`.
+- `docs/backlinks-strategy.md`: dated status table of every listing checked on 26 Nov (which give a link, followed or nofollow, which are missing it, which are unpublished), plus the Brownbook row.
+- Package 1.8.1. `CACHE_VERSION` unchanged: static markup, no cached data.
+
 ## [1.8.0] - 2026-11-25
 
 ### Home page is the exact-phrase page for "sex toys in Lebanon"
