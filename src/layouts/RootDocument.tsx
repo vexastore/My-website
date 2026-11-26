@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import MetaPixel from '@/src/components/MetaPixel';
 import { Analytics } from '@vercel/analytics/next';
 import type { StoreLocale } from '@/lib/storeLocaleShared';
+import { SOCIAL_PROFILE_URLS } from '@/lib/socialProfiles';
 
 /**
  * The `<html>` document shared by the two root layouts.
@@ -63,9 +64,11 @@ const jsonLd = {
   '@graph': [
     // OnlineStore is an Organization subtype, so the WebSite publisher link
     // and Google's Organization markup still resolve. Name, phone and service
-    // area match the Google Business Profile exactly.
+    // area match every directory listing exactly; sameAs lists the store's own
+    // public profiles (lib/socialProfiles.ts) so Google ties them to this entity.
     { '@type': 'OnlineStore', '@id': `${BASE}/#organization`, name: 'Vexa Toys', alternateName: 'Vexa Toys Lebanon',
       url: BASE, logo: `${BASE}/vexa-logo.png`, image: `${BASE}/opengraph.jpg`,
+      sameAs: SOCIAL_PROFILE_URLS,
       description: 'Online sex shop for Lebanon: sex toys, vibrators, dildos and lingerie with plain sealed packaging, delivery across Lebanon and cash on delivery.',
       telephone: STORE_PHONE,
       contactPoint: { '@type': 'ContactPoint', contactType: 'customer service', telephone: STORE_PHONE,
